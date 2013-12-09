@@ -25,6 +25,11 @@ var rotator r;
 var vector vc;
 var vector vc2;
 
+//=============================================
+// Sprint System
+//=============================================
+var bool 			iLikeToSprint;
+var bool 			tickToggle;
 
 simulated private function DebugPrint(string sMessage)
 {
@@ -126,6 +131,18 @@ function createTether() {
 	tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
 }
 
+function startSprint()
+{
+	iLikeToSprint = true;
+	tickToggle = true;
+	GroundSpeed *= 2.6;
+}
+
+function endSprint()
+{
+	iLikeToSprint = false;
+	GroundSpeed /= 2.6;
+}
 //these calcs run every tick while tether is active
 //so the code is optimized to reduce
 //variable memory allocation and deallocation
@@ -286,6 +303,35 @@ Simulated Event Tick(float DeltaTime)
 	if (EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering) {
 		tetherCalcs();		//run calcs every tick tether is active
 	}
+
+
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//Prevents Sprint Boost In Air, Remove This Section If Boost Is Required
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	if(iLikeToSprint)
+	{
+		if(Physics == PHYS_Falling)
+		{
+			if(tickToggle)
+			{
+				GroundSpeed /= 2.6;
+				tickToggle = !tickToggle;	
+			}
+		}
+		else
+		{
+			if(!tickToggle)
+			{
+				GroundSpeed *= 2.6;
+				tickToggle = !tickToggle;	
+			}
+		}
+	}
+
+
+	
 }
 
 function AddDefaultInventory()

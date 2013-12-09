@@ -74,7 +74,14 @@ exec function kbuttonUp ()
 {
 	EmberPawn(pawn).DetachTether();
 }
-
+exec function LeftShiftButtonDown()
+{
+	EmberPawn(pawn).startSprint();
+}
+exec function LeftShiftButtonUp ()
+{
+	EmberPawn(pawn).endSprint();
+}
 
 defaultproperties
 {
