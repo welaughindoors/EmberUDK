@@ -26,6 +26,11 @@ var vector vc;
 var vector vc2;
 
 
+simulated private function DebugPrint(string sMessage)
+{
+    GetALocalPlayerController().ClientMessage(sMessage);
+}
+
 simulated event PostBeginPlay()
 {
     super.PostBeginPlay();
@@ -135,7 +140,7 @@ function createTether() {
 //Rama's Tether System Calcs
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
 function tetherCalcs() {
-	
+	local int idunnowhatimdoing;
 	//~~~~~~~~~~~~~~~~~
 	//Beam Source Point
 	//~~~~~~~~~~~~~~~~~
@@ -197,10 +202,10 @@ function tetherCalcs() {
 	//dist between pawn and tether location
 	//see Vsize(vc) below (got rid of unnecessary var)
 	
-	
+	idunnowhatimdoing = tetherlength * 0.2;
         //is the pawn moving beyond allowed current tether length?
         //if so apply corrective force to push pawn back within range
-	if (Vsize(vc) > tetherlength) {
+	if (Vsize(vc) > tetherlength - idunnowhatimdoing) {
 		
                 //determine whether to remove all standard pawn
 	        //animations and just use the Victory animation
@@ -235,8 +240,8 @@ function tetherCalcs() {
 		//1200 is the max velocity the tether system is allowed to force the
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
-		if(vsize(velocity) < 1200){
-			velocity -= vc2 * 50;
+		if(vsize(velocity) < 1300){
+			velocity -= vc2 * 70;
 		}
 		}
 		
@@ -244,7 +249,7 @@ function tetherCalcs() {
 		//apply as much velocity as needed to prevent falling
 		//allows sudden direction changes
 		else {
-			velocity -= vc2 * 50;
+			velocity -= vc2 * 70;
 		}
 	}
 	else {
@@ -405,8 +410,39 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    return true;
 }   
 
+function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector Cross)
+{
+	local float VelocityZ;
+
+	if ( Physics == PHYS_Falling )
+	{
+		TakeFallingDamage();
+	}
+
+	bDodging = true;
+	bReadyToDoubleJump = (JumpBootCharge > 0);
+	VelocityZ = Velocity.Z;
+	Velocity = DodgeSpeed*Dir + (Velocity Dot Cross)*Cross ;
+
+	if ( VelocityZ < -200 )
+		Velocity.Z = VelocityZ + DodgeSpeedZ;
+	else
+		Velocity.Z = DodgeSpeedZ;
+
+//Edit here to control dodge distance
+	Velocity.Z = 75;
+	Velocity.X *= 4;
+	Velocity.Y *= 4;
+
+	CurrentDir = DoubleClickMove;
+	SetPhysics(PHYS_Falling);
+	SoundGroupClass.Static.PlayDodgeSound(self);
+	return true;
+}
+
 defaultproperties
 {
 	SwordState = false
 	tetherMaxLength = 4000
+	MultiJumpBoost=922.0
 }

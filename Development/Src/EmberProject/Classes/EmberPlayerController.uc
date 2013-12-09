@@ -8,6 +8,14 @@ ignores SeePlayer, HearNoise, Bump;
 
    function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
    {
+		if ( (DoubleClickMove == DCLICK_Active) && (Pawn.Physics == PHYS_Falling) )
+			DoubleClickDir = DCLICK_Active;
+		else if ( (DoubleClickMove != DCLICK_None) && (DoubleClickMove < DCLICK_Active) )
+		{
+			if ( EmberPawn(Pawn).Dodge(DoubleClickMove) )
+				DoubleClickDir = DCLICK_Active;
+		}
+
       if( Pawn == None )
       {
          return;
@@ -22,6 +30,7 @@ ignores SeePlayer, HearNoise, Bump;
       Pawn.Acceleration = NewAccel;
 
       CheckJumpOrDuck();
+		Super.ProcessMove(DeltaTime,NewAccel,DoubleClickMove,DeltaRot);
    }
 }
 
@@ -65,6 +74,8 @@ exec function kbuttonUp ()
 {
 	EmberPawn(pawn).DetachTether();
 }
+
+
 defaultproperties
 {
 }

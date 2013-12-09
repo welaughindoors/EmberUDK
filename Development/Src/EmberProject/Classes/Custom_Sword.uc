@@ -35,8 +35,8 @@ simulated state WeaponFiring{
             //If the timer has got above 2, reset the combo.
             if(ComboTimer >= 5 && ComboMove >= 0)
             {
-                if(ComboMove > 1 )
-                    DebugPrint("Combo Reset");
+               if(ComboMove > 1 )
+                   DebugPrint("Combo Reset");
                 ComboMove = 0;
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
@@ -203,7 +203,7 @@ function ComboTimerIncrease()
         if(ComboTimer >= 5)
         {
 
-                DebugPrint("Combo Reset");
+          //      DebugPrint("Combo Reset");
             //Once the anim is done, swap the sword to the sheath socket.
  //           EmberPawn(Owner).SetSwordState(false);  
             ComboTimer = 0;
