@@ -43,6 +43,20 @@ simulated event PostBeginPlay()
    EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
 }
 
+function increaseTether() {
+
+	if (tetherlength > tetherMaxLength) return;
+	tetherlength += 70;
+}
+function decreaseTether() {
+	
+	if (tetherlength <= 384) {
+		tetherlength = 384;
+		return;
+	}
+	tetherlength -= 70;
+}
+
 function detachTether() {
 	
 	curTargetWall = none;
@@ -103,6 +117,8 @@ function createTether() {
 	//get length of tether from starting
 	//position of object and wall
 	tetherlength = vsize(hitLoc - Location);
+	if (tetherlength > 1000) 
+		tetherlength = 1000;
 	//~~~
 	
 	//~~~ Beam UPK Asset Download ~~~ 
@@ -135,13 +151,13 @@ function startSprint()
 {
 	iLikeToSprint = true;
 	tickToggle = true;
-	GroundSpeed *= 2.6;
+	GroundSpeed *= 1.76;
 }
 
 function endSprint()
 {
 	iLikeToSprint = false;
-	GroundSpeed /= 2.6;
+	GroundSpeed /= 1.76;
 }
 //these calcs run every tick while tether is active
 //so the code is optimized to reduce
@@ -316,7 +332,7 @@ Simulated Event Tick(float DeltaTime)
 		{
 			if(tickToggle)
 			{
-				GroundSpeed /= 2.6;
+				GroundSpeed /= 1.76;
 				tickToggle = !tickToggle;	
 			}
 		}
@@ -324,14 +340,14 @@ Simulated Event Tick(float DeltaTime)
 		{
 			if(!tickToggle)
 			{
-				GroundSpeed *= 2.6;
+				GroundSpeed *= 1.76;
 				tickToggle = !tickToggle;	
 			}
 		}
 	}
 
 
-	
+
 }
 
 function AddDefaultInventory()
@@ -484,6 +500,11 @@ function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector C
 	SetPhysics(PHYS_Falling);
 	SoundGroupClass.Static.PlayDodgeSound(self);
 	return true;
+}
+
+simulated function TakeFallingDamage()
+{
+
 }
 
 defaultproperties

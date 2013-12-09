@@ -82,6 +82,14 @@ exec function LeftShiftButtonUp ()
 {
 	EmberPawn(pawn).endSprint();
 }
+exec function increaseTether()
+{
+	EmberPawn(pawn).increaseTether();
+}
+exec function decreaseTether ()
+{
+	EmberPawn(pawn).decreaseTether();
+}
 
 defaultproperties
 {
