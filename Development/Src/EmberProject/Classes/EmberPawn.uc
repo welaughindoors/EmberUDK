@@ -33,6 +33,16 @@ var bool 			iLikeToSprint;
 var bool 			tickToggle;
 var float 			originalSpeed;
 
+
+//=============================================
+// Jump/JetPack System
+//=============================================
+var bool 						jumpActive;
+var ParticleSystemComponent 	jumpEffects;
+var rotator 					jumpRotation;
+var vector 						jumpLocation;
+
+
 simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
@@ -58,6 +68,7 @@ function decreaseTether() {
 	}
 	tetherlength -= 70;
 }
+//ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail'
 
 function detachTether() {
 	
@@ -367,7 +378,11 @@ if(tetherStatusForVel)
 		}
 	}
 
-
+	// if(Physics == PHYS_Walking && jumpActive)
+	// {
+	// 	jumpActive = false;
+	// 	jumpEffects.DeactivateSystem();
+	// }
 
 }
 
@@ -528,6 +543,41 @@ simulated function TakeFallingDamage()
 
 }
 
+function DoDoubleJump( bool bUpdating )
+{
+	if ( !bIsCrouched && !bWantsToCrouch )
+	{
+		if ( !IsLocallyControlled() || AIController(Controller) != None )
+		{
+			MultiJumpRemaining -= 1;
+		}
+		Velocity.Z = JumpZ + (MultiJumpBoost);
+		UTInventoryManager(InvManager).OwnerEvent('MultiJump');
+		SetPhysics(PHYS_Falling);
+		BaseEyeHeight = DoubleJumpEyeHeight;
+		if (!bUpdating)
+		{
+			SoundGroupClass.Static.PlayDoubleJumpSound(self);
+		}
+
+	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
+	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', jumpLocation, jumpRotation, self); 
+	// 	Mesh.AttachComponentToSocket(jumpEffects, 'BackPack');
+
+	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
+	SetTimer(0.05, true, 'disableJumpEffect');
+	}
+}
+
+function disableJumpEffect()
+{
+	if(velocity.z < 255)
+	{
+		jumpEffects.DeactivateSystem();
+		ClearTimer('disableJumpEffect');
+	}
+}
+
 defaultproperties
 {
 	SwordState = false
@@ -535,3 +585,4 @@ defaultproperties
 	tetherMaxLength = 4000
 	MultiJumpBoost=922.0
 }
+//Mesh.AttachComponentToSocket(MyEffect, MySocket);
