@@ -17,6 +17,7 @@ simulated state WeaponFiring{
     
     simulated event BeginState( Name PreviousStateName)
     {
+        DebugPrint("Combo Basic Move");
         //Check if there is any ammo for the current firemode.
         // if(!HasAmmo(CurrentFireMode))
         // {
@@ -40,7 +41,7 @@ simulated state WeaponFiring{
                 ComboMove = 0;
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
-            }
+            }   
             
             //Run the first combo move
             if(Combotimer <= 5 && ComboMove == 0)
@@ -51,6 +52,7 @@ simulated state WeaponFiring{
                 ComboTimer = 0;
                 //Change damage amount
                 InstantHitDamage[1] = 20;
+                InstantHitDamage[0] = 20;
                 //Play our relevant sound
                 PlaySound(Swipe2);
                 //Play the pawn's animation

@@ -59,11 +59,13 @@ function UpdateRotation( float DeltaTime )
 }   
 
 Simulated Event PostBeginPlay() {
+
    //very important line
    super.postbeginplay();
 
    //set Self's worldinfo var
    EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
+
    //SetTimer(0.1, false, 'SetWorldVars');
 }
 exec function kButtonDown()
@@ -73,9 +75,13 @@ exec function kButtonDown()
 exec function kbuttonUp ()
 {
 	EmberPawn(pawn).DetachTether();
+	// EmberPawn(pawn).tetherStatusForVel = true;
 }
 exec function LeftShiftButtonDown()
 {
+	//    local Pawn p;
+	// 	p = Spawn(class'TestPawn');
+	// p.SpawnDefaultController();
 	EmberPawn(pawn).startSprint();
 }
 exec function LeftShiftButtonUp ()
@@ -91,6 +97,23 @@ exec function decreaseTether ()
 	EmberPawn(pawn).decreaseTether();
 }
 
+exec function spawnDummy()
+{
+
+		   local Pawn p;
+		p = Spawn(class'TestPawn');
+	p.SpawnDefaultController();
+}
+Simulated Event Tick(float DeltaTime)
+{
+   	 Super.Tick(DeltaTime);
+	//if(PlayerInput.PressedKeys[0].Find('Q') >= 0) {
+  		// Do something
+  		ClientMessage("hi : " $PlayerInput.PressedKeys[0]);	//	}
+
+}
+
 defaultproperties
 {
 }
+	

@@ -16,7 +16,8 @@ var float 				tetherMaxLength;
 var float				tetherlength;
 var float deltaTimeBoostMultiplier;
 var vector 				prevTetherSourcePos;
-
+var Vector 				tetherVelocity;
+var bool 				tetherStatusForVel;
 //these are optimization vars
 //their values should never be relied on
 //used to reduce variable memory allocation/deallocation
@@ -30,6 +31,7 @@ var vector vc2;
 //=============================================
 var bool 			iLikeToSprint;
 var bool 			tickToggle;
+var float 			originalSpeed;
 
 simulated private function DebugPrint(string sMessage)
 {
@@ -49,9 +51,9 @@ function increaseTether() {
 	tetherlength += 70;
 }
 function decreaseTether() {
-	
-	if (tetherlength <= 384) {
-		tetherlength = 384;
+
+	if (tetherlength <= 300) {
+		tetherlength = 300;
 		return;
 	}
 	tetherlength -= 70;
@@ -59,6 +61,7 @@ function decreaseTether() {
 
 function detachTether() {
 	
+
 	curTargetWall = none;
 	
 	//beam
@@ -116,7 +119,7 @@ function createTether() {
 	
 	//get length of tether from starting
 	//position of object and wall
-	tetherlength = vsize(hitLoc - Location);
+	tetherlength = vsize(hitLoc - Location) * 0.75;
 	if (tetherlength > 1000) 
 		tetherlength = 1000;
 	//~~~
@@ -140,7 +143,7 @@ function createTether() {
 	tetherBeam.ActivateSystem(true);
 	
 	//Beam Source Point
-	Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', tVar, r);
+	Mesh.GetSocketWorldLocationAndRotation('DualWeaponPoint', tVar, r);
 	tetherBeam.SetVectorParameter('TetherSource', tVar);
 	
 	//Beam End
@@ -151,13 +154,18 @@ function startSprint()
 {
 	iLikeToSprint = true;
 	tickToggle = true;
-	GroundSpeed *= 1.76;
+	originalSpeed = GroundSpeed;
+	GroundSpeed *= 2.0;
+
+	if(Physics != PHYS_Falling)
+		velocity *= 2.0;
 }
 
 function endSprint()
 {
 	iLikeToSprint = false;
-	GroundSpeed /= 1.76;
+	// GroundSpeed /= 2.0;
+	GroundSpeed = originalSpeed;
 }
 //these calcs run every tick while tether is active
 //so the code is optimized to reduce
@@ -183,7 +191,7 @@ function tetherCalcs() {
 	//using skeletal mesh editor in UDK
 
 	//dual weapon point is left hand 
-	Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', vc, r);
+	Mesh.GetSocketWorldLocationAndRotation('DualWeaponPoint', vc, r);
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//adjust for Skeletal Mesh Socket Rendered/Actual Location tick delay
@@ -238,6 +246,7 @@ function tetherCalcs() {
 	idunnowhatimdoing = tetherlength * 0.2;
         //is the pawn moving beyond allowed current tether length?
         //if so apply corrective force to push pawn back within range
+
 	if (Vsize(vc) > tetherlength - idunnowhatimdoing) {
 		
                 //determine whether to remove all standard pawn
@@ -273,7 +282,7 @@ function tetherCalcs() {
 		//1200 is the max velocity the tether system is allowed to force the
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
-		if(vsize(velocity) < 1300){
+		if(vsize(velocity) < 1700){
 			velocity -= vc2 * 70;
 		}
 		}
@@ -304,6 +313,8 @@ function tetherCalcs() {
 
 Simulated Event Tick(float DeltaTime)
 {
+
+	 //GetALocalPlayerController().ClientMessage("tick : " $DeltaTime);
    	 Super.Tick(DeltaTime);
 	
 	//for fps issues and keeping things properly up to date
@@ -317,10 +328,18 @@ Simulated Event Tick(float DeltaTime)
 	//=== TETHER ====
 	//pc is ref to controller class
 	if (EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering) {
+		tetherVelocity = velocity;
 		tetherCalcs();		//run calcs every tick tether is active
 	}
 
 
+if(tetherStatusForVel)
+{
+	if(Physics == PHYS_Falling)
+		velocity = tetherVelocity;
+	if(Physics == PHYS_Walking)
+		tetherStatusForVel = false;
+}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//Prevents Sprint Boost In Air, Remove This Section If Boost Is Required
@@ -332,7 +351,8 @@ Simulated Event Tick(float DeltaTime)
 		{
 			if(tickToggle)
 			{
-				GroundSpeed /= 1.76;
+				// GroundSpeed /= 2.0;
+				GroundSpeed = originalSpeed;
 				tickToggle = !tickToggle;	
 			}
 		}
@@ -340,7 +360,8 @@ Simulated Event Tick(float DeltaTime)
 		{
 			if(!tickToggle)
 			{
-				GroundSpeed *= 1.76;
+				originalSpeed = GroundSpeed;
+				GroundSpeed *= 2.0;
 				tickToggle = !tickToggle;	
 			}
 		}
@@ -429,7 +450,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    CamStart = Location;
    CurrentCamOffset = CamOffset;
 
-   DesiredCameraZOffset = (Health > 0) ? 1.3 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
+   DesiredCameraZOffset = (Health > 0) ? 1.5 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
    CameraZOffset = (fDeltaTime < 0.2) ? DesiredCameraZOffset * 5 * fDeltaTime + (1 - 5*fDeltaTime) * CameraZOffset : DesiredCameraZOffset;
    
    if ( Health <= 0 )
@@ -440,7 +461,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
 
    CamStart.Z += CameraZOffset;
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
-   CamDirX *= CurrentCameraScale;
+   CamDirX *= CurrentCameraScale * 1.8;
 
    if ( (Health <= 0) || bFeigningDeath )
    {
@@ -474,32 +495,32 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
 
 function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector Cross)
 {
-	local float VelocityZ;
+// 	local float VelocityZ;
 
-	if ( Physics == PHYS_Falling )
-	{
-		TakeFallingDamage();
-	}
+// 	if ( Physics == PHYS_Falling )
+// 	{
+// 		TakeFallingDamage();
+// 	}
 
-	bDodging = true;
-	bReadyToDoubleJump = (JumpBootCharge > 0);
-	VelocityZ = Velocity.Z;
-	Velocity = DodgeSpeed*Dir + (Velocity Dot Cross)*Cross ;
+// 	bDodging = true;
+// 	bReadyToDoubleJump = (JumpBootCharge > 0);
+// 	VelocityZ = Velocity.Z;
+// 	Velocity = DodgeSpeed*Dir + (Velocity Dot Cross)*Cross ;
 
-	if ( VelocityZ < -200 )
-		Velocity.Z = VelocityZ + DodgeSpeedZ;
-	else
-		Velocity.Z = DodgeSpeedZ;
+// 	if ( VelocityZ < -200 )
+// 		Velocity.Z = VelocityZ + DodgeSpeedZ;
+// 	else
+// 		Velocity.Z = DodgeSpeedZ;
 
-//Edit here to control dodge distance
-	Velocity.Z = 75;
-	Velocity.X *= 4;
-	Velocity.Y *= 4;
+// //Edit here to control dodge distance
+// 	Velocity.Z = 75;
+// 	Velocity.X *= 4;
+// 	Velocity.Y *= 4;
 
-	CurrentDir = DoubleClickMove;
-	SetPhysics(PHYS_Falling);
-	SoundGroupClass.Static.PlayDodgeSound(self);
-	return true;
+// 	CurrentDir = DoubleClickMove;
+// 	SetPhysics(PHYS_Falling);
+// 	SoundGroupClass.Static.PlayDodgeSound(self);
+// 	return true;
 }
 
 simulated function TakeFallingDamage()
@@ -510,6 +531,7 @@ simulated function TakeFallingDamage()
 defaultproperties
 {
 	SwordState = false
+	tetherStatusForVel = false
 	tetherMaxLength = 4000
 	MultiJumpBoost=922.0
 }
