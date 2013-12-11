@@ -558,6 +558,12 @@ function DoDoubleJump( bool bUpdating )
 {
 	// if ( !bIsCrouched && !bWantsToCrouch )
 	// {
+		if(!bUpdating)
+		{
+			disableJetPack();
+			disableJumpEffect(true);
+			return;
+		}
 		if ( !IsLocallyControlled() || AIController(Controller) != None )
 		{
 			MultiJumpRemaining -= 1;
@@ -571,18 +577,32 @@ function DoDoubleJump( bool bUpdating )
 			SoundGroupClass.Static.PlayDoubleJumpSound(self);
 		}
 
+	if(!jumpActive)
+	{
 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
 	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', jumpLocation, jumpRotation, self); 
 	// 	Mesh.AttachComponentToSocket(jumpEffects, 'BackPack');
 
 	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
 	SetTimer(0.05, true, 'disableJumpEffect');
+	SetTimer(0.1, true, 'extendJump');
+		jumpActive = true;
+	}
 	// }
 }
-
-function disableJumpEffect()
+function disableJetPack()
 {
-	if(velocity.z < 255)
+		ClearTimer('extendJump');
+		jumpActive = false;
+}
+
+function extendJump()
+{
+	DoDoubleJump(true);
+}
+function disableJumpEffect(bool force = false)
+{
+	if(velocity.z < 255 || force == true)
 	{
 		jumpEffects.DeactivateSystem();
 		ClearTimer('disableJumpEffect');
@@ -595,5 +615,6 @@ defaultproperties
 	tetherStatusForVel = false
 	tetherMaxLength = 4000
 	MultiJumpBoost=922.0
+	CustomGravityScaling = 1.8
 }
 //Mesh.AttachComponentToSocket(MyEffect, MySocket);
