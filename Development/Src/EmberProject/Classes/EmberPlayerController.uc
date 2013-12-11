@@ -96,7 +96,10 @@ exec function decreaseTether ()
 {
 	EmberPawn(pawn).decreaseTether();
 }
-
+exec function jumpIsRequested()
+{
+	EmberPawn(pawn).DoDoubleJump(true);
+}
 exec function spawnDummy()
 {
 

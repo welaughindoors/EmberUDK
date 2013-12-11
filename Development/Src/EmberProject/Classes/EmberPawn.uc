@@ -41,6 +41,7 @@ var bool 						jumpActive;
 var ParticleSystemComponent 	jumpEffects;
 var rotator 					jumpRotation;
 var vector 						jumpLocation;
+var float 						gravity;
 
 
 simulated private function DebugPrint(string sMessage)
@@ -53,6 +54,7 @@ simulated event PostBeginPlay()
     super.PostBeginPlay();
 
    EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
+   gravity = WorldInfo.GetGravityZ();
 }
 
 function increaseTether() {
@@ -366,6 +368,14 @@ if(tetherStatusForVel)
 				GroundSpeed = originalSpeed;
 				tickToggle = !tickToggle;	
 			}
+			if(velocity.z <= 0)
+			{
+				// gravity = WorldInfo.GetGravityZ();
+				// gravity*= 0.2;
+			// velocity.z -= (velocity.z * 0.6);
+			velocity.z = -350;
+			// DebugPrint("going south" $velocity.z);
+		}
 		}
 		else
 		{
@@ -377,6 +387,7 @@ if(tetherStatusForVel)
 			}
 		}
 	}
+	bReadyToDoubleJump = true;
 
 	// if(Physics == PHYS_Walking && jumpActive)
 	// {
@@ -545,8 +556,8 @@ simulated function TakeFallingDamage()
 
 function DoDoubleJump( bool bUpdating )
 {
-	if ( !bIsCrouched && !bWantsToCrouch )
-	{
+	// if ( !bIsCrouched && !bWantsToCrouch )
+	// {
 		if ( !IsLocallyControlled() || AIController(Controller) != None )
 		{
 			MultiJumpRemaining -= 1;
@@ -566,7 +577,7 @@ function DoDoubleJump( bool bUpdating )
 
 	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
 	SetTimer(0.05, true, 'disableJumpEffect');
-	}
+	// }
 }
 
 function disableJumpEffect()
