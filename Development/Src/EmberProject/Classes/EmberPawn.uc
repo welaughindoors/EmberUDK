@@ -161,7 +161,8 @@ function createTether() {
 	
 	//Beam End
 	tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
-	
+
+
 }
 
 function startSprint()

@@ -5,7 +5,7 @@ var SkeletalMeshComponent weapMesh;
 var name StartSocket, EndSocket;
 var bool LastSwordState;
 var bool NewSwordState;
-var Vector Start, End;
+var Vector Start, Start2, Start3, Mid, End3, End2, End;
 
 
 simulated function PostBeginPlay()
@@ -41,8 +41,13 @@ simulated event SetPosition(UDKPawn Holder)
 simulated function Tick(float DeltaTime)
 {
     //Get the locations of the two sockets on the sword, and save them for later referencing
-    Mesh.GetSocketWorldLocationAndRotation(StartSocket, Start);
-    Mesh.GetSocketWorldLocationAndRotation(EndSocket, End);  
+    Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
+    Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
+    Mesh.GetSocketWorldLocationAndRotation('EndControl 2', End2);  
+    Mesh.GetSocketWorldLocationAndRotation('EndControl 3', End3);  
+    Mesh.GetSocketWorldLocationAndRotation('StartControl 2', Start2);  
+    Mesh.GetSocketWorldLocationAndRotation('StartControl 3', Start3);  
+    Mesh.GetSocketWorldLocationAndRotation('MidControl', Mid);  
     //Check if the sword needs to be changed.  
     ChangeSwordState();
 }

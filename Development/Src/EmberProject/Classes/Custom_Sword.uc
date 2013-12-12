@@ -8,6 +8,12 @@ var int ComboTimer;
 var int ComboMove;
 var SoundCue Swipe1, Swipe2, Swipe3, Swipe4, Sheath;
 
+var vector oldStart, oldStart2, oldStart3, oldEnd, oldEnd2, oldEnd3, oldMid;
+
+
+    //debug properties
+    var bool resetTracers;
+
 simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
@@ -17,7 +23,7 @@ simulated state WeaponFiring{
     
     simulated event BeginState( Name PreviousStateName)
     {
-        DebugPrint("Combo Basic Move");
+        // DebugPrint("Combo Basic Move");
         //Check if there is any ammo for the current firemode.
         // if(!HasAmmo(CurrentFireMode))
         // {
@@ -147,24 +153,49 @@ simulated state WeaponFiring{
     
     function Tick(float DeltaTime)
     {
-        local Vector Start, End;
+        local Vector Start, Start2, Start3, Mid, End3, End2, End;
         //Get the trace locations from your third person weapon mesh
-        End = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).End;
-        Start = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).Start; 
         if(CurrentFireMode == 0)
         { 
+        End = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).End;
+        End2 = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).End2;
+        End3 = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).End3;
+        Start = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).Start; 
+        Start2 = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).Start2; 
+        Start3 = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).Start3; 
+        Mid = Custom_Sword_Attach(EmberPawn(Owner).CurrentWeaponAttachment).Mid; 
             //Trace if in firemode 0, i.e. left click
-            WeaponTrace(End, Start);
+            WeaponTrace(End, Start, Start2, Start3, End2, End3, Mid);
         }
+        else
+            resetTracers = true;
     }
     
-    simulated event WeaponTrace(vector End, vector Start){
+    simulated event WeaponTrace(vector End, vector Start, vector Start2, vector Start3, vector End2, vector End3, vector Mid){
         local vector HitLocation, HitNormal;
         local Actor HitActor;
-        
+        if(!resetTracers)
+        {
+           
+        DrawDebugLine(Start, oldStart, -1, 0, -1, true);
+        DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
+        DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
+        DrawDebugLine(End, oldEnd, -1, 0, -1, true);
+        DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
+        DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
+        DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
+        }
+        else
+         resetTracers = false;
         //Begin the trace from the recieved locations.
         HitActor = Trace(HitLocation, HitNormal, End, Start, true); 
-        
+        oldStart = start;
+        oldStart2 = start2;
+        oldStart3 = start3;
+        oldEnd = end;
+        oldEnd2 = end2;
+        oldEnd3 = end3;
+        oldMid = Mid;
         //Check if the trace collides with an actor.
         if(HitActor != none)
         {
@@ -186,7 +217,6 @@ simulated state WeaponFiring{
     FinishAnim(AnimNodeSequence(SkeletalMeshComponent(Mesh).FindAnimNode(WeaponFireAnim[CurrentFireMode])));
 }
 
-
 function ComboTimerIncrease()
 {
     //Increase the combo timer.
@@ -194,14 +224,16 @@ function ComboTimerIncrease()
     //Check the sword state of the custom pawn.
     if(EmberPawn(Owner).GetSwordState())
     {
-        // if(ComboTimer == 20)  
-        // {
-        //     //If the combo timer is above 4 ticks, play the sheath sound and animation
-        //     PlaySound(Sheath);
-        //     EmberPawn(Instigator).PlayAttack('sheath', 1.8);
+        if(ComboTimer == 5)  
+        {
+            //If the combo timer is above 4 ticks, play the sheath sound and animation
+            // PlaySound(Sheath);
+            // EmberPawn(Instigator).PlayAttack('sheath', 1.8);
 
-        //         DebugPrint("Combo Max");
-        // }
+        // GetALocalPlayerController().ClientMessage("sMessage: " $resetTracers);
+        resetTracers = true;
+                // DebugPrint("Combo Max");
+        }
         if(ComboTimer >= 5)
         {
 
@@ -217,6 +249,7 @@ function ComboTimerIncrease()
 
 DefaultProperties
 {
+
     //This is all of the default stuff that would be set up for first person.
     PlayerViewOffset=(X=0.000000,Y=0.00000,Z=0.000000)
     FiringStatesArray(1) = WeaponFiring
