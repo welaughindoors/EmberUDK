@@ -26,6 +26,22 @@ function AddDefaultInventory( pawn PlayerPawn )
 
 }
 
+// function RestartPlayer(Controller aPlayer)
+
+// {
+
+// super.RestartPlayer(aPlayer);
+
+// `Log("Player restarted");
+
+// playerControllerWORLD = EmberPlayerController(aPlayer);
+
+ 
+
+// playerControllerWORLD.resetMesh();
+
+// }
+
  defaultproperties
 {
    DefaultPawnClass=class'EmberProject.EmberPawn'

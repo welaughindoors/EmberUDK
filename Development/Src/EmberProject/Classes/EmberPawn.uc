@@ -102,7 +102,7 @@ function createTether() {
 	local actor wall;
 	local vector startTraceLoc;
 	//~~~ Trace ~~~
-	
+
 	vc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
 	//vc = Owner.Rotation;
 	
@@ -147,7 +147,7 @@ function createTether() {
 		//of my package download above
 		//In UDK: select asset and right click “copy full path”
 		//paste below
-		ParticleSystem'RamaTetherBeam.tetherBeam', 
+		ParticleSystem'RamaTetherBeam.tetherBeam2', 
 		Location + vect(0, 0, 32) + vc * 48, 
 		// Location,
 		rotator(HitNormal));
@@ -156,11 +156,12 @@ function createTether() {
 	tetherBeam.ActivateSystem(true);
 	
 	//Beam Source Point
-	Mesh.GetSocketWorldLocationAndRotation('DualWeaponPoint', tVar, r);
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', tVar, r);
 	tetherBeam.SetVectorParameter('TetherSource', tVar);
 	
 	//Beam End
 	tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+	
 }
 
 function startSprint()
@@ -204,7 +205,7 @@ function tetherCalcs() {
 	//using skeletal mesh editor in UDK
 
 	//dual weapon point is left hand 
-	Mesh.GetSocketWorldLocationAndRotation('DualWeaponPoint', vc, r);
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//adjust for Skeletal Mesh Socket Rendered/Actual Location tick delay
@@ -296,7 +297,7 @@ function tetherCalcs() {
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
 		if(vsize(velocity) < 1700){
-			velocity -= vc2 * 70;
+			velocity -= vc2 * 35;
 		}
 		}
 		
@@ -304,7 +305,7 @@ function tetherCalcs() {
 		//apply as much velocity as needed to prevent falling
 		//allows sudden direction changes
 		else {
-			velocity -= vc2 * 70;
+			velocity -= vc2 * 50;
 		}
 	}
 	else {
@@ -600,6 +601,7 @@ function extendJump()
 {
 	DoDoubleJump(true);
 }
+
 function disableJumpEffect(bool force = false)
 {
 	if(velocity.z < 255 || force == true)
@@ -611,10 +613,12 @@ function disableJumpEffect(bool force = false)
 
 defaultproperties
 {
+	
 	SwordState = false
 	tetherStatusForVel = false
 	tetherMaxLength = 4000
 	MultiJumpBoost=922.0
-	CustomGravityScaling = 1.8
+	CustomGravityScaling = 1.6
+
 }
 //Mesh.AttachComponentToSocket(MyEffect, MySocket);

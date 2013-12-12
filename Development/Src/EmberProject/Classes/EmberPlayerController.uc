@@ -2,6 +2,21 @@ class EmberPlayerController extends UTPlayerController;
 
 var bool isTethering;
 
+var SkeletalMesh defaultMesh;
+
+var MaterialInterface defaultMaterial0;
+
+var MaterialInterface defaultMaterial1;
+
+var AnimTree defaultAnimTree;
+
+var array<AnimSet> defaultAnimSet;
+
+var AnimNodeSequence defaultAnimSeq;
+
+var PhysicsAsset defaultPhysicsAsset;
+
+
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
@@ -66,7 +81,9 @@ Simulated Event PostBeginPlay() {
    //set Self's worldinfo var
    EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
 
-   //SetTimer(0.1, false, 'SetWorldVars');
+// self.Pawn.Mesh.SetSkeletalMesh(SkeletalMesh'MyPackage.UT3_Male');
+   SetTimer(0.5, false, 'resetMesh');
+   // resetMesh();
 }
 exec function kButtonDown()
 {
@@ -122,7 +139,22 @@ Simulated Event Tick(float DeltaTime)
 
 }
 
+public function resetMesh()
+{
+self.Pawn.Mesh.SetSkeletalMesh(defaultMesh);
+self.Pawn.Mesh.SetMaterial(0,defaultMaterial0);
+self.Pawn.Mesh.SetMaterial(1,defaultMaterial1);
+self.Pawn.Mesh.SetPhysicsAsset(defaultPhysicsAsset );
+self.Pawn.Mesh.AnimSets=defaultAnimSet;
+self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
+}
+
 defaultproperties
 {
+
+defaultMesh=SkeletalMesh'MyPackage.UT3_Male'
+defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
+defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 }
 	
