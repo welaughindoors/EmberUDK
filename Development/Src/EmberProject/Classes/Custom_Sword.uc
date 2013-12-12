@@ -57,8 +57,8 @@ simulated state WeaponFiring{
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
                 //Change damage amount
-                InstantHitDamage[1] = 20;
-                InstantHitDamage[0] = 20;
+                InstantHitDamage[1] = 10;
+                InstantHitDamage[0] = 10;
                 //Play our relevant sound
                 PlaySound(Swipe2);
                 //Play the pawn's animation
@@ -76,7 +76,8 @@ simulated state WeaponFiring{
                 //Same as above IF block
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
-                InstantHitDamage[1] = 30;
+                InstantHitDamage[1] = 15;
+                InstantHitDamage[0] = 15;
                 PlaySound(Swipe3);
                 EmberPawn(Instigator).PlayAttack('Swipe2', 1);
                 SetTimer(0.25, true, 'ComboTimerIncrease');
@@ -90,7 +91,8 @@ simulated state WeaponFiring{
                 //Same as above IF block
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
-                InstantHitDamage[1] = 50;
+                InstantHitDamage[1] = 20;
+                InstantHitDamage[0] = 20;
                 PlaySound(Swipe4);
                 EmberPawn(Instigator).PlayAttack('Swipe3', 1);
                 SetTimer(0.25, true, 'ComboTimerIncrease');
@@ -123,6 +125,7 @@ simulated state WeaponFiring{
     
     simulated event EndState( Name NextStateName ){
         //Reset the array of hit pawns/actors
+        // GetALocalPlayerController().ClientMessage("resetHitAray - EndState");
         HitArray.Length = 0;
         ClearTimer('RefireCheckTimer');
         NotifyWeaponFinishedFiring(CurrentFireMode);
@@ -140,7 +143,8 @@ simulated state WeaponFiring{
         if(ShouldRefire())
         {
             //Check if the controller wants to fire again.
-            HitArray.Length = 0;
+            // GetALocalPlayerController().ClientMessage("resetHitAray - ShouldRefire");
+            // HitArray.Length = 0;
             PlayFireEffects(CurrentFireMode);
             SetTimer(GetFireInterval(CurrentFireMode), false, 'RefireCheckTimer');
             return;
@@ -184,6 +188,7 @@ simulated state WeaponFiring{
         DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
         DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
         DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
+        DrawDebugLine(Start, End, -1, 0, -1, true);
         }
         else
          resetTracers = false;
