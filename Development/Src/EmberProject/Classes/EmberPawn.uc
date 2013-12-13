@@ -379,14 +379,15 @@ if(tetherStatusForVel)
 				GroundSpeed = originalSpeed;
 				tickToggle = !tickToggle;	
 			}
-			if(velocity.z <= 0)
-			{
-				// gravity = WorldInfo.GetGravityZ();
-				// gravity*= 0.2;
-			// velocity.z -= (velocity.z * 0.6);
-			velocity.z = -350;
-			// DebugPrint("going south" $velocity.z);
-		}
+			//Shitty Glide
+		// 	if(velocity.z <= 0)
+		// 	{
+		// 		// gravity = WorldInfo.GetGravityZ();
+		// 		// gravity*= 0.2;
+		// 	// velocity.z -= (velocity.z * 0.6);
+		// 	velocity.z = -350;
+		// 	// DebugPrint("going south" $velocity.z);
+		// }
 		}
 		else
 		{

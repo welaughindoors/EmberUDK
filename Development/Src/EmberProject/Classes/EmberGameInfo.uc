@@ -42,6 +42,9 @@ function AddDefaultInventory( pawn PlayerPawn )
 
 // }
 
+function DrawHUD()
+{
+}
  defaultproperties
 {
    DefaultPawnClass=class'EmberProject.EmberPawn'

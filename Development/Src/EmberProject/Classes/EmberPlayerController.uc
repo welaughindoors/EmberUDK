@@ -147,7 +147,6 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
-
 defaultMesh=SkeletalMesh'MyPackage.UT3_Male'
 defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
 defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
