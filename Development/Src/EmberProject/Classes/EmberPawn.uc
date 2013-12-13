@@ -66,6 +66,11 @@ simulated private function DebugPrint(string sMessage)
     GetALocalPlayerController().ClientMessage(sMessage);
 }
 
+// Not Needed, found out that there's an official code that does the same, even has same name >.<
+// function bool isTimerActive(name tName)
+// {
+// 	return GetTimerCount(tName) != -1 ? true : false;
+// }
 
 //=============================================
 // Null Functions
@@ -310,7 +315,7 @@ function DoDoubleJump( bool bUpdating )
 
 	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
 	SetTimer(0.05, true, 'disableJumpEffect');
-	SetTimer(0.1, true, 'extendJump');
+	// SetTimer(0.1, true, 'extendJump');
 		jumpActive = true;
 	}
 	// }
@@ -347,7 +352,7 @@ function detachTether()
 	}
 	
 	
-	SetPhysics(PHYS_Walking);
+	// SetPhysics(PHYS_Walking);
         //state
 	 EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering = false;
 
@@ -394,9 +399,13 @@ function createTether()
 	
 	//get length of tether from starting
 	//position of object and wall
+	// tetherlength = vsize(hitLoc - Location) * 0.75;
+	// if (tetherlength > 1000) 
+		// tetherlength = 1000;
+
 	tetherlength = vsize(hitLoc - Location) * 0.75;
-	if (tetherlength > 1000) 
-		tetherlength = 1000;
+	if (tetherlength > 500) 
+		tetherlength = 500;
 	//~~~
 	
 	//~~~ Beam UPK Asset Download ~~~ 
@@ -632,7 +641,7 @@ function disableJetPack()
 
 function extendJump()
 {
-	DoDoubleJump(true);
+	// DoDoubleJump(true);
 }
 
 function disableJumpEffect(bool force = false)
@@ -667,7 +676,7 @@ defaultproperties
 	SwordState = false
 	tetherStatusForVel = false
 	tetherMaxLength = 4000
-	MultiJumpBoost=922.0
+	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.6
 
 }
