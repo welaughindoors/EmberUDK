@@ -9,15 +9,15 @@ var PlayerController customPlayerController;
 //=============================================
 // Tether System
 //=============================================
-var actor 				curTargetWall;
-var vector 				wallHitLoc;
-var ParticleSystemComponent 				tetherBeam;
-var float 				tetherMaxLength;
-var float				tetherlength;
-var float deltaTimeBoostMultiplier;
-var vector 				prevTetherSourcePos;
-var Vector 				tetherVelocity;
-var bool 				tetherStatusForVel;
+var actor 					curTargetWall;
+var vector 					wallHitLoc;
+var ParticleSystemComponent tetherBeam;
+var float 					tetherMaxLength;
+var float					tetherlength;
+var float 					deltaTimeBoostMultiplier;
+var vector 					prevTetherSourcePos;
+var Vector 					tetherVelocity;
+var bool 					tetherStatusForVel;
 //these are optimization vars
 //their values should never be relied on
 //used to reduce variable memory allocation/deallocation
@@ -41,7 +41,10 @@ var bool 						jumpActive;
 var ParticleSystemComponent 	jumpEffects;
 var rotator 					jumpRotation;
 var vector 						jumpLocation;
-var float 						gravity;
+var float 						gravityAccel;
+
+var float 						SlowDescentTimer;
+
 
 
 //=============================================
@@ -131,7 +134,7 @@ simulated event PostBeginPlay()
     //Add pawn to world info to be accessed from anywhere
    	EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
    	//Probably not required. 
-   	gravity = WorldInfo.GetGravityZ();
+   	// gravity = WorldInfo.GetGravityZ();
 }
 
 Simulated Event Tick(float DeltaTime)
@@ -199,6 +202,8 @@ Simulated Event Tick(float DeltaTime)
 	}
 	// Probably not required
 	bReadyToDoubleJump = true;
+	if(jumpActive)
+		SlowDescent(DeltaTime);
 
 	// Probably can be removed
 	// if(Physics == PHYS_Walking && jumpActive)
@@ -290,7 +295,7 @@ function DoDoubleJump( bool bUpdating )
 	// {
 		if(!bUpdating)
 		{
-			disableJetPack();
+			// disableJetPack();
 			disableJumpEffect(true);
 			return;
 		}
@@ -316,7 +321,6 @@ function DoDoubleJump( bool bUpdating )
 	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
 	SetTimer(0.05, true, 'disableJumpEffect');
 	// SetTimer(0.1, true, 'extendJump');
-		jumpActive = true;
 	}
 	// }
 }
@@ -577,7 +581,7 @@ function tetherCalcs() {
 		//apply as much velocity as needed to prevent falling
 		//allows sudden direction changes
 		else {
-			velocity -= vc2 * 60;
+			velocity -= vc2 * 95;
 		}
 	}
 	else {
@@ -646,11 +650,40 @@ function extendJump()
 
 function disableJumpEffect(bool force = false)
 {
-	if(velocity.z < 255 || force == true)
+	if(velocity.z < 50 )
 	{
 		jumpEffects.DeactivateSystem();
 		ClearTimer('disableJumpEffect');
+		SlowDescentTimer = 0;
+		jumpActive = true;
+		// SlowDescent();
 	}
+}
+function SlowDescent(float fDeltaTime)
+{
+	if(tetherBeam != none)
+	{
+		jumpActive = false;
+		return;
+	}
+	SlowDescentTimer += fDeltaTime;
+		
+	 	gravityAccel = GetGravityZ();
+        // Scale acceleration to velocity
+      gravityAccel *= 2.0;
+        // addedGravity as a percent of Pawn.GetGravityZ(), 1.0 adds 1 full G of acceleration, 2.0 adds 2 full G's of acceleration, etc, etc, 0.0 adds no acceleration
+      if(SlowDescentTimer < 0.5)
+      {
+      gravityAccel *= 0.45;
+      Velocity.Z -= gravityAccel * fDeltaTime;
+  		}
+  		else
+  		{
+      	gravityAccel *= 0.47;
+      	Velocity.Z += gravityAccel * fDeltaTime;
+  		}
+  		if(physics == PHYS_Walking)
+  			jumpActive = false;
 }
 
 function DoKick()
