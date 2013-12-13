@@ -569,7 +569,7 @@ function tetherCalcs() {
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
 		if(vsize(velocity) < 1700){
-			velocity -= vc2 * 35;
+			velocity -= vc2 * 90;
 		}
 		}
 		
@@ -577,7 +577,7 @@ function tetherCalcs() {
 		//apply as much velocity as needed to prevent falling
 		//allows sudden direction changes
 		else {
-			velocity -= vc2 * 50;
+			velocity -= vc2 * 60;
 		}
 	}
 	else {
