@@ -57,8 +57,8 @@ simulated state WeaponFiring{
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
                 //Change damage amount
-                InstantHitDamage[1] = 10;
                 InstantHitDamage[0] = 10;
+                // InstantHitDamage[0] = 10;
                 //Play our relevant sound
                 PlaySound(Swipe2);
                 //Play the pawn's animation
@@ -76,8 +76,8 @@ simulated state WeaponFiring{
                 //Same as above IF block
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
-                InstantHitDamage[1] = 15;
                 InstantHitDamage[0] = 15;
+                // InstantHitDamage[0] = 15;
                 PlaySound(Swipe3);
                 EmberPawn(Instigator).PlayAttack('Swipe2', 1);
                 SetTimer(0.25, true, 'ComboTimerIncrease');
@@ -91,8 +91,8 @@ simulated state WeaponFiring{
                 //Same as above IF block
                 ClearTimer('ComboTimerIncrease');
                 ComboTimer = 0;
-                InstantHitDamage[1] = 20;
                 InstantHitDamage[0] = 20;
+                // InstantHitDamage[0] = 20;
                 PlaySound(Swipe4);
                 EmberPawn(Instigator).PlayAttack('Swipe3', 1);
                 SetTimer(0.25, true, 'ComboTimerIncrease');
@@ -188,7 +188,7 @@ simulated state WeaponFiring{
         DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
         DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
         DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
-        DrawDebugLine(Start, End, -1, 0, -1, true);
+        // DrawDebugLine(Start, End, -1, 0, -1, true);
         }
         else
          resetTracers = false;
@@ -207,6 +207,8 @@ simulated state WeaponFiring{
             //Check to make sure the actor that is hit hasn't already been counted for during this attack.
             if(HitArray.Find(HitActor) == INDEX_NONE && HitActor.bCanBeDamaged)
             {
+                GetALocalPlayerController().ClientMessage("iDamage: " $InstantHitDamage[CurrentFireMode]);
+                GetALocalPlayerController().ClientMessage("iCount: " $CurrentFireMode);
                 //Do the specified damage to the hit actor, using our custom damage type.
                 HitActor.TakeDamage(InstantHitDamage[CurrentFireMode],
                 Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');

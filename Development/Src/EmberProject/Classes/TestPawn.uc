@@ -3,21 +3,129 @@ class TestPawn extends UTPawn
 var(NPC) SkeletalMeshComponent NPCMesh;
 
 //For when the player takes damage
+// event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+// {
+// 	local float tHealth;
+// 	GetALocalPlayerController().ClientMessage("tPawn Damage -" $Damage);
+// 	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+// 	tHealth = Health - Damage;
+// 	Health = FMax(tHealth, 0);
+// 	GetALocalPlayerController().ClientMessage("tPawn tHealth -" $tHealth);
+
+// 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
+// 	if(Health==0)
+// 	{
+// 		GotoState('Dying');
+// 	}
+// }
+
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
-{
-	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
-	Health = FMax(Health - Damage, 0);
+	{
+		local Vector shotDir, ApplyImpulse,BloodMomentum;
+		local class<UTDamageType> UTDamage;
+		local UTEmit_HitEffect HitEffect;
+	
+	if(damageType == class'DmgType_Crushed')
+		return;
+
+		if ( class'UTGame'.Static.UseLowGore(WorldInfo) )
+		{
+			if ( !bGibbed )
+			{
+				UTDamage = class<UTDamageType>(DamageType);
+				if (UTDamage != None && ShouldGib(UTDamage))
+				{
+					bTearOffGibs = true;
+					bGibbed = true;
+				}
+			}
+			return;
+		}
+
+		// When playing death anim, we keep track of how long since we took that kind of damage.
+		if(DeathAnimDamageType != None)
+		{
+			if(DamageType == DeathAnimDamageType)
+			{
+				TimeLastTookDeathAnimDamage = WorldInfo.TimeSeconds;
+			}
+		}
+
+		if (!bGibbed && (InstigatedBy != None || EffectIsRelevant(Location, true, 0)))
+		{
+			UTDamage = class<UTDamageType>(DamageType);
+
+			// accumulate damage taken in a single tick
+			if ( AccumulationTime != WorldInfo.TimeSeconds )
+			{
+				AccumulateDamage = 0;
+				AccumulationTime = WorldInfo.TimeSeconds;
+			}
+			AccumulateDamage += Damage;
+
+			Health -= Damage;
+			if ( UTDamage != None )
+			{
+				if ( ShouldGib(UTDamage) )
+				{
+					if ( bHideOnListenServer || (WorldInfo.NetMode == NM_DedicatedServer) )
+					{
+						bTearOffGibs = true;
+						bGibbed = true;
+						return;
+					}
+					SpawnGibs(UTDamage, HitLocation);
+				}
+				else if ( !bHideOnListenServer && (WorldInfo.NetMode != NM_DedicatedServer) )
+				{
+					CheckHitInfo( HitInfo, Mesh, Normal(Momentum), HitLocation );
+					UTDamage.Static.SpawnHitEffect(self, Damage, Momentum, HitInfo.BoneName, HitLocation);
+
+					if ( UTDamage.default.bCausesBlood && !class'UTGame'.Static.UseLowGore(WorldInfo)
+						&& ((PlayerController(Controller) == None) || (WorldInfo.NetMode != NM_Standalone)) )
+					{
+						BloodMomentum = Momentum;
+						if ( BloodMomentum.Z > 0 )
+							BloodMomentum.Z *= 0.5;
+						HitEffect = Spawn(GetFamilyInfo().default.BloodEmitterClass,self,, HitLocation, rotator(BloodMomentum));
+						HitEffect.AttachTo(Self,HitInfo.BoneName);
+					}
+
+					if ( (UTDamage.default.DamageOverlayTime > 0) && (UTDamage.default.DamageBodyMatColor != class'UTDamageType'.default.DamageBodyMatColor) )
+					{
+						SetBodyMatColor(UTDamage.default.DamageBodyMatColor, UTDamage.default.DamageOverlayTime);
+					}
+
+					if( (Physics != PHYS_RigidBody) || (Momentum == vect(0,0,0)) || (HitInfo.BoneName == '') )
+						return;
+
+					shotDir = Normal(Momentum);
+					ApplyImpulse = (DamageType.Default.KDamageImpulse * shotDir);
+
+					if( UTDamage.Default.bThrowRagdoll && (Velocity.Z > -10) )
+					{
+						ApplyImpulse += Vect(0,0,1)*DamageType.default.KDeathUpKick;
+					}
+					// AddImpulse() will only wake up the body for the bone we hit, so force the others to wake up
+					Mesh.WakeRigidBody();
+					Mesh.AddImpulse(ApplyImpulse, HitLocation, HitInfo.BoneName, true);
+				}
+			}
+		}
+
 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
+	Health = FMax(Health, 0);	
 	if(Health==0)
 	{
 		GotoState('Dying');
 	}
-}
+	}
+
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
 
-	SetPhysics(PHYS_Flying); // wake the physics up
+	SetPhysics(PHYS_Walking); // wake the physics up
 	
 	// set up collision detection based on mesh's PhysicsAsset
 	CylinderComponent.SetActorCollision(false, false); // disable cylinder collision
@@ -175,8 +283,8 @@ DefaultProperties
 	LedgeCheckThreshold=0.5f
 	
 	// Begin Object Name=CollisionCylinder
-	// 	// CollisionRadius=+00102.00000
-	// 	// CollisionHeight=+00102.800000
+	// // 	// CollisionRadius=+00102.00000
+	// // 	// CollisionHeight=+00102.800000
 	// 	CollisionRadius=+0070.00000
 	// 	CollisionHeight=+0090.00000
 	// End Object
@@ -200,6 +308,7 @@ DefaultProperties
    Mesh=NPCMesh0
    Components.Add(NPCMesh0)
 
-	bRunPhysicsWithNoController=true
+	// bRunPhysicsWithNoController=true
+	ControllerClass=class'UTGame.UTBot'
 
 }

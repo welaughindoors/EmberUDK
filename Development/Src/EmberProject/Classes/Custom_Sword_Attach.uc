@@ -85,7 +85,7 @@ DefaultProperties
     Begin Object Name=SkeletalMeshComponent0
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
     CullDistance=5000.000000
-    Scale=1.0
+    Scale=0.5
     End Object
     weapMesh = SkeletalMeshComponent0
     

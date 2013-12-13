@@ -43,11 +43,20 @@ var rotator 					jumpRotation;
 var vector 						jumpLocation;
 var float 						gravity;
 
+var vector botFoot, oldBotFoot, botLeg, oldBotLeg;
+var int  kickCounter;
 
 simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
 }
+
+
+
+event Landed(vector HitNormal, Actor FloorActor)
+	{
+
+	}
 
 simulated event PostBeginPlay()
 {
@@ -612,9 +621,26 @@ function disableJumpEffect(bool force = false)
 	}
 }
 
+function DoKick()
+{
+	kickCounter++;
+	if(kickCounter < 20)
+		SetTimer(0.1, false, 'DoKick');
+
+		mesh.GetSocketWorldLocationAndRotation('L_JB', botFoot); 
+		mesh.GetSocketWorldLocationAndRotation('L_Knee', botLeg); 
+
+			// if(oldBotLeg == vect(0,0,0))
+	  //       	DrawDebugLine(botFoot, oldBotFoot, -1, 0, -1, true);
+   //      	else
+   //  	    	DrawDebugLine(botLeg, oldBotLeg, -1, 0, -1, true);
+
+    	    	DrawDebugLine(botLeg, botFoot, -1, 0, -1, true);
+}
+
 defaultproperties
 {
-	
+
 	SwordState = false
 	tetherStatusForVel = false
 	tetherMaxLength = 4000

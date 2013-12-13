@@ -16,7 +16,6 @@ var AnimNodeSequence defaultAnimSeq;
 
 var PhysicsAsset defaultPhysicsAsset;
 
-
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
@@ -129,6 +128,11 @@ exec function leftMouseDown()
 exec function leftMouseUp()
 {
 	// Custom_Sword(UTWeapon).resetTracers = true;
+}
+exec function CntrlIsRequested()
+{
+	EmberPawn(pawn).kickCounter = 0;
+	EmberPawn(pawn).DoKick();
 }
 
 public function resetMesh()
