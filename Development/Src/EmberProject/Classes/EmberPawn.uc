@@ -572,6 +572,7 @@ function tetherCalcs() {
 		//1200 is the max velocity the tether system is allowed to force the
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
+		// DebugPrint("v - " $velocity.z);
 		if(vsize(velocity) < 1700){
 			velocity -= vc2 * 90;
 		}
@@ -581,7 +582,10 @@ function tetherCalcs() {
 		//apply as much velocity as needed to prevent falling
 		//allows sudden direction changes
 		else {
-			velocity -= vc2 * 95;
+			if(velocity.z > 1200) //Usually caused by gravity boost from jetpack
+				velocity -= vc2 * 195;
+			else
+				velocity -= vc2 * 95;
 		}
 	}
 	else {
