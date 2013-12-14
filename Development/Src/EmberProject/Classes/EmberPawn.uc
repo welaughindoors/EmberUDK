@@ -38,6 +38,7 @@ var float 			originalSpeed;
 // Jump/JetPack System
 //=============================================
 var bool 						jumpActive;
+var bool 						verticalJumpActive;
 var ParticleSystemComponent 	jumpEffects;
 var rotator 					jumpRotation;
 var vector 						jumpLocation;
@@ -310,11 +311,14 @@ function DoDoubleJump( bool bUpdating )
 			disableJumpEffect(true);
 			return;
 		}
+		if(verticalJumpActive)
+			return;
 		if ( !IsLocallyControlled() || AIController(Controller) != None )
 		{
 			MultiJumpRemaining -= 1;
 		}
 		Velocity.Z = JumpZ + (MultiJumpBoost);
+		verticalJumpActive = true;
 		UTInventoryManager(InvManager).OwnerEvent('MultiJump');
 		SetPhysics(PHYS_Falling);
 		BaseEyeHeight = DoubleJumpEyeHeight;
@@ -495,6 +499,7 @@ function tetherCalcs() {
 	//dual weapon point is left hand 
 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
 	
+    	    	// DrawDebugLine(vc, curTargetWall.Location, -1, 0, -1, true);
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//adjust for Skeletal Mesh Socket Rendered/Actual Location tick delay
 
@@ -586,7 +591,7 @@ function tetherCalcs() {
 		//could also be made into a variable
 		// DebugPrint("v - " $velocity.z);
 		if(vsize(velocity) < 2500){
-			velocity -= vc2 * 150;
+			velocity -= vc2 * 95;
 		}
 		}
 		
@@ -595,10 +600,12 @@ function tetherCalcs() {
 		//allows sudden direction changes
 		else {
 			if(velocity.z > 1200) //Usually caused by gravity boost from jetpack
-				velocity -= vc2 * (150 * (Velocity.z * 0.4));
+				velocity -= vc2 * (95 * (Velocity.z * 0.4));
 			else
-				velocity -= vc2 * 140;
+				velocity -= vc2 * 95;
 		}
+		if(tetherlength > 1000)
+			velocity -= vc2 * (tetherlength * 0.15);
 		// if(location.z <= 75){
 		// 	ll = location;
 		// 	ll.z = 76;
@@ -612,6 +619,10 @@ function tetherCalcs() {
                 //since player velocity is not being actively changed 
                 //by Rama Tether System
                 //TetheringAnimOnly = false;
+
+
+
+
 	}
 	/*
 	//if the target point of tether is attached to moving object
@@ -679,6 +690,7 @@ function disableJumpEffect(bool force = false)
 		ClearTimer('disableJumpEffect');
 		SlowDescentTimer = 0;
 		jumpActive = true;
+		verticalJumpActive = false;
 		// SlowDescent();
 	}
 }
@@ -768,6 +780,10 @@ function DoKick()
     	    	DrawDebugLine(botLeg, botFoot, -1, 0, -1, true);
 }
 
+function preventDoubleJetPack()
+{
+
+}
 defaultproperties
 {
 
