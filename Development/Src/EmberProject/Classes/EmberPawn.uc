@@ -45,6 +45,8 @@ var float 						gravityAccel;
 
 var float 						SlowDescentTimer;
 
+var vector 						movementVector;
+var bool 						startSpaceMarineLanding;
 
 
 //=============================================
@@ -140,7 +142,7 @@ simulated event PostBeginPlay()
 Simulated Event Tick(float DeltaTime)
 {
 	Super.Tick(DeltaTime);
-	
+
 	//for fps issues and keeping things properly up to date
 	//specially for skeletal controllers
 
@@ -202,8 +204,12 @@ Simulated Event Tick(float DeltaTime)
 	}
 	// Probably not required
 	bReadyToDoubleJump = true;
+
 	if(jumpActive)
 		SlowDescent(DeltaTime);
+
+	if(startSpaceMarineLanding)
+		spaceMarineLandingInAction(DeltaTime);
 
 	// Probably can be removed
 	// if(Physics == PHYS_Walking && jumpActive)
@@ -293,6 +299,11 @@ function DoDoubleJump( bool bUpdating )
 {
 	// if ( !bIsCrouched && !bWantsToCrouch )
 	// {
+		if(jumpActive)
+		{
+			spaceMarineLanding();
+			return;
+		}
 		if(!bUpdating)
 		{
 			// disableJetPack();
@@ -472,6 +483,7 @@ function endSprint()
 
 function tetherCalcs() {
 	local int idunnowhatimdoing;
+	local vector ll;
 	//~~~~~~~~~~~~~~~~~
 	//Beam Source Point
 	//~~~~~~~~~~~~~~~~~
@@ -573,8 +585,8 @@ function tetherCalcs() {
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
 		// DebugPrint("v - " $velocity.z);
-		if(vsize(velocity) < 1700){
-			velocity -= vc2 * 90;
+		if(vsize(velocity) < 2500){
+			velocity -= vc2 * 150;
 		}
 		}
 		
@@ -583,10 +595,17 @@ function tetherCalcs() {
 		//allows sudden direction changes
 		else {
 			if(velocity.z > 1200) //Usually caused by gravity boost from jetpack
-				velocity -= vc2 * 195;
+				velocity -= vc2 * (150 * (Velocity.z * 0.4));
 			else
-				velocity -= vc2 * 95;
+				velocity -= vc2 * 140;
 		}
+		// if(location.z <= 75){
+		// 	ll = location;
+		// 	ll.z = 76;
+		// 	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.SetLocation(ll);
+		// 	// setLocation
+		// 	// Velocity.z *= -2;
+		// }
 	}
 	else {
 		//allow all regular ut pawn animations
@@ -688,6 +707,48 @@ function SlowDescent(float fDeltaTime)
   		}
   		if(physics == PHYS_Walking)
   			jumpActive = false;
+}
+
+function spaceMarineLanding()
+{
+   local vector CamStart, HitLocation, HitNormal, CamDirX, CamDirY, CamDirZ, CurrentCamOffset;
+	local vector vPlayer;
+local actor wall;
+	local vector startTraceLoc;
+
+
+
+vPlayer = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
+	//vc = Owner.Rotation;
+	
+	//pawn location + 100 in direction of player camera
+	startTraceLoc = Location + vPlayer ;
+	 
+	//trace only to tether's max length
+	wall = Self.trace(HitLocation, hitNormal, 
+				startTraceLoc + tetherMaxLength * vPlayer, 
+				startTraceLoc
+			);
+
+	CamDirX = location - (HitLocation * 1.2);
+	movementVector = normal(CamDirX);
+	startSpaceMarineLanding = true;
+	// EmberGameInfo(WorldInfo.Game).playerControllerWORLD.MoveSmooth(HitLocation);
+
+}
+
+function spaceMarineLandingInAction(float fDeltaTime)
+{
+	if(physics == PHYS_Walking)
+	{
+		startSpaceMarineLanding = false;
+		return;
+	}
+	// vc = Location - curTargetWall.Location;
+	
+                SetPhysics(PHYS_Falling);
+			velocity -= movementVector * 150;
+		
 }
 
 function DoKick()

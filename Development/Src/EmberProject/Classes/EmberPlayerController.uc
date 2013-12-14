@@ -112,6 +112,7 @@ exec function jumpIsRequested()
 exec function jumpIsDenied()
 {
 	EmberPawn(pawn).DoDoubleJump(false);
+	
 }
 
 exec function spawnDummy()
