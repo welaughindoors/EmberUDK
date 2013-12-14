@@ -7,10 +7,10 @@ function AddDefaultInventory( pawn PlayerPawn )
 {
 	local int i;
 	//-may give the physics gun to non-bots
-	if(PlayerPawn.IsHumanControlled() )
-	{
+	// if(PlayerPawn.IsHumanControlled() )
+	// {
 		PlayerPawn.CreateInventory(class'Custom_Sword',true);
-	}
+	// }
 
 	for (i=0; i<DefaultInventory.Length; i++)
 	{

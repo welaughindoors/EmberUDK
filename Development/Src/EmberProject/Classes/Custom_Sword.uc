@@ -13,12 +13,29 @@ var vector oldStart, oldStart2, oldStart3, oldEnd, oldEnd2, oldEnd3, oldMid;
 
     //debug properties
     var bool resetTracers;
-
+/*
+DebugPrint
+    Easy way to print out debug messages
+    If wanting to print variables, use: DebugPrint("var :" $var);
+*/
 simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
 }
 //Starting our custom firing state
+
+simulated function PostBeginPlay()
+{
+    super.PostBeginPlay();
+    // CylinderComponent.SetActorCollision(false, false); // disable cylinder collision
+    // Mesh.SetActorCollision(true, true); // enable PhysicsAsset collision
+    // Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
+}
+
+/*
+WeaponFiring
+    Main combo system and attack
+*/
 simulated state WeaponFiring{
     
     simulated event BeginState( Name PreviousStateName)
@@ -201,6 +218,9 @@ simulated state WeaponFiring{
         oldEnd2 = end2;
         oldEnd3 = end3;
         oldMid = Mid;
+        GetALocalPlayerController().ClientMessage("hitActor: " $HitActor);
+        // GetALocalPlayerController().ClientMessage("HitLocation: " $HitLocation);
+        // GetALocalPlayerController().ClientMessage("HitNormal: " $HitNormal);
         //Check if the trace collides with an actor.
         if(HitActor != none)
         {
@@ -258,7 +278,7 @@ DefaultProperties
 {
 
     //This is all of the default stuff that would be set up for first person.
-    PlayerViewOffset=(X=0.000000,Y=0.00000,Z=0.000000)
+    // PlayerViewOffset=(X=0.000000,Y=0.00000,Z=0.000000)
     FiringStatesArray(1) = WeaponFiring
     
     //Sets up how much ammo to use per shot.
@@ -271,6 +291,12 @@ DefaultProperties
     //The two sockets we want to track and trace during attacking
     StartSocket = StartControl
     EndSocket = EndControl
+    //     Begin Object Name=CollisionCylinder
+    // // //   // CollisionRadius=+00102.00000
+    // // //   // CollisionHeight=+00102.800000
+    //  CollisionRadius=+0070.00000
+    //  CollisionHeight=+0090.00000
+    // End Object
     
     //More Default stuff
     Begin Object class=AnimNodeSequence Name=MeshSequenceA
@@ -331,5 +357,6 @@ DefaultProperties
     Swipe3 = SoundCue'YourCustomPackage.Cue.Swipe3'
     Swipe4 = SoundCue'YourCustomPackage.Cue.Swipe4'
     Sheath = SoundCue'YourCustomPackage.Cue.sheath'
+
     
 }

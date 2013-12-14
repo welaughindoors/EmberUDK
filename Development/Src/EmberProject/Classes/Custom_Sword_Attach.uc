@@ -81,11 +81,23 @@ DefaultProperties
     StartSocket = StartControl
     EndSocket = EndControl
     
+    bCollideActors = true
+    CollisionType = Collide_BlockAll
+    bCollideWorld=True
+
+    
     //Sword Mesh
     Begin Object Name=SkeletalMeshComponent0
-        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+    SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
     CullDistance=5000.000000
-    Scale=0.5
+    Scale=1.2
+     CastShadow=false
+    bUseAsOccluder=false
+    bAcceptsDecals=false
+    bOverrideAttachmentOwnerVisibility=true
+    bAcceptsDynamicDecals=FALSE
+    bHasPhysicsAssetInstance=true
+    PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
     End Object
     weapMesh = SkeletalMeshComponent0
     

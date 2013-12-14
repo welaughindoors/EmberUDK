@@ -5,6 +5,7 @@ var SkeletalMeshComponent PlayerMeshComponent;
 var AnimNodeSlot AnimSlot;
 var bool SwordState;
 var PlayerController customPlayerController;
+var() SkeletalMeshComponent SwordMesh;
 
 //=============================================
 // Tether System
@@ -66,7 +67,11 @@ End Variables
 //=============================================
 // Utility Functions
 //=============================================
-
+/*
+DebugPrint
+	Easy way to print out debug messages
+	If wanting to print variables, use: DebugPrint("var :" $var);
+*/
 simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
@@ -83,11 +88,8 @@ simulated private function DebugPrint(string sMessage)
 //=============================================
 
 //Disables Landed Function, probably doesn't need disable
-event Landed(vector HitNormal, Actor FloorActor)
-	{
-
-	}
-
+event Landed(vector HitNormal, Actor FloorActor);
+simulated function TakeFallingDamage();
 //Disables double directional dodge. Uncomment to renable.
 function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector Cross)
 {
@@ -119,30 +121,46 @@ function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector C
 // 	return true;
 }
 
-//Disables falling damage
-simulated function TakeFallingDamage()
-{
-
-}
-
 //=============================================
 // System Functions
 //=============================================
 
 
+/*
+PostBeginPlay
+	The initial startup for the class
+*/
 simulated event PostBeginPlay()
 {
-    super.PostBeginPlay();
+
+	super.PostBeginPlay();
 
     //Add pawn to world info to be accessed from anywhere
    	EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
-   	//Probably not required. 
-   	// gravity = WorldInfo.GetGravityZ();
+
+   	//1 second attach skele mesh
+    SetTimer(1.0, false, 'WeaponAttach'); 
 }
 
+/*
+WeaponAttach
+	Attaches a skeleton mesh of the weapon in same place as weapon
+	Used to detect collisions. atm WIP.
+*/
+function WeaponAttach()
+{
+           DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
+    mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+}
+
+/*
+Tick
+	Every ~0.088s, this function is called.
+*/
 Simulated Event Tick(float DeltaTime)
 {
 	Super.Tick(DeltaTime);
+
 
 	//for fps issues and keeping things properly up to date
 	//specially for skeletal controllers
@@ -167,6 +185,8 @@ Simulated Event Tick(float DeltaTime)
 				tetherStatusForVel = false;
 		}
 
+
+	// TODO: Move all this to a function
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Prevents Sprint Boost In Air, Remove This Section If Boost Is Required
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -203,6 +223,7 @@ Simulated Event Tick(float DeltaTime)
 			}
 		}
 	}
+
 	// Probably not required
 	bReadyToDoubleJump = true;
 
@@ -225,6 +246,11 @@ Simulated Event Tick(float DeltaTime)
 // Overrided Functions
 //=============================================
 
+
+/*
+BecomeViewTarget
+	Required for modified Third Person
+*/
 simulated event BecomeViewTarget( PlayerController PC )
 {
    local UTPlayerController UTPC;
@@ -243,6 +269,10 @@ simulated event BecomeViewTarget( PlayerController PC )
    }
 }
 
+/*
+CalcCamera
+	Required for modified Third Person
+*/
 simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV )
 {
    local vector CamStart, HitLocation, HitNormal, CamDirX, CamDirY, CamDirZ, CurrentCamOffset;
@@ -296,6 +326,10 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    return true;
 }   
 
+/*
+DoDoubleJump
+	Jetpack main function
+*/
 function DoDoubleJump( bool bUpdating )
 {
 	// if ( !bIsCrouched && !bWantsToCrouch )
@@ -344,12 +378,17 @@ function DoDoubleJump( bool bUpdating )
 //=============================================
 // Custom Functions
 //=============================================
-
+/*
+increaseTether
+*/
 function increaseTether() 
 {
 	if (tetherlength > tetherMaxLength) return;
 	tetherlength += 70;
 }
+/*
+decreaseTether
+*/
 function decreaseTether() 
 {
 	if (tetherlength <= 300) {
@@ -358,7 +397,9 @@ function decreaseTether()
 	}
 	tetherlength -= 70;
 }
-
+/*
+detachTether
+*/
 function detachTether() 
 {
 	curTargetWall = none;
@@ -380,6 +421,17 @@ function detachTether()
 	//TetheringAnimOnly = false;
 }
 
+/*
+createTether
+	How it works:
+		Starts trace a little infront of character, to target point
+		If the target point is an actor, cancel function //TODO: player grappling
+		else, clear old tethers and prepare for tethering
+		Save wall actor and wall hit location
+		Create tether length
+		Create tether particle
+		Set particle start and end points
+*/
 function createTether() 
 {
 	local vector hitLoc;
@@ -437,7 +489,7 @@ function createTether()
 		//of my package download above
 		//In UDK: select asset and right click “copy full path”
 		//paste below
-		ParticleSystem'RamaTetherBeam.tetherBeam2', //Visual System
+		ParticleSystem'RamaTetherBeam.tetherBeam3', //Visual System
 		Location + vect(0, 0, 32) + vc * 48, 
 		// Location,
 		rotator(HitNormal));
@@ -453,17 +505,27 @@ function createTether()
 	tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
 }
 
+/*
+startSprint
+	Saves original ground speed, and modifies it
+	Also modifies current velocity to do instant transition
+*/
 function startSprint()
 {
 	iLikeToSprint = true;
 	tickToggle = true;
 	originalSpeed = GroundSpeed;
+	//Sprint Speed
 	GroundSpeed *= 2.0;
 
+	//Does instant transition to max sprint speed
 	if(Physics != PHYS_Falling)
 		velocity *= 2.0;
 }
 
+/*
+endSprint
+*/
 function endSprint()
 {
 	iLikeToSprint = false;
@@ -635,25 +697,37 @@ function tetherCalcs() {
 	*/
 }
 
+/*
+AddDefaultInventory
+	Not sure if required as it might've been done somewhere else
+*/
 function AddDefaultInventory()
 {
     //Add the sword as default
     InvManager.DiscardInventory();
     InvManager.CreateInventory(class'Custom_Sword'); //InvManager is the pawn's InventoryManager
 }
-
+/*
+SetSwordState
+	true = hand, false = nowhere
+*/
 exec function SetSwordState(bool inHand)
 {
     //setting our sword state.
     SwordState = inHand; 
 }
-
+/*
+GetSwordState
+*/
 function bool GetSwordState()
 {
     //getting our sword state.
     return SwordState;   
 }
-
+/*
+PostInitAnimTree
+	Allows custom animations.
+*/
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
     //Setting up a reference to our animtree to play custom stuff.
@@ -664,6 +738,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     }
 }
 
+/*
+PlayAttack
+	Play animation at speed
+*/
 exec function PlayAttack(name AnimationName, float AnimationSpeed)
 {
     //The function we use to play our anims
@@ -671,17 +749,28 @@ exec function PlayAttack(name AnimationName, float AnimationSpeed)
     AnimSlot.PlayCustomAnim( AnimationName, AnimationSpeed, 0.00, 0.00, false, true);
 }
 
+/*
+disableJetPack
+*/
 function disableJetPack()
 {
 		ClearTimer('extendJump');
 		jumpActive = false;
 }
 
+/*
+extendJump
+	No longer used. Pending deletion.
+*/
 function extendJump()
 {
 	// DoDoubleJump(true);
 }
 
+/*
+disableJumpEffect
+	When approaching point of incidence on verticle velocity, disable jetpack thrust effect
+*/
 function disableJumpEffect(bool force = false)
 {
 	if(velocity.z < 50 )
@@ -694,6 +783,13 @@ function disableJumpEffect(bool force = false)
 		// SlowDescent();
 	}
 }
+/*
+SlowDescent
+	SpaceMarine like jetpack
+		For about 0.5s (seems like 0.75 in game), a slowed descent after point of incidence on verticle velocity
+			This allows for precision aiming for next grapple
+		Afterwords, until a tetherbeam is created or ground is hit, player speeds up till hits ground
+*/
 function SlowDescent(float fDeltaTime)
 {
 	if(tetherBeam != none)
@@ -721,34 +817,43 @@ function SlowDescent(float fDeltaTime)
   			jumpActive = false;
 }
 
+/*
+spaceMarineLanding
+	Pressing space again during descent will launch player downwards to location.
+	Probably need fix on spacebar, make it do something else or something
+*/
 function spaceMarineLanding()
 {
-   local vector CamStart, HitLocation, HitNormal, CamDirX, CamDirY, CamDirZ, CurrentCamOffset;
-	local vector vPlayer;
-local actor wall;
-	local vector startTraceLoc;
+   	local vector HitLocation, HitNormal, landingLocation, vPlayer, startTraceLoc;
+	local actor wall;
 
-
-
-vPlayer = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
-	//vc = Owner.Rotation;
+	vPlayer = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
 	
 	//pawn location + 100 in direction of player camera
 	startTraceLoc = Location + vPlayer ;
 	 
-	//trace only to tether's max length
+	//trace only to tether's max length. TODO: Set max limit for landing
 	wall = Self.trace(HitLocation, hitNormal, 
 				startTraceLoc + tetherMaxLength * vPlayer, 
 				startTraceLoc
 			);
 
-	CamDirX = location - (HitLocation * 1.2);
-	movementVector = normal(CamDirX);
+	//Make landing location a little further from actual hit location, due to gravity pushing down.
+	//TODO: Fix this cause it's still off
+	landingLocation = location - (HitLocation * 1.2);
+	//Get Unit Vector pointing towards landing site
+	movementVector = normal(landingLocation);
+	//Says we're ready to land
 	startSpaceMarineLanding = true;
-	// EmberGameInfo(WorldInfo.Game).playerControllerWORLD.MoveSmooth(HitLocation);
-
 }
 
+/*
+spaceMarineLandingInAction
+	Plays during tick
+	Launches player towards landing location * 150 units
+	Stops when hitting ground
+		TODO: If aiming up, it'll launch player and never lands, launching you to the moon.
+*/
 function spaceMarineLandingInAction(float fDeltaTime)
 {
 	if(physics == PHYS_Walking)
@@ -762,7 +867,10 @@ function spaceMarineLandingInAction(float fDeltaTime)
 			velocity -= movementVector * 150;
 		
 }
-
+/*
+DoKick
+	Does a tracer for ~ 2.5 seconds from left foot to left knee
+*/
 function DoKick()
 {
 	kickCounter++;
@@ -779,11 +887,6 @@ function DoKick()
 
     	    	DrawDebugLine(botLeg, botFoot, -1, 0, -1, true);
 }
-
-function preventDoubleJetPack()
-{
-
-}
 defaultproperties
 {
 
@@ -793,4 +896,20 @@ defaultproperties
 	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.6
 
+	// Begin Object Class=SkeletalMeshComponent Name=SwordMesh
+ //        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+ //         // bForceUpdateAttachmentsInTick=True
+ //         Scale=2
+ //    End Object
+ //    Components.Add(SwordMesh)
+
+    Begin Object Class=SkeletalMeshComponent Name=MyWeaponSkeletalMesh
+    CastShadow=true
+    bCastDynamicShadow=true
+    bOwnerNoSee=false
+    // LightEnvironment=MyLightEnvironment;
+        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+    Scale=1.2
+  End Object
+  SwordMesh=MyWeaponSkeletalMesh
 }

@@ -16,6 +16,11 @@ var AnimNodeSequence defaultAnimSeq;
 
 var PhysicsAsset defaultPhysicsAsset;
 
+
+/*
+PlayerWalking
+	Used for dodge. Queued for removal
+*/
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
@@ -48,6 +53,9 @@ ignores SeePlayer, HearNoise, Bump;
    }
 }
 
+/*
+UpdateRotation
+*/
 function UpdateRotation( float DeltaTime )
 {
    local Rotator   DeltaRot, newRotation, ViewRotation;
@@ -72,13 +80,16 @@ function UpdateRotation( float DeltaTime )
       Pawn.FaceRotation(NewRotation, deltatime);
 }   
 
+/*
+PostBeginPlay
+*/
 Simulated Event PostBeginPlay() {
    super.postbeginplay();
 
    //set Self's worldinfo var
    EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
 
-   SetTimer(0.5, false, 'resetMesh');
+   SetTimer(0.25, false, 'resetMesh');
 }
 exec function kButtonDown()
 {
@@ -118,10 +129,18 @@ exec function jumpIsDenied()
 exec function spawnDummy()
 {
 	local Pawn p;
+	local vector l;
+	l = Location;
+	l.x += 20;
 	p = Spawn(class'TestPawn');
 	p.SpawnDefaultController();
+	Spawn(class'Custom_Sword', , , l);
 }
 
+/*
+leftMouseDown | leftMouseUp
+	Queued for removal
+*/
 exec function leftMouseDown()
 {
  	// Custom_Sword(UTWeapon).CurrentFireMode = 0;
@@ -136,6 +155,10 @@ exec function CntrlIsRequested()
 	EmberPawn(pawn).DoKick();
 }
 
+/*
+resetMesh
+	Sets custom mesh
+*/
 public function resetMesh()
 {
 self.Pawn.Mesh.SetSkeletalMesh(defaultMesh);
@@ -148,7 +171,8 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
-defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
+//defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
+defaultMesh=SkeletalMesh'CH_LIAM_Cathode.Mesh.SK_CH_LIAM_Cathode'
 defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
 defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
 defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'

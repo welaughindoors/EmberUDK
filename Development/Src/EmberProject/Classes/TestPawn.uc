@@ -1,6 +1,7 @@
 class TestPawn extends UTPawn
       placeable;
 var(NPC) SkeletalMeshComponent NPCMesh;
+// var archetype KActor_Sword SwordArchetype;
 
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
@@ -132,7 +133,45 @@ simulated function PostBeginPlay()
 	Mesh.SetActorCollision(true, true); // enable PhysicsAsset collision
 	Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
 	// SetTimer(0.5, true, 'BrainTimer');
+
+// SpawnDefaultController();
+
+CreateInventory(class'Custom_Sword',false ); 
+// SetTimer(2.0, false, 'WeaponAttach');
 }
+//      function WeaponAttach()
+// {
+//            local Vector SocketLocation;
+// 	local Rotator SocketRotation;
+// 	local KACtor_Sword sword;
+	
+// 	super.PostBeginPlay();
+// 	// AddInventoryItems();
+// 	// `Log("Fomor Soldier has been spawned with Inventory"); //debug
+	
+	
+// 	if (Mesh != None)
+// 	{
+// 		if (SwordArchetype != None && Mesh.GetSocketByName('WeaponPoint') != None)
+// 		{
+// 			Mesh.GetSocketWorldLocationAndRotation('WeaponPoint', SocketLocation, SocketRotation);
+// 			// SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+// 			sword = Spawn(SwordArchetype.class,,, SocketLocation, SocketRotation, SwordArchetype);
+			
+// 			if (sword != None)
+// 			{
+// 				sword.SetBase(Self,, Mesh, 'WeaponPoint');
+// 			}
+// 		}
+// 	}
+
+
+
+
+//            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
+//     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+// }
+
 // function BrainTimer()
 // {
 //   local int OffsetX;
@@ -307,6 +346,24 @@ DefaultProperties
     End Object
    Mesh=NPCMesh0
    Components.Add(NPCMesh0)
+
+
+// Begin Object Class=KActor_Sword Name=MyWeaponSkeletalMesh
+//     CastShadow=true
+//     bCastDynamicShadow=true
+//     bOwnerNoSee=false
+//     // LightEnvironment=MyLightEnvironment;
+//         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+//         BlockNonZeroExtent=true
+// BlockZeroExtent=true
+// BlockActors=true
+// CollideActors=true
+//             BlockZeroExtent=True
+//             bHasPhysicsAssetInstance = true
+//             bCollideComplex=true
+//     // Scale=1.2
+//   End Object
+//   SwordMesh=MyWeaponSkeletalMesh
 
 	// bRunPhysicsWithNoController=true
 	ControllerClass=class'UTGame.UTBot'
