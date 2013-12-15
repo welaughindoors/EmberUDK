@@ -549,7 +549,6 @@ function endSprint()
 
 function tetherCalcs() {
 	local int idunnowhatimdoing;
-	local vector ll;
 	//~~~~~~~~~~~~~~~~~
 	//Beam Source Point
 	//~~~~~~~~~~~~~~~~~

@@ -194,23 +194,29 @@ simulated state WeaponFiring{
     
     simulated event WeaponTrace(vector End, vector Start, vector Start2, vector Start3, vector End2, vector End3, vector Mid){
         local vector HitLocation, HitNormal;
-        local Actor HitActor;
+        local Actor HitActor, HitActor2;
+        local traceHitInfo hitInfo, hitInfo2;
         if(!resetTracers)
         {
-           
-        DrawDebugLine(Start, oldStart, -1, 0, -1, true);
-        DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
-        DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
-        DrawDebugLine(End, oldEnd, -1, 0, -1, true);
-        DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
-        DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
-        DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
+        //Modern           
+        // DrawDebugLine(Start, oldStart, -1, 0, -1, true);
+        // DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
+        // DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
+        // DrawDebugLine(End, oldEnd, -1, 0, -1, true);
+        // DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
+        // DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
+        // DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
+        //BS
         // DrawDebugLine(Start, End, -1, 0, -1, true);
+        //Sword Edge
+        // DrawDebugLine(Start, Mid, -1, 0, -1, true);
+        // DrawDebugLine(Mid, End, -1, 0, -1, true);
         }
         else
          resetTracers = false;
         //Begin the trace from the recieved locations.
-        HitActor = Trace(HitLocation, HitNormal, End, Start, true); 
+        HitActor = Trace(HitLocation, HitNormal, End, Mid, true, , hitInfo); 
+        HitActor2 = Trace(HitLocation, HitNormal, Start, Mid, true, , hitInfo2); 
         oldStart = start;
         oldStart2 = start2;
         oldStart3 = start3;
@@ -218,9 +224,32 @@ simulated state WeaponFiring{
         oldEnd2 = end2;
         oldEnd3 = end3;
         oldMid = Mid;
-        GetALocalPlayerController().ClientMessage("hitActor: " $HitActor);
+        // GetALocalPlayerController().ClientMessage("hitActor: " $HitActor);
+        // GetALocalPlayerController().ClientMessage("hitInfo: " $hitInfo.item );
+        // GetALocalPlayerController().ClientMessage("hitActor: " $HitActor);
         // GetALocalPlayerController().ClientMessage("HitLocation: " $HitLocation);
         // GetALocalPlayerController().ClientMessage("HitNormal: " $HitNormal);
+
+        // hitInfo.item == 0 ? DebugPrint("SwordHit") : ;
+        // hitInfo2.item == 0 ? DebugPrint("SwordHit") : ;
+
+        /*
+        hitInfo.item == 0 ? TestPawn(HitActor).SwordGotHit(): ;
+        hitInfo2.item == 0 ? TestPawn(HitActor2).SwordGotHit() : ;
+        */
+        if(hitInfo.Item == 0)
+        {
+        DebugPrint("SwordHit");
+                TestPawn(HitActor).SwordGotHit();
+        }
+        else if (hitInfo2.Item == 0)
+        {
+
+        DebugPrint("SwordHit");
+                TestPawn(HitActor2).SwordGotHit();
+        }
+        // if(Hitinfo.item == 0)
+            // DebugPrint("Sword Hit");
         //Check if the trace collides with an actor.
         if(HitActor != none)
         {
@@ -235,7 +264,25 @@ simulated state WeaponFiring{
                 AmmoCount -= ShotCost[CurrentFireMode];
                 //Add them to the hit array, so we don't hit them twice in one motion.
                 HitArray.AddItem(HitActor);
+                // TestPawn(HitActor).SwordGotHit();
             }
+        }
+        else if ( HitActor2 != none)
+        {
+          //Check to make sure the actor that is hit hasn't already been counted for during this attack.
+            if(HitArray.Find(HitActor2) == INDEX_NONE && HitActor2.bCanBeDamaged)
+            {
+                GetALocalPlayerController().ClientMessage("iDamage: " $InstantHitDamage[CurrentFireMode]);
+                GetALocalPlayerController().ClientMessage("iCount: " $CurrentFireMode);
+                //Do the specified damage to the hit actor, using our custom damage type.
+                HitActor2.TakeDamage(InstantHitDamage[CurrentFireMode],
+                Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+                AmmoCount -= ShotCost[CurrentFireMode];
+
+                //Add them to the hit array, so we don't hit them twice in one motion.
+                HitArray.AddItem(HitActor2);
+                // TestPawn(HitActor2).SwordGotHit();
+            }   
         }
     }
     
@@ -357,6 +404,8 @@ DefaultProperties
     Swipe3 = SoundCue'YourCustomPackage.Cue.Swipe3'
     Swipe4 = SoundCue'YourCustomPackage.Cue.Swipe4'
     Sheath = SoundCue'YourCustomPackage.Cue.sheath'
+
+    CollisionType=COLLIDE_BlockAll
 
     
 }
