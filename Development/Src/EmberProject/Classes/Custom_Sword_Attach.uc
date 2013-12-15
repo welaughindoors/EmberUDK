@@ -97,8 +97,9 @@ DefaultProperties
     bOverrideAttachmentOwnerVisibility=true
     bAcceptsDynamicDecals=FALSE
     bHasPhysicsAssetInstance=true
-    CollisionType=COLLIDE_BlockAll
     PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
+// Rotation=(Pitch=16384 ,Yaw=16384 )
+    // Rotation=(Pitch=,Yaw=0,Roll=0)
     End Object
     weapMesh = SkeletalMeshComponent0
     
@@ -107,7 +108,6 @@ DefaultProperties
     MuzzleFlashSocket=none
     MuzzleFlashLightClass=none
     MuzzleFlashDuration=0
-CollisionType=COLLIDE_BlockAll
 
     //Our sword state default setting
     LastSwordState = true

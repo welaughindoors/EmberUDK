@@ -13,6 +13,7 @@ var() SkeletalMeshComponent SwordMesh;
 var actor 					curTargetWall;
 var vector 					wallHitLoc;
 var ParticleSystemComponent tetherBeam;
+var ParticleSystemComponent tetherBeam2;
 var float 					tetherMaxLength;
 var float					tetherlength;
 var float 					deltaTimeBoostMultiplier;
@@ -149,8 +150,8 @@ WeaponAttach
 */
 function WeaponAttach()
 {
-           DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
-    mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+           // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
+    // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
 }
 
 /*
@@ -410,7 +411,11 @@ function detachTether()
 		tetherBeam.DeactivateSystem();
 		tetherBeam = none;
 	}
-	
+		if(tetherBeam2 != none){
+		tetherBeam2.SetHidden(true);
+		tetherBeam2.DeactivateSystem();
+		tetherBeam2 = none;
+	}
 	
 	// SetPhysics(PHYS_Walking);
         //state
@@ -489,7 +494,18 @@ function createTether()
 		//of my package download above
 		//In UDK: select asset and right click “copy full path”
 		//paste below
-		ParticleSystem'RamaTetherBeam.tetherBeam3', //Visual System
+		ParticleSystem'RamaTetherBeam.tetherBeam2', //Visual System
+		Location + vect(0, 0, 32) + vc * 48, 
+		// Location,
+		rotator(HitNormal));
+
+	tetherBeam2 = WorldInfo.MyEmitterPool.SpawnEmitter(
+
+		//change name to match your imported version 
+		//of my package download above
+		//In UDK: select asset and right click “copy full path”
+		//paste below
+		ParticleSystem'RamaTetherBeam.tetherBeam2', //Visual System
 		Location + vect(0, 0, 32) + vc * 48, 
 		// Location,
 		rotator(HitNormal));
@@ -503,6 +519,17 @@ function createTether()
 	
 	//Beam End
 	tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+
+
+	tetherBeam2.SetHidden(false);
+	tetherBeam2.ActivateSystem(true);
+	
+	//Beam Source Point
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', tVar, r);
+	tetherBeam2.SetVectorParameter('TetherSource', tVar);
+	
+	//Beam End
+	tetherBeam2.SetVectorParameter('TetherEnd', hitLoc);	
 }
 
 /*
@@ -585,6 +612,8 @@ function tetherCalcs() {
 
 	//update beam based on on skeletal mesh socket
 	tetherBeam.SetVectorParameter('TetherSource', vc);
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
+	tetherBeam2.SetVectorParameter('TetherSource', vc2);
 	
 	//save prev tick pos to see change in position
 	prevTetherSourcePos = vc;
@@ -909,6 +938,7 @@ defaultproperties
     // LightEnvironment=MyLightEnvironment;
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
     Scale=1.2
+// Rotation=(Pitch=16384 ,Yaw=16384 )
   End Object
   SwordMesh=MyWeaponSkeletalMesh
 }
