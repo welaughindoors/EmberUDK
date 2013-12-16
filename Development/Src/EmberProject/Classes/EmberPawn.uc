@@ -58,6 +58,12 @@ var bool 						startSpaceMarineLanding;
 var vector botFoot, oldBotFoot, botLeg, oldBotLeg;
 var int  kickCounter;
 
+
+//=============================================
+// Animations
+//=============================================
+var AnimNodeBlendList IdleAnimNodeBlendList;
+var bool idleBool;
 /*
 ===============================================
 End Variables
@@ -241,6 +247,8 @@ Simulated Event Tick(float DeltaTime)
 	// 	jumpEffects.DeactivateSystem();
 	// }
 
+	animationControl();
+
 }
 
 //=============================================
@@ -375,10 +383,26 @@ function DoDoubleJump( bool bUpdating )
 	// }
 }
 
-
 //=============================================
 // Custom Functions
 //=============================================
+function animationControl()
+{
+	if(Vsize(Velocity) == 0) 
+	{ 
+		//Idle
+		if(idleBool == false)
+		{
+		idleBool = true;
+		 if (IdleAnimNodeBlendList.BlendTimeToGo <= 0.f)
+  			{
+    			IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
+  			}
+  		}
+	}
+	else
+		idleBool = false;
+}
 /*
 increaseTether
 */
@@ -763,7 +787,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     if ( SkelComp == Mesh)
     {
         AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
+  		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
     }
+
 }
 
 /*
