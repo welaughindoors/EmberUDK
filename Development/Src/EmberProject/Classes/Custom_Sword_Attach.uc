@@ -90,7 +90,7 @@ DefaultProperties
     Begin Object Name=SkeletalMeshComponent0
     SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
     CullDistance=5000.000000
-    Scale=1.2
+    Scale=0.5
      CastShadow=false
     bUseAsOccluder=false
     bAcceptsDecals=false
@@ -98,7 +98,9 @@ DefaultProperties
     bAcceptsDynamicDecals=FALSE
     bHasPhysicsAssetInstance=true
     PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
-// Rotation=(Pitch=16384 ,Yaw=16384 )
+Rotation=(Pitch=0 ,Yaw=0, Roll=49152 )
+//16384=90
+//49152=270
     // Rotation=(Pitch=,Yaw=0,Roll=0)
     End Object
     weapMesh = SkeletalMeshComponent0

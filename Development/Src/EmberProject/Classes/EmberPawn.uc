@@ -140,7 +140,7 @@ simulated event PostBeginPlay()
    	EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
 
    	//1 second attach skele mesh
-    SetTimer(1.0, false, 'WeaponAttach'); 
+    SetTimer(0.5, false, 'WeaponAttach'); 
 }
 
 /*
@@ -150,8 +150,8 @@ WeaponAttach
 */
 function WeaponAttach()
 {
-           // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
-    // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+           DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
+    mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
 }
 
 /*
@@ -937,8 +937,8 @@ defaultproperties
     bOwnerNoSee=false
     // LightEnvironment=MyLightEnvironment;
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-    Scale=1.2
-// Rotation=(Pitch=16384 ,Yaw=16384 )
+    Scale=0.5
+Rotation=(Pitch=0 ,Yaw=0, Roll=49152 )
   End Object
   SwordMesh=MyWeaponSkeletalMesh
 }
