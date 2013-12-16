@@ -3,6 +3,15 @@ class TestPawn extends UTPawn
 var(NPC) SkeletalMeshComponent NPCMesh;
 var() SkeletalMeshComponent SwordMesh;
 
+//=================================
+// Grappled Hooked
+//=================================
+var bool 		gHook;
+var float 		gHookTimer;
+var float 		dTime;
+var vector 		gHookTarget;
+var pawn 		playerPawn;
+
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 // {
@@ -19,7 +28,74 @@ var() SkeletalMeshComponent SwordMesh;
 // 		GotoState('Dying');
 // 	}
 // }
+Simulated Event Tick(float DeltaTime)
+{
 
+	 //GetALocalPlayerController().ClientMessage("tick : " $DeltaTime);
+   	 Super.Tick(DeltaTime);
+   	 // Velocity = vect(0,0,0);
+   	 if(gHook == true)
+   	 {
+   	 	dTime = DeltaTime;
+   	 	gHookTimer+=DeltaTime;
+   	 	grappleHooked(gHookTarget, playerPawn);
+   	 }
+   	}
+function grappleHooked(vector target, pawn player)
+{
+	local vector hitLoc, hitNormal, endLoc;
+	local float floaty2;
+	endLoc = player.location;
+	gHook = true;
+	if(gHook == true && gHookTimer == 0.00)
+	{
+		// gHookTimer += 0.01;
+		gHookTarget = target;
+		playerPawn = player;
+		Self.trace(hitLoc, hitNormal, endLoc, location );
+		floaty2 = VSize(location - endLoc);
+
+		if(floaty2 <= 250) return;
+
+		Velocity = target * 800;
+
+		location.z > 50 ? Velocity.z : Velocity.z = 75;
+		// location.z += 10;
+		SetPhysics(Phys_Falling );
+	}
+	// else if(gHookTimer > 0.00 && gHookTimer < 0.5)
+	if(gHook == true)
+	{
+		gHookTarget = target;
+		location.z > 50 ? Velocity.z : Velocity.z = 75;
+
+		Self.trace(hitLoc, hitNormal, endLoc, location );
+		floaty2 = VSize(location - endLoc);
+
+		//dTime ~ 0.0088
+		Velocity = target * 800;// - (gHookTimer * 536.36));
+		if(floaty2 <= 250)
+		{
+			Velocity.z = 0;
+			Velocity.x = 0;
+			Velocity.y = 0;
+			gHookTimer = 0;
+			gHook = false;
+		}
+		// Velocity.Z = 75;
+		SetPhysics(Phys_Falling );
+	}
+
+	// if(gHookTimer > 0.5)
+	// {
+	// 	SetPhysics(PHYS_Walking);
+ // 	gHook = false; 
+ // 	gHookTimer = 0;
+ //    GetALocalPlayerController().ClientMessage("stop");
+	// }
+    // GetALocalPlayerController().ClientMessage("F - " $Velocity);
+
+}
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 	{
 		local Vector shotDir, ApplyImpulse,BloodMomentum;
@@ -137,7 +213,7 @@ simulated function PostBeginPlay()
 // SpawnDefaultController();
 
 CreateInventory(class'Custom_Sword',false ); 
-SetTimer(2.0, false, 'WeaponAttach');
+SetTimer(1.0, false, 'WeaponAttach');
 }
      function WeaponAttach()
 {
@@ -282,13 +358,7 @@ function SwordGotHit()
 {
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
 }
-Simulated Event Tick(float DeltaTime)
-{
 
-	 //GetALocalPlayerController().ClientMessage("tick : " $DeltaTime);
-   	 Super.Tick(DeltaTime);
-   	 // Velocity = vect(0,0,0);
-   	 }
 DefaultProperties
 {
 	// NPCMesh=NPCMesh0
@@ -308,10 +378,18 @@ DefaultProperties
 	// End Object
    	//Setup default NPC mesh
     Begin Object Class=SkeletalmeshComponent Name=NPCMesh0
-		SkeletalMesh=SkeletalMesh'EmberBase.ember_player_mesh'
-		PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
-		AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-		AnimtreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+		// SkeletalMesh=SkeletalMesh'EmberBase.ember_player_mesh'
+		// PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
+		// AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
+		// AnimtreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+
+SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+// defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+ AnimtreeTemplate=AnimTree'ArtAnimation.Armature_Tree'
+ 
+// defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
+AnimSets(0)=AnimSet'ArtAnimation.AnimSets.Armature'
+PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 		LightEnvironment=MyLightEnvironment
 		BlockRigidBody=TRUE
 		MinDistFactorForKinematicUpdate=0.0
@@ -345,28 +423,4 @@ Begin Object Class=SkeletalmeshComponent Name=MyWeaponSkeletalMesh
 	CollisionComponent=MyWeaponSkeletalMesh
 	// bRunPhysicsWithNoController=true
 	ControllerClass=class'UTGame.UTBot'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(246) : Warning, Unresolved reference to Class 'Custom_Sword_Damage'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(262) : Warning, Unresolved reference to Class 'Custom_Sword_Damage'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\EmberPawn.uc(836) : Warning, 'Wall' : unused local variable
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\EmberPawn.uc(552) : Warning, 'll' : unreferenced local variable
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(341) : Warning, ObjectProperty Engine.SkeletalMeshComponent:AnimSets.AnimSets: unresolved reference to 'AnimSet'YourCustomPackage.AnimSets.AS_Sword''
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(341) : Warning, Invalid property value in defaults:     AnimSets(1)=AnimSet'YourCustomPackage.AnimSets.AS_Sword'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(385) : Warning, ObjectProperty EmberProject.Custom_Sword:Swipe1: unresolved reference to 'SoundCue'YourCustomPackage.Cue.Swipe1''
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(385) : Warning, Invalid property value in defaults:     Swipe1 = SoundCue'YourCustomPackage.Cue.Swipe1'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(386) : Warning, ObjectProperty EmberProject.Custom_Sword:Swipe2: unresolved reference to 'SoundCue'YourCustomPackage.Cue.Swipe2''
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(386) : Warning, Invalid property value in defaults:     Swipe2 = SoundCue'YourCustomPackage.Cue.Swipe2'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(387) : Warning, ObjectProperty EmberProject.Custom_Sword:Swipe3: unresolved reference to 'SoundCue'YourCustomPackage.Cue.Swipe3''
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(387) : Warning, Invalid property value in defaults:     Swipe3 = SoundCue'YourCustomPackage.Cue.Swipe3'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(388) : Warning, ObjectProperty EmberProject.Custom_Sword:Swipe4: unresolved reference to 'SoundCue'YourCustomPackage.Cue.Swipe4''
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(388) : Warning, Invalid property value in defaults:     Swipe4 = SoundCue'YourCustomPackage.Cue.Swipe4'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(389) : Warning, ObjectProperty EmberProject.Custom_Sword:Sheath: unresolved reference to 'SoundCue'YourCustomPackage.Cue.sheath''
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword.uc(389) : Warning, Invalid property value in defaults:     Sheath = SoundCue'YourCustomPackage.Cue.sheath'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword_Attach.uc(100) : Warning, Unknown property in defaults:     CollisionType=COLLIDE_BlockAll (looked in SkeletalMeshComponent)
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\Custom_Sword_Attach.uc(110) : Warning, redundant data: CollisionType=COLLIDE_BlockAll
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\KActor_Sword.uc(15) : Warning, ComponentProperty Engine.Actor:Components.Components: unresolved reference to 'ShieldComponent)'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\KActor_Sword.uc(15) : Warning, Unable to parse parameter value 'ShieldComponent)' in defaultproperties array operation: 	Components.Add(ShieldComponent)
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\TestPawn.uc(296) : Warning, ComponentProperty EmberProject.TestPawn:NPCMesh: unresolved reference to 'NPCMesh0'
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\TestPawn.uc(296) : Warning, Invalid property value in defaults: 	NPCMesh=NPCMesh0
-// C:\UDK\UDK-2013-07\Development\Src\EmberProject\Classes\TestPawn.uc(338) : Warning, Unknown property in defaults:         CollisionType=COLLIDE_BlockAll (looked in SkeletalMeshComponent)
-
 }

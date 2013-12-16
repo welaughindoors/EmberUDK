@@ -199,13 +199,13 @@ simulated state WeaponFiring{
         if(!resetTracers)
         {
         //Modern           
-        // DrawDebugLine(Start, oldStart, -1, 0, -1, true);
-        // DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
-        // DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
-        // DrawDebugLine(End, oldEnd, -1, 0, -1, true);
-        // DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
-        // DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
-        // DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
+        DrawDebugLine(Start, oldStart, -1, 0, -1, true);
+        DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
+        DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
+        DrawDebugLine(End, oldEnd, -1, 0, -1, true);
+        DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
+        DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
+        DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
         //BS
         // DrawDebugLine(Start, End, -1, 0, -1, true);
         //Sword Edge

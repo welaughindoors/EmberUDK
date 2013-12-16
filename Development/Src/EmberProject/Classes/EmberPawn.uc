@@ -468,23 +468,47 @@ function createTether()
 	local vector hitNormal;
 	local actor wall;
 	local vector startTraceLoc;
+	local vector endLoc;
+	local float floaty;
+	local int isPawn;
 	//~~~ Trace ~~~
 
-	vc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
+	vc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
 	//vc = Owner.Rotation;
 	
+	Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', tVar, r);
 	//pawn location + 100 in direction of player camera
-	startTraceLoc = Location + vc ;
+
+	hitLoc = location;
+	hitLoc.z += 10;
+	startTraceLoc = tVar + vc ;
+	// startTraceLoc = Location + vc ;
 	 
+	endLoc =startTraceLoc + tetherMaxLength * vc;
+	// endLoc.z += 1500;
+
 	//trace only to tether's max length
 	wall = Self.trace(hitLoc, hitNormal, 
-				startTraceLoc + tetherMaxLength * vc, 
+				endLoc, 
 				startTraceLoc
 			);
+	// DrawDebugLine(endLoc, startTraceLoc, -1, 0, -1, true);
 
 
-	if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
-	
+	// if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
+	// Wall.isa('Actor') ? DebugPrint("Actor : " $Wall) : ;
+	// InStr(wall, "TestPawn") > 0? DebugPrint("gud") : ;
+	isPawn = InStr(wall, "TestPawn");
+	DebugPrint("p = " $isPawn);
+	floaty = VSize(location - wall.location);
+	DebugPrint("distance -"@floaty);
+	if(isPawn >= 0)
+	{
+		endLoc = normal(location - wall.location);
+		TestPawn(wall).grappleHooked(endLoc, self);
+		// endLoc *= 500;
+		// wall.velocity = endLoc;
+	}
 	//~~~~~~~~~~~~~~~
 	// Tether Success
 	//~~~~~~~~~~~~~~~
