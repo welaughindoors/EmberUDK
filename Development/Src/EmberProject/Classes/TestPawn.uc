@@ -11,6 +11,17 @@ var float 		gHookTimer;
 var float 		dTime;
 var vector 		gHookTarget;
 var pawn 		playerPawn;
+//=============================================
+// Weapon
+//=============================================
+var Sword Sword;
+
+var SkeletalMesh defaultMesh;
+var MaterialInterface defaultMaterial0;
+var AnimTree defaultAnimTree;
+var array<AnimSet> defaultAnimSet;
+var AnimNodeSequence defaultAnimSeq;
+var PhysicsAsset defaultPhysicsAsset;
 
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
@@ -205,21 +216,26 @@ simulated function PostBeginPlay()
 	SetPhysics(PHYS_Walking); // wake the physics up
 	
 	// set up collision detection based on mesh's PhysicsAsset
-	CylinderComponent.SetActorCollision(false, false); // disable cylinder collision
-	Mesh.SetActorCollision(true, true); // enable PhysicsAsset collision
-	Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
+	// CylinderComponent.SetActorCollision(false, false); // disable cylinder collision
+	// Mesh.SetActorCollision(true, true); // enable PhysicsAsset collision
+	// Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
 	// SetTimer(0.5, true, 'BrainTimer');
 
 // SpawnDefaultController();
 
-CreateInventory(class'Custom_Sword',false ); 
+// CreateInventory(class'Custom_Sword',false ); 
 SetTimer(1.0, false, 'WeaponAttach');
 }
      function WeaponAttach()
 {
      
-           DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
-    mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+           // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
+    // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+
+        Sword = Spawn(class'Sword', self);
+    //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
+    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 }
 // }
 
@@ -358,9 +374,21 @@ function SwordGotHit()
 {
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
 }
+simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
+{
+Mesh.SetSkeletalMesh(defaultMesh);
+Mesh.SetMaterial(0,defaultMaterial0);
+Mesh.SetPhysicsAsset(defaultPhysicsAsset);
+Mesh.AnimSets=defaultAnimSet;
+Mesh.SetAnimTreeTemplate(defaultAnimTree);
 
+}
 DefaultProperties
 {
+	defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
+defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
+defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 	// NPCMesh=NPCMesh0
 	bCollideActors=true
 	bPushesRigidBodies=true
@@ -370,12 +398,13 @@ DefaultProperties
 	bStopAtLedges=true
 	LedgeCheckThreshold=0.5f
 	
-	// Begin Object Name=CollisionCylinder
+	Begin Object Name=CollisionCylinder
 	// // 	// CollisionRadius=+00102.00000
 	// // 	// CollisionHeight=+00102.800000
-	// 	CollisionRadius=+0070.00000
-	// 	CollisionHeight=+0090.00000
-	// End Object
+		// CollisionRadius=+0070.00000
+		// CollisionHeight=+0090.00000
+	End Object
+   Components.Add(CollisionCylinder)
    	//Setup default NPC mesh
     Begin Object Class=SkeletalmeshComponent Name=NPCMesh0
 		// SkeletalMesh=SkeletalMesh'EmberBase.ember_player_mesh'
@@ -405,22 +434,22 @@ PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
    Components.Add(NPCMesh0)
 
 
-Begin Object Class=SkeletalmeshComponent Name=MyWeaponSkeletalMesh
-    CastShadow=true
-    bCastDynamicShadow=true
-    bOwnerNoSee=false
-    // LightEnvironment=MyLightEnvironment;
-        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-        BlockNonZeroExtent=true
-        BlockZeroExtent=true
-        BlockActors =true
-        CollideActors=true
-    // Scale=1.2
-  End Object
-  SwordMesh=MyWeaponSkeletalMesh
+// Begin Object Class=SkeletalmeshComponent Name=MyWeaponSkeletalMesh
+//     CastShadow=true
+//     bCastDynamicShadow=true
+//     bOwnerNoSee=false
+//     // LightEnvironment=MyLightEnvironment;
+//         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+//         BlockNonZeroExtent=true
+//         BlockZeroExtent=true
+//         BlockActors =true
+//         CollideActors=true
+//     // Scale=1.2
+//   End Object
+//   SwordMesh=MyWeaponSkeletalMesh
 
-	Components.Add(MyWeaponSkeletalMesh)
-	CollisionComponent=MyWeaponSkeletalMesh
+// 	Components.Add(MyWeaponSkeletalMesh)
+	CollisionComponent=CollisionCylinder
 	// bRunPhysicsWithNoController=true
 	ControllerClass=class'UTGame.UTBot'
 }

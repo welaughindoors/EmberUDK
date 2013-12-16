@@ -101,11 +101,11 @@ exec function kbuttonUp ()
 }
 exec function LeftShiftButtonDown()
 {
-	EmberPawn(pawn).startSprint();
+	// EmberPawn(pawn).startSprint();
 }
 exec function LeftShiftButtonUp ()
 {
-	EmberPawn(pawn).endSprint();
+	// EmberPawn(pawn).endSprint();
 }
 exec function increaseTether()
 {
@@ -143,7 +143,8 @@ leftMouseDown | leftMouseUp
 */
 exec function leftMouseDown()
 {
- 	// Custom_Sword(UTWeapon).CurrentFireMode = 0;
+   EmberPawn(pawn).forwardAttack();
+   // Custom_Sword(UTWeapon).CurrentFireMode = 0;
 }
 exec function leftMouseUp()
 {

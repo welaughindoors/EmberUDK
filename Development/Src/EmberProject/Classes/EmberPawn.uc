@@ -60,10 +60,20 @@ var int  kickCounter;
 
 
 //=============================================
-// Animations
+// General Animations
 //=============================================
 var AnimNodeBlendList IdleAnimNodeBlendList;
 var bool idleBool;
+
+//=============================================
+// Attack Animations
+//=============================================
+var AnimNodePlayCustomAnim forwardAttack1;
+
+//=============================================
+// Weapon
+//=============================================
+var Sword Sword;
 /*
 ===============================================
 End Variables
@@ -147,6 +157,9 @@ simulated event PostBeginPlay()
 
    	//1 second attach skele mesh
     SetTimer(0.5, false, 'WeaponAttach'); 
+
+
+
 }
 
 /*
@@ -156,8 +169,13 @@ WeaponAttach
 */
 function WeaponAttach()
 {
-           DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
-    mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+           // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
+    // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+
+        Sword = Spawn(class'Sword', self);
+    //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
+    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 }
 
 /*
@@ -198,38 +216,68 @@ Simulated Event Tick(float DeltaTime)
 	// Prevents Sprint Boost In Air, Remove This Section If Boost Is Required
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	if(iLikeToSprint)
-	{
-		if(Physics == PHYS_Falling)
-		{
-			if(tickToggle)
-			{
-				// GroundSpeed /= 2.0;
-				GroundSpeed = originalSpeed;
-				tickToggle = !tickToggle;	
-			}
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Holding shift while in air will lower negative z velocity = Shitty glide
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// 	if(velocity.z <= 0)
-		// 	{
-		// 		// gravity = WorldInfo.GetGravityZ();
-		// 		// gravity*= 0.2;
-		// 	// velocity.z -= (velocity.z * 0.6);
-		// 	velocity.z = -350;
-		// 	// DebugPrint("going south" $velocity.z);
-		// }
-		}
-		else
-		{
-			if(!tickToggle)
-			{
-				originalSpeed = GroundSpeed;
-				GroundSpeed *= 2.0;
-				tickToggle = !tickToggle;	
-			}
-		}
-	}
+	// if(iLikeToSprint)
+	// {
+	// // 	if(Physics == PHYS_Falling)
+	// // 	{
+	// // 		if(tickToggle)
+	// // 		{
+	// // 			// GroundSpeed /= 2.0;
+	// // 			GroundSpeed = originalSpeed;
+	// // 			tickToggle = !tickToggle;	
+	// // 		}
+	// // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// // // Holding shift while in air will lower negative z velocity = Shitty glide
+	// // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// // 	// 	if(velocity.z <= 0)
+	// // 	// 	{
+	// // 	// 		// gravity = WorldInfo.GetGravityZ();
+	// // 	// 		// gravity*= 0.2;
+	// // 	// 	// velocity.z -= (velocity.z * 0.6);
+	// // 	// 	velocity.z = -350;
+	// // 	// 	// DebugPrint("going south" $velocity.z);
+	// // 	// }
+	// // 	}
+	// // 	else
+	// // 	{
+	// // 		if(!tickToggle)
+	// // 		{
+	// // 			originalSpeed = GroundSpeed;
+	// // 			GroundSpeed *= 2.0;
+	// // 			tickToggle = !tickToggle;	
+	// // 		}
+	// // 	}
+
+	// 	if(Physics == PHYS_Falling)
+	// 	{
+	// 		if(tickToggle)
+	// 		{
+	// 			GroundSpeed *= 0.3;
+	// 			// GroundSpeed = originalSpeed;
+	// 			tickToggle = !tickToggle;	
+	// 		}
+	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// // Holding shift while in air will lower negative z velocity = Shitty glide
+	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// 	// 	if(velocity.z <= 0)
+	// 	// 	{
+	// 	// 		// gravity = WorldInfo.GetGravityZ();
+	// 	// 		// gravity*= 0.2;
+	// 	// 	// velocity.z -= (velocity.z * 0.6);
+	// 	// 	velocity.z = -350;
+	// 	// 	// DebugPrint("going south" $velocity.z);
+	// 	// }
+	// 	}
+	// 	else
+	// 	{
+	// 		if(!tickToggle)
+	// 		{
+	// 			// originalSpeed = GroundSpeed;
+	// 			GroundSpeed = originalSpeed;
+	// 			tickToggle = !tickToggle;	
+	// 		}
+	// 	}
+	// }
 
 	// Probably not required
 	bReadyToDoubleJump = true;
@@ -251,6 +299,22 @@ Simulated Event Tick(float DeltaTime)
 
 }
 
+/*
+PostInitAnimTree
+	Allows custom animations.
+*/
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+    //Setting up a reference to our animtree to play custom stuff.
+    super.PostInitAnimTree(SkelComp);
+    if ( SkelComp == Mesh)
+    {
+        AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
+  		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
+  		forwardAttack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('AttackForward')); 
+    }
+
+}
 //=============================================
 // Overrided Functions
 //=============================================
@@ -386,6 +450,28 @@ function DoDoubleJump( bool bUpdating )
 //=============================================
 // Custom Functions
 //=============================================
+
+function forwardAttack()
+{
+	DebugPrint("start -");
+forwardAttack1.PlayCustomAnimByDuration('ember_attack_forward',1.0, 0.2, 0, false);
+SetTimer(1.0, false, 'forwardAttackEnd');
+
+	Sword.setTracerDelay(0.5);
+    Sword.GoToState('Attacking');
+// forwardAttack1.StopCustomAnim(0);
+}
+
+function forwardAttackEnd()
+{
+	DebugPrint("dun -");
+
+    Sword.SetInitialState();
+    Sword.resetTracers();
+    animationControl();
+	// forwardAttack1.SetActiveChild(0);
+}
+
 function animationControl()
 {
 	if(Vsize(Velocity) == 0) 
@@ -585,28 +671,30 @@ startSprint
 	Saves original ground speed, and modifies it
 	Also modifies current velocity to do instant transition
 */
-function startSprint()
-{
-	iLikeToSprint = true;
-	tickToggle = true;
-	originalSpeed = GroundSpeed;
-	//Sprint Speed
-	GroundSpeed *= 2.0;
+// function startSprint()
+// {
+// 	iLikeToSprint = true;
+// 	tickToggle = true;
+// 	originalSpeed = GroundSpeed;
+// 	//Sprint Speed
+// 	//GroundSpeed *= 2.0;
+// 	GroundSpeed *= 0.3;
 
-	//Does instant transition to max sprint speed
-	if(Physics != PHYS_Falling)
-		velocity *= 2.0;
-}
+// 	//Does instant transition to max sprint speed
+// 	if(Physics != PHYS_Falling)
+// 		// velocity *= 2.0;
+// 		velocity *= 0.3;
+// }
 
-/*
-endSprint
-*/
-function endSprint()
-{
-	iLikeToSprint = false;
-	// GroundSpeed /= 2.0;
-	GroundSpeed = originalSpeed;
-}
+// /*
+// endSprint
+// */
+// function endSprint()
+// {
+// 	iLikeToSprint = false;
+// 	// GroundSpeed /= 2.0;
+// 	GroundSpeed = originalSpeed;
+// }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
 //Rama's Tether System Calcs
@@ -801,22 +889,6 @@ function bool GetSwordState()
     return SwordState;   
 }
 /*
-PostInitAnimTree
-	Allows custom animations.
-*/
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
-    //Setting up a reference to our animtree to play custom stuff.
-    super.PostInitAnimTree(SkelComp);
-    if ( SkelComp == Mesh)
-    {
-        AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
-  		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
-    }
-
-}
-
-/*
 PlayAttack
 	Play animation at speed
 */
@@ -968,6 +1040,7 @@ function DoKick()
 defaultproperties
 {
 
+	bCanStrafe=false
 	SwordState = false
 	tetherStatusForVel = false
 	tetherMaxLength = 4000
