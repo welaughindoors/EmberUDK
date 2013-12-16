@@ -172,9 +172,12 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 defaultproperties
 {
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
-defaultMesh=SkeletalMesh'mypackage.UT3_Male'
-defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
-defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
+// defaultMesh=SkeletalMesh'mypackage.UT3_Male'
+defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+// defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+ defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
+ 
+// defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
+defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 }
-	
