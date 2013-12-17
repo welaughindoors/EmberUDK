@@ -401,8 +401,8 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 	Begin Object Name=CollisionCylinder
 	// // 	// CollisionRadius=+00102.00000
 	// // 	// CollisionHeight=+00102.800000
-		// CollisionRadius=+0070.00000
-		// CollisionHeight=+0090.00000
+		CollisionRadius=+0030.00000
+		CollisionHeight=+00100.00000
 	End Object
    Components.Add(CollisionCylinder)
    	//Setup default NPC mesh

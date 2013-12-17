@@ -26,8 +26,8 @@ function TraceAttack()
    local Vector HitLocation, HitNormal, SwordTip, SwordHilt, Momentum;
    local Vector Start, Start2, Start3, Mid, End, End2, End3;
    local int DamageAmount;
-        local traceHitInfo hitInfo, hitInfo2;
-        local Actor HitActor2;
+        local traceHitInfo hitInfo, hitInfo2, hitInfo3, hitInfo4, hitInfo5, hitInfo6, hitInfo7, hitInfo8;
+        local Actor HitActor2, HitActor3, HitActor4, HitActor5, HitActor6, HitActor7, HitActor8;
 
    Mesh.GetSocketWorldLocationAndRotation('EndControl', SwordTip, );
    Mesh.GetSocketWorldLocationAndRotation('StartControl', SwordHilt, );
@@ -52,6 +52,7 @@ if(!bTracers)
         oldMid = Mid;
 }
         DrawDebugLine(Start, oldStart, -1, 0, -1, true);
+        DrawDebugLine(Start, End, -1, 0, -1, true);
         DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
         DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
         DrawDebugLine(End, oldEnd, -1, 0, -1, true);
@@ -59,8 +60,14 @@ if(!bTracers)
         DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
         DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
 
-        HitActor = Trace(HitLocation, HitNormal, End, Mid, true, , hitInfo); 
-        HitActor2 = Trace(HitLocation, HitNormal, Start, Mid, true, , hitInfo2); 
+        HitActor = Trace(HitLocation, HitNormal, End, oldEnd, true, , hitInfo); 
+        HitActor2 = Trace(HitLocation, HitNormal, End2, oldEnd2, true, , hitInfo2); 
+        HitActor3 = Trace(HitLocation, HitNormal, End3, oldEnd3, true, , hitInfo3); 
+        HitActor4 = Trace(HitLocation, HitNormal, Mid, oldMid, true, , hitInfo4) ;
+        HitActor5 = Trace(HitLocation, HitNormal, Start3, oldStart3, true, , hitInfo5); 
+        HitActor6 = Trace(HitLocation, HitNormal, Start2, oldStart2, true, , hitInfo6); 
+        HitActor7 = Trace(HitLocation, HitNormal, Start, oldStart, true, , hitInfo7); 
+        HitActor8 = Trace(HitLocation, HitNormal, Start, End, true, , hitInfo8); 
 
         oldStart = start;
         oldStart2 = start2;
@@ -70,7 +77,7 @@ if(!bTracers)
         oldEnd3 = end3;
         oldMid = Mid;
 
-
+        //@TODO: Even though one of the circles hits sword, other cirlces could hit body asame time, what do.
 
         // GetALocalPlayerController().ClientMessage("hitActor: " $HitActor);
         // GetALocalPlayerController().ClientMessage("hitInfo: " $hitInfo.item );
@@ -85,17 +92,26 @@ if(!bTracers)
         hitInfo.item == 0 ? TestPawn(HitActor).SwordGotHit(): ;
         hitInfo2.item == 0 ? TestPawn(HitActor2).SwordGotHit() : ;
         */
-        if(hitInfo.Item == 0)
-        {
-        DebugPrint("SwordHit");
-                TestPawn(HitActor).SwordGotHit();
-        }
-        else if (hitInfo2.Item == 0)
-        {
+        // if(hitInfo.Item == 0 || hitInfo2.Item == 0 || hitInfo3.Item == 0 || hitInfo4.Item == 0 || hitInfo5.Item == 0 || hitInfo6.Item == 0 || hitInfo7.Item == 0 |)
+        // {
+        // DebugPrint("SwordHit");
+        hitInfo.Item == 0 ? TestPawn(HitActor).SwordGotHit(): ;
+        hitInfo2.Item == 0 ? TestPawn(HitActor2).SwordGotHit():;
+        hitInfo3.Item == 0 ? TestPawn(HitActor3).SwordGotHit():;
+        hitInfo4.Item == 0 ? TestPawn(HitActor4).SwordGotHit():;
+        hitInfo5.Item == 0 ? TestPawn(HitActor5).SwordGotHit():;
+        hitInfo6.Item == 0 ? TestPawn(HitActor6).SwordGotHit():;
+        hitInfo7.Item == 0 ? TestPawn(HitActor7).SwordGotHit():;
+        hitInfo8.Item == 0 ? TestPawn(HitActor8).SwordGotHit():;
+                
+                // return;
+        // }
+        // else if (hitInfo2.Item == 0)
+        // {
 
-        DebugPrint("SwordHit");
-                TestPawn(HitActor2).SwordGotHit();
-        }
+        // DebugPrint("SwordHit");
+        //         TestPawn(HitActor2).SwordGotHit();
+        // }
         // if(Hitinfo.item == 0)
             // DebugPrint("Sword Hit");
         //Check if the trace collides with an actor.
@@ -168,14 +184,14 @@ defaultproperties
        BlockNonZeroExtent=true
        CollideActors=true
 
-Rotation=(Pitch=0 ,Yaw=0, Roll=49152 )
+Rotation=(Pitch=14000 ,Yaw=0, Roll=49152 )
     End Object
     Mesh = SwordMesh
     Components.Add(SwordMesh)
 
     Begin Object class=CylinderComponent Name=CollisionCylinder
-        CollisionRadius=+030.000000
-        CollisionHeight=+015.000000
+        CollisionRadius=+060.000000
+        CollisionHeight=+065.000000
     End Object
     CollisionComponent = CollisionCylinder
     Components.Add(CollisionCylinder)

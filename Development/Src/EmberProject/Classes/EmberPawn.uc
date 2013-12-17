@@ -74,6 +74,7 @@ var AnimNodePlayCustomAnim forwardAttack1;
 // Weapon
 //=============================================
 var Sword Sword;
+var bool  tracerRecordBool;
 /*
 ===============================================
 End Variables
@@ -450,14 +451,20 @@ function DoDoubleJump( bool bUpdating )
 //=============================================
 // Custom Functions
 //=============================================
-
+exec function RecordTracers(name animation, float duration, float t1, float t2)
+{
+forwardAttack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
+	Sword.setTracerDelay(t1);
+    Sword.GoToState('Attacking');
+SetTimer(duration, false, 'forwardAttackEnd');
+}
 function forwardAttack()
 {
 	DebugPrint("start -");
 forwardAttack1.PlayCustomAnimByDuration('ember_attack_forward',1.0, 0.2, 0, false);
 SetTimer(1.0, false, 'forwardAttackEnd');
 
-	Sword.setTracerDelay(0.5);
+	Sword.setTracerDelay(0.65);
     Sword.GoToState('Attacking');
 // forwardAttack1.StopCustomAnim(0);
 }
