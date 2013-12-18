@@ -235,7 +235,7 @@ SetTimer(1.0, false, 'WeaponAttach');
         Sword = Spawn(class'Sword', self);
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+    // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 }
 // }
 
@@ -303,7 +303,7 @@ Destroy();
 		//}
 		// go away if not viewtarget
 		//@todo FIXMESTEVE - use drop detail, get rid of backup visibility check
-		bBehindAllPlayers = true;
+		//bBehindAllPlayers = true;
 		ForEach LocalPlayerControllers(class'PlayerController', PC)
 		{
 			if ( (PC.ViewTarget == self) || (PC.ViewTarget == Base) )

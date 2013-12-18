@@ -322,7 +322,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 //=============================================
 // Overrided Functions
 //=============================================
-
+event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
+{
+	DebugPrint("hit");
+}
 
 /*
 BecomeViewTarget
@@ -589,8 +592,8 @@ function createTether()
 	local actor wall;
 	local vector startTraceLoc;
 	local vector endLoc;
-	local float floaty;
-	local int isPawn;
+	// local float floaty;
+	// local int isPawn;
 	//~~~ Trace ~~~
 
 	vc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
@@ -1014,7 +1017,7 @@ spaceMarineLanding
 function spaceMarineLanding()
 {
    	local vector HitLocation, HitNormal, landingLocation, vPlayer, startTraceLoc;
-	local actor wall;
+	// local actor wall;
 
 	vPlayer = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
 	
@@ -1022,7 +1025,7 @@ function spaceMarineLanding()
 	startTraceLoc = Location + vPlayer ;
 	 
 	//trace only to tether's max length. TODO: Set max limit for landing
-	wall = Self.trace(HitLocation, hitNormal, 
+	Self.trace(HitLocation, hitNormal, 
 				startTraceLoc + tetherMaxLength * vPlayer, 
 				startTraceLoc
 			);
@@ -1085,6 +1088,8 @@ defaultproperties
 	tetherMaxLength = 4000
 	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.6
+        bCollideActors=True
+      bBlockActors=True
 
 	// Begin Object Class=SkeletalMeshComponent Name=SwordMesh
  //        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
@@ -1093,14 +1098,23 @@ defaultproperties
  //    End Object
  //    Components.Add(SwordMesh)
 
-    Begin Object Class=SkeletalMeshComponent Name=MyWeaponSkeletalMesh
-    CastShadow=true
-    bCastDynamicShadow=true
-    bOwnerNoSee=false
-    // LightEnvironment=MyLightEnvironment;
-        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-    Scale=0.5
-Rotation=(Pitch=0 ,Yaw=0, Roll=49152 )
-  End Object
-  SwordMesh=MyWeaponSkeletalMesh
+//     Begin Object Class=SkeletalMeshComponent Name=MyWeaponSkeletalMesh
+//     CastShadow=true
+//     bCastDynamicShadow=true
+//     bOwnerNoSee=false
+//     // LightEnvironment=MyLightEnvironment;
+//         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+//     Scale=0.5
+// Rotation=(Pitch=0 ,Yaw=0, Roll=49152 )
+//   End Object
+//   SwordMesh=MyWeaponSkeletalMeshBegin Object Name=CollisionCylinder
+	// // 	// CollisionRadius=+00102.00000
+	// // 	// CollisionHeight=+00102.800000
+	
+	Begin Object Name=CollisionCylinder
+		CollisionRadius=0025.00000
+		CollisionHeight=0047.5.00000
+	End Object
+   Components.Add(CollisionCylinder)
+	CollisionComponent=CollisionCylinder
 }

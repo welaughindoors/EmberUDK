@@ -30,14 +30,19 @@ function swordParried(actor hitActor)
   bFuckTheAttack = true;
 }
 
+event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
+ { 
+  GetALocalPlayerController().ClientMessage("bump: " );
+}
+
 function TraceAttack()
 {
    local Actor HitActor;
-   local Vector HitLocation, HitNormal, SwordTip, SwordHilt, Momentum;
-   local Vector Start, Start2, Start3, Mid, End, End2, End3, bottomBlockControl, tipBlockControl;
+   local Vector HitLocation, HitNormal, SwordTip, SwordHilt;
+   local Vector Start, Start2, Start3, Mid, End, End2, End3, bottomBlockControl, bottomBlockControl2, tipBlockControl, tipBlockControl2, tipBlockControl3;
    
-        local traceHitInfo hitInfo, hitInfo2, hitInfo3, hitInfo4, hitInfo5, hitInfo6, hitInfo7, hitInfo8;
-        local Actor HitActor2, HitActor3, HitActor4, HitActor5, HitActor6, HitActor7, HitActor8;
+        local traceHitInfo hitInfo, hitInfo2, hitInfo3, hitInfo4, hitInfo5, hitInfo6, hitInfo7, hitInfo8, hitInfo9, hitInfo10, hitInfo11;
+        local Actor HitActor2, HitActor3, HitActor4, HitActor5, HitActor6, HitActor7, HitActor8, HitActor9, HitActor10, HitActor11;
 
 bFuckTheAttack = false;
    Mesh.GetSocketWorldLocationAndRotation('EndControl', SwordTip, );
@@ -52,6 +57,9 @@ bFuckTheAttack = false;
     Mesh.GetSocketWorldLocationAndRotation('MidControl', Mid);  
     Mesh.GetSocketWorldLocationAndRotation('bottomBlockControl', bottomBlockControl);  
     Mesh.GetSocketWorldLocationAndRotation('tipBlockControl', tipBlockControl);  
+    Mesh.GetSocketWorldLocationAndRotation('tipBlockControl2', tipBlockControl2); 
+    Mesh.GetSocketWorldLocationAndRotation('tipBlockControl3', tipBlockControl3); 
+    Mesh.GetSocketWorldLocationAndRotation('bottomBlockControl2', bottomBlockControl2); 
 
 if(!bTracers)
 {
@@ -73,7 +81,9 @@ if(!bTracers)
         DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
         DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
         DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
-        DrawDebugLine(bottomBlockControl, tipBlockControl, -1, 0, -1, true);
+        DrawDebugLine(bottomBlockControl, tipBlockControl, 0, -1, -1, true);
+        DrawDebugLine(tipBlockControl, tipBlockControl2, 0, -1, -1, true);
+        DrawDebugLine(tipBlockControl3, tipBlockControl2, 0, -1, -1, true);
 
         HitActor = Trace(HitLocation, HitNormal, End, oldEnd, true, , hitInfo); 
         HitActor2 = Trace(HitLocation, HitNormal, End2, oldEnd2, true, , hitInfo2); 
@@ -83,6 +93,9 @@ if(!bTracers)
         HitActor6 = Trace(HitLocation, HitNormal, Start2, oldStart2, true, , hitInfo6); 
         HitActor7 = Trace(HitLocation, HitNormal, Start, oldStart, true, , hitInfo7); 
         HitActor8 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl, true, , hitInfo8); 
+        HitActor9 = Trace(HitLocation, HitNormal, tipBlockControl, tipBlockControl2, true, , hitInfo9); 
+        HitActor10 = Trace(HitLocation, HitNormal, tipBlockControl2, tipBlockControl3, true, , hitInfo10); 
+        HitActor11 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl3, true, , hitInfo11); 
 
         oldStart = start;
         oldStart2 = start2;
@@ -118,6 +131,9 @@ if(!bTracers)
         hitInfo6.Item == 0 ? swordParried(HitActor6):;
         hitInfo7.Item == 0 ? swordParried(HitActor7):;
         hitInfo8.Item == 0 ? swordParried(HitActor8):;
+        hitInfo9.Item == 0 ? swordParried(HitActor9):;
+        hitInfo10.Item == 0 ? swordParried(HitActor10):;
+        hitInfo11.Item == 0 ? swordParried(HitActor11):;
         
                 DamageAmount = 0;
                 // return;
@@ -245,21 +261,21 @@ if(!bTracers)
                 // TestPawn(HitActor7).SwordGotHit();
             }
         }
-                        if(HitActor8 != none && bDidATracerHit != true)
-        {
-            //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-            if(HitArray.Find(HitActor8) == INDEX_NONE && HitActor8.bCanBeDamaged)
-            {
-                //Do the specified damage to the hit actor, using our custom damage type.
-                HitActor8.TakeDamage(2,
-                Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-                // AmmoCount -= ShotCost[CurrentFireMode];
-                //Add them to the hit array, so we don't hit them twice in one motion.
-                HitArray.AddItem(HitActor8);
-                DamageAmount+=2;
-                // TestPawn(HitActor8).SwordGotHit();
-            }
-        }
+   // if(HitActor8 != none && bDidATracerHit != true)
+   //      {
+   //          //Check to make sure the actor that is hit hasn't already been counted for during this attack.
+   //          if(HitArray.Find(HitActor8) == INDEX_NONE && HitActor8.bCanBeDamaged)
+   //          {
+   //              //Do the specified damage to the hit actor, using our custom damage type.
+   //              HitActor8.TakeDamage(2,
+   //              Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+   //              // AmmoCount -= ShotCost[CurrentFireMode];
+   //              //Add them to the hit array, so we don't hit them twice in one motion.
+   //              HitArray.AddItem(HitActor8);
+   //              DamageAmount+=2;
+   //              // TestPawn(HitActor8).SwordGotHit();
+   //          }
+   //      }
         if(bDidATracerHit)
         DebugPrint("tDamage -"@DamageAmount);
                 bDidATracerHit = false;
@@ -292,6 +308,10 @@ function setTracerDelay(float sDelay)
 }
 defaultproperties
 {
+        bCollideActors=True
+      bBlockActors=True
+      bNotifyRigidBodyCollision = true
+ScriptRigidBodyCollisionThreshold=0.001
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
         PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
@@ -330,9 +350,11 @@ Rotation=(Pitch=14000 ,Yaw=0, Roll=49152 )
     Components.Add(SwordMesh)
 
     Begin Object class=CylinderComponent Name=CollisionCylinder
-        CollisionRadius=+060.000000
-        CollisionHeight=+065.000000
+        // CollisionRadius=+0160.000000
+        // CollisionHeight=+0165.000000
     End Object
     CollisionComponent = CollisionCylinder
     Components.Add(CollisionCylinder)
+    // CollisionType=COLLIDE_BlockAll
+
 }

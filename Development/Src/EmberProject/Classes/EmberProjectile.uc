@@ -34,5 +34,7 @@ function setProjectileOwner(pawn law)
 DefaultProperties
 {
 	
-	DrawScale=4.2
+	Speed=5400 // 1400 default
+	MaxSpeed=10000 // 5000 default
+	DrawScale=4.2 // 1.2 default
 }
