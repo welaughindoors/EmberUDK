@@ -20,6 +20,9 @@ var float 					deltaTimeBoostMultiplier;
 var vector 					prevTetherSourcePos;
 var Vector 					tetherVelocity;
 var bool 					tetherStatusForVel;
+var Projectile				tetherProjectile;
+var vector 					projectileHitVector;
+var vector 					projectileHitLocation;
 //these are optimization vars
 //their values should never be relied on
 //used to reduce variable memory allocation/deallocation
@@ -451,6 +454,27 @@ function DoDoubleJump( bool bUpdating )
 //=============================================
 // Custom Functions
 //=============================================
+
+function SpawnStuff()
+{
+	local projectile P;
+	local vector newLoc;
+	local rotator rotat;
+	// newLoc = Location;
+	// newLoc.X += 70;
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
+	P = Spawn(class'EmberProjectile',self,,newLoc);
+	newLoc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
+	EmberProjectile(p).setProjectileOwner(self);
+	p.Init(newLoc);
+}
+function tetherLocationHit(vector hit, vector lol)
+{
+//	DebugPrint("p hit");
+projectileHitVector=hit;
+projectileHitLocation=lol;
+createTether();
+}
 exec function RecordTracers(name animation, float duration, float t1, float t2)
 {
 forwardAttack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
@@ -472,13 +496,16 @@ SetTimer(1.0, false, 'forwardAttackEnd');
 function forwardAttackEnd()
 {
 	DebugPrint("dun -");
-
+	//forwardAttack1.StopCustomAnim(0);
     Sword.SetInitialState();
     Sword.resetTracers();
     animationControl();
 	// forwardAttack1.SetActiveChild(0);
 }
-
+function goToIdleMotherfucker()
+{
+forwardAttack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
+}
 function animationControl()
 {
 	if(Vsize(Velocity) == 0) 
@@ -591,17 +618,17 @@ function createTether()
 	// if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
 	// Wall.isa('Actor') ? DebugPrint("Actor : " $Wall) : ;
 	// InStr(wall, "TestPawn") > 0? DebugPrint("gud") : ;
-	isPawn = InStr(wall, "TestPawn");
-	DebugPrint("p = " $isPawn);
-	floaty = VSize(location - wall.location);
-	DebugPrint("distance -"@floaty);
-	if(isPawn >= 0)
-	{
-		endLoc = normal(location - wall.location);
-		TestPawn(wall).grappleHooked(endLoc, self);
-		// endLoc *= 500;
-		// wall.velocity = endLoc;
-	}
+	// isPawn = InStr(wall, "TestPawn");
+	// DebugPrint("p = " $isPawn);
+	// floaty = VSize(location - wall.location);
+	// DebugPrint("distance -"@floaty);
+	// if(isPawn >= 0)
+	// {
+	// 	endLoc = normal(location - wall.location);
+	// 	TestPawn(wall).grappleHooked(endLoc, self);
+	// 	// endLoc *= 500;
+	// 	// wall.velocity = endLoc;
+	// }
 	//~~~~~~~~~~~~~~~
 	// Tether Success
 	//~~~~~~~~~~~~~~~
@@ -612,7 +639,8 @@ function createTether()
 	 EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering = true;
 	
 	curTargetWall = Wall;
-	wallHitLoc = hitLoc;
+	//wallHitLoc = hitLoc;
+	wallhitloc = projectileHitVector;
 	
 	//get length of tether from starting
 	//position of object and wall
@@ -659,7 +687,9 @@ function createTether()
 	tetherBeam.SetVectorParameter('TetherSource', tVar);
 	
 	//Beam End
-	tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+	tetherBeam.SetVectorParameter('TetherEnd', projectileHitLocation);	
+	
 
 
 	tetherBeam2.SetHidden(false);
@@ -667,10 +697,12 @@ function createTether()
 	
 	//Beam Source Point
 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', tVar, r);
+	// tetherBeam2.SetVectorParameter('TetherSource', tVar);
 	tetherBeam2.SetVectorParameter('TetherSource', tVar);
 	
+	
 	//Beam End
-	tetherBeam2.SetVectorParameter('TetherEnd', hitLoc);	
+	tetherBeam2.SetVectorParameter('TetherEnd', projectileHitLocation);	
 }
 
 /*
@@ -756,7 +788,7 @@ function tetherCalcs() {
 	//update beam based on on skeletal mesh socket
 	tetherBeam.SetVectorParameter('TetherSource', vc);
 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
-	tetherBeam2.SetVectorParameter('TetherSource', vc2);
+	tetherBeam2.SetVectorParameter('TetherSource', vc);
 	
 	//save prev tick pos to see change in position
 	prevTetherSourcePos = vc;
@@ -778,7 +810,7 @@ function tetherCalcs() {
 	
 	//vector between player and tether loc
 	//curTargetWall was given its value in createTether()
-	vc = Location - curTargetWall.Location;
+	vc = Location - projectileHitLocation;
 	
 	//dist between pawn and tether location
 	//see Vsize(vc) below (got rid of unnecessary var)

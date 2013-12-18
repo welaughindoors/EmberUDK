@@ -269,66 +269,66 @@ SetTimer(1.0, false, 'WeaponAttach');
 // 	return;
 // }
 //override so that the corpse will stay.
-// simulated State Dying
-// {
-// ignores OnAnimEnd, Bump, HitWall, HeadVolumeChange, PhysicsVolumeChange, Falling, BreathTimer, StartFeignDeathRecoveryAnim, ForceRagdoll, FellOutOfWorld;
+simulated State Dying
+{
+ignores OnAnimEnd, Bump, HitWall, HeadVolumeChange, PhysicsVolumeChange, Falling, BreathTimer, StartFeignDeathRecoveryAnim, ForceRagdoll, FellOutOfWorld;
+	exec simulated function FeignDeath();
+	reliable server function ServerFeignDeath();
+	event bool EncroachingOn(Actor Other)
+	{
+		// don't abort moves in ragdoll
+		// return false;
+		return true;
+	}
 
-// 	exec simulated function FeignDeath();
-// 	reliable server function ServerFeignDeath();
-// 	event bool EncroachingOn(Actor Other)
-// 	{
-// 		// don't abort moves in ragdoll
-// 		// return false;
-// 		return true;
-// 	}
+	event Timer()
+	{
+		local PlayerController PC;
+		local bool bBehindAllPlayers;
+		local vector ViewLocation;
+		local rotator ViewRotation;
+Destroy();
 
-// 	event Timer()
-// 	{
-// 		local PlayerController PC;
-// 		local bool bBehindAllPlayers;
-// 		local vector ViewLocation;
-// 		local rotator ViewRotation;
+		// let the dead bodies stay if the game is over
+		if (WorldInfo.GRI != None && WorldInfo.GRI.bMatchIsOver)
+		{
+			LifeSpan = 0.0;
+			return;
+		}
+		//commenting off Destroy so that the bodies will stay
+		//if ( !PlayerCanSeeMe() )
+		//{
+		//	Destroy();
+		//	return;
+		//}
+		// go away if not viewtarget
+		//@todo FIXMESTEVE - use drop detail, get rid of backup visibility check
+		bBehindAllPlayers = true;
+		ForEach LocalPlayerControllers(class'PlayerController', PC)
+		{
+			if ( (PC.ViewTarget == self) || (PC.ViewTarget == Base) )
+			{
+				if ( LifeSpan < 3.5 )
+					LifeSpan = 3.5;
+				SetTimer(2.0, false);
+				return;
+			}
 
-// 		// let the dead bodies stay if the game is over
-// 		if (WorldInfo.GRI != None && WorldInfo.GRI.bMatchIsOver)
-// 		{
-// 			LifeSpan = 0.0;
-// 			return;
-// 		}
-// 		//commenting off Destroy so that the bodies will stay
-// 		//if ( !PlayerCanSeeMe() )
-// 		//{
-// 		//	Destroy();
-// 		//	return;
-// 		//}
-// 		// go away if not viewtarget
-// 		//@todo FIXMESTEVE - use drop detail, get rid of backup visibility check
-// 		bBehindAllPlayers = true;
-// 		ForEach LocalPlayerControllers(class'PlayerController', PC)
-// 		{
-// 			if ( (PC.ViewTarget == self) || (PC.ViewTarget == Base) )
-// 			{
-// 				if ( LifeSpan < 3.5 )
-// 					LifeSpan = 3.5;
-// 				SetTimer(2.0, false);
-// 				return;
-// 			}
-
-// 			PC.GetPlayerViewPoint( ViewLocation, ViewRotation );
-// 			if ( ((Location - ViewLocation) dot vector(ViewRotation) > 0) )
-// 			{
-// 				bBehindAllPlayers = false;
-// 				break;
-// 			}
-// 		}
-// 		//if ( bBehindAllPlayers )
-// 		//{
-// 		//	Destroy();
-// 		//	return;
-// 		//}
-// 		SetTimer(2.0, false);
-// 	}
-// }
+			PC.GetPlayerViewPoint( ViewLocation, ViewRotation );
+			if ( ((Location - ViewLocation) dot vector(ViewRotation) > 0) )
+			{
+				bBehindAllPlayers = false;
+				break;
+			}
+		}
+		//if ( bBehindAllPlayers )
+		//{
+		//	Destroy();
+		//	return;
+		//}
+		SetTimer(2.0, false);
+	}
+}
 
 ///////////
 //RAG DOLL
@@ -373,6 +373,7 @@ SetTimer(1.0, false, 'WeaponAttach');
 function SwordGotHit()
 {
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
+    // Mesh.DetachComponent(Sword.mesh);
 }
 simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 {
@@ -380,7 +381,7 @@ Mesh.SetSkeletalMesh(defaultMesh);
 Mesh.SetMaterial(0,defaultMaterial0);
 Mesh.SetPhysicsAsset(defaultPhysicsAsset);
 Mesh.AnimSets=defaultAnimSet;
-Mesh.SetAnimTreeTemplate(defaultAnimTree);
+// Mesh.SetAnimTreeTemplate(defaultAnimTree);
 
 }
 DefaultProperties
@@ -401,8 +402,8 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 	Begin Object Name=CollisionCylinder
 	// // 	// CollisionRadius=+00102.00000
 	// // 	// CollisionHeight=+00102.800000
-		CollisionRadius=+0030.00000
-		CollisionHeight=+00100.00000
+		CollisionRadius=0025.00000
+		CollisionHeight=0047.5.00000
 	End Object
    Components.Add(CollisionCylinder)
    	//Setup default NPC mesh
@@ -451,5 +452,5 @@ PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 // 	Components.Add(MyWeaponSkeletalMesh)
 	CollisionComponent=CollisionCylinder
 	// bRunPhysicsWithNoController=true
-	ControllerClass=class'UTGame.UTBot'
+	// ControllerClass=class'UTGame.UTBot'
 }

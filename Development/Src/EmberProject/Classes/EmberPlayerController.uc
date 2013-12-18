@@ -93,7 +93,8 @@ Simulated Event PostBeginPlay() {
 }
 exec function kButtonDown()
 {
-	EmberPawn(pawn).CreateTether();
+	// EmberPawn(pawn).CreateTether();
+   EmberPawn(pawn).SpawnStuff();
 }
 exec function kbuttonUp ()
 {
@@ -144,6 +145,7 @@ leftMouseDown | leftMouseUp
 exec function leftMouseDown()
 {
    EmberPawn(pawn).forwardAttack();
+   // EmberPawn(pawn).SpawnStuff();
    // Custom_Sword(UTWeapon).CurrentFireMode = 0;
 }
 exec function leftMouseUp()
