@@ -23,6 +23,10 @@ var bool 					tetherStatusForVel;
 var Projectile				tetherProjectile;
 var vector 					projectileHitVector;
 var vector 					projectileHitLocation;
+
+var float 					goingAwayVelModifier;
+var float 					goingTowardsLowVelModifier;
+var float 					goingTowardsHighVelModifier;
 //these are optimization vars
 //their values should never be relied on
 //used to reduce variable memory allocation/deallocation
@@ -162,8 +166,26 @@ simulated event PostBeginPlay()
    	//1 second attach skele mesh
     SetTimer(0.5, false, 'WeaponAttach'); 
 
+goingTowardsHighVelModifier = 0.03;
+goingTowardsLowVelModifier = 30;
+goingAwayVelModifier = 55;
 
-
+}
+//Temp function, remove later
+exec function tethermod(float a, float b, float c)
+{
+	if(a == 0 && b == 0 && c == 0)
+	{
+		DebugPrint ("goingTowardsHigh -"@goingTowardsHighVelModifier);
+		DebugPrint(", goingTowardsLow -"@goingTowardsLowVelModifier);
+		DebugPrint(", goingAway -"@goingAwayVelModifier);
+		return;
+	}
+	goingTowardsHighVelModifier = (a != 0) ? a : goingTowardsHighVelModifier;
+	goingTowardsLowVelModifier = (b != 0) ? b : goingTowardsLowVelModifier;
+	goingAwayVelModifier = (c != 0) ? c : goingAwayVelModifier;
+	// b != 0 ? goingTowardsLowVelModifier = b : ;
+	// c != 0 ? goingAwayVelModifier = c : ;
 }
 
 /*
@@ -865,11 +887,11 @@ function tetherCalcs() {
 		// }
 		if(Vsize(vc) > 1500)
 		{
-			velocity -= vc2 * (Vsize(vc) * 0.05);
+			velocity -= vc2 * (Vsize(vc) * goingTowardsHighVelModifier);
 		}
 		else
 		{
-			velocity -= vc2 * 55;	
+			velocity -= vc2 * goingTowardsLowVelModifier;	
 		}
 
 		// DebugPrint("length"@Vsize(vc));
@@ -883,8 +905,8 @@ function tetherCalcs() {
 				// velocity -= vc2 * (95 * (Velocity.z * 0.4)) ;
 			else
 			{
-				DebugPrint("going away");
-				velocity -= vc2 * 100;
+				// DebugPrint("going away");
+				velocity -= vc2 * goingAwayVelModifier;
 			}
 		// }
 		// if(tetherlength > 1000)
