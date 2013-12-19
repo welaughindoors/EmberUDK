@@ -37,6 +37,7 @@ event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vect
 
 function TraceAttack()
 {
+
    local Actor HitActor;
    local Vector HitLocation, HitNormal, SwordTip, SwordHilt;
    local Vector Start, Start2, Start3, Mid, End, End2, End3, bottomBlockControl, bottomBlockControl2, tipBlockControl, tipBlockControl2, tipBlockControl3;
@@ -85,6 +86,7 @@ if(!bTracers)
         DrawDebugLine(tipBlockControl, tipBlockControl2, 0, -1, -1, true);
         DrawDebugLine(tipBlockControl3, tipBlockControl2, 0, -1, -1, true);
 
+
         HitActor = Trace(HitLocation, HitNormal, End, oldEnd, true, , hitInfo); 
         HitActor2 = Trace(HitLocation, HitNormal, End2, oldEnd2, true, , hitInfo2); 
         HitActor3 = Trace(HitLocation, HitNormal, End3, oldEnd3, true, , hitInfo3); 
@@ -92,7 +94,7 @@ if(!bTracers)
         HitActor5 = Trace(HitLocation, HitNormal, Start3, oldStart3, true, , hitInfo5); 
         HitActor6 = Trace(HitLocation, HitNormal, Start2, oldStart2, true, , hitInfo6); 
         HitActor7 = Trace(HitLocation, HitNormal, Start, oldStart, true, , hitInfo7); 
-        HitActor8 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl, true, , hitInfo8); 
+        HitActor8 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl, true,, hitInfo8); 
         HitActor9 = Trace(HitLocation, HitNormal, tipBlockControl, tipBlockControl2, true, , hitInfo9); 
         HitActor10 = Trace(HitLocation, HitNormal, tipBlockControl2, tipBlockControl3, true, , hitInfo10); 
         HitActor11 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl3, true, , hitInfo11); 
@@ -300,6 +302,7 @@ function resetTracers()
   HitArray5.length = 0;
   HitArray6.length = 0;
   HitArray7.length = 0;
+  
 }
 function setTracerDelay(float sDelay)
 {

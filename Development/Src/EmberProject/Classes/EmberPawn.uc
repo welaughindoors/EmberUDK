@@ -487,6 +487,8 @@ SetTimer(duration, false, 'forwardAttackEnd');
 }
 function forwardAttack()
 {
+	
+FlushPersistentDebugLines();
 	DebugPrint("start -");
 forwardAttack1.PlayCustomAnimByDuration('ember_attack_forward',1.0, 0.2, 0, false);
 SetTimer(1.0, false, 'forwardAttackEnd');
@@ -652,8 +654,8 @@ function createTether()
 		// tetherlength = 1000;
 
 	tetherlength = vsize(hitLoc - Location) * 0.75;
-	if (tetherlength > 500) 
-		tetherlength = 500;
+	// if (tetherlength > 500) 
+		// tetherlength = 500;
 	//~~~
 	
 	//~~~ Beam UPK Asset Download ~~~ 
@@ -818,7 +820,7 @@ function tetherCalcs() {
 	//dist between pawn and tether location
 	//see Vsize(vc) below (got rid of unnecessary var)
 	
-	idunnowhatimdoing = tetherlength * 0.2;
+	idunnowhatimdoing = tetherlength * 0.4;
         //is the pawn moving beyond allowed current tether length?
         //if so apply corrective force to push pawn back within range
 
@@ -858,22 +860,35 @@ function tetherCalcs() {
 		//pawn to move at, adjust to your preferences
 		//could also be made into a variable
 		// DebugPrint("v - " $velocity.z);
-		if(vsize(velocity) < 2500){
-			velocity -= vc2 * 95;
+		// if(vsize(velocity) < 2500){
+			// velocity -= vc2 * 300;
+		// }
+		if(Vsize(vc) > 1500)
+		{
+			velocity -= vc2 * (Vsize(vc) * 0.05);
 		}
+		else
+		{
+			velocity -= vc2 * 55;	
+		}
+
+		// DebugPrint("length"@Vsize(vc));
 		}
 		
 		//not moving in direction of pawn
 		//apply as much velocity as needed to prevent falling
 		//allows sudden direction changes
-		else {
-			if(velocity.z > 1200) //Usually caused by gravity boost from jetpack
-				velocity -= vc2 * (95 * (Velocity.z * 0.4));
+		// else {
+			// if(velocity.z > 1200) //Usually caused by gravity boost from jetpack
+				// velocity -= vc2 * (95 * (Velocity.z * 0.4)) ;
 			else
-				velocity -= vc2 * 95;
-		}
-		if(tetherlength > 1000)
-			velocity -= vc2 * (tetherlength * 0.15);
+			{
+				DebugPrint("going away");
+				velocity -= vc2 * 100;
+			}
+		// }
+		// if(tetherlength > 1000)
+			// velocity -= vc2 * (tetherlength * 0.15);
 		// if(location.z <= 75){
 		// 	ll = location;
 		// 	ll.z = 76;

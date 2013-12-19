@@ -37,4 +37,5 @@ DefaultProperties
 	Speed=5400 // 1400 default
 	MaxSpeed=10000 // 5000 default
 	DrawScale=4.2 // 1.2 default
+	MaxEffectDistance=2000.0 // 7000 def
 }
