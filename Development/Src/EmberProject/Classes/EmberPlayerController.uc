@@ -16,7 +16,7 @@ var AnimNodeSequence defaultAnimSeq;
 
 var PhysicsAsset defaultPhysicsAsset;
 
-
+var float      playerStrafeDirection;
 /*
 PlayerWalking
 	Used for dodge. Queued for removal
@@ -35,6 +35,7 @@ ignores SeePlayer, HearNoise, Bump;
 				DoubleClickDir = DCLICK_Active;
 		}
 
+   playerStrafeDirection = PlayerInput.aStrafe;
       if( Pawn == None )
       {
          return;
@@ -93,69 +94,69 @@ Simulated Event PostBeginPlay() {
 }
 exec function kButtonDown()
 {
-	// EmberPawn(pawn).CreateTether();
-   EmberPawn(pawn).SpawnStuff();
+   // EmberPawn(pawn).CreateTether();
+   EmberPawn(pawn).tetherBeamProjectile();
 }
 exec function kbuttonUp ()
 {
-	EmberPawn(pawn).DetachTether();
+   EmberPawn(pawn).DetachTether();
 }
 exec function LeftShiftButtonDown()
 {
-	// EmberPawn(pawn).startSprint();
+   // EmberPawn(pawn).startSprint();
 }
 exec function LeftShiftButtonUp ()
 {
-	// EmberPawn(pawn).endSprint();
+   // EmberPawn(pawn).endSprint();
 }
 exec function increaseTether()
 {
-	EmberPawn(pawn).increaseTether();
+   EmberPawn(pawn).increaseTether();
 }
 exec function decreaseTether ()
 {
-	EmberPawn(pawn).decreaseTether();
+   EmberPawn(pawn).decreaseTether();
 }
 exec function jumpIsRequested()
 {
-	EmberPawn(pawn).DoDoubleJump(true);
+   EmberPawn(pawn).DoDoubleJump(true);
 }
 
 exec function jumpIsDenied()
 {
-	EmberPawn(pawn).DoDoubleJump(false);
-	
+   EmberPawn(pawn).DoDoubleJump(false);
+   
 }
 
 exec function spawnDummy()
 {
-	local Pawn p;
-	local vector l;
-	l = Location;
-	l.x += 20;
-	p = Spawn(class'TestPawn');
-	p.SpawnDefaultController();
-	Spawn(class'Custom_Sword', , , l);
+   local Pawn p;
+   local vector l;
+   l = Location;
+   l.x += 20;
+   p = Spawn(class'TestPawn');
+   p.SpawnDefaultController();
+   Spawn(class'Custom_Sword', , , l);
 }
 
 /*
 leftMouseDown | leftMouseUp
-	Queued for removal
+   Queued for removal
 */
 exec function leftMouseDown()
 {
-   EmberPawn(pawn).forwardAttack();
+   EmberPawn(pawn).doAttack(playerStrafeDirection);
    // EmberPawn(pawn).SpawnStuff();
    // Custom_Sword(UTWeapon).CurrentFireMode = 0;
 }
 exec function leftMouseUp()
 {
-	// Custom_Sword(UTWeapon).resetTracers = true;
+   // Custom_Sword(UTWeapon).resetTracers = true;
 }
 exec function CntrlIsRequested()
 {
-	EmberPawn(pawn).kickCounter = 0;
-	EmberPawn(pawn).DoKick();
+   EmberPawn(pawn).kickCounter = 0;
+   EmberPawn(pawn).DoKick();
 }
 
 /*

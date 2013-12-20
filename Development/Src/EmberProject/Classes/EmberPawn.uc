@@ -169,23 +169,6 @@ simulated event PostBeginPlay()
 goingTowardsHighVelModifier = 0.03;
 goingTowardsLowVelModifier = 30;
 goingAwayVelModifier = 55;
-
-}
-//Temp function, remove later
-exec function tethermod(float a, float b, float c)
-{
-	if(a == 0 && b == 0 && c == 0)
-	{
-		DebugPrint ("goingTowardsHigh -"@goingTowardsHighVelModifier);
-		DebugPrint(", goingTowardsLow -"@goingTowardsLowVelModifier);
-		DebugPrint(", goingAway -"@goingAwayVelModifier);
-		return;
-	}
-	goingTowardsHighVelModifier = (a != 0) ? a : goingTowardsHighVelModifier;
-	goingTowardsLowVelModifier = (b != 0) ? b : goingTowardsLowVelModifier;
-	goingAwayVelModifier = (c != 0) ? c : goingAwayVelModifier;
-	// b != 0 ? goingTowardsLowVelModifier = b : ;
-	// c != 0 ? goingAwayVelModifier = c : ;
 }
 
 /*
@@ -475,51 +458,122 @@ function DoDoubleJump( bool bUpdating )
 	}
 	// }
 }
+//=============================================
+// Debug Functions
+//=============================================
+
+/*
+RecordTracers - Debug Function
+	Plays an animation showing tracers.
+	Can change duration that tracers start and end
+	@TODO: Tracers end record
+	@TODO: Auto save to a script file perhaps?
+*/
+exec function RecordTracers(name animation, float duration, float t1, float t2)
+{
+	forwardAttack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
+	Sword.setTracerDelay(t1);
+    Sword.GoToState('Attacking');
+	SetTimer(duration, false, 'forwardAttackEnd');
+}
+
+/*
+tethermod - Debug Function
+	Used to modify grapple at runtime
+	Usage:
+		'tethermod 0 0 0'
+			Outputs current tether values
+		'tethermod X 0 0'
+			Changes goingTowardsHighVelModifier modifier
+		'tethermod 0 X 0'
+			Changes goingTowardsLowVelModifier modifier
+		'tethermod 0 0 X'
+			Changes goingAwayVelModifier modifier
+	Can change multiple modifiers at the same time
+*/
+exec function tethermod(float a, float b, float c)
+{
+	if(a == 0 && b == 0 && c == 0)
+	{
+		DebugPrint ("goingTowardsHigh -"@goingTowardsHighVelModifier);
+		DebugPrint(", goingTowardsLow -"@goingTowardsLowVelModifier);
+		DebugPrint(", goingAway -"@goingAwayVelModifier);
+		return;
+	}
+	goingTowardsHighVelModifier = (a != 0) ? a : goingTowardsHighVelModifier;
+	goingTowardsLowVelModifier = (b != 0) ? b : goingTowardsLowVelModifier;
+	goingAwayVelModifier = (c != 0) ? c : goingAwayVelModifier;
+	// b != 0 ? goingTowardsLowVelModifier = b : ;
+	// c != 0 ? goingAwayVelModifier = c : ;
+}
 
 //=============================================
 // Custom Functions
 //=============================================
 
-function SpawnStuff()
+/*
+doAttack
+	Detects if player is moving left or right from playercontroler (PlayerInput)
+	Determines which attack to use.
+	@TODO: Detect if timer is active, if so do not do another attack
+*/
+function doAttack( float strafeDirection)
 {
-	local projectile P;
-	local vector newLoc;
-	local rotator rotat;
-	// newLoc = Location;
-	// newLoc.X += 70;
-	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
-	P = Spawn(class'EmberProjectile',self,,newLoc);
-	newLoc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
-	EmberProjectile(p).setProjectileOwner(self);
-	p.Init(newLoc);
+	strafeDirection > 0 ? rightAttack():;
+	strafeDirection < 0 ? leftAttack():;
+	strafeDirection == 0 ? forwardAttack():;
 }
-function tetherLocationHit(vector hit, vector lol)
+
+/*
+rightAttack
+	Flushes existing debug lines
+	Starts playing rightAttack attack animation
+	Sets timer for end attack animation
+	Sets tracer delay
+	@TODO: Detect if timer is active, if so do not do another attack
+*/
+function rightAttack()
 {
-//	DebugPrint("p hit");
-projectileHitVector=hit;
-projectileHitLocation=lol;
-createTether();
+//ember_temp_right_attack
 }
-exec function RecordTracers(name animation, float duration, float t1, float t2)
+
+/*
+leftAttack
+	Flushes existing debug lines
+	Starts playing left attack animation
+	Sets timer for end attack animation
+	Sets tracer delay
+	@TODO: Detect if timer is active, if so do not do another attack
+*/
+function leftAttack()
 {
-forwardAttack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
-	Sword.setTracerDelay(t1);
-    Sword.GoToState('Attacking');
-SetTimer(duration, false, 'forwardAttackEnd');
+//ember_temp_left_attack
 }
+/*
+forwardAttack
+	Flushes existing debug lines
+	Starts playing forward attack animation
+	Sets timer for end attack animation
+	Sets tracer delay
+	@TODO: Detect if timer is active, if so do not do another attack
+*/
 function forwardAttack()
 {
-	
-FlushPersistentDebugLines();
+	var float timeTakesToComplete;
+	timeTakesToComplete = 1.0;
+	FlushPersistentDebugLines();
 	DebugPrint("start -");
-forwardAttack1.PlayCustomAnimByDuration('ember_attack_forward',1.0, 0.2, 0, false);
-SetTimer(1.0, false, 'forwardAttackEnd');
+	forwardAttack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.2, 0, false);
+	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 
 	Sword.setTracerDelay(0.65);
     Sword.GoToState('Attacking');
 // forwardAttack1.StopCustomAnim(0);
 }
-
+/*
+forwardAttackEnd
+	Resets sword, tracers, and idle stance at end of forward attack
+*/
 function forwardAttackEnd()
 {
 	DebugPrint("dun -");
@@ -529,10 +583,18 @@ function forwardAttackEnd()
     animationControl();
 	// forwardAttack1.SetActiveChild(0);
 }
+/*
+goToIdleMotherfucker
+	Temporary animation for 'parries'
+*/
 function goToIdleMotherfucker()
 {
 forwardAttack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
 }
+/*
+animationControl
+	When player is idle, pick only one of the random idle animations w/ 0.25 blend
+*/
 function animationControl()
 {
 	if(Vsize(Velocity) == 0) 
@@ -550,6 +612,35 @@ function animationControl()
 	else
 		idleBool = false;
 }
+/*
+tetherBeamProjectile
+	Launches a projectile specified by EmberProjectile.uc
+	Upon hitting a target, executes tetherLocationHit
+*/
+function tetherBeamProjectile()
+{
+	local projectile P;
+	local vector newLoc;
+	local rotator rotat;
+	// newLoc = Location;
+	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
+	P = Spawn(class'EmberProjectile',self,,newLoc);
+	newLoc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
+	EmberProjectile(p).setProjectileOwner(self);
+	p.Init(newLoc);
+}
+/*
+tetherLocationHit
+	returns hit and location of tetherBeamProjectile
+*/
+function tetherLocationHit(vector hit, vector lol)
+{
+	projectileHitVector=hit;
+	projectileHitLocation=lol;
+	createTether();
+}
+
 /*
 increaseTether
 */
