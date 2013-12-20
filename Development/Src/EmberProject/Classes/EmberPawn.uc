@@ -524,19 +524,23 @@ exec function tethermod(float a, float b, float c)
 doAttack
 	Detects if player is moving left or right from playercontroler (PlayerInput)
 	Determines which attack to use.
-	@TODO: Detect if timer is active, if so do not do another attack
+	Queues Attacks
 */
 function doAttack( float strafeDirection)
 {
 	local float timerCounter;
+	local float queueCounter;
+
+	queueCounter = 0.25;
+
 	timerCounter = GetTimerRate('forwardAttackEnd') - GetTimerCount('forwardAttackEnd');
 	DebugPrint("attack Requested");
-	if(timerCounter > 0.5)
+	if(timerCounter > queueCounter)
 	{
 	DebugPrint("attack Denied");
 	return;
 	}
-	if(timerCounter < 0.5 && timerCounter > 0)
+	if(timerCounter < queueCounter && timerCounter > 0)
 	{
 	DebugPrint("attack Queued");
 	animationQueueAndDirection = (strafeDirection == 0) ? 1337.0 : strafeDirection;
