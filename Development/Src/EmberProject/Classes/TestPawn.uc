@@ -11,6 +11,7 @@ var float 		gHookTimer;
 var float 		dTime;
 var vector 		gHookTarget;
 var pawn 		playerPawn;
+var vector 		grappleSocketLocation;
 //=============================================
 // Weapon
 //=============================================
@@ -39,9 +40,11 @@ var PhysicsAsset defaultPhysicsAsset;
 // 		GotoState('Dying');
 // 	}
 // }
+
 Simulated Event Tick(float DeltaTime)
 {
 
+local rotator r;
 	 //GetALocalPlayerController().ClientMessage("tick : " $DeltaTime);
    	 Super.Tick(DeltaTime);
    	 // Velocity = vect(0,0,0);
@@ -51,6 +54,9 @@ Simulated Event Tick(float DeltaTime)
    	 	gHookTimer+=DeltaTime;
    	 	grappleHooked(gHookTarget, playerPawn);
    	 }
+
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocketLocation, r);
+   	  
    	}
 function grappleHooked(vector target, pawn player)
 {

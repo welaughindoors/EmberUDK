@@ -9,6 +9,8 @@ var float tracerCounter, tracerDelay;
 
 var float DamageAmount;
 
+var float inducedLag;
+
 //=============================================
 // Utility Functions
 //=============================================
@@ -75,14 +77,16 @@ if(!bTracers)
         oldMid = Mid;
 }
         bDidATracerHit = false;
-        DrawDebugLine(Start, oldStart, -1, 0, 0, true);
         DrawDebugLine(Start, End, -1, 0, 0, true);
+
+        DrawDebugLine(Start, oldStart, -1, 0, 0, true);
         DrawDebugLine(Start2, oldStart2, -1, 0, 0, true);
         DrawDebugLine(Start3, oldStart3, -1, 0, 0, true);
         DrawDebugLine(End, oldEnd, -1, 0, 0, true);
         DrawDebugLine(End2, oldEnd2, -1, 0, 0, true);
         DrawDebugLine(End3, oldEnd3, -1, 0, 0, true);
         DrawDebugLine(Mid, oldMid, -1, 0, 0, true);
+
         DrawDebugLine(bottomBlockControl, tipBlockControl, 0, -1, -1, true);
         DrawDebugLine(tipBlockControl, tipBlockControl2, 0, -1, -1, true);
         DrawDebugLine(tipBlockControl3, tipBlockControl2, 0, -1, -1, true);
@@ -290,8 +294,12 @@ simulated state Attacking
    {
       super.Tick(DeltaTime);
       tracerCounter+= DeltaTime;
-      if(tracerCounter >= tracerDelay)
+      inducedLag += DeltaTime;
+      if(tracerCounter >= tracerDelay && inducedLag >= 0)
+      {
+        inducedLag = 0;
         TraceAttack();
+      }
    }
 }
 function resetTracers()

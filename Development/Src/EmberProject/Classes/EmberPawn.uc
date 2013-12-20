@@ -11,6 +11,8 @@ var() SkeletalMeshComponent SwordMesh;
 // Tether System
 //=============================================
 var actor 					curTargetWall;
+var actor 					enemyPawn;
+var bool 					enemyPawnToggle;
 var vector 					wallHitLoc;
 var ParticleSystemComponent tetherBeam;
 var ParticleSystemComponent tetherBeam2;
@@ -579,7 +581,7 @@ local float timeTakesToComplete;
 
 	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-	// Sword.setTracerDelay(0.30);
+	Sword.setTracerDelay(0.30);
     Sword.GoToState('Attacking');
 }
 
@@ -612,7 +614,7 @@ local float timeTakesToComplete;
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 	// SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 
-	// Sword.setTracerDelay(0.30);
+	Sword.setTracerDelay(0.30);
     Sword.GoToState('Attacking');
 }
 
@@ -726,10 +728,12 @@ function tetherBeamProjectile()
 tetherLocationHit
 	returns hit and location of tetherBeamProjectile
 */
-function tetherLocationHit(vector hit, vector lol)
+function tetherLocationHit(vector hit, vector lol, actor Other)
 {
 	projectileHitVector=hit;
 	projectileHitLocation=lol;
+	enemyPawn = Other;
+	enemyPawnToggle = (enemyPawn != none) ? true : false;
 	createTether();
 }
 
@@ -758,7 +762,9 @@ detachTether
 function detachTether() 
 {
 	curTargetWall = none;
-	
+
+	enemyPawn = enemyPawnToggle ? enemyPawn : none;
+
 	//beam
 	if(tetherBeam != none){
 		tetherBeam.SetHidden(true);
@@ -800,7 +806,7 @@ function createTether()
 	local vector startTraceLoc;
 	local vector endLoc;
 	// local float floaty;
-	// local int isPawn;
+	local int isPawn;
 	//~~~ Trace ~~~
 
 	vc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
@@ -828,23 +834,25 @@ function createTether()
 	// if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
 	// Wall.isa('Actor') ? DebugPrint("Actor : " $Wall) : ;
 	// InStr(wall, "TestPawn") > 0? DebugPrint("gud") : ;
-	// isPawn = InStr(wall, "TestPawn");
+	isPawn = InStr(wall, "TestPawn");
 	// DebugPrint("p = " $isPawn);
 	// floaty = VSize(location - wall.location);
 	// DebugPrint("distance -"@floaty);
-	// if(isPawn >= 0)
-	// {
-	// 	endLoc = normal(location - wall.location);
-	// 	TestPawn(wall).grappleHooked(endLoc, self);
-	// 	// endLoc *= 500;
-	// 	// wall.velocity = endLoc;
-	// }
+	if(isPawn >= 0)
+	{
+		endLoc = normal(location - wall.location);
+		TestPawn(wall).grappleHooked(endLoc, self);
+		// endLoc *= 500;
+		// wall.velocity = endLoc;
+	}
 	//~~~~~~~~~~~~~~~
 	// Tether Success
 	//~~~~~~~~~~~~~~~
 	//Clear any old tether
 	detachTether();
 	
+
+	enemyPawnToggle = enemyPawnToggle ? false : false;
 	//state
 	 EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering = true;
 	
@@ -898,6 +906,9 @@ function createTether()
 	
 	//Beam End
 	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+	if(enemyPawn != none)
+	tetherBeam.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
+	else
 	tetherBeam.SetVectorParameter('TetherEnd', projectileHitLocation);	
 	
 
@@ -912,6 +923,9 @@ function createTether()
 	
 	
 	//Beam End
+	if(enemyPawn != none)
+	tetherBeam2.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
+	else
 	tetherBeam2.SetVectorParameter('TetherEnd', projectileHitLocation);	
 }
 
@@ -1003,6 +1017,13 @@ function tetherCalcs() {
 	//save prev tick pos to see change in position
 	prevTetherSourcePos = vc;
 	
+
+	if(enemyPawn != none)
+	{
+		DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
+	tetherBeam.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
+		tetherBeam2.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
+}
 	
 	//~~~~~~~~~~~~~~~~~~~
 	//Actual Tether Constraint
