@@ -573,7 +573,7 @@ local float timeTakesToComplete;
 	// FlushPersistentDebugLines();
 	DebugPrint("rift -");
 
-	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0.1, false);
+	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 	// Sword.setTracerDelay(0.30);
     Sword.GoToState('Attacking');
@@ -604,7 +604,7 @@ local float timeTakesToComplete;
 	timeTakesToComplete = 1.0;
 	// FlushPersistentDebugLines();
 	DebugPrint("left -");
-	Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0.1, false);
+	Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 	// SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 
