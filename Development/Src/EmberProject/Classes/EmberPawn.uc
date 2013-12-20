@@ -75,7 +75,11 @@ var bool idleBool;
 //=============================================
 // Attack Animations
 //=============================================
-var AnimNodePlayCustomAnim forwardAttack1;
+var AnimNodeBlendList AttackGateNode;
+var AnimNodeBlendList AttackBlendNode;
+var AnimNodePlayCustomAnim Attack1;
+var AnimNodePlayCustomAnim Attack2;
+var float 				animationQueueAndDirection;
 
 //=============================================
 // Weapon
@@ -320,7 +324,12 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     {
         AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
   		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
-  		forwardAttack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('AttackForward')); 
+
+  		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+  		// Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack2'));
+
+  		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
+		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
     }
 
 }
@@ -471,7 +480,7 @@ RecordTracers - Debug Function
 */
 exec function RecordTracers(name animation, float duration, float t1, float t2)
 {
-	forwardAttack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
+	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
 	Sword.setTracerDelay(t1);
     Sword.GoToState('Attacking');
 	SetTimer(duration, false, 'forwardAttackEnd');
@@ -519,9 +528,27 @@ doAttack
 */
 function doAttack( float strafeDirection)
 {
-	strafeDirection > 0 ? rightAttack():;
-	strafeDirection < 0 ? leftAttack():;
-	strafeDirection == 0 ? forwardAttack():;
+	local float timerCounter;
+	timerCounter = GetTimerRate('forwardAttackEnd') - GetTimerCount('forwardAttackEnd');
+	DebugPrint("attack Requested");
+	if(timerCounter > 0.5)
+	{
+	DebugPrint("attack Denied");
+	return;
+	}
+	if(timerCounter < 0.5 && timerCounter > 0)
+	{
+	DebugPrint("attack Queued");
+	animationQueueAndDirection = (strafeDirection == 0) ? 1337.0 : strafeDirection;
+	// animationQueueAndDirection = strafeDirection;
+	return;
+	}
+	if(strafeDirection > 0)
+		rightAttack();
+	else if(strafeDirection < 0)
+		leftAttack();
+	else
+		forwardAttack();
 }
 
 /*
@@ -534,9 +561,32 @@ rightAttack
 */
 function rightAttack()
 {
-//ember_temp_right_attack
+//
+local float timeTakesToComplete;
+
+   	// AttackGateNode.SetActiveChild(1, 0);
+   	// AttackBlendNode.SetActiveChild(0, 0);
+
+    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+	timeTakesToComplete = 1.0;
+	// FlushPersistentDebugLines();
+	DebugPrint("rift -");
+
+	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0.1, false);
+	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
+	// Sword.setTracerDelay(0.30);
+    Sword.GoToState('Attacking');
 }
 
+function rightAttackEnd()
+{
+	DebugPrint("dun -");
+	//forwardAttack1.StopCustomAnim(0);
+    Sword.SetInitialState();
+    Sword.resetTracers();
+    animationControl();
+}
 /*
 leftAttack
 	Flushes existing debug lines
@@ -548,7 +598,37 @@ leftAttack
 function leftAttack()
 {
 //ember_temp_left_attack
+local float timeTakesToComplete;
+    Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
+	timeTakesToComplete = 1.0;
+	// FlushPersistentDebugLines();
+	DebugPrint("left -");
+	Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0.1, false);
+	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
+	// SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
+
+	// Sword.setTracerDelay(0.30);
+    Sword.GoToState('Attacking');
 }
+
+// int planetIndex;
+// planetIndex = ###;
+
+// 	switch(planetIndex)
+// 	{
+// 		case 0:
+// 		print "100lb";
+// 		break;
+
+// 		case 1:
+// 		print "0.3Lb";
+// 		break;
+
+// 		case default:
+// 		print "neither earth nor moon selected";
+// 		break;
+// 	}
 /*
 forwardAttack
 	Flushes existing debug lines
@@ -559,11 +639,11 @@ forwardAttack
 */
 function forwardAttack()
 {
-	var float timeTakesToComplete;
+	local float timeTakesToComplete;
 	timeTakesToComplete = 1.0;
 	FlushPersistentDebugLines();
-	DebugPrint("start -");
-	forwardAttack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.2, 0, false);
+	DebugPrint("fwd -");
+	Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 
 	Sword.setTracerDelay(0.65);
@@ -573,6 +653,7 @@ function forwardAttack()
 /*
 forwardAttackEnd
 	Resets sword, tracers, and idle stance at end of forward attack
+	@TODO: Make perhaps only one attack end animation funcion
 */
 function forwardAttackEnd()
 {
@@ -581,6 +662,13 @@ function forwardAttackEnd()
     Sword.SetInitialState();
     Sword.resetTracers();
     animationControl();
+
+    if(animationQueueAndDirection != 0)
+    {
+    	animationQueueAndDirection == 1337 ? doAttack(0) : doAttack(animationQueueAndDirection);
+    	animationQueueAndDirection = 0;
+    }
+
 	// forwardAttack1.SetActiveChild(0);
 }
 /*
@@ -589,7 +677,7 @@ goToIdleMotherfucker
 */
 function goToIdleMotherfucker()
 {
-forwardAttack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
+Attack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
 }
 /*
 animationControl

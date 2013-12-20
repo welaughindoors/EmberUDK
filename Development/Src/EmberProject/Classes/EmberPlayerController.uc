@@ -145,6 +145,9 @@ leftMouseDown | leftMouseUp
 */
 exec function leftMouseDown()
 {
+   local vector2D MPos;
+   MPos = LocalPlayer(Player).ViewportClient.GetMousePosition();
+   LocalPlayer(Player).ViewportClient.SetMouse(MPos.X, MPos.Y+2);
    EmberPawn(pawn).doAttack(playerStrafeDirection);
    // EmberPawn(pawn).SpawnStuff();
    // Custom_Sword(UTWeapon).CurrentFireMode = 0;

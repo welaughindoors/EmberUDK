@@ -6,7 +6,7 @@ simulated singular event HitWall(vector HitNormal, actor Wall, PrimitiveComponen
 {
 	// Velocity = MirrorVectorByNormal(Velocity,HitNormal);
 	// SetRotation(Rotator(Velocity));
-	// Wall.TakeDamage(Damage,InstigatorController,HitNormal,MomentumTransfer * Normal(Velocity), MyDamageType,, self);
+	// Wall.TakeDamage(Damage,Instigat orController,HitNormal,MomentumTransfer * Normal(Velocity), MyDamageType,, self);
 
     // GetALocalPlayerController().ClientMessage("Projectile hits");	
     MomentumTransfer = 1.0;
