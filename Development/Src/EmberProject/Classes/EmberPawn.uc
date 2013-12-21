@@ -482,10 +482,7 @@ RecordTracers - Debug Function
 */
 exec function RecordTracers(name animation, float duration, float t1, float t2)
 {
-	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
-	Sword.setTracerDelay(t1,t2);
-    Sword.GoToState('Attacking');
-	SetTimer(duration, false, 'forwardAttackEnd');
+	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.RecordTracers(animation, duration, duration*t1, duration*t2);
 }
 
 /*
@@ -532,7 +529,14 @@ function doAttack( float strafeDirection)
 {
 	local float timerCounter;
 	local float queueCounter;
+// 	local vector jumpLocation;
+// 	local rotator jumpRotation;
 
+// 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
+
+// 	DebugPrint("l - "@Rotation - jumpRotation);
+// 	DebugPrint("l - "@jumpRotation - Rotation);
+// return;
 	queueCounter = 0.25;
 
 	timerCounter = GetTimerRate('forwardAttackEnd') - GetTimerCount('forwardAttackEnd');
@@ -581,8 +585,13 @@ local float timeTakesToComplete;
 
 	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-	Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
+	// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
     Sword.GoToState('Attacking');
+}
+
+exec function setTracers(int tracers)
+{
+	Sword.setTracers(tracers);
 }
 
 function rightAttackEnd()

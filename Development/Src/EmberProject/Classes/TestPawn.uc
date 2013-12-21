@@ -24,7 +24,11 @@ var vector 		grappleSocketLocation;
 // Weapon
 //=============================================
 var Sword Sword;
-
+//=============================================
+// Animation
+//=============================================
+var AnimNodePlayCustomAnim Attack1;
+var bool 					defaultDelay;
 
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
@@ -223,6 +227,21 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 }
 
 /*
+PostInitAnimTree
+	Allows custom animations.
+*/
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+    //Setting up a reference to our animtree to play custom stuff.
+    super.PostInitAnimTree(SkelComp);
+    if ( SkelComp == Mesh)
+    {
+    	Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+    }
+
+}
+
+/*
 PostBeginPlay
 */
 simulated function PostBeginPlay()
@@ -236,7 +255,8 @@ simulated function PostBeginPlay()
 	// Mesh.SetActorCollision(true, true); // enable PhysicsAsset collision
 	// Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
 	// SetTimer(0.5, true, 'BrainTimer');
-	SetTimer(1.0, false, 'WeaponAttach');
+	SetTimer(0.1, false, 'WeaponAttach');
+
 }
 
 /*
@@ -329,6 +349,29 @@ function SwordGotHit()
 }
 
 /*
+doAttackRecording
+	Used for tracer recording
+*/
+
+function doAttackRecording (name animation, float duration, float t1, float t2) 
+{
+	 Sword = Spawn(class'Sword', self);
+	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
+	Sword.setTracerDelay(t1,t2);
+    Sword.GoToState('Attacking');
+	SetTimer(duration, false, 'AttackRecordingFinished');
+}
+/*
+AttackRecordingFinished
+	Delete this pawn instance
+*/
+function AttackRecordingFinished()
+{
+		Sword.Destroy();
+		Destroy();
+}
+/*
 SetCharacterClassFromInfo
 	Used to set info for pawn
 */
@@ -353,6 +396,7 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 	bAvoidLedges=true
 	bStopAtLedges=true
 	LedgeCheckThreshold=0.5f
+	Health = 250
 	
 	Begin Object Name=CollisionCylinder
 	// // 	// CollisionRadius=+00102.00000

@@ -45,12 +45,22 @@ RestartPlayer
 // playerControllerWORLD = EmberPlayerController(aPlayer);
 // playerControllerWORLD.resetMesh();
 // }
-function DrawHud()
-{
+// function DrawHud()
+// {
 
-}
+// }
+// function RecordTracers(vector l, name animation, float duration, float t1, float t2)
+// {
+// 	local Pawn p;
+//    	p = Spawn(class'TestPawn', , , );
+//    	p.SpawnDefaultController();
+//     GetALocalPlayerController().ClientMessage("sMessage");
+//    	// TestPawn(p).doAttackRecording(animation, duration, t1, t2);
+// }
+
 
  defaultproperties
+
 {
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'

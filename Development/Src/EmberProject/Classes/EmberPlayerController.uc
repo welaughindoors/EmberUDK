@@ -199,6 +199,16 @@ exec function spawnDummy()
    p.SpawnDefaultController();
    // Spawn(class'Custom_Sword', , , l);
 }
+
+function RecordTracers(name animation, float duration, float t1, float t2)
+{
+   local Pawn p;
+      p = Spawn(class'TestPawn', , , );
+      // p.SpawnDefaultController();
+    GetALocalPlayerController().ClientMessage("sMessage");
+      TestPawn(p).doAttackRecording(animation, duration, t1, t2);
+}
+
 /*
 resetMesh
 	Sets custom mesh
