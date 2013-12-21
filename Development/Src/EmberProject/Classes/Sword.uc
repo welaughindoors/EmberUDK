@@ -1,14 +1,36 @@
 class Sword extends Actor;
 var SkeletalMeshComponent Mesh;
 
+
+//=============================================
+// Previous Socket Saved Positions
+//=============================================
 var vector oldStart, oldStart2, oldStart3, oldEnd, oldEnd2, oldEnd3, oldMid;
+
+//=============================================
+// Utility Booleans for Tracers
+//=============================================
 var bool bTracers, bDidATracerHit, bFuckTheAttack;
 
+//=============================================
+// Each tracer to trace only once per attack
+// @TODO: Merge into one?
+//=============================================
 var array<Actor> HitArray, HitArray2, HitArray3, HitArray4, HitArray5, HitArray6, HitArray7;
-var float tracerCounter, tracerDelay;
 
+//=============================================
+// Tracer Delay Vars
+//=============================================
+var float tracerCounter, tracerStartDelay, tracerEndDelay;
+
+//=============================================
+// Debug Var
+//=============================================
 var float DamageAmount;
 
+//=============================================
+// Induce Lag
+//=============================================
 var float inducedLag;
 
 //=============================================
@@ -24,19 +46,78 @@ simulated private function DebugPrint(string sMessage)
     GetALocalPlayerController().ClientMessage(sMessage);
 }
 
+//=============================================
+// Simulated States
+//=============================================
+
+/*
+Attacking
+  Activating this state in EmberPawn when doing attack animation
+  Essentially "wakes" up Sword class to become active
+  @TODO: Perhaps simplify the two if statements
+*/
+simulated state Attacking
+{
+    simulated event Tick(float DeltaTime)
+   {
+      super.Tick(DeltaTime);
+      tracerCounter+= DeltaTime;
+      inducedLag += DeltaTime;
+      if(tracerEndDelay == 0)
+      {
+      if(tracerCounter >= tracerStartDelay && inducedLag >= 0)
+      //To simulate lag, take the lag you want, divide by two and put it to the right of inducedLag
+      //ex. want 40ms lag? then change above to inducedLag >= 0.02
+      //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
+      {
+        inducedLag = 0;
+        TraceAttack();
+      }
+    }
+    //Else if there's no end tracer delay, don't check for it
+    else
+    {
+       if(tracerCounter >= tracerStartDelay && tracerCounter <= tracerEndDelay && inducedLag >= 0)
+      //To simulate lag, take the lag you want, divide by two and put it to the right of inducedLag
+      //ex. want 40ms lag? then change above to inducedLag >= 0.02
+      //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
+      {
+        inducedLag = 0;
+        TraceAttack();
+      }      
+    }
+   }
+}
+
+//=============================================
+// Custom States
+//=============================================
+
+/*
+swordParried
+  Activated when a tracer hits target's sword
+  Gets actor, tells it its sword got hit
+  Tells owner of this sword to stop attack animation
+  Tells sword to reset state.
+*/
 function swordParried(actor hitActor)
 {
   TestPawn(hitActor).SwordGotHit();
   EmberPawn(Owner).goToIdleMotherfucker();
-  tracerCounter = tracerDelay + 1;
+  tracerCounter = tracerStartDelay + 1;
   bFuckTheAttack = true;
+  SetInitialState();
 }
 
-event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
- { 
-  GetALocalPlayerController().ClientMessage("bump: " );
-}
-
+/*
+TraceAttack
+  Gets current tracers (current tick) and previous tracers (last tick)
+  does traces on them
+  if sword is hit -> swordParried()
+  else if actor is hit -> do damage
+  damage scales w/ velocity and tracer that was used
+  @TODO: Make this cleaner and smarter and more compact
+*/
 function TraceAttack()
 {
 
@@ -77,19 +158,20 @@ if(!bTracers)
         oldMid = Mid;
 }
         bDidATracerHit = false;
-        DrawDebugLine(Start, End, -1, 0, 0, true);
+        // DrawDebugLine(Start, End, -1, 0, 0, true);
 
-        DrawDebugLine(Start, oldStart, -1, 0, 0, true);
-        DrawDebugLine(Start2, oldStart2, -1, 0, 0, true);
-        DrawDebugLine(Start3, oldStart3, -1, 0, 0, true);
-        DrawDebugLine(End, oldEnd, -1, 0, 0, true);
-        DrawDebugLine(End2, oldEnd2, -1, 0, 0, true);
-        DrawDebugLine(End3, oldEnd3, -1, 0, 0, true);
-        DrawDebugLine(Mid, oldMid, -1, 0, 0, true);
+        DrawDebugLine(Start, oldStart, -1, 0, -1, true);
+        DrawDebugLine(Start2, oldStart2, -1, 0, -1, true);
+        DrawDebugLine(Start3, oldStart3, -1, 0, -1, true);
+        DrawDebugLine(End, oldEnd, -1, 0, -1, true);
+        DrawDebugLine(End2, oldEnd2, -1, 0, -1, true);
+        DrawDebugLine(End3, oldEnd3, -1, 0, -1, true);
+        DrawDebugLine(Mid, oldMid, -1, 0, -1, true);
 
-        DrawDebugLine(bottomBlockControl, tipBlockControl, 0, -1, -1, true);
-        DrawDebugLine(tipBlockControl, tipBlockControl2, 0, -1, -1, true);
-        DrawDebugLine(tipBlockControl3, tipBlockControl2, 0, -1, -1, true);
+        DrawDebugLine(bottomBlockControl, tipBlockControl, 127, -1, 212, true);
+        DrawDebugLine(tipBlockControl, tipBlockControl2, 127, -1, 212, true);
+        DrawDebugLine(tipBlockControl3, tipBlockControl2, 127, -1, 212, true);
+        DrawDebugLine(tipBlockControl3, tipBlockControl, 127, -1, 212, true);
 
         tVel = VSize(End - oldEnd);
 
@@ -114,12 +196,6 @@ if(!bTracers)
         oldMid = Mid;
 
         //@TODO: Even though one of the circles hits sword, other cirlces could hit body asame time, what do.
-
-        // GetALocalPlayerController().ClientMessage("HitActor765: " $HitActor765);
-        // GetALocalPlayerController().ClientMessage("hitInfo: " $hitInfo.item );
-        // GetALocalPlayerController().ClientMessage("HitActor765: " $HitActor765);
-        // GetALocalPlayerController().ClientMessage("HitLocation: " $HitLocation);
-        // GetALocalPlayerController().ClientMessage("HitNormal: " $HitNormal);
 
         // hitInfo.item == 0 ? DebugPrint("SwordHit") : ;
         // hitInfo2.item == 0 ? DebugPrint("SwordHit") : ;
@@ -288,20 +364,11 @@ if(!bTracers)
         DebugPrint("tDamage -"@DamageAmount);
                 bDidATracerHit = false;
 }
-simulated state Attacking
-{
-    simulated event Tick(float DeltaTime)
-   {
-      super.Tick(DeltaTime);
-      tracerCounter+= DeltaTime;
-      inducedLag += DeltaTime;
-      if(tracerCounter >= tracerDelay && inducedLag >= 0)
-      {
-        inducedLag = 0;
-        TraceAttack();
-      }
-   }
-}
+
+/*
+resetTracers
+  Cleans hit actor arrays and resets tracer bool
+*/
 function resetTracers()
 {
   bTracers = false;
@@ -311,12 +378,17 @@ function resetTracers()
   HitArray4.length = 0;
   HitArray5.length = 0;
   HitArray6.length = 0;
-  HitArray7.length = 0;
-  
+  HitArray7.length = 0; 
 }
-function setTracerDelay(float sDelay)
+
+/*
+settracerStartDelay
+  Sets delay from when tracer starts and where tracer ends.
+*/
+function setTracerDelay(float sDelay, float eDelay = 0)
 {
-  tracerDelay = sDelay;
+  tracerStartDelay = sDelay;
+  tracerEndDelay = eDelay;
   tracerCounter = 0;
 }
 defaultproperties

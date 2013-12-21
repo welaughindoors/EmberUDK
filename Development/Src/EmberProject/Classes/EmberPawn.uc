@@ -483,7 +483,7 @@ RecordTracers - Debug Function
 exec function RecordTracers(name animation, float duration, float t1, float t2)
 {
 	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
-	Sword.setTracerDelay(t1);
+	Sword.setTracerDelay(t1,t2);
     Sword.GoToState('Attacking');
 	SetTimer(duration, false, 'forwardAttackEnd');
 }
@@ -581,7 +581,7 @@ local float timeTakesToComplete;
 
 	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-	Sword.setTracerDelay(0.30);
+	Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
     Sword.GoToState('Attacking');
 }
 

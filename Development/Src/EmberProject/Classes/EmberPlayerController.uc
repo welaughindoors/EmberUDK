@@ -1,22 +1,28 @@
 class EmberPlayerController extends UTPlayerController;
 
-var bool isTethering;
 
+
+//=============================================
+// Mesh and Character Variables
+//=============================================
 var SkeletalMesh defaultMesh;
-
 var MaterialInterface defaultMaterial0;
-
 var MaterialInterface defaultMaterial1;
-
 var AnimTree defaultAnimTree;
-
 var array<AnimSet> defaultAnimSet;
-
 var AnimNodeSequence defaultAnimSeq;
-
 var PhysicsAsset defaultPhysicsAsset;
 
+//=============================================
+// Misc Variables
+//=============================================
+
+var bool isTethering;
 var float      playerStrafeDirection;
+
+//=============================================
+// Overrided Functions
+//=============================================
 /*
 PlayerWalking
 	Used for dodge. Queued for removal
@@ -92,56 +98,65 @@ Simulated Event PostBeginPlay() {
 
    SetTimer(0.25, false, 'resetMesh');
 }
-exec function kButtonDown()
+//=============================================
+// Keybinded Functions
+//=============================================
+
+/*
+eButtonDown
+*/
+exec function eButtonDown()
 {
-   // EmberPawn(pawn).CreateTether();
    EmberPawn(pawn).tetherBeamProjectile();
 }
-exec function kbuttonUp ()
+/*
+ebuttonUp
+*/
+exec function ebuttonUp ()
 {
    EmberPawn(pawn).DetachTether();
 }
-exec function LeftShiftButtonDown()
-{
-   // EmberPawn(pawn).startSprint();
-}
-exec function LeftShiftButtonUp ()
-{
-   // EmberPawn(pawn).endSprint();
-}
+/*
+increaseTether
+   MouseScrollUp
+*/
 exec function increaseTether()
 {
    EmberPawn(pawn).increaseTether();
 }
+/*
+decreaseTether
+   MouseScrollDown
+*/
 exec function decreaseTether ()
 {
    EmberPawn(pawn).decreaseTether();
 }
+//=============================================
+// @Temporarily disabled. 
+// @Renable in DefaultInput.ini
+//=============================================
+/*
+jumpIsRequested
+   Space pressed Down
+*/
 exec function jumpIsRequested()
 {
    EmberPawn(pawn).DoDoubleJump(true);
 }
-
+/*
+jumpIsDenied
+   Space let Go
+*/
 exec function jumpIsDenied()
 {
    EmberPawn(pawn).DoDoubleJump(false);
    
 }
-
-exec function spawnDummy()
-{
-   local Pawn p;
-   local vector l;
-   l = Location;
-   l.x += 20;
-   p = Spawn(class'TestPawn');
-   p.SpawnDefaultController();
-   Spawn(class'Custom_Sword', , , l);
-}
-
 /*
-leftMouseDown | leftMouseUp
-   Queued for removal
+leftMouseDown
+   When click, does attack based on strafe direction
+   Moves mouse slightly to allow multiple attacks (otherwise multiclick is disabled)
 */
 exec function leftMouseDown()
 {
@@ -152,16 +167,41 @@ exec function leftMouseDown()
    // EmberPawn(pawn).SpawnStuff();
    // Custom_Sword(UTWeapon).CurrentFireMode = 0;
 }
+/*
+leftMouseUp
+   Queued for deletion
+*/
 exec function leftMouseUp()
 {
    // Custom_Sword(UTWeapon).resetTracers = true;
 }
+/*
+CntrlIsRequested
+   Queued for deletion
+*/
 exec function CntrlIsRequested()
 {
    EmberPawn(pawn).kickCounter = 0;
    EmberPawn(pawn).DoKick();
 }
 
+//=============================================
+// Custom Functions
+//=============================================
+/*
+spawnDummy
+  Creates a dummy at player's spawn point
+*/
+exec function spawnDummy()
+{
+   local Pawn p;
+   local vector l;
+   l = Location;
+   l.x += 20;
+   p = Spawn(class'TestPawn');
+   p.SpawnDefaultController();
+   // Spawn(class'Custom_Sword', , , l);
+}
 /*
 resetMesh
 	Sets custom mesh

@@ -1,8 +1,16 @@
 class TestPawn extends UTPawn
       placeable;
+//=============================================
+// Mesh and Character Vars
+//=============================================
 var(NPC) SkeletalMeshComponent NPCMesh;
 var() SkeletalMeshComponent SwordMesh;
-
+var SkeletalMesh defaultMesh;
+var MaterialInterface defaultMaterial0;
+var AnimTree defaultAnimTree;
+var array<AnimSet> defaultAnimSet;
+var AnimNodeSequence defaultAnimSeq;
+var PhysicsAsset defaultPhysicsAsset;
 //=================================
 // Grappled Hooked
 //=================================
@@ -17,12 +25,6 @@ var vector 		grappleSocketLocation;
 //=============================================
 var Sword Sword;
 
-var SkeletalMesh defaultMesh;
-var MaterialInterface defaultMaterial0;
-var AnimTree defaultAnimTree;
-var array<AnimSet> defaultAnimSet;
-var AnimNodeSequence defaultAnimSeq;
-var PhysicsAsset defaultPhysicsAsset;
 
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
@@ -40,24 +42,34 @@ var PhysicsAsset defaultPhysicsAsset;
 // 		GotoState('Dying');
 // 	}
 // }
-
+/*
+Tick
+  Per tick:
+  check if hooked
+  	if hooked, do hook function
+  Get grappleSocketLocation for preperation of hook
+*/
 Simulated Event Tick(float DeltaTime)
 {
+	local rotator r;
+	
+	Super.Tick(DeltaTime);
 
-local rotator r;
-	 //GetALocalPlayerController().ClientMessage("tick : " $DeltaTime);
-   	 Super.Tick(DeltaTime);
-   	 // Velocity = vect(0,0,0);
-   	 if(gHook == true)
-   	 {
-   	 	dTime = DeltaTime;
-   	 	gHookTimer+=DeltaTime;
-   	 	grappleHooked(gHookTarget, playerPawn);
-   	 }
+   		if(gHook)
+   		{
+	   		dTime = DeltaTime;
+   			gHookTimer += DeltaTime;
+   			grappleHooked(gHookTarget, playerPawn);
+   		}
 
 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocketLocation, r);
-   	  
-   	}
+}
+
+/*
+grappleHooked
+	if hooked, pull pawn towards player
+	@TODO: Everything. Don't like how shitty this is
+*/
 function grappleHooked(vector target, pawn player)
 {
 	local vector hitLoc, hitNormal, endLoc;
@@ -102,17 +114,12 @@ function grappleHooked(vector target, pawn player)
 		// Velocity.Z = 75;
 		SetPhysics(Phys_Falling );
 	}
-
-	// if(gHookTimer > 0.5)
-	// {
-	// 	SetPhysics(PHYS_Walking);
- // 	gHook = false; 
- // 	gHookTimer = 0;
- //    GetALocalPlayerController().ClientMessage("stop");
-	// }
-    // GetALocalPlayerController().ClientMessage("F - " $Velocity);
-
 }
+
+/*
+TakeDamage
+	disable DmgType_Crushed, @renable in final?
+*/
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 	{
 		local Vector shotDir, ApplyImpulse,BloodMomentum;
@@ -213,68 +220,42 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 	{
 		GotoState('Dying');
 	}
-	}
+}
 
+/*
+PostBeginPlay
+*/
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
 
 	SetPhysics(PHYS_Walking); // wake the physics up
 	
-	// set up collision detection based on mesh's PhysicsAsset
+	// set up @collision @detection based on mesh's PhysicsAsset
 	// CylinderComponent.SetActorCollision(false, false); // disable cylinder collision
 	// Mesh.SetActorCollision(true, true); // enable PhysicsAsset collision
 	// Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
 	// SetTimer(0.5, true, 'BrainTimer');
-
-// SpawnDefaultController();
-
-// CreateInventory(class'Custom_Sword',false ); 
-SetTimer(1.0, false, 'WeaponAttach');
+	SetTimer(1.0, false, 'WeaponAttach');
 }
-     function WeaponAttach()
+
+/*
+WeaponAttach
+	Attachs Sword.uc to pawn
+*/
+function WeaponAttach()
 {
-     
-           // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
-    // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
-
-        Sword = Spawn(class'Sword', self);
-    //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
-    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+	 Sword = Spawn(class'Sword', self);
+	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
 }
-// }
 
-// function BrainTimer()
-// {
-//   local int OffsetX;
-//   local int OffsetY;
 
-//   //make a random offset, some distance away
-//   OffsetX = Rand(500)-Rand(500);
-//   OffsetY = Rand(500)-Rand(500);
-
-//        //some distance left or right and some distance in front or behind
-//     MyTarget.X = Pawn.Location.X + OffsetX;
-//     MyTarget.Y = Pawn.Location.Y + OffsetY;
-//        //so it doesnt fly up n down
-//        MyTarget.Z = Pawn.Location.Z;
-
-//       GoToState('MoveAbout');
-
-// }
-
-// state MoveAbout
-// {
-// Begin:
-
-//     MoveTo(MyTarget);
-// }
-// simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
-// {
-// 	return;
-// }
+/*
+Dying
+	Queued Deletion
+*/
 //override so that the corpse will stay.
+//^ not made by @Inathero
 simulated State Dying
 {
 ignores OnAnimEnd, Bump, HitWall, HeadVolumeChange, PhysicsVolumeChange, Falling, BreathTimer, StartFeignDeathRecoveryAnim, ForceRagdoll, FellOutOfWorld;
@@ -335,68 +316,36 @@ Destroy();
 		SetTimer(2.0, false);
 	}
 }
-
-///////////
-//RAG DOLL
-///////////
-//For when the player dies
-// function bool Died(Controller Killer, class<DamageType> damageType, vector HitLocation)
-// {
-// 	if(Super.Died(Killer, DamageType, HitLocation))
-// 	{
-// 		Super.PlayDying(damageType, HitLocation);
-// 		LifeSpan=0;
-// 		// Ensure we are always updating kinematic so that it won't go through the ground
-// 		Mesh.MinDistFactorForKinematicUpdate = 0.0;
-
-// 		Mesh.SetRBCollidesWithChannel(RBCC_Default,TRUE);
-// 		Mesh.ForceSkelUpdate();
-// 		Mesh.SetTickGroup(TG_PostAsyncWork);
-// 		CollisionComponent = Mesh;
-
-// 		// Turn collision on for skelmeshcomp and off for cylinder
-// 		CylinderComponent.SetActorCollision(false, false);
-// 		Mesh.SetActorCollision(true, true);
-// 		Mesh.SetTraceBlocking(true, true);
-// 		SetPhysics(PHYS_RigidBody);
-// 		Mesh.PhysicsWeight = 1.0;
-
-// 		// If we had stopped updating kinematic bodies on this character due to distance from camera, force an update of bones now.
-// 		if( Mesh.bNotUpdatingKinematicDueToDistance )
-// 		{
-// 			Mesh.UpdateRBBonesFromSpaceBases(TRUE, TRUE);
-// 		}
-
-// 		Mesh.PhysicsAssetInstance.SetAllBodiesFixed(FALSE);
-// 		Mesh.bUpdateKinematicBonesFromAnimation=FALSE;
-// 		Mesh.SetRBLinearVelocity(Velocity, false);
-// 		// Mesh.SetTranslation(vect(0,0,1) * BaseTranslationOffset);
-// 		Mesh.WakeRigidBody();
-// 		return true;
-// 	}
-// 	return false;
-// }
+/*
+SwordGotHit
+	Pending parry animation
+	@TODO: Allow this function to be available only
+	when pawn is doing an attack. Otherwise swords act
+	as perma block mode.
+*/
 function SwordGotHit()
 {
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
-    // Mesh.DetachComponent(Sword.mesh);
 }
+
+/*
+SetCharacterClassFromInfo
+	Used to set info for pawn
+*/
 simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 {
 Mesh.SetSkeletalMesh(defaultMesh);
 Mesh.SetMaterial(0,defaultMaterial0);
 Mesh.SetPhysicsAsset(defaultPhysicsAsset);
 Mesh.AnimSets=defaultAnimSet;
-// Mesh.SetAnimTreeTemplate(defaultAnimTree);
-
 }
+
 DefaultProperties
 {
-	defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
-	// NPCMesh=NPCMesh0
 	bCollideActors=true
 	bPushesRigidBodies=true
 	bStatic=False
@@ -412,18 +361,11 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 		CollisionHeight=0047.5.00000
 	End Object
    Components.Add(CollisionCylinder)
+
    	//Setup default NPC mesh
     Begin Object Class=SkeletalmeshComponent Name=NPCMesh0
-		// SkeletalMesh=SkeletalMesh'EmberBase.ember_player_mesh'
-		// PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
-		// AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-		// AnimtreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
-
 SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
-// defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
- AnimtreeTemplate=AnimTree'ArtAnimation.Armature_Tree'
- 
-// defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
+AnimtreeTemplate=AnimTree'ArtAnimation.Armature_Tree'
 AnimSets(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 		LightEnvironment=MyLightEnvironment

@@ -1,8 +1,16 @@
 class EmberGameInfo extends UTDeathMatch; 
 
+//=============================================
+// Global Vars
+//=============================================
 var EmberPlayerController playerControllerWORLD;
 var EmberPawn playerpawnWORLD;
 
+
+/*
+AddDefaultInventory
+  Reenable if we need to create inventories
+*/
 // function AddDefaultInventory( pawn PlayerPawn )
 // {
 // 	local int i;
@@ -26,25 +34,18 @@ var EmberPawn playerpawnWORLD;
 
 // }
 
+/*
+RestartPlayer
+  Not sure if needed
+*/
 // function RestartPlayer(Controller aPlayer)
-
 // {
-
 // super.RestartPlayer(aPlayer);
-
 // `Log("Player restarted");
-
 // playerControllerWORLD = EmberPlayerController(aPlayer);
-
- 
-
 // playerControllerWORLD.resetMesh();
-
 // }
 
-function DrawHUD()
-{
-}
  defaultproperties
 {
    DefaultPawnClass=class'EmberProject.EmberPawn'
