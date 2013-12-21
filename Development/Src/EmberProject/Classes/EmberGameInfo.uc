@@ -45,6 +45,10 @@ RestartPlayer
 // playerControllerWORLD = EmberPlayerController(aPlayer);
 // playerControllerWORLD.resetMesh();
 // }
+function DrawHud()
+{
+
+}
 
  defaultproperties
 {

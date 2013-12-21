@@ -195,9 +195,6 @@ spawnDummy
 exec function spawnDummy()
 {
    local Pawn p;
-   local vector l;
-   l = Location;
-   l.x += 20;
    p = Spawn(class'TestPawn');
    p.SpawnDefaultController();
    // Spawn(class'Custom_Sword', , , l);

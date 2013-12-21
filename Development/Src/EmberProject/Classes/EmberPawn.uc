@@ -1146,13 +1146,13 @@ function tetherCalcs() {
 
 /*
 AddDefaultInventory
-	Not sure if required as it might've been done somewhere else
+	Queued for Deletion
 */
 function AddDefaultInventory()
 {
     //Add the sword as default
-    InvManager.DiscardInventory();
-    InvManager.CreateInventory(class'Custom_Sword'); //InvManager is the pawn's InventoryManager
+    // InvManager.DiscardInventory();
+    // InvManager.CreateInventory(class'Custom_Sword'); //InvManager is the pawn's InventoryManager
 }
 /*
 SetSwordState
@@ -1329,6 +1329,7 @@ defaultproperties
 	tetherMaxLength = 4000
 	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.6
+	JumpZ=750 //default-322.0
         bCollideActors=True
       bBlockActors=True
 

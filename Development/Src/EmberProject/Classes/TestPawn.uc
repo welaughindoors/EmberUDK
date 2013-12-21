@@ -271,10 +271,10 @@ ignores OnAnimEnd, Bump, HitWall, HeadVolumeChange, PhysicsVolumeChange, Falling
 	event Timer()
 	{
 		local PlayerController PC;
-		local bool bBehindAllPlayers;
+		// local bool bBehindAllPlayers;
 		local vector ViewLocation;
 		local rotator ViewRotation;
-Destroy();
+		Destroy();
 
 		// let the dead bodies stay if the game is over
 		if (WorldInfo.GRI != None && WorldInfo.GRI.bMatchIsOver)
@@ -304,7 +304,7 @@ Destroy();
 			PC.GetPlayerViewPoint( ViewLocation, ViewRotation );
 			if ( ((Location - ViewLocation) dot vector(ViewRotation) > 0) )
 			{
-				bBehindAllPlayers = false;
+				// bBehindAllPlayers = false;
 				break;
 			}
 		}
