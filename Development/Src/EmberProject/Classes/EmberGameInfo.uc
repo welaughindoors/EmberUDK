@@ -1,4 +1,4 @@
-class EmberGameInfo extends UTDeathMatch; 
+class EmberGameInfo extends UTGame; 
 
 //=============================================
 // Global Vars
@@ -58,6 +58,55 @@ RestartPlayer
 //    	// TestPawn(p).doAttackRecording(animation, duration, t1, t2);
 // }
 
+// function DrawBar(String Title, float Value, float MaxValue,int X, int Y, int R, int G, int B)
+// {
+
+//     local int PosX,NbCases,i;
+
+//     PosX = X; // Where we should draw the next rectangle
+//     NbCases = 10 * Value / MaxValue;	 // Number of active rectangles to draw
+//     i=0; // Number of rectangles already drawn
+
+//     /* Displays active rectangles */
+//     while(i < NbCases && i < 10)
+//     {
+//         Canvas.SetPos(PosX,Y);
+//         Canvas.SetDrawColor(R,G,B,200);
+//         Canvas.DrawRect(8,12);
+
+//         PosX += 10;
+//         i++;
+
+//     }
+
+//     /* Displays desactived rectangles */
+//     while(i < 10)
+//     {
+//         Canvas.SetPos(PosX,Y);
+//         Canvas.SetDrawColor(255,255,255,80);
+//         Canvas.DrawRect(8,12);
+
+//         PosX += 10;
+//         i++;
+
+//     }
+
+//     /* Displays a title */
+//     Canvas.SetPos(PosX + 5,Y);
+//     Canvas.SetDrawColor(R,G,B,200);
+//     Canvas.Font = class'Engine'.static.GetSmallFont();
+//     Canvas.DrawText(Title);
+
+// }
+// function DrawHud()
+// {
+//         DrawBar("Health",playerpawnWORLD.Health, playerpawnWORLD.HealthMax,20,20,200,80,80);      
+//         // DrawBar("Ammo",UTWeapon(PawnOwner.Weapon).AmmoCount, UTWeapon(PawnOwner.Weapon).MaxAmmoCount ,20,40,80,80,200);     
+// }
+ static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
+{
+	return Default.Class;
+}
 
  defaultproperties
 
@@ -65,4 +114,7 @@ RestartPlayer
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
    MapPrefixes[0]="UDN"
+   DefaultInventory(0)=0
+    // HUDType=class'EmberProject.EmberHUD'
+    // bUseClassicHUD=true
 }

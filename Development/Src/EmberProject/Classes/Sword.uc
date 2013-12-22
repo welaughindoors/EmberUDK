@@ -419,7 +419,8 @@ function TraceAttack()
         local float fDistance;
         local vector fVect, lVect;
         local int i, x;
-bFuckTheAttack = false;
+
+  bFuckTheAttack = false;
 
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
     Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
@@ -476,9 +477,10 @@ oldInterpolatedPoints.length = 0;
   for (i = 0; i < interpolatedPoints.Length; ++i) 
     oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
 
-//We start checking the array backwards. This way we start from tip of sword and head down to the base
-  // for (i = interpolatedPoints.Length - 1; i >= 0; i --) 
-   for (i = 0; i < interpolatedPoints.Length; ++i) 
+//@Not anymore: We start checking the array backwards. This way we start from tip of sword and head down to the base
+// We check array forwards, don't ask why.
+  for (i = interpolatedPoints.Length - 1; i >= 0; i --) 
+   // for (i = 0; i < interpolatedPoints.Length; ++i) 
   {
     //if the trace for this particular tracer hasn't hit anything
     if(interpolatedPoints_DidWeHitActor[i] == false)
@@ -492,10 +494,12 @@ oldInterpolatedPoints.length = 0;
       {
           //We hit something, no longer track this trace
           //@TODO: Make it so we can hit multiple actors
+          //@TODO: Fix this damage thing to work right
           interpolatedPoints_DidWeHitActor[i] = true;
-          x = (i > 5) ? 5 : i;
-          DebugPrint("hit - "$x);
-          DebugPrint("i - "$i);
+          // x = (i > 5) ? 5 : i;
+          x = interpolatedPoints.Length - i;
+          // DebugPrint("hit - "$x);
+          // DebugPrint("i - "$i);
           //Take damage
           interpolatedPoints_TemporaryHitArray[i].TakeDamage(x + (tVel * 0.165),
                 Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
@@ -506,205 +510,6 @@ oldInterpolatedPoints.length = 0;
       }
     }
   }
-  // }
-  // //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-  //           if(HitArray.Find(HitActor) == INDEX_NONE && HitActor.bCanBeDamaged)
-  //           {
-  //               //Do the specified damage to the hit actor, using our custom damage type.
-  //               HitActor.TakeDamage(1 + (tVel * 0.165),
-  //               Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-  //               // AmmoCount -= ShotCost[CurrentFireMode];
-  //               //Add them to the hit array, so we don't hit them twice in one motion.
-  //               HitArray.AddItem(HitActor);
-  //               bDidATracerHit = true;
-  //               DamageAmount+=1 + (tVel * 0.165);
-  //               // TestPawn(HitActor).SwordGotHit();
-  //           }
-        // HitActor = Trace(HitLocation, HitNormal, End, oldEnd, true, , hitInfo); 
-        // HitActor2 = Trace(HitLocation, HitNormal, End2, oldEnd2, true, , hitInfo2); 
-        // HitActor3 = Trace(HitLocation, HitNormal, End3, oldEnd3, true, , hitInfo3); 
-        // HitActor4 = Trace(HitLocation, HitNormal, Mid, oldMid, true, , hitInfo4) ;
-        // HitActor5 = Trace(HitLocation, HitNormal, Start3, oldStart3, true, , hitInfo5); 
-        // HitActor6 = Trace(HitLocation, HitNormal, Start2, oldStart2, true, , hitInfo6); 
-        // HitActor7 = Trace(HitLocation, HitNormal, Start, oldStart, true, , hitInfo7); 
-        // HitActor8 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl, true,, hitInfo8); 
-        // HitActor9 = Trace(HitLocation, HitNormal, tipBlockControl, tipBlockControl2, true, , hitInfo9); 
-        // HitActor10 = Trace(HitLocation, HitNormal, tipBlockControl2, tipBlockControl3, true, , hitInfo10); 
-        // HitActor11 = Trace(HitLocation, HitNormal, bottomBlockControl, tipBlockControl3, true, , hitInfo11); 
-
-        // oldStart = start;
-        // oldStart2 = start2;
-        // oldStart3 = start3;
-        // oldEnd = end;
-        // oldEnd2 = end2;
-        // oldEnd3 = end3;
-        // oldMid = Mid;
-
-        // //@TODO: Even though one of the circles hits sword, other cirlces could hit body asame time, what do.
-
-        // // hitInfo.item == 0 ? DebugPrint("SwordHit") : ;
-        // // hitInfo2.item == 0 ? DebugPrint("SwordHit") : ;
-
-        // /*
-        // hitInfo.item == 0 ? TestPawn(HitActor765).SwordGotHit(): ;
-        // hitInfo2.item == 0 ? TestPawn(HitActor2).SwordGotHit() : ;
-        // */
-        // // if(hitInfo.Item == 0 || hitInfo2.Item == 0 || hitInfo3.Item == 0 || hitInfo4.Item == 0 || hitInfo5.Item == 0 || hitInfo6.Item == 0 || hitInfo7.Item == 0 |)
-        // // {
-        // // DebugPrint("SwordHit");
-        // hitInfo.Item == 0 ? swordParried(HitActor):;
-        // hitInfo2.Item == 0 ? swordParried(HitActor2):;
-        // hitInfo3.Item == 0 ? swordParried(HitActor3):;
-        // hitInfo4.Item == 0 ? swordParried(HitActor4):;
-        // hitInfo5.Item == 0 ? swordParried(HitActor5):;
-        // hitInfo6.Item == 0 ? swordParried(HitActor6):;
-        // hitInfo7.Item == 0 ? swordParried(HitActor7):;
-        // hitInfo8.Item == 0 ? swordParried(HitActor8):;
-        // hitInfo9.Item == 0 ? swordParried(HitActor9):;
-        // hitInfo10.Item == 0 ? swordParried(HitActor10):;
-        // hitInfo11.Item == 0 ? swordParried(HitActor11):;
-        
-        //         DamageAmount = 0;
-        //         // return;
-        // // }
-        // // else if (hitInfo2.Item == 0)
-        // // {
-
-        // // DebugPrint("SwordHit");
-        // //         TestPawn(HitActor2).SwordGotHit();
-        // // }
-        // // if(Hitinfo.item == 0)
-        //     // DebugPrint("Sword Hit");
-        // //Check if the trace collides with an actor.
-        // if(bFuckTheAttack)
-        // return;
-        // if(HitActor != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray.Find(HitActor) == INDEX_NONE && HitActor.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor.TakeDamage(1 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray.AddItem(HitActor);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=1 + (tVel * 0.165);
-        //         // TestPawn(HitActor).SwordGotHit();
-        //     }
-        // }
-        //         if(HitActor2 != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray2.Find(HitActor2) == INDEX_NONE && HitActor2.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor2.TakeDamage(2 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray2.AddItem(HitActor2);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=2 + (tVel * 0.165);
-        //         // TestPawn(HitActor2).SwordGotHit();
-        //     }
-        // }
-        //         if(HitActor3 != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray3.Find(HitActor3) == INDEX_NONE && HitActor3.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor3.TakeDamage(3 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray3.AddItem(HitActor3);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=3 + (tVel * 0.165);
-        //         // TestPawn(HitActor3).SwordGotHit();
-        //     }
-        // }
-        //         if(HitActor4 != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray4.Find(HitActor4) == INDEX_NONE && HitActor4.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor4.TakeDamage(4 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray4.AddItem(HitActor4);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=4 + (tVel * 0.165);
-        //         // TestPawn(HitActor4).SwordGotHit();
-        //     }
-        // }
-        //         if(HitActor5 != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray5.Find(HitActor5) == INDEX_NONE && HitActor5.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor5.TakeDamage(5 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray5.AddItem(HitActor5);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=5 + (tVel * 0.165);
-        //         // TestPawn(HitActor5).SwordGotHit();
-        //     }
-        // }
-        //         if(HitActor6 != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray6.Find(HitActor6) == INDEX_NONE && HitActor6.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor6.TakeDamage(6 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray6.AddItem(HitActor6);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=6 + (tVel * 0.165);
-        //         // TestPawn(HitActor765).SwordGotHit();
-        //     }
-        // }
-        //         if(HitActor7 != none)
-        // {
-        //     //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-        //     if(HitArray7.Find(HitActor7) == INDEX_NONE && HitActor7.bCanBeDamaged)
-        //     {
-        //         //Do the specified damage to the hit actor, using our custom damage type.
-        //         HitActor7.TakeDamage(7 + (tVel * 0.165),
-        //         Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-        //         // AmmoCount -= ShotCost[CurrentFireMode];
-        //         //Add them to the hit array, so we don't hit them twice in one motion.
-        //         HitArray7.AddItem(HitActor7);
-        //         bDidATracerHit = true;
-        //         DamageAmount+=7 + (tVel * 0.165);
-        //         // TestPawn(HitActor7).SwordGotHit();
-        //     }
-        // }
-   // if(HitActor8 != none && bDidATracerHit != true)
-   //      {
-   //          //Check to make sure the actor that is hit hasn't already been counted for during this attack.
-   //          if(HitArray.Find(HitActor8) == INDEX_NONE && HitActor8.bCanBeDamaged)
-   //          {
-   //              //Do the specified damage to the hit actor, using our custom damage type.
-   //              HitActor8.TakeDamage(2,
-   //              Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
-   //              // AmmoCount -= ShotCost[CurrentFireMode];
-   //              //Add them to the hit array, so we don't hit them twice in one motion.
-   //              HitArray.AddItem(HitActor8);
-   //              DamageAmount+=2;
-   //              // TestPawn(HitActor8).SwordGotHit();
-   //          }
-   //      }
         if(bDidATracerHit)
         DebugPrint("tDamage -"@DamageAmount);
                 bDidATracerHit = false;
