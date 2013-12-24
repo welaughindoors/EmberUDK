@@ -660,7 +660,7 @@ function forwardAttack()
 	DebugPrint("fwd -");
 	Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-
+	Sword.rotate(7500,0,49152);
 	Sword.setTracerDelay(0.65);
     Sword.GoToState('Attacking');
 // forwardAttack1.StopCustomAnim(0);
@@ -674,6 +674,7 @@ function forwardAttackEnd()
 {
 	DebugPrint("dun -");
 	//forwardAttack1.StopCustomAnim(0);
+	Sword.rotate(0,0,49152);
     Sword.SetInitialState();
     Sword.resetTracers();
     animationControl();

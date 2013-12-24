@@ -407,17 +407,12 @@ function setTracers(int tracers)
 
 function TraceAttack()
 {
-
-   local Actor HitActor;
-   local Vector HitLocation, HitNormal, SwordTip, SwordHilt;
-   local Vector Start, Start2, Start3, Mid, End, End2, End3, bottomBlockControl, bottomBlockControl2, tipBlockControl, tipBlockControl2, tipBlockControl3;
-   
-        local traceHitInfo hitInfo, hitInfo2, hitInfo3, hitInfo4, hitInfo5, hitInfo6, hitInfo7, hitInfo8, hitInfo9, hitInfo10, hitInfo11;
-        local Actor HitActor2, HitActor3, HitActor4, HitActor5, HitActor6, HitActor7, HitActor8, HitActor9, HitActor10, HitActor11;
+   local Vector HitLocation, HitNormal;
+   local Vector Start, End;
+   local traceHitInfo hitInfo;
         local float tVel;
-        local Name SocketBoneName;
         local float fDistance;
-        local vector fVect, lVect;
+        local vector lVect;
         local int i, x;
 
   bFuckTheAttack = false;
@@ -551,12 +546,18 @@ function setTracerDelay(float sDelay, float eDelay = 0)
 // writer = spawn(class'FileWriter');
 // writer.OpenFile("Example.txt", FWFT_Log,, true, true);
 }
+function rotate(int nPitch, int nYaw, int nRoll)
+{
+   local Rotator newRot;    // This will be our new Rotation
+    newRot.Pitch = nPitch;   // Since 65536 = 0 = 360, half of that equals 180, right?
+    newRot.Yaw = nYaw;    // Since 65536 = 0 = 360, half of that equals 180, right?
+    newRot.Roll = nRoll;   
+  Mesh.SetRotation(newRot);
+}
 defaultproperties
 {
         bCollideActors=True
       bBlockActors=True
-      bNotifyRigidBodyCollision = true
-ScriptRigidBodyCollisionThreshold=0.001
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
         PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
@@ -589,7 +590,7 @@ ScriptRigidBodyCollisionThreshold=0.001
        BlockNonZeroExtent=true
        CollideActors=true
 
-Rotation=(Pitch=14000 ,Yaw=0, Roll=49152 )
+Rotation=(Pitch=000 ,Yaw=0, Roll=49152 )
     End Object
     Mesh = SwordMesh
     Components.Add(SwordMesh)
