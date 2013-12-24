@@ -88,6 +88,11 @@ var float 				animationQueueAndDirection;
 //=============================================
 var Sword Sword;
 var bool  tracerRecordBool;
+//=============================================
+// Camera
+//=============================================
+// var float width;
+// var float height;
 /*
 ===============================================
 End Variables
@@ -201,6 +206,7 @@ Simulated Event Tick(float DeltaTime)
 {
 	Super.Tick(DeltaTime);
 
+	// DebugPrint(""@width);
 
 	//for fps issues and keeping things properly up to date
 	//specially for skeletal controllers
@@ -368,7 +374,8 @@ simulated event BecomeViewTarget( PlayerController PC )
 /*
 CalcCamera
 	Required for modified Third Person
-*/
+ */
+
 simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV )
 {
    local vector CamStart, HitLocation, HitNormal, CamDirX, CamDirY, CamDirZ, CurrentCamOffset;
@@ -378,7 +385,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    CurrentCamOffset = CamOffset;
 
    //Change multipliers here
-   DesiredCameraZOffset = (Health > 0) ? 1.5 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
+   DesiredCameraZOffset = (Health > 0) ? 1.25 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
    CameraZOffset = (fDeltaTime < 0.2) ? DesiredCameraZOffset * 5 * fDeltaTime + (1 - 5*fDeltaTime) * CameraZOffset : DesiredCameraZOffset;
    
    if ( Health <= 0 )
@@ -390,7 +397,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    CamStart.Z += CameraZOffset;
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
-   CamDirX *= CurrentCameraScale * 1.8;
+   CamDirX *= CurrentCameraScale * 2.8;
 
    if ( (Health <= 0) || bFeigningDeath )
    {
@@ -400,19 +407,18 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    }
    if (CurrentCameraScale < CameraScale)
    {
-      CurrentCameraScale = FMin(CameraScale, CurrentCameraScale + 10 * FMax(CameraScale - CurrentCameraScale, 0.3)*fDeltaTime);
+      CurrentCameraScale = FMin(CameraScale, CurrentCameraScale + 10 * FMax(CameraScale - CurrentCameraScale, 0.5)*fDeltaTime);
    }
    else if (CurrentCameraScale > CameraScale)
    {
       CurrentCameraScale = FMax(CameraScale, CurrentCameraScale - 10 * FMax(CameraScale - CurrentCameraScale, 0.9)*fDeltaTime);
    }
-
    if (CamDirX.Z > GetCollisionHeight())
    {
       CamDirX *= square(cos(out_CamRot.Pitch * 0.0000958738)); // 0.0000958738 = 2*PI/65536
    }
    //Change multipliers here
-   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*1.9 + CurrentCamOffset.Y*CamDirY + CurrentCamOffset.Z*CamDirZ;
+   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*1.9 + CurrentCamOffset.Y*CamDirY*0.3 + CurrentCamOffset.Z*CamDirZ;
 
    if (Trace(HitLocation, HitNormal, out_CamLoc, CamStart, false, vect(12,12,12)) != None)
    {
@@ -421,7 +427,11 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
 
    return true;
 }   
-
+// function getScreenWH(float nwidth, float nheight)
+// {
+// 	width = nwidth;
+// 	height = nheight;
+// }
 /*
 DoDoubleJump
 	Jetpack main function

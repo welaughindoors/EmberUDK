@@ -102,7 +102,7 @@ RestartPlayer
 // {
 //         DrawBar("Health",playerpawnWORLD.Health, playerpawnWORLD.HealthMax,20,20,200,80,80);      
 //         // DrawBar("Ammo",UTWeapon(PawnOwner.Weapon).AmmoCount, UTWeapon(PawnOwner.Weapon).MaxAmmoCount ,20,40,80,80,200);     
-// }
+// // }
  static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
 {
 	return Default.Class;
@@ -115,6 +115,6 @@ RestartPlayer
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
    MapPrefixes[0]="UDN"
    DefaultInventory(0)=0
-    // HUDType=class'EmberProject.EmberHUD'
+    HUDType=class'EmberProject.EmberHUD'
     // bUseClassicHUD=true
 }
