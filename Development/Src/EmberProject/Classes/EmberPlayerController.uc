@@ -27,10 +27,30 @@ var float      playerStrafeDirection;
 PlayerWalking
 	Used for dodge. Queued for removal
 */
+    //ember_jerkoff_block
 state PlayerWalking
 {
 ignores SeePlayer, HearNoise, Bump;
+   /*
+    * The function called when the user presses the fire key (left mouse button by default)
+    */
+   exec function StartFire( optional byte FireModeNum )
+   {
 
+      //Moves Mouse a little bit to allow rapid clicks (unreal issue)
+   local vector2D MPos;
+   MPos = LocalPlayer(Player).ViewportClient.GetMousePosition();
+   LocalPlayer(Player).ViewportClient.SetMouse(MPos.X, MPos.Y+2);
+
+      //Does attack or block, depends on FireModeNum
+   FireModeNum == 0 ? EmberPawn(pawn).doAttack(playerStrafeDirection) : EmberPawn(pawn).doBlock();
+
+   }
+simulated function StopFire(optional byte FireModeNum )
+{
+   if(FireModeNum == 1)
+   EmberPawn(pawn).cancelBlock();
+}
    function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
    {
 		if ( (DoubleClickMove == DCLICK_Active) && (Pawn.Physics == PHYS_Falling) )
@@ -59,7 +79,6 @@ ignores SeePlayer, HearNoise, Bump;
 		Super.ProcessMove(DeltaTime,NewAccel,DoubleClickMove,DeltaRot);
    }
 }
-
 /*
 UpdateRotation
 */
@@ -68,10 +87,10 @@ function UpdateRotation( float DeltaTime )
    local Rotator   DeltaRot, newRotation, ViewRotation;
 
    ViewRotation = Rotation;
-   if (Pawn!=none)
-   {
-      Pawn.SetDesiredRotation(ViewRotation);
-   }
+   // if (Pawn!=none)
+   // {
+   //    Pawn.SetDesiredRotation(ViewRotation);
+   // }
 
    // Calculate Delta to be applied on ViewRotation
    DeltaRot.Yaw   = PlayerInput.aTurn;
@@ -83,7 +102,8 @@ function UpdateRotation( float DeltaTime )
    NewRotation = ViewRotation;
    NewRotation.Roll = Rotation.Roll;
 
-   if ( Pawn != None )
+if(VSize(pawn.Velocity) != 0)
+   // if ( Pawn != None )
       Pawn.FaceRotation(NewRotation, deltatime);
 }   
 
@@ -160,10 +180,10 @@ leftMouseDown
 */
 exec function leftMouseDown()
 {
-   local vector2D MPos;
-   MPos = LocalPlayer(Player).ViewportClient.GetMousePosition();
-   LocalPlayer(Player).ViewportClient.SetMouse(MPos.X, MPos.Y+2);
-   EmberPawn(pawn).doAttack(playerStrafeDirection);
+   // local vector2D MPos;
+   // MPos = LocalPlayer(Player).ViewportClient.GetMousePosition();
+   // LocalPlayer(Player).ViewportClient.SetMouse(MPos.X, MPos.Y+2);
+   // EmberPawn(pawn).doAttack(playerStrafeDirection);
    // EmberPawn(pawn).SpawnStuff();
    // Custom_Sword(UTWeapon).CurrentFireMode = 0;
 }
@@ -234,4 +254,5 @@ defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 // defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
+bNoCrosshair = true
 }

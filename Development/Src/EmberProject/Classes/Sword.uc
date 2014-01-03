@@ -14,6 +14,7 @@ var array<bool> interpolatedPoints_DidWeHitActor;
 //=============================================
 var bool bTracers, bDidATracerHit, bFuckTheAttack;
 var int   tracerAmount;
+var float   tracerTempColourCounter;
 
 //=============================================
 // Each tracer to trace only once per attack
@@ -70,6 +71,7 @@ simulated state Attacking
    {
       super.Tick(DeltaTime);
       tracerCounter+= DeltaTime;
+      tracerTempColourCounter+= DeltaTime;
       inducedLag += DeltaTime;
           // DebugPrint("line drawn");
 
@@ -95,6 +97,44 @@ simulated state Attacking
       {
         inducedLag = 0;
         TraceAttack();
+      }      
+    }
+   }
+}
+
+
+simulated state AttackingNoTracers
+{
+    simulated event Tick(float DeltaTime)
+   {
+      super.Tick(DeltaTime);
+      tracerCounter+= DeltaTime;
+      tracerTempColourCounter+= DeltaTime;
+      inducedLag += DeltaTime;
+          // DebugPrint("line drawn");
+
+  // WorldInfo.Game.Broadcast(self,": Health:");
+      if(tracerEndDelay == 0)
+      {
+      if(tracerCounter >= tracerStartDelay && inducedLag >= 0.0)
+      //To simulate lag, take the lag you want, divide by two and put it to the right of inducedLag
+      //ex. want 40ms lag? then change above to inducedLag >= 0.02
+      //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
+      {
+        inducedLag = 0;
+        TraceAttackNoTracers();
+      }
+    }
+    //Else if there's no end tracer delay, don't check for it
+    else
+    {
+       if(tracerCounter >= tracerStartDelay && tracerCounter <= tracerEndDelay && inducedLag >= 0.0)
+      //To simulate lag, take the lag you want, divide by two and put it to the right of inducedLag
+      //ex. want 40ms lag? then change above to inducedLag >= 0.02
+      //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
+      {
+        inducedLag = 0;
+        TraceAttackNoTracers();
       }      
     }
    }
@@ -457,12 +497,126 @@ if(!bTracers)
     //if the trace for this particular tracer hasn't hit anything
     // if(interpolatedPoints_DidWeHitActor[i] == false)
     // {
+      if(tracerTempColourCounter < 0.33 && tracerTempColourCounter > 0 )
+      {
         DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], -1, 0, -1, true);
+      }
+
+      else if(tracerTempColourCounter > 0.33 && tracerTempColourCounter < 0.66 )
+      {
+        DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 0, 0, -1, true);
+      }
+
+     else if(tracerTempColourCounter < 1 && tracerTempColourCounter > 0.66)
+     {
+        DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 34, 139, 34, true);
+      }
         interpolatedPoints_TemporaryHitArray.AddItem(Trace(HitLocation, HitNormal, interpolatedPoints[i], oldInterpolatedPoints[i], true, , hitInfo)); 
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
     // }
   }
+  //get the size difference from the current tip and last recorded tip
+  tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
 
+                bDidATracerHit = false;
+//Make the old interpolated points to = current ones, preparing for next trace
+oldInterpolatedPoints.length = 0;
+  for (i = 0; i < interpolatedPoints.Length; ++i) 
+    oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
+
+//@Not anymore: We start checking the array backwards. This way we start from tip of sword and head down to the base
+// We check array forwards, don't ask why.
+  for (i = interpolatedPoints.Length - 1; i >= 0; i --) 
+   // for (i = 0; i < interpolatedPoints.Length; ++i) 
+  {
+    //if the trace for this particular tracer hasn't hit anything
+    if(interpolatedPoints_DidWeHitActor[i] == false)
+    {
+      //If we hit the sword of the opponent, execute sword parried function
+        if(interpolatedPoints_TemporaryHitInfo[i].item == 0)
+            swordParried(interpolatedPoints_TemporaryHitArray[i]);
+
+      //Else we check if we hit actor 
+      if(interpolatedPoints_TemporaryHitArray[i] != none)
+      {
+          //We hit something, no longer track this trace
+          //@TODO: Make it so we can hit multiple actors
+          //@TODO: Fix this damage thing to work right
+          interpolatedPoints_DidWeHitActor[i] = true;
+          // x = (i > 5) ? 5 : i;
+          x = interpolatedPoints.Length - i;
+          // DebugPrint("hit - "$x);
+          // DebugPrint("i - "$i);
+          //Take damage
+          interpolatedPoints_TemporaryHitArray[i].TakeDamage(x + (tVel * 0.165),
+                Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+                //Add them to the hit array, so we don't hit them twice in one motion.
+                // HitArray.AddItem(HitActor);
+                bDidATracerHit = true;
+                DamageAmount+=x + (tVel * 0.165);
+      }
+    }
+  }
+        if(bDidATracerHit)
+        DebugPrint("tDamage -"@DamageAmount);
+                bDidATracerHit = false;
+}
+function TraceAttackNoTracers()
+{
+   local Vector HitLocation, HitNormal;
+   local Vector Start, End;
+   local traceHitInfo hitInfo;
+        local float tVel;
+        local float fDistance;
+        local vector lVect;
+        local int i, x;
+
+  bFuckTheAttack = false;
+
+    Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
+    Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
+
+//Prepare Arrays
+    interpolatedPoints_TemporaryHitArray.length = 0;
+    interpolatedPoints_TemporaryHitInfo.length = 0;
+    interpolatedPoints.length = 0;
+    interpolatedPoints.AddItem(Start);
+
+//Get normal vector along sword + distance
+    lVect = normal(End - Start);
+    fDistance = VSize(End - Start);
+
+//Prepare distance. Determines # of tracers
+    fDistance /= tracerAmount-1;
+
+// Get all the point locations
+    for(i = 1; i < tracerAmount-1; i++)
+      interpolatedPoints.AddItem(Start + (lVect * (fDistance * i)));
+      interpolatedPoints.AddItem(End);
+
+// If this is the the first trace in animation, clear out old interpolatedPoints and reset hitActors
+if(!bTracers) 
+{
+  oldInterpolatedPoints.length = 0;
+  bTracers = true;
+  for (i = 0; i < interpolatedPoints.Length; ++i) 
+  {
+    oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
+    interpolatedPoints_DidWeHitActor.AddItem(false);
+  }
+}
+        // DrawDebugLine(Start, End, -1, 0, 0, true);
+
+// for each point, do a trace and get hit info
+  for (i = 0; i < interpolatedPoints.Length; ++i) 
+  {
+    //if the trace for this particular tracer hasn't hit anything
+    // if(interpolatedPoints_DidWeHitActor[i] == false)
+    // {
+        interpolatedPoints_TemporaryHitArray.AddItem(Trace(HitLocation, HitNormal, interpolatedPoints[i], oldInterpolatedPoints[i], true, , hitInfo)); 
+        interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
+    // }
+  }
   //get the size difference from the current tip and last recorded tip
   tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
 
@@ -512,6 +666,7 @@ oldInterpolatedPoints.length = 0;
 simulated event PostBeginPlay()
 {
 tracerAmount = 15;
+tracerTempColourCounter = 0;
 }
 
 /*
@@ -532,6 +687,7 @@ function resetTracers()
 interpolatedPoints_DidWeHitActor.length = 0;
 interpolatedPoints_HitArray.length = 0;
 DamageAmount = 0;
+tracerTempColourCounter = 0;
 }
 
 /*
@@ -543,6 +699,7 @@ function setTracerDelay(float sDelay, float eDelay = 0)
   tracerStartDelay = sDelay;
   tracerEndDelay = eDelay;
   tracerCounter = 0;
+  tracerTempColourCounter = 0;
 // writer = spawn(class'FileWriter');
 // writer.OpenFile("Example.txt", FWFT_Log,, true, true);
 }

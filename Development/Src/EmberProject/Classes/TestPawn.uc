@@ -11,6 +11,7 @@ var AnimTree defaultAnimTree;
 var array<AnimSet> defaultAnimSet;
 var AnimNodeSequence defaultAnimSeq;
 var PhysicsAsset defaultPhysicsAsset;
+var(NPC) class<AIController> NPCController;
 //=================================
 // Grappled Hooked
 //=================================
@@ -20,6 +21,8 @@ var float 		dTime;
 var vector 		gHookTarget;
 var pawn 		playerPawn;
 var vector 		grappleSocketLocation;
+
+var pawn P;
 //=============================================
 // Weapon
 //=============================================
@@ -53,6 +56,7 @@ Tick
   	if hooked, do hook function
   Get grappleSocketLocation for preperation of hook
 */
+
 Simulated Event Tick(float DeltaTime)
 {
 	local rotator r;
@@ -246,6 +250,11 @@ PostBeginPlay
 */
 simulated function PostBeginPlay()
 {
+	 //  if(NPCController != none)
+  // {
+  //   // set the existing ControllerClass to our new NPCController class
+  //   ControllerClass = NPCController;
+  // }  
 	super.PostBeginPlay();
 
 	SetPhysics(PHYS_Walking); // wake the physics up
@@ -349,6 +358,30 @@ function SwordGotHit()
 }
 
 /*
+doAttack
+	Used for attack tests
+*/
+function doAttack (name animation, float duration, float t1, float t2) 
+{
+	 Sword = Spawn(class'Sword', self);
+	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
+	Sword.setTracerDelay(t1,t2);
+    Sword.GoToState('AttackingNoTracers');
+	SetTimer(duration, false, 'attackStop');
+}
+
+/*
+attackStop
+	reset Sword status
+*/
+function attackStop()
+{
+	Sword.rotate(0,0,49152);
+    Sword.SetInitialState();
+    Sword.resetTracers();
+}
+/*
 doAttackRecording
 	Used for tracer recording
 */
@@ -377,11 +410,33 @@ SetCharacterClassFromInfo
 */
 simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 {
-Mesh.SetSkeletalMesh(defaultMesh);
-Mesh.SetMaterial(0,defaultMaterial0);
-Mesh.SetPhysicsAsset(defaultPhysicsAsset);
-Mesh.AnimSets=defaultAnimSet;
+// Mesh.SetSkeletalMesh(defaultMesh);
+// Mesh.SetMaterial(0,defaultMaterial0);
+// Mesh.SetPhysicsAsset(defaultPhysicsAsset);
+// Mesh.AnimSets=defaultAnimSet;
 }
+
+//Zombie shit
+// simulated event Bump( Actor Other, PrimitiveComponent OtherComp, Vector HitNormal )
+// {
+//  `Log("Bump");
+
+//      Super.Bump( Other, OtherComp, HitNormal );
+
+// 	if ( (Other == None) || Other.bStatic )
+// 		return;
+
+//   P = Pawn(Other); //the pawn we might have bumped into
+
+// 	if ( P != None)  //if we hit a pawn
+// 	{
+//             if (P.Health >1) //as long as pawns health is more than 1
+// 	   {
+//              P.Health --; // eat brains! mmmmm
+//            }
+//         }
+// }
+
 
 DefaultProperties
 {
@@ -443,6 +498,7 @@ PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 
 // 	Components.Add(MyWeaponSkeletalMesh)
 	CollisionComponent=CollisionCylinder
+	RagdollLifespan=180.0
 	// bRunPhysicsWithNoController=true
-	// ControllerClass=class'UTGame.UTBot'
+	ControllerClass=class'TestPawnController'
 }

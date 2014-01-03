@@ -418,7 +418,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
       CamDirX *= square(cos(out_CamRot.Pitch * 0.0000958738)); // 0.0000958738 = 2*PI/65536
    }
    //Change multipliers here
-   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*1.9 + CurrentCamOffset.Y*CamDirY*0.3 + CurrentCamOffset.Z*CamDirZ;
+   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*2.9 + CurrentCamOffset.Y*CamDirY*0.1 + CurrentCamOffset.Z*CamDirZ;
 
    if (Trace(HitLocation, HitNormal, out_CamLoc, CamStart, false, vect(12,12,12)) != None)
    {
@@ -521,14 +521,30 @@ exec function tethermod(float a, float b, float c)
 	goingTowardsHighVelModifier = (a != 0) ? a : goingTowardsHighVelModifier;
 	goingTowardsLowVelModifier = (b != 0) ? b : goingTowardsLowVelModifier;
 	goingAwayVelModifier = (c != 0) ? c : goingAwayVelModifier;
-	// b != 0 ? goingTowardsLowVelModifier = b : ;
-	// c != 0 ? goingAwayVelModifier = c : ;
 }
 
+	// b != 0 ? goingTowardsLowVelModifier = b : ;
+	// c != 0 ? goingAwayVelModifier = c : ;
 //=============================================
 // Custom Functions
 //=============================================
-
+/*
+doBlock
+	goes to a block state
+*/
+function doBlock()
+{
+	Attack1.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
+}/*
+cancelBlock
+	Cancels loop anim
+	Goes to idle anim
+*/
+function cancelBlock()
+{
+	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.5, 0, false);
+	// Attack1.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
+}
 /*
 doAttack
 	Detects if player is moving left or right from playercontroler (PlayerInput)

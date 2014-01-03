@@ -113,8 +113,9 @@ RestartPlayer
 {
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
+   HUDType=class'EmberProject.EmberHUD'
    MapPrefixes[0]="UDN"
    DefaultInventory(0)=0
-    HUDType=class'EmberProject.EmberHUD'
+	bUseClassicHUD=true
     // bUseClassicHUD=true
 }
