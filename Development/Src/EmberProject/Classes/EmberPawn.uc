@@ -535,6 +535,7 @@ doBlock
 function doBlock()
 {
 	Attack1.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
+	Sword.GoToState('Blocking');
 }/*
 cancelBlock
 	Cancels loop anim
@@ -543,6 +544,7 @@ cancelBlock
 function cancelBlock()
 {
 	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.5, 0, false);
+    Sword.SetInitialState();
 	// Attack1.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
 /*

@@ -355,6 +355,8 @@ SwordGotHit
 function SwordGotHit()
 {
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
+    Sword.SetInitialState();
+    Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0, 0, false);
 }
 
 /*
@@ -367,7 +369,8 @@ function doAttack (name animation, float duration, float t1, float t2)
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
 	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
 	Sword.setTracerDelay(t1,t2);
-    Sword.GoToState('AttackingNoTracers');
+    // Sword.GoToState('AttackingNoTracers');
+    Sword.GoToState('Attacking');
 	SetTimer(duration, false, 'attackStop');
 }
 
@@ -436,7 +439,15 @@ simulated function SetCharacterClassFromInfo(class<UTFamilyInfo> Info)
 //            }
 //         }
 // }
-
+/*
+goToIdleMotherfucker
+	Temporary animation for 'parries'
+*/
+function goToIdleMotherfucker()
+{
+Sword.SetInitialState();
+Attack1.PlayCustomAnimByDuration('ember_idle_2',0.1, 0.2, 0, false);
+}
 
 DefaultProperties
 {

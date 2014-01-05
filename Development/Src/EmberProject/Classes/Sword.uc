@@ -139,7 +139,18 @@ simulated state AttackingNoTracers
     }
    }
 }
-
+/*
+  Blocking
+    Active tracers along sword
+*/
+simulated state Blocking
+{
+    simulated event Tick(float DeltaTime)
+   {
+      super.Tick(DeltaTime);
+      TraceBlock();
+   }
+}
 //=============================================
 // Custom States
 //=============================================
@@ -150,14 +161,15 @@ swordParried
   Gets actor, tells it its sword got hit
   Tells owner of this sword to stop attack animation
   Tells sword to reset state.
+
 */
 function swordParried(actor hitActor)
 {
   TestPawn(hitActor).SwordGotHit();
-  EmberPawn(Owner).goToIdleMotherfucker();
+  // EmberPawn(Owner).goToIdleMotherfucker();
   tracerCounter = tracerStartDelay + 1;
   bFuckTheAttack = true;
-  SetInitialState();
+  if(!IsInState('Blocking')) SetInitialState();
 }
 
 /*
@@ -448,8 +460,9 @@ function setTracers(int tracers)
 function TraceAttack()
 {
    local Vector HitLocation, HitNormal;
-   local Vector Start, End;
+   local Vector Start, End, Block;
    local traceHitInfo hitInfo;
+   local Actor hitActor;
         local float tVel;
         local float fDistance;
         local vector lVect;
@@ -459,6 +472,7 @@ function TraceAttack()
 
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
     Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
+    Mesh.GetSocketWorldLocationAndRotation('BlockOne', Block);  
 
 //Prepare Arrays
     interpolatedPoints_TemporaryHitArray.length = 0;
@@ -515,6 +529,13 @@ if(!bTracers)
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
     // }
   }
+        hitActor = Trace(HitLocation, HitNormal, Start, Block, true, , hitInfo); 
+        DrawDebugLine(Start, Block, 0,0,0, true);
+         if(hitInfo.item == 0)
+         {
+            swordParried(hitActor);
+            return ;
+         }
   //get the size difference from the current tip and last recorded tip
   tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
 
@@ -560,6 +581,132 @@ oldInterpolatedPoints.length = 0;
         if(bDidATracerHit)
         DebugPrint("tDamage -"@DamageAmount);
                 bDidATracerHit = false;
+}
+/*
+  TraceBlock
+    Traces a block accross the sword
+*/
+function TraceBlock()
+{
+   local Vector HitLocation, HitNormal;
+   local Vector Start, End;
+   local traceHitInfo hitInfo;
+        local float tVel;
+        local float fDistance;
+        local vector lVect;
+        local int i, x;
+
+  bFuckTheAttack = false;
+
+    Mesh.GetSocketWorldLocationAndRotation('BlockOne', Start);
+    Mesh.GetSocketWorldLocationAndRotation('StartControl', End);  
+
+//Prepare Arrays
+    interpolatedPoints_TemporaryHitArray.length = 0;
+    interpolatedPoints_TemporaryHitInfo.length = 0;
+    interpolatedPoints.length = 0;
+    interpolatedPoints.AddItem(Start);
+
+//Get normal vector along sword + distance
+    lVect = normal(End - Start);
+    fDistance = VSize(End - Start);
+
+//Prepare distance. Determines # of tracers
+    fDistance /= tracerAmount-1;
+
+// Get all the point locations
+    for(i = 1; i < tracerAmount-1; i++)
+      interpolatedPoints.AddItem(Start + (lVect * (fDistance * i)));
+      interpolatedPoints.AddItem(End);
+
+// If this is the the first trace in animation, clear out old interpolatedPoints and reset hitActors
+if(!bTracers) 
+{
+  oldInterpolatedPoints.length = 0;
+  bTracers = true;
+  for (i = 0; i < interpolatedPoints.Length; ++i) 
+  {
+    oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
+    interpolatedPoints_DidWeHitActor.AddItem(false);
+  }
+}
+        // DrawDebugLine(Start, End, -1, 0, 0, true);
+
+// for each point, do a trace and get hit info
+  // for (i = 0; i < interpolatedPoints.Length; ++i) 
+  // {
+  //   //if the trace for this particular tracer hasn't hit anything
+  //   // if(interpolatedPoints_DidWeHitActor[i] == false)
+  //   // {
+  //     if(tracerTempColourCounter < 0.33 && tracerTempColourCounter > 0 )
+  //     {
+  //       DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], -1, 0, -1, true);
+  //     }
+
+  //     else if(tracerTempColourCounter > 0.33 && tracerTempColourCounter < 0.66 )
+  //     {
+  //       DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 0, 0, -1, true);
+  //     }
+
+  //    else if(tracerTempColourCounter < 1 && tracerTempColourCounter > 0.66)
+  //    {
+        DrawDebugLine(interpolatedPoints[0], oldInterpolatedPoints[interpolatedPoints.Length-1], -1, 0, -1, true);
+      // }
+        interpolatedPoints_TemporaryHitArray.AddItem(Trace(HitLocation, HitNormal, interpolatedPoints[0], oldInterpolatedPoints[interpolatedPoints.Length-1], true, , hitInfo)); 
+        interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
+    // }
+  // }
+  //get the size difference from the current tip and last recorded tip
+  // tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
+
+                bDidATracerHit = false;
+//Make the old interpolated points to = current ones, preparing for next trace
+oldInterpolatedPoints.length = 0;
+  for (i = 0; i < interpolatedPoints.Length; ++i) 
+    oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
+
+            if(interpolatedPoints_TemporaryHitInfo[0].item == 0)
+            {
+              DebugPrint("Sword Hit");
+            swordParried(interpolatedPoints_TemporaryHitArray[0]);
+          }
+
+//@Not anymore: We start checking the array backwards. This way we start from tip of sword and head down to the base
+// We check array forwards, don't ask why.
+  // for (i = interpolatedPoints.Length - 1; i >= 0; i --) 
+   // for (i = 0; i < interpolatedPoints.Length; ++i) 
+  // {
+    //if the trace for this particular tracer hasn't hit anything
+  //   if(interpolatedPoints_DidWeHitActor[i] == false)
+  //   {
+  //     //If we hit the sword of the opponent, execute sword parried function
+  //       if(interpolatedPoints_TemporaryHitInfo[i].item == 0)
+  //           swordParried(interpolatedPoints_TemporaryHitArray[i]);
+
+  //     //Else we check if we hit actor 
+  //     if(interpolatedPoints_TemporaryHitArray[i] != none)
+  //     {
+  //         //We hit something, no longer track this trace
+  //         //@TODO: Make it so we can hit multiple actors
+  //         //@TODO: Fix this damage thing to work right
+  //         interpolatedPoints_DidWeHitActor[i] = true;
+  //         // x = (i > 5) ? 5 : i;
+  //         x = interpolatedPoints.Length - i;
+  //         // DebugPrint("hit - "$x);
+  //         // DebugPrint("i - "$i);
+  //         //Take damage
+  //         interpolatedPoints_TemporaryHitArray[i].TakeDamage(x + (tVel * 0.165),
+  //               Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+  //               //Add them to the hit array, so we don't hit them twice in one motion.
+  //               // HitArray.AddItem(HitActor);
+  //               bDidATracerHit = true;
+  //               DamageAmount+=x + (tVel * 0.165);
+  //     }
+  //   }
+  // }
+        // if(bDidATracerHit)
+        // DebugPrint("tDamage -"@DamageAmount);
+        //         bDidATracerHit = false;
 }
 function TraceAttackNoTracers()
 {
@@ -617,6 +764,8 @@ if(!bTracers)
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
     // }
   }
+          interpolatedPoints_TemporaryHitArray.AddItem(Trace(HitLocation, HitNormal, interpolatedPoints[0], oldInterpolatedPoints[interpolatedPoints.Length-1], true, , hitInfo)); 
+        interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
   //get the size difference from the current tip and last recorded tip
   tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
 
