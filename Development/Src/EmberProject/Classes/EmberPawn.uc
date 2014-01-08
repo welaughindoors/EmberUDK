@@ -1358,6 +1358,24 @@ function DoKick()
 
     	    	DrawDebugLine(botLeg, botFoot, -1, 0, -1, true);
 }
+//===============================
+// Console Vars
+//===============================
+
+exec function ep_sword_block_distance(float distance = -3949212)
+{
+	if(distance == -3949212)
+		DebugPrint("Distance till sword block 'parries' opponent. Current Value -"@Sword.blockDistance);
+	else
+  		Sword.blockDistance = distance;
+}
+exec function ep_sword_block_cone(float coneDotProductAngle = -3949212)
+{
+	if(coneDotProductAngle == -3949212)
+		DebugPrint("DotProductAngle for active block. 0.5 is ~45 degrees. 0 is 90 degrees. Current Value -"@Sword.blockCone);
+	else
+  		Sword.blockCone = coneDotProductAngle;
+}
 defaultproperties
 {
 

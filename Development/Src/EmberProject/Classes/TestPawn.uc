@@ -356,6 +356,7 @@ function SwordGotHit()
 {
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
     Sword.SetInitialState();
+    Sword.attackIsActive = false;
     Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0, 0, false);
 }
 
