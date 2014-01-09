@@ -247,7 +247,7 @@ defaultproperties
 {
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
 // defaultMesh=SkeletalMesh'mypackage.UT3_Male'
-defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
 // defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
  defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
  
