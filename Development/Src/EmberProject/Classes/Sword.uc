@@ -581,7 +581,8 @@ oldInterpolatedPoints.length = 0;
           // DebugPrint("i - "$i);
           //Take damage
           interpolatedPoints_TemporaryHitArray[i].TakeDamage(x + (tVel * 0.165),
-                Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+                // Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+                  Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
                 //Add them to the hit array, so we don't hit them twice in one motion.
                 // HitArray.AddItem(HitActor);
                 bDidATracerHit = true;
@@ -599,15 +600,10 @@ oldInterpolatedPoints.length = 0;
 */
 function TraceBlock()
 {
-   local Vector HitLocation, HitNormal;
-   local Vector Start, End;
-   local traceHitInfo hitInfo;
+   local Vector End;
    local Sword Swordy;
-        local float tVel;
-        local float fDistance;
-        local vector lVect, pawnToOwner, normalOwnerRotation;
+        local vector pawnToOwner, normalOwnerRotation;
         local float dotProductForOwnerAndEnemyPawn;
-        local int i, x;
         local bool skipToNextIf;
 //Check all pawns in the world
 foreach Worldinfo.AllActors( class'Sword', Swordy ) 
@@ -865,7 +861,8 @@ oldInterpolatedPoints.length = 0;
           // DebugPrint("i - "$i);
           //Take damage
           interpolatedPoints_TemporaryHitArray[i].TakeDamage(x + (tVel * 0.165),
-                Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
+                Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+                // Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'Custom_Sword_Damage');
                 //Add them to the hit array, so we don't hit them twice in one motion.
                 // HitArray.AddItem(HitActor);
                 bDidATracerHit = true;
@@ -970,7 +967,10 @@ defaultproperties
        BlockNonZeroExtent=true
        CollideActors=true
 
-Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
+
+Rotation=(Pitch=000 ,Yaw=0, Roll=49152 )
+// Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
+
     End Object
     Mesh = SwordMesh
     Components.Add(SwordMesh)

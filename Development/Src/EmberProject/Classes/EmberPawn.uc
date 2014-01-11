@@ -1,3 +1,10 @@
+
+//=============================================
+// Important Tags
+//=============================================
+//temp_fix_for_animation
+// -- Temporary fix until animation is corrected
+
 class EmberPawn extends UTPawn;
 //override to make player mesh visible by default
 
@@ -88,6 +95,7 @@ var float 				animationQueueAndDirection;
 //=============================================
 var Sword Sword;
 var bool  tracerRecordBool;
+var bool swordBlockIsActive; //temp_fix_for_animation
 //=============================================
 // Camera
 //=============================================
@@ -196,6 +204,7 @@ function WeaponAttach()
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+	Sword.rotate(0,0,16384);
 }
 
 /*
@@ -536,6 +545,9 @@ function doBlock()
 {
 	Attack1.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	Sword.GoToState('Blocking');
+
+		Sword.rotate(0,0,49152); //temp_fix_for_animation
+		swordBlockIsActive = true;//temp_fix_for_animation
 }/*
 cancelBlock
 	Cancels loop anim
@@ -545,6 +557,9 @@ function cancelBlock()
 {
 	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.5, 0, false);
     Sword.SetInitialState();
+    swordBlockIsActive = false;//temp_fix_for_animation
+	Sword.rotate(0,0,16384); //temp_fix_for_animation
+
 	// Attack1.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
 /*
@@ -688,7 +703,7 @@ function forwardAttack()
 	DebugPrint("fwd -");
 	Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-	Sword.rotate(7500,0,49152);
+	Sword.rotate(7500,0,49152); //temp_fix_for_animation
 	Sword.setTracerDelay(0.65);
     Sword.GoToState('Attacking');
 // forwardAttack1.StopCustomAnim(0);
@@ -702,9 +717,13 @@ function forwardAttackEnd()
 {
 	DebugPrint("dun -");
 	//forwardAttack1.StopCustomAnim(0);
-	Sword.rotate(0,0,49152);
+	// Sword.rotate(0,0,49152);
     Sword.SetInitialState();
     Sword.resetTracers();
+
+    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+
     animationControl();
 
     if(animationQueueAndDirection != 0)
@@ -737,12 +756,24 @@ function animationControl()
 		idleBool = true;
 		 if (IdleAnimNodeBlendList.BlendTimeToGo <= 0.f)
   			{
+  				//Pick a random idle animation
     			IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
+    			//Set sword orientation temp_fix_for_animation
+				Sword.rotate(0,0,16384);
+    			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
   			}
   		}
 	}
 	else
+	{
 		idleBool = false;
+    	//Set sword orientation, temp_fix_for_animation
+		Sword.rotate(0,0,49152);
+
+	}
+
+	if(swordBlockIsActive)//temp_fix_for_animation
+		Sword.rotate(0,0,49152);
 }
 /*
 tetherBeamProjectile

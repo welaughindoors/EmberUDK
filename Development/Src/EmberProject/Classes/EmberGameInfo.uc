@@ -115,7 +115,7 @@ RestartPlayer
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
    HUDType=class'EmberProject.EmberHUD'
    MapPrefixes[0]="UDN"
-   DefaultInventory(0)=0
-	bUseClassicHUD=true
+   DefaultInventory(0)=class'sword'
+	// bUseClassicHUD=true
     // bUseClassicHUD=true
 }
