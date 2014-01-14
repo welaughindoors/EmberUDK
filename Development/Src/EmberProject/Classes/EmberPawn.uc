@@ -95,7 +95,7 @@ var float 				animationQueueAndDirection;
 //=============================================
 var Sword Sword;
 var bool  tracerRecordBool;
-var bool swordBlockIsActive; //temp_fix_for_animation
+// var bool swordBlockIsActive; //temp_fix_for_animation
 //=============================================
 // Camera
 //=============================================
@@ -546,8 +546,8 @@ function doBlock()
 	Attack1.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	Sword.GoToState('Blocking');
 
-		Sword.rotate(0,0,49152); //temp_fix_for_animation
-		swordBlockIsActive = true;//temp_fix_for_animation
+		// Sword.rotate(0,0,49152); //temp_fix_for_animation
+		// swordBlockIsActive = true;//temp_fix_for_animation
 }/*
 cancelBlock
 	Cancels loop anim
@@ -557,8 +557,8 @@ function cancelBlock()
 {
 	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.5, 0, false);
     Sword.SetInitialState();
-    swordBlockIsActive = false;//temp_fix_for_animation
-	Sword.rotate(0,0,16384); //temp_fix_for_animation
+    // swordBlockIsActive = false;//temp_fix_for_animation
+	// Sword.rotate(0,0,16384); //temp_fix_for_animation
 
 	// Attack1.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
@@ -679,7 +679,7 @@ local float timeTakesToComplete;
 // 		print "100lb";
 // 		break;
 
-// 		case 1:
+// 		case 1: 
 // 		print "0.3Lb";
 // 		break;
 
@@ -703,7 +703,7 @@ function forwardAttack()
 	DebugPrint("fwd -");
 	Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-	Sword.rotate(7500,0,49152); //temp_fix_for_animation
+	// Sword.rotate(7500,0,49152); //temp_fix_for_animation
 	Sword.setTracerDelay(0.65);
     Sword.GoToState('Attacking');
 // forwardAttack1.StopCustomAnim(0);
@@ -759,7 +759,7 @@ function animationControl()
   				//Pick a random idle animation
     			IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
     			//Set sword orientation temp_fix_for_animation
-				Sword.rotate(0,0,16384);
+				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
   			}
   		}
@@ -768,12 +768,12 @@ function animationControl()
 	{
 		idleBool = false;
     	//Set sword orientation, temp_fix_for_animation
-		Sword.rotate(0,0,49152);
+		// Sword.rotate(0,0,49152);
 
 	}
 
-	if(swordBlockIsActive)//temp_fix_for_animation
-		Sword.rotate(0,0,49152);
+	// if(swordBlockIsActive)//temp_fix_for_animation
+		// Sword.rotate(0,0,49152);
 }
 /*
 tetherBeamProjectile

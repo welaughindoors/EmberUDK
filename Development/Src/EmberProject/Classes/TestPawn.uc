@@ -381,7 +381,7 @@ attackStop
 */
 function attackStop()
 {
-	Sword.rotate(0,0,49152);
+	// Sword.rotate(0,0,49152);
     Sword.SetInitialState();
     Sword.resetTracers();
 }
@@ -475,7 +475,9 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 
    	//Setup default NPC mesh
     Begin Object Class=SkeletalmeshComponent Name=NPCMesh0
-SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+// SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
+
+SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
 AnimtreeTemplate=AnimTree'ArtAnimation.Armature_Tree'
 AnimSets(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
