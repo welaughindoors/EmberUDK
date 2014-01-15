@@ -79,7 +79,9 @@ var int  kickCounter;
 // General Animations
 //=============================================
 var AnimNodeBlendList IdleAnimNodeBlendList;
-var bool idleBool;
+var AnimNodeBlendList RunAnimNodeBlendList;
+var int currentStance;
+var bool idleBool, runBool;
 
 //=============================================
 // Attack Animations
@@ -341,7 +343,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     {
         AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
   		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
-
+  		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		// Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack2'));
 
@@ -358,7 +360,7 @@ event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vect
 	DebugPrint("hit");
 }
 
-/*
+/* 
 BecomeViewTarget
 	Required for modified Third Person
 */
@@ -667,26 +669,9 @@ local float timeTakesToComplete;
 	// SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 
 	Sword.setTracerDelay(0.30);
-    Sword.GoToState('Attacking');
+    Sword.GoToState('Attacking'); 
 }
 
-// int planetIndex;
-// planetIndex = ###;
-
-// 	switch(planetIndex)
-// 	{
-// 		case 0:
-// 		print "100lb";
-// 		break;
-
-// 		case 1: 
-// 		print "0.3Lb";
-// 		break;
-
-// 		case default:
-// 		print "neither earth nor moon selected";
-// 		break;
-// 	}
 /*
 forwardAttack
 	Flushes existing debug lines
@@ -754,10 +739,12 @@ function animationControl()
 		if(idleBool == false)
 		{
 		idleBool = true;
+		runBool = false;
 		 if (IdleAnimNodeBlendList.BlendTimeToGo <= 0.f)
   			{
   				//Pick a random idle animation
-    			IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
+    			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
+				IdleAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
     			//Set sword orientation temp_fix_for_animation
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
@@ -766,7 +753,20 @@ function animationControl()
 	}
 	else
 	{
+		if( runBool == false)
+		{ 
 		idleBool = false;
+		runBool = true;
+		 if (RunAnimNodeBlendList.BlendTimeToGo <= 0.f)
+  			{
+  				//Pick a random idle animation
+    			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
+				RunAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
+    			//Set sword orientation temp_fix_for_animation
+				// Sword.rotate(0,0,16384);
+    			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
+  			}
+  		}
     	//Set sword orientation, temp_fix_for_animation
 		// Sword.rotate(0,0,49152);
 
@@ -1389,6 +1389,30 @@ function DoKick()
 
     	    	DrawDebugLine(botLeg, botFoot, -1, 0, -1, true);
 }
+
+//===============================
+// Stances Functions
+//===============================
+function LightStance()
+{
+	currentStance = 1;
+	overrideStanceChange();
+}
+function BalanceStance()
+{
+	currentStance = 2;
+	overrideStanceChange();
+}
+function HeavyStance()
+{
+ currentStance = 3;
+overrideStanceChange();
+} 
+function overrideStanceChange()
+{
+	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
+	RunAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
+}
 //===============================
 // Console Vars
 //===============================
@@ -1419,6 +1443,7 @@ defaultproperties
 	JumpZ=750 //default-322.0
         bCollideActors=True
       bBlockActors=True
+      currentStance = 1;
 
 	// Begin Object Class=SkeletalMeshComponent Name=SwordMesh
  //        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'

@@ -204,7 +204,30 @@ exec function CntrlIsRequested()
    EmberPawn(pawn).kickCounter = 0;
    EmberPawn(pawn).DoKick();
 }
-
+/*
+LightStance
+   Switch to Light Stance 
+*/
+exec function LightStance()
+{
+EmberPawn(pawn).LightStance();
+}
+/*
+BalanceStance
+   Switch to Light Stance
+*/
+exec function BalanceStance()
+{
+EmberPawn(pawn).BalanceStance();
+}
+/*
+HeavyStance
+   Switch to Light Stance
+*/
+exec function HeavyStance()
+{
+EmberPawn(pawn).HeavyStance();
+}
 //=============================================
 // Custom Functions
 //=============================================
