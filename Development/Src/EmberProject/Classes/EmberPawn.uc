@@ -82,6 +82,7 @@ var AnimNodeBlendList IdleAnimNodeBlendList;
 var AnimNodeBlendList RunAnimNodeBlendList;
 var int currentStance;
 var bool idleBool, runBool;
+var float idleBlendTime, runBlendTime;
 
 //=============================================
 // Attack Animations
@@ -744,7 +745,7 @@ function animationControl()
   			{
   				//Pick a random idle animation
     			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
-				IdleAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
+				IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
     			//Set sword orientation temp_fix_for_animation
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
@@ -761,7 +762,7 @@ function animationControl()
   			{
   				//Pick a random idle animation
     			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
-				RunAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
+				RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
     			//Set sword orientation temp_fix_for_animation
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
@@ -1410,8 +1411,8 @@ overrideStanceChange();
 } 
 function overrideStanceChange()
 {
-	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
-	RunAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15f);
+	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
+	RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 }
 //===============================
 // Console Vars
@@ -1431,9 +1432,25 @@ exec function ep_sword_block_cone(float coneDotProductAngle = -3949212)
 	else
   		Sword.blockCone = coneDotProductAngle;
 }
+exec function ep_player_anim_run_blend_time(float runBlendTimeMod = -3949212)
+{
+	if(runBlendTimeMod == -3949212)
+		DebugPrint("Blend time (in seconds) between run animations. Current Value -"@runBlendTime);
+	else
+  		runBlendTime = runBlendTimeMod;
+} 
+exec function ep_player_anim_idle_blend_time(float idleBlendTimeMod = -3949212)
+{
+	if(idleBlendTimeMod == -3949212) 
+		DebugPrint("Blend time (in seconds) between idle animations. 0 is 90 degrees. Current Value -"@idleBlendTime);
+	else
+  		idleBlendTime = idleBlendTimeMod;
+}
+
 defaultproperties
 {
-
+	idleBlendTime=0.15f
+	runBlendTime=0.15f
 	bCanStrafe=false
 	SwordState = false
 	tetherStatusForVel = false
