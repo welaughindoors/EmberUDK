@@ -936,7 +936,8 @@ defaultproperties
       attackIsActive = false
 
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
-        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+        // SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+        SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.gladius'
         PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
         bCacheAnimSequenceNodes=false
        AlwaysLoadOnClient=true
@@ -957,18 +958,18 @@ defaultproperties
        MinDistFactorForKinematicUpdate=0.2f
        bChartDistanceFactor=true
        RBDominanceGroup=20
-       Scale=0.5
-       bAllowAmbientOcclusion=false
+       Scale=1
+       bAllowAmbientOcclusion=false 
        bUseOnePassLightingOnTranslucency=true
        bPerBoneMotionBlur=true
        bOwnerNoSee=false
        BlockActors=true
-       BlockZeroExtent=true
+       BlockZeroExtent=true 
        BlockNonZeroExtent=true
        CollideActors=true
 
 
-Rotation=(Pitch=000 ,Yaw=0, Roll=49152 )
+// Rotation=(Pitch=000 ,Yaw=0, Roll=49152 )
 // Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
 
     End Object

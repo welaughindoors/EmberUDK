@@ -12,7 +12,8 @@ var SkeletalMeshComponent PlayerMeshComponent;
 var AnimNodeSlot AnimSlot;
 var bool SwordState;
 var PlayerController customPlayerController;
-var() SkeletalMeshComponent SwordMesh;
+// var() SkeletalMeshComponent SwordMesh;
+var SkeletalMesh swordMesh;
 
 //=============================================
 // Tether System
@@ -1397,11 +1398,16 @@ function DoKick()
 function LightStance()
 {
 	currentStance = 1;
+	swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
+	Sword.Mesh.SetSkeletalMesh(swordMesh);
+	// Mesh.SetSkeletalMesh(transformedMesh);
 	overrideStanceChange();
 }
 function BalanceStance()
 {
 	currentStance = 2;
+	swordMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2';
+	Sword.Mesh.SetSkeletalMesh(swordMesh);
 	overrideStanceChange();
 }
 function HeavyStance()
@@ -1444,7 +1450,7 @@ exec function ep_player_anim_idle_blend_time(float idleBlendTimeMod = -3949212)
 	if(idleBlendTimeMod == -3949212) 
 		DebugPrint("Blend time (in seconds) between idle animations. Current Value -"@idleBlendTime);
 	else
-  		idleBlendTime = idleBlendTimeMod;
+  		idleBlendTime = idleBlendTimeMod; 
 }
 exec function ep_player_gravity_scaling(float GravityScale = -3949212)
 {
@@ -1455,10 +1461,12 @@ exec function ep_player_gravity_scaling(float GravityScale = -3949212)
 }
 exec function ep_player_jump_boost(float JumpBoost = -3949212)
 { 
-	if(JumpBoost == -3949212) 
-		DebugPrint("The boost player gets when jumping. Current Value -"@JumpZ);
-	else
-  		JumpZ = JumpBoost;
+	JumpZ = (JumpBoost == -3949212) ? ModifiedDebugPrint("The boost player gets when jumping. Current Value -", JumpZ) : JumpBoost;
+}
+function float ModifiedDebugPrint(string sMessage, float variable)
+{
+	DebugPrint(sMessage @ string(variable));
+	return variable;
 }
 defaultproperties
 {
@@ -1499,6 +1507,6 @@ defaultproperties
 		CollisionRadius=0025.00000
 		CollisionHeight=0047.5.00000
 	End Object
-   Components.Add(CollisionCylinder)
+   	Components.Add(CollisionCylinder)
 	CollisionComponent=CollisionCylinder
 }
