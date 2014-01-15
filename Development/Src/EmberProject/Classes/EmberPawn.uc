@@ -1442,11 +1442,24 @@ exec function ep_player_anim_run_blend_time(float runBlendTimeMod = -3949212)
 exec function ep_player_anim_idle_blend_time(float idleBlendTimeMod = -3949212)
 {
 	if(idleBlendTimeMod == -3949212) 
-		DebugPrint("Blend time (in seconds) between idle animations. 0 is 90 degrees. Current Value -"@idleBlendTime);
+		DebugPrint("Blend time (in seconds) between idle animations. Current Value -"@idleBlendTime);
 	else
   		idleBlendTime = idleBlendTimeMod;
 }
-
+exec function ep_player_gravity_scaling(float GravityScale = -3949212)
+{
+	if(GravityScale == -3949212) 
+		DebugPrint("Lower values = lower gravity, higher = higher gravity. Current Value -"@CustomGravityScaling);
+	else
+  		CustomGravityScaling = GravityScale;
+}
+exec function ep_player_jump_boost(float JumpBoost = -3949212)
+{ 
+	if(JumpBoost == -3949212) 
+		DebugPrint("The boost player gets when jumping. Current Value -"@JumpZ);
+	else
+  		JumpZ = JumpBoost;
+}
 defaultproperties
 {
 	idleBlendTime=0.15f
