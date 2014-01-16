@@ -29,7 +29,11 @@ var int allowSpineRotation;
 var float pawnRotationDotAngle;
 var float spine_rotation_roll;
 var float spine_rotation_yaw;
-
+  var float ViewPitchMin;
+   var float ViewPitchMax;
+  var float ViewYawMin;
+   var float ViewYawMax;
+   var float pitchcc;
 //=============================================
 // Overrided Functions
 //=============================================
@@ -97,6 +101,7 @@ function UpdateRotation( float DeltaTime )
    local Rotator   DeltaRot, newRotation, ViewRotation, spineRotate;
 local Vector v1, v2;
 local float dott;
+local rotator DesiredAim,CurrentAim;
    ViewRotation = Rotation;
    // if (Pawn!=none)
    // {
@@ -113,30 +118,36 @@ local float dott;
    NewRotation = ViewRotation;
    NewRotation.Roll = Rotation.Roll;
 
-if(VSize(pawn.Velocity) != 0)   
+// if(VSize(pawn.Velocity) != 0)   
    // if ( Pawn != None )
       Pawn.FaceRotation(NewRotation, deltatime);
-      else 
-      { 
-         v1 = normal(vector(Rotation));
-         v2 = normal(vector(pawn.Rotation));
-         dott = v1 dot v2; 
-         if(dott < pawnRotationDotAngle)
-            interpolateForCameraIsActive = true;
+      // else 
+      // { 
+      //    v1 = normal(vector(Rotation));
+      //    v2 = normal(vector(pawn.Rotation));
+      //    dott = v1 dot v2; 
+      //    if(dott < pawnRotationDotAngle || NewRotation.pitch > 5000)
+      //       interpolateForCameraIsActive = true;
 
-         else if(dott >= 0.95) 
-            interpolateForCameraIsActive = false;
+      //    else if(dott >= 0.95 || NewRotation.pitch < 5000) 
+      //       interpolateForCameraIsActive = false;
 
-            if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
-            Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
-         }
+      //       if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
+      //       Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+
+      //       if(pitchcc!=NewRotation.pitch)
+      //       {
+      //          pitchcc = NewRotation.pitch;
+      //          GetALocalPlayerController().ClientMessage(""@pitchcc);
+      //       }
+      //    }
          if(allowSpineRotation == 1)
          {
             // spineRotate.Roll  = newRotation.pitch;
             // spineRotate.Pitch = -newRotation.Pitch;
             
  
-    // GetALocalPlayerController().ClientMessage(""@NewRotation.Yaw);
+    // 
             // spineRotate.Yaw = -newRotation.yaw;
          // EmberPawn(pawn).SpineRotator.BoneRotation = RLerp(EmberPawn(pawn).SpineRotator.BoneRotation,spineRotate,0.33,true);
       }
@@ -339,6 +350,10 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
+     ViewPitchMin=-15000
+   ViewPitchMax=15500
+     ViewYawMin=-15000
+   ViewYawMax=15500
    pawnRotationDotAngle = 0.16f 
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f

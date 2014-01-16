@@ -315,7 +315,7 @@ Simulated Event Tick(float DeltaTime)
 
 	// Probably not required
 	bReadyToDoubleJump = true;
-
+ 
 	if(jumpActive)
 		SlowDescent(DeltaTime);
 
@@ -331,7 +331,7 @@ Simulated Event Tick(float DeltaTime)
 
 	animationControl();
 
-}
+} 
 
 /*
 PostInitAnimTree
@@ -349,6 +349,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
+  		// AimNode = AnimNodeAimOffset(SkelComp.FindAnimNode('AimNode'));
   		// Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack2'));
 
   		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
