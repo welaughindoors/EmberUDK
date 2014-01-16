@@ -27,6 +27,8 @@ var bool interpolateForCameraIsActive;
 var int allowPawnRotationWhenStationary;
 var int allowSpineRotation;
 var float pawnRotationDotAngle;
+var float spine_rotation_roll;
+var float spine_rotation_yaw;
 
 //=============================================
 // Overrided Functions
@@ -131,6 +133,8 @@ if(VSize(pawn.Velocity) != 0)
          if(allowSpineRotation == 1)
          {
          spineRotate.Pitch = -newRotation.Pitch;
+            spineRotate.Yaw = spine_rotation_yaw;
+            spineRotate.Roll = spine_rotation_roll;
          EmberPawn(pawn).SpineRotator.BoneRotation = spineRotate;
       }
 }   
@@ -286,6 +290,14 @@ exec function ep_player_spine_rotation(float Toggle = -3949212)
 {
    allowSpineRotation = (Toggle == -3949212) ? ModifiedDebugPrint("Allows spine rotation for looking up and down. 1 = true, 0 = false. Current Value - ", allowSpineRotation) : Toggle;
 }
+exec function ep_player_spine_rotation_yaw(float Toggle = -3949212)
+{
+   spine_rotation_yaw = (Toggle == -3949212) ? ModifiedDebugPrint("Changes yaw constant. Default is 0. Current Value - ", spine_rotation_yaw) : Toggle;
+}
+exec function ep_player_spine_rotation_roll(float Toggle = -3949212)
+{
+   spine_rotation_roll = (Toggle == -3949212) ? ModifiedDebugPrint("Changes roll constant. Default is 0.  Current Value - ", spine_rotation_roll) : Toggle;
+}
 exec function ep_player_rotation_when_stationary(float Toggle = -3949212)
 {
    allowPawnRotationWhenStationary = (Toggle == -3949212) ? ModifiedDebugPrint("Allows player rotation when stationary. 1 = true, 0 = false. Current Value - ", allowPawnRotationWhenStationary) : Toggle;
@@ -328,6 +340,8 @@ defaultproperties
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f
     allowSpineRotation = 1.0f
+    spine_rotation_roll = 0
+    spine_rotation_yaw = 0
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
 // defaultMesh=SkeletalMesh'mypackage.UT3_Male'
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
