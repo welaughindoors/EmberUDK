@@ -25,6 +25,7 @@ var float      playerStrafeDirection;
 //=============================================
 var bool interpolateForCameraIsActive;
 var int allowPawnRotationWhenStationary;
+var int allowSpineRotation;
 var float pawnRotationDotAngle;
 
 //=============================================
@@ -91,7 +92,7 @@ UpdateRotation
 */
 function UpdateRotation( float DeltaTime )
 {
-   local Rotator   DeltaRot, newRotation, ViewRotation;
+   local Rotator   DeltaRot, newRotation, ViewRotation, spineRotate;
 local Vector v1, v2;
 local float dott;
    ViewRotation = Rotation;
@@ -110,7 +111,7 @@ local float dott;
    NewRotation = ViewRotation;
    NewRotation.Roll = Rotation.Roll;
 
-if(VSize(pawn.Velocity) != 0)
+if(VSize(pawn.Velocity) != 0)  
    // if ( Pawn != None )
       Pawn.FaceRotation(NewRotation, deltatime);
       else
@@ -127,9 +128,14 @@ if(VSize(pawn.Velocity) != 0)
             if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
             Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime);
          }
+         if(allowSpineRotation == 1)
+         {
+         spineRotate.Pitch = -newRotation.Pitch;
+         EmberPawn(pawn).SpineRotator.BoneRotation = spineRotate;
+      }
 }   
 
-/*
+/* 
 PostBeginPlay
 */
 Simulated Event PostBeginPlay() {
@@ -266,7 +272,7 @@ exec function spawnDummy()
 }
 
 function RecordTracers(name animation, float duration, float t1, float t2)
-{
+{ 
    local Pawn p;
       p = Spawn(class'TestPawn', , , );
       // p.SpawnDefaultController();
@@ -276,6 +282,10 @@ function RecordTracers(name animation, float duration, float t1, float t2)
 //=============================================
 // Console Functions
 //=============================================
+exec function ep_player_spine_rotation(float Toggle = -3949212)
+{
+   allowSpineRotation = (Toggle == -3949212) ? ModifiedDebugPrint("Allows spine rotation for looking up and down. 1 = true, 0 = false. Current Value - ", allowSpineRotation) : Toggle;
+}
 exec function ep_player_rotation_when_stationary(float Toggle = -3949212)
 {
    allowPawnRotationWhenStationary = (Toggle == -3949212) ? ModifiedDebugPrint("Allows player rotation when stationary. 1 = true, 0 = false. Current Value - ", allowPawnRotationWhenStationary) : Toggle;
@@ -291,7 +301,7 @@ exec function dot_angle_examples(float dot_angle = -3949212)
 function float ModifiedDebugPrint(string sMessage, float variable)
 {
    GetALocalPlayerController().ClientMessage(sMessage @ string(variable));
-   return variable;
+   return variable; 
 }
 function bool ModifiedDebugPrintBool(string sMessage, bool variable)
 {
@@ -317,6 +327,7 @@ defaultproperties
    pawnRotationDotAngle = 0.16f
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f
+    allowSpineRotation = 1.0f
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
 // defaultMesh=SkeletalMesh'mypackage.UT3_Male'
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'

@@ -93,6 +93,7 @@ var AnimNodeBlendList AttackBlendNode;
 var AnimNodePlayCustomAnim Attack1;
 var AnimNodePlayCustomAnim Attack2;
 var float 				animationQueueAndDirection;
+var UDKSkelControl_Rotate SpineRotator;
 
 //=============================================
 // Weapon
@@ -346,6 +347,8 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
   		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+  		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
+  		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
   		// Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack2'));
 
   		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
