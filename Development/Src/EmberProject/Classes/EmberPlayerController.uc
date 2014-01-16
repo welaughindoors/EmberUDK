@@ -25,15 +25,7 @@ var float      playerStrafeDirection;
 //=============================================
 var bool interpolateForCameraIsActive;
 var int allowPawnRotationWhenStationary;
-var int allowSpineRotation;
 var float pawnRotationDotAngle;
-var float spine_rotation_roll;
-var float spine_rotation_yaw;
-  var float ViewPitchMin;
-   var float ViewPitchMax;
-  var float ViewYawMin;
-   var float ViewYawMax;
-   var float pitchcc;
 //=============================================
 // Overrided Functions
 //=============================================
@@ -98,15 +90,9 @@ UpdateRotation
 */
 function UpdateRotation( float DeltaTime )
 {
-   local Rotator   DeltaRot, newRotation, ViewRotation, spineRotate;
-local Vector v1, v2;
-local float dott;
-local rotator DesiredAim,CurrentAim;
+   local Rotator   DeltaRot, newRotation, ViewRotation;
    ViewRotation = Rotation;
-   // if (Pawn!=none)
-   // {
-   //    Pawn.SetDesiredRotation(ViewRotation);
-   // }
+   
 
    // Calculate Delta to be applied on ViewRotation
    DeltaRot.Yaw   = PlayerInput.aTurn;
@@ -121,6 +107,11 @@ local rotator DesiredAim,CurrentAim;
 // if(VSize(pawn.Velocity) != 0)   
    // if ( Pawn != None )
       Pawn.FaceRotation(NewRotation, deltatime);
+
+//================================
+// Legacy Code, to know how to interpolate
+//================================
+
       // else 
       // { 
       //    v1 = normal(vector(Rotation));
@@ -141,16 +132,7 @@ local rotator DesiredAim,CurrentAim;
       //          GetALocalPlayerController().ClientMessage(""@pitchcc);
       //       }
       //    }
-         if(allowSpineRotation == 1)
-         {
-            // spineRotate.Roll  = newRotation.pitch;
-            // spineRotate.Pitch = -newRotation.Pitch;
-            
- 
-    // 
-            // spineRotate.Yaw = -newRotation.yaw;
-         // EmberPawn(pawn).SpineRotator.BoneRotation = RLerp(EmberPawn(pawn).SpineRotator.BoneRotation,spineRotate,0.33,true);
-      }
+
 }   
 
 /* 
@@ -300,18 +282,18 @@ function RecordTracers(name animation, float duration, float t1, float t2)
 //=============================================
 // Console Functions
 //=============================================
-exec function ep_player_spine_rotation(float Toggle = -3949212)
-{
-   allowSpineRotation = (Toggle == -3949212) ? ModifiedDebugPrint("Allows spine rotation for looking up and down. 1 = true, 0 = false. Current Value - ", allowSpineRotation) : Toggle;
-}
-exec function ep_player_spine_rotation_yaw(float Toggle = -3949212)
-{
-   spine_rotation_yaw = (Toggle == -3949212) ? ModifiedDebugPrint("Changes yaw constant. Default is 0. Current Value - ", spine_rotation_yaw) : Toggle;
-}
-exec function ep_player_spine_rotation_roll(float Toggle = -3949212)
-{
-   spine_rotation_roll = (Toggle == -3949212) ? ModifiedDebugPrint("Changes roll constant. Default is 0.  Current Value - ", spine_rotation_roll) : Toggle;
-}
+// exec function ep_player_spine_rotation(float Toggle = -3949212)
+// {
+//    allowSpineRotation = (Toggle == -3949212) ? ModifiedDebugPrint("Allows spine rotation for looking up and down. 1 = true, 0 = false. Current Value - ", allowSpineRotation) : Toggle;
+// }
+// exec function ep_player_spine_rotation_yaw(float Toggle = -3949212)
+// {
+//    spine_rotation_yaw = (Toggle == -3949212) ? ModifiedDebugPrint("Changes yaw constant. Default is 0. Current Value - ", spine_rotation_yaw) : Toggle;
+// }
+// exec function ep_player_spine_rotation_roll(float Toggle = -3949212)
+// {
+//    spine_rotation_roll = (Toggle == -3949212) ? ModifiedDebugPrint("Changes roll constant. Default is 0.  Current Value - ", spine_rotation_roll) : Toggle;
+// }
 exec function ep_player_rotation_when_stationary(float Toggle = -3949212)
 {
    allowPawnRotationWhenStationary = (Toggle == -3949212) ? ModifiedDebugPrint("Allows player rotation when stationary. 1 = true, 0 = false. Current Value - ", allowPawnRotationWhenStationary) : Toggle;
@@ -350,16 +332,9 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
-     ViewPitchMin=-15000
-   ViewPitchMax=15500
-     ViewYawMin=-15000
-   ViewYawMax=15500
    pawnRotationDotAngle = 0.16f 
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f
-    allowSpineRotation = 1.0f
-    spine_rotation_roll = 0 
-    spine_rotation_yaw = 0
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
 // defaultMesh=SkeletalMesh'mypackage.UT3_Male'
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player' 
