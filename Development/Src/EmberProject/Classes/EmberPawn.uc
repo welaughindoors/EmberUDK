@@ -1416,6 +1416,8 @@ function BalanceStance()
 function HeavyStance()
 {
  currentStance = 3;
+	swordMesh=SkeletalMesh'ArtAnimation.Meshes.flammard';
+	Sword.Mesh.SetSkeletalMesh(swordMesh);
 overrideStanceChange();
 } 
 function overrideStanceChange()
