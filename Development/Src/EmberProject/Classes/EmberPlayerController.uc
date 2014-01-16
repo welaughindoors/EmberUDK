@@ -113,10 +113,10 @@ local float dott;
    NewRotation = ViewRotation;
    NewRotation.Roll = Rotation.Roll;
 
-if(VSize(pawn.Velocity) != 0)  
+if(VSize(pawn.Velocity) != 0)   
    // if ( Pawn != None )
       Pawn.FaceRotation(NewRotation, deltatime);
-      else
+      else 
       { 
          v1 = normal(vector(Rotation));
          v2 = normal(vector(pawn.Rotation));
@@ -124,18 +124,21 @@ if(VSize(pawn.Velocity) != 0)
          if(dott < pawnRotationDotAngle)
             interpolateForCameraIsActive = true;
 
-         else if(dott >= 0.95)
+         else if(dott >= 0.95) 
             interpolateForCameraIsActive = false;
 
             if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
-            Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime);
+            Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
          }
          if(allowSpineRotation == 1)
          {
-         spineRotate.Pitch = -newRotation.Pitch;
-            spineRotate.Yaw = spine_rotation_yaw;
-            spineRotate.Roll = spine_rotation_roll;
-         EmberPawn(pawn).SpineRotator.BoneRotation = spineRotate;
+            // spineRotate.Roll  = newRotation.pitch;
+            // spineRotate.Pitch = -newRotation.Pitch;
+            
+ 
+    // GetALocalPlayerController().ClientMessage(""@NewRotation.Yaw);
+            // spineRotate.Yaw = -newRotation.yaw;
+         // EmberPawn(pawn).SpineRotator.BoneRotation = RLerp(EmberPawn(pawn).SpineRotator.BoneRotation,spineRotate,0.33,true);
       }
 }   
 
@@ -328,23 +331,23 @@ public function resetMesh()
 {
 self.Pawn.Mesh.SetSkeletalMesh(defaultMesh);
 self.Pawn.Mesh.SetMaterial(0,defaultMaterial0);
-self.Pawn.Mesh.SetMaterial(1,defaultMaterial1);
+self.Pawn.Mesh.SetMaterial(1,defaultMaterial1); 
 self.Pawn.Mesh.SetPhysicsAsset(defaultPhysicsAsset );
-self.Pawn.Mesh.AnimSets=defaultAnimSet;
+self.Pawn.Mesh.AnimSets=defaultAnimSet; 
 self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 }
 
 defaultproperties
 {
-   pawnRotationDotAngle = 0.16f
+   pawnRotationDotAngle = 0.16f 
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f
     allowSpineRotation = 1.0f
-    spine_rotation_roll = 0
+    spine_rotation_roll = 0 
     spine_rotation_yaw = 0
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
 // defaultMesh=SkeletalMesh'mypackage.UT3_Male'
-defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
+defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player' 
 // defaultAnimTree=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
  defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
  
