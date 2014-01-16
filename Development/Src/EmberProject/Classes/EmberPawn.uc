@@ -14,7 +14,7 @@ var bool SwordState;
 var PlayerController customPlayerController;
 // var() SkeletalMeshComponent SwordMesh;
 var SkeletalMesh swordMesh;
-
+var vector cameraOutLoc;
 //=============================================
 // Tether System
 //=============================================
@@ -124,7 +124,6 @@ simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
 }
-
 // Not Needed, found out that there's an official code that does the same, even has same name >.<
 // function bool isTimerActive(name tName)
 // {
@@ -437,6 +436,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    {
       out_CamLoc = HitLocation;
    }
+      cameraOutLoc = out_CamLoc;
 
    return true;
 }   
@@ -1400,7 +1400,6 @@ function LightStance()
 	currentStance = 1;
 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
-	// Mesh.SetSkeletalMesh(transformedMesh);
 	overrideStanceChange();
 }
 function BalanceStance()

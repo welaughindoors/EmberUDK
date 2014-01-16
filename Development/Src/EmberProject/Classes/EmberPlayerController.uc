@@ -21,6 +21,13 @@ var bool isTethering;
 var float      playerStrafeDirection;
 
 //=============================================
+// Camera Variables
+//=============================================
+var bool interpolateForCameraIsActive;
+var int allowPawnRotationWhenStationary;
+var float pawnRotationDotAngle;
+
+//=============================================
 // Overrided Functions
 //=============================================
 /*
@@ -85,7 +92,8 @@ UpdateRotation
 function UpdateRotation( float DeltaTime )
 {
    local Rotator   DeltaRot, newRotation, ViewRotation;
-
+local Vector v1, v2;
+local float dott;
    ViewRotation = Rotation;
    // if (Pawn!=none)
    // {
@@ -105,6 +113,20 @@ function UpdateRotation( float DeltaTime )
 if(VSize(pawn.Velocity) != 0)
    // if ( Pawn != None )
       Pawn.FaceRotation(NewRotation, deltatime);
+      else
+      { 
+         v1 = normal(vector(Rotation));
+         v2 = normal(vector(pawn.Rotation));
+         dott = v1 dot v2; 
+         if(dott < pawnRotationDotAngle)
+            interpolateForCameraIsActive = true;
+
+         else if(dott >= 0.95)
+            interpolateForCameraIsActive = false;
+
+            if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
+            Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime);
+         }
 }   
 
 /*
@@ -251,7 +273,31 @@ function RecordTracers(name animation, float duration, float t1, float t2)
     GetALocalPlayerController().ClientMessage("sMessage");
       TestPawn(p).doAttackRecording(animation, duration, t1, t2);
 }
-
+//=============================================
+// Console Functions
+//=============================================
+exec function ep_player_rotation_when_stationary(float Toggle = -3949212)
+{
+   allowPawnRotationWhenStationary = (Toggle == -3949212) ? ModifiedDebugPrint("Allows player rotation when stationary. 1 = true, 0 = false. Current Value - ", allowPawnRotationWhenStationary) : Toggle;
+}
+exec function ep_player_rotation_when_stationary_angle(float dot_angle = -3949212)
+{
+   pawnRotationDotAngle = (dot_angle == -3949212) ? ModifiedDebugPrint("Dot angle detection to rotate player to camera. examples can be found under command dot_angle_examples. Current Value - ", pawnRotationDotAngle) : dot_angle;
+}
+exec function dot_angle_examples(float dot_angle = -3949212)
+{
+   GetALocalPlayerController().ClientMessage("Example angles: 1 = 0 degrees, 0.5 = 45 degrees, 0 = 90 degrees, -0.5 = 135 degrees, -1 = 180 degrees.");
+}
+function float ModifiedDebugPrint(string sMessage, float variable)
+{
+   GetALocalPlayerController().ClientMessage(sMessage @ string(variable));
+   return variable;
+}
+function bool ModifiedDebugPrintBool(string sMessage, bool variable)
+{
+   GetALocalPlayerController().ClientMessage(sMessage @ string(variable));
+   return variable;
+}
 /*
 resetMesh
 	Sets custom mesh
@@ -268,6 +314,9 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
+   pawnRotationDotAngle = 0.16f
+    interpolateForCameraIsActive = false
+    allowPawnRotationWhenStationary = 1.0f
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
 // defaultMesh=SkeletalMesh'mypackage.UT3_Male'
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
