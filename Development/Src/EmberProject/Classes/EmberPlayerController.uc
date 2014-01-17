@@ -19,6 +19,7 @@ var PhysicsAsset defaultPhysicsAsset;
 
 var bool isTethering;
 var float      playerStrafeDirection;
+var float pitchcc;
 
 //=============================================
 // Camera Variables
@@ -91,6 +92,8 @@ UpdateRotation
 function UpdateRotation( float DeltaTime )
 {
    local Rotator   DeltaRot, newRotation, ViewRotation;
+   local vector v1, v2;
+   local float dott;
    ViewRotation = Rotation;
    
 
@@ -106,6 +109,7 @@ function UpdateRotation( float DeltaTime )
 
 // if(VSize(pawn.Velocity) != 0)   
    // if ( Pawn != None )
+
    if(allowPawnRotationWhenStationary == 1)
       Pawn.FaceRotation(NewRotation, deltatime);
    else
@@ -120,23 +124,22 @@ function UpdateRotation( float DeltaTime )
 
       // else 
       // { 
-      //    v1 = normal(vector(Rotation));
-      //    v2 = normal(vector(pawn.Rotation));
-      //    dott = v1 dot v2; 
-      //    if(dott < pawnRotationDotAngle || NewRotation.pitch > 5000)
-      //       interpolateForCameraIsActive = true;
+         v1 = normal(vector(Rotation));
+         v2 = normal(vector(pawn.Rotation));
+         dott = v1 dot v2; 
+         if(dott < pawnRotationDotAngle || NewRotation.pitch > 5000)
+            interpolateForCameraIsActive = true;
 
-      //    else if(dott >= 0.95 || NewRotation.pitch < 5000) 
-      //       interpolateForCameraIsActive = false;
+         else if(dott >= 0.95 || NewRotation.pitch < 5000) 
+            interpolateForCameraIsActive = false;
 
-      //       if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
-      //       Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+            if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
+            Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
 
-      //       if(pitchcc!=NewRotation.pitch)
-      //       {
-      //          pitchcc = NewRotation.pitch;
-      //          GetALocalPlayerController().ClientMessage(""@pitchcc);
-      //       }
+            if(pitchcc!=NewRotation.pitch)
+            {
+               pitchcc = NewRotation.pitch;
+            }
       //    }
 
 }   
@@ -262,6 +265,15 @@ exec function HeavyStance()
 {
 EmberPawn(pawn).HeavyStance();
 }
+/*
+SheatheWeapon
+   Sheathe Weapon
+*/
+exec function SheatheWeapon()
+{
+EmberPawn(pawn).SheatheWeapon();
+}
+
 //=============================================
 // Custom Functions
 //=============================================

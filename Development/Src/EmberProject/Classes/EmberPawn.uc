@@ -208,6 +208,7 @@ function WeaponAttach()
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+
 	Sword.rotate(0,0,16384);
 }
 
@@ -1403,22 +1404,39 @@ function LightStance()
 {
 	currentStance = 1;
 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
+	Mesh.DetachComponent(Sword.mesh);
+    Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
+	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 	overrideStanceChange();
 }
 function BalanceStance()
 {
 	currentStance = 2;
 	swordMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2';
+	Mesh.DetachComponent(Sword.mesh);
+    Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
+	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 	overrideStanceChange();
 }
 function HeavyStance()
 {
  currentStance = 3;
 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.flammard';
+	Mesh.DetachComponent(Sword.mesh);
+    Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
+	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 overrideStanceChange();
+}
+function SheatheWeapon()
+{
+	Mesh.DetachComponent(Sword.mesh);
+    Mesh.DetachComponent(Sword.CollisionComponent);
 } 
 function overrideStanceChange()
 {
