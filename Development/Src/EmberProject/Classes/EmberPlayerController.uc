@@ -106,7 +106,13 @@ function UpdateRotation( float DeltaTime )
 
 // if(VSize(pawn.Velocity) != 0)   
    // if ( Pawn != None )
+   if(allowPawnRotationWhenStationary == 1)
       Pawn.FaceRotation(NewRotation, deltatime);
+   else
+   {
+      if(VSize(pawn.Velocity) != 0) 
+         Pawn.FaceRotation(NewRotation, deltatime);
+   }
 
 //================================
 // Legacy Code, to know how to interpolate
@@ -298,10 +304,10 @@ exec function ep_player_rotation_when_stationary(float Toggle = -3949212)
 {
    allowPawnRotationWhenStationary = (Toggle == -3949212) ? ModifiedDebugPrint("Allows player rotation when stationary. 1 = true, 0 = false. Current Value - ", allowPawnRotationWhenStationary) : Toggle;
 }
-exec function ep_player_rotation_when_stationary_angle(float dot_angle = -3949212)
-{
-   pawnRotationDotAngle = (dot_angle == -3949212) ? ModifiedDebugPrint("Dot angle detection to rotate player to camera. examples can be found under command dot_angle_examples. Current Value - ", pawnRotationDotAngle) : dot_angle;
-}
+// exec function ep_player_rotation_when_stationary_angle(float dot_angle = -3949212)
+// {
+//    pawnRotationDotAngle = (dot_angle == -3949212) ? ModifiedDebugPrint("Dot angle detection to rotate player to camera. examples can be found under command dot_angle_examples. Current Value - ", pawnRotationDotAngle) : dot_angle;
+// }
 exec function dot_angle_examples(float dot_angle = -3949212)
 {
    GetALocalPlayerController().ClientMessage("Example angles: 1 = 0 degrees, 0.5 = 45 degrees, 0 = 90 degrees, -0.5 = 135 degrees, -1 = 180 degrees.");
