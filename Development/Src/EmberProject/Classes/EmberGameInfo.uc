@@ -38,13 +38,12 @@ AddDefaultInventory
 RestartPlayer
   Not sure if needed
 */
-// function RestartPlayer(Controller aPlayer)
-// {
-// super.RestartPlayer(aPlayer);
-// `Log("Player restarted");
-// playerControllerWORLD = EmberPlayerController(aPlayer);
-// playerControllerWORLD.resetMesh();
-// }
+function RestartPlayer(Controller aPlayer)
+{
+super.RestartPlayer(aPlayer);
+playerControllerWORLD = EmberPlayerController(aPlayer);
+playerControllerWORLD.resetMesh();
+}
 // function DrawHud()
 // {
 
