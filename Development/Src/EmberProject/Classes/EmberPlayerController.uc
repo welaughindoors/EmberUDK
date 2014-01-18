@@ -27,6 +27,10 @@ var float pitchcc;
 var bool interpolateForCameraIsActive;
 var int allowPawnRotationWhenStationary;
 var float pawnRotationDotAngle;
+
+var float interpMovementAttack;
+var float interpMovement;
+var float interpStationaryAttack;
 //=============================================
 // Overrided Functions
 //=============================================
@@ -125,7 +129,7 @@ function UpdateRotation( float DeltaTime )
             if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
                {
                   if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
-                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true),DeltaTime); 
                }
             if(pitchcc!=NewRotation.pitch)
                pitchcc = NewRotation.pitch;
@@ -146,13 +150,12 @@ function UpdateRotation( float DeltaTime )
 
          else if(dott >= 0.95 || NewRotation.pitch < 5000) 
             interpolateForCameraIsActive = false;
-
             if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
             {
                if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
-                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpMovementAttack, true),DeltaTime); 
                   else
-                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 120000, true),DeltaTime); 
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpMovement, true),DeltaTime); 
              }
 
             if(pitchcc!=NewRotation.pitch)
@@ -343,10 +346,23 @@ exec function ep_player_rotation_when_stationary(float Toggle = -3949212)
 {
    allowPawnRotationWhenStationary = (Toggle == -3949212) ? ModifiedDebugPrint("Allows player rotation when stationary. 1 = true, 0 = false. Current Value - ", allowPawnRotationWhenStationary) : Toggle;
 }
+exec function ep_player_rotation_iterp_stationary_attack(float Toggle = -3949212)
+{
+   interpStationaryAttack = (Toggle == -3949212) ? ModifiedDebugPrint("Iterpolation when stationary and attacking. Higher values = faster speed. Current Value - ", interpStationaryAttack) : Toggle;
+}
+exec function ep_player_rotation_iterp_movement(float Toggle = -3949212)
+{
+   interpMovement = (Toggle == -3949212) ? ModifiedDebugPrint("Iterpolation when moving. Higher values = faster speed. Current Value - ", interpMovement) : Toggle;
+}
+exec function ep_player_rotation_iterp_movement_attack(float Toggle = -3949212)
+{
+   interpMovementAttack = (Toggle == -3949212) ? ModifiedDebugPrint("Iterpolation when moving and attacking. Higher values = faster speed. Current Value - ", interpMovementAttack) : Toggle;
+}
 // exec function ep_player_rotation_when_stationary_angle(float dot_angle = -3949212)
 // {
 //    pawnRotationDotAngle = (dot_angle == -3949212) ? ModifiedDebugPrint("Dot angle detection to rotate player to camera. examples can be found under command dot_angle_examples. Current Value - ", pawnRotationDotAngle) : dot_angle;
 // }
+
 exec function dot_angle_examples(float dot_angle = -3949212)
 {
    GetALocalPlayerController().ClientMessage("Example angles: 1 = 0 degrees, 0.5 = 45 degrees, 0 = 90 degrees, -0.5 = 135 degrees, -1 = 180 degrees.");
@@ -377,6 +393,9 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
+   interpMovementAttack = 60000f
+   interpMovement = 120000f
+   interpStationaryAttack = 60000f
    pawnRotationDotAngle = 0.94f 
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f
