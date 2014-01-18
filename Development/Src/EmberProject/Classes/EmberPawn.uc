@@ -632,10 +632,17 @@ local float timeTakesToComplete;
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 	timeTakesToComplete = 1.0;
-	// FlushPersistentDebugLines();
+	// FlushPersistentDebugLines();1.5,0.36
 	DebugPrint("rift -");
 
-	Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
+if(currentStance == 3)
+{
+	timeTakesToComplete = 1.5;
+	Sword.setTracerDelay(0.55, 1);
+Attack1.PlayCustomAnimByDuration('ember_heavy_right',timeTakesToComplete, 0.5, 0, false);
+}
+	else
+Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
 	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
 	// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
     Sword.GoToState('Attacking');
@@ -794,7 +801,7 @@ function tetherBeamProjectile()
 	local rotator rotat;
 	// newLoc = Location;
 	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
-	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
+	Mesh.GetSocketWorldLocationAndRotation('1', newLoc, rotat);
 	P = Spawn(class'EmberProjectile',self,,newLoc);
 	newLoc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
 	EmberProjectile(p).setProjectileOwner(self);
@@ -1425,12 +1432,12 @@ function BalanceStance()
 function HeavyStance()
 {
  currentStance = 3;
-	swordMesh=SkeletalMesh'ArtAnimation.Meshes.flammard';
-	Mesh.DetachComponent(Sword.mesh);
+	swordMesh=SkeletalMesh'ArtAnimation.Meshes.flammard';  
+	Mesh.DetachComponent(Sword.mesh);  
     Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
-	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
 overrideStanceChange();
 }
 function SheatheWeapon()

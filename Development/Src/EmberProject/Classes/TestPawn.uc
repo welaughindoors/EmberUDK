@@ -394,7 +394,7 @@ function doAttackRecording (name animation, float duration, float t1, float t2)
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
+	Attack1.PlayCustomAnimByDuration(animation,duration, 0.5, 0, false);
 	Sword.setTracerDelay(t1,t2);
     Sword.GoToState('Attacking');
 	SetTimer(duration, false, 'AttackRecordingFinished');
