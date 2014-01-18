@@ -824,7 +824,7 @@ function tetherBeamProjectile()
 	local rotator rotat;
 	// newLoc = Location;
 	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
-	Mesh.GetSocketWorldLocationAndRotation('1', newLoc, rotat);
+	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
 	P = Spawn(class'EmberProjectile',self,,newLoc);
 	newLoc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
 	EmberProjectile(p).setProjectileOwner(self);
