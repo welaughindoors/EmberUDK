@@ -572,6 +572,14 @@ function cancelBlock()
 	// Attack1.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
 /*
+GetTimeLeftOnAttack
+	Returns time left on attack timer
+*/
+function float GetTimeLeftOnAttack()
+{
+	 return (GetTimerRate('AttackEnd') - GetTimerCount('AttackEnd'));
+}
+/*
 doAttack
 	Detects if player is moving left or right from playercontroler (PlayerInput)
 	Determines which attack to use.
@@ -591,7 +599,7 @@ function doAttack( float strafeDirection)
 // return;
 	queueCounter = 0.25;
 
-	timerCounter = GetTimerRate('forwardAttackEnd') - GetTimerCount('forwardAttackEnd');
+	timerCounter = GetTimeLeftOnAttack();
 	DebugPrint("attack Requested");
 	if(timerCounter > queueCounter)
 	{
@@ -643,7 +651,7 @@ Attack1.PlayCustomAnimByDuration('ember_heavy_right',timeTakesToComplete, 0.5, 0
 }
 	else
 Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
-	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
+	SetTimer(timeTakesToComplete, false, 'AttackEnd');
 	// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
     Sword.GoToState('Attacking');
 }
@@ -679,8 +687,8 @@ local float timeTakesToComplete;
 	// FlushPersistentDebugLines();
 	DebugPrint("left -");
 	Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0, false);
-	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
-	// SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
+	SetTimer(timeTakesToComplete, false, 'AttackEnd');
+	// SetTimer(timeTakesToComplete, false, 'AttackEnd');
 
 	Sword.setTracerDelay(0.30);
     Sword.GoToState('Attacking'); 
@@ -701,18 +709,18 @@ function forwardAttack()
 	FlushPersistentDebugLines();
 	DebugPrint("fwd -");
 	Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
-	SetTimer(timeTakesToComplete, false, 'forwardAttackEnd');
+	SetTimer(timeTakesToComplete, false, 'AttackEnd');
 	// Sword.rotate(7500,0,49152); //temp_fix_for_animation
 	Sword.setTracerDelay(0.65);
     Sword.GoToState('Attacking');
 // forwardAttack1.StopCustomAnim(0);
 }
 /*
-forwardAttackEnd
+AttackEnd
 	Resets sword, tracers, and idle stance at end of forward attack
 	@TODO: Make perhaps only one attack end animation funcion
 */
-function forwardAttackEnd()
+function AttackEnd()
 {
 	DebugPrint("dun -");
 	//forwardAttack1.StopCustomAnim(0);

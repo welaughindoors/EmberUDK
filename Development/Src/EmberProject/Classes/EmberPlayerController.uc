@@ -111,20 +111,34 @@ function UpdateRotation( float DeltaTime )
    // if ( Pawn != None )
 
    if(allowPawnRotationWhenStationary == 1)
-      Pawn.FaceRotation(NewRotation, deltatime);
+   {
+      // Pawn.FaceRotation(NewRotation, deltatime);
+       v1 = normal(vector(Rotation));
+         v2 = normal(vector(pawn.Rotation));
+         dott = v1 dot v2; 
+         if(dott < pawnRotationDotAngle)
+            interpolateForCameraIsActive = true;
+
+         else if(dott >= 0.95) 
+            interpolateForCameraIsActive = false; 
+
+            if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
+               {
+                  if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+               }
+            if(pitchcc!=NewRotation.pitch)
+               pitchcc = NewRotation.pitch;
+
+               if(EmberPawn(pawn).GetTimeLeftOnAttack() == 0)
+                  Pawn.FaceRotation(NewRotation, deltatime);
+   }
    else
    {
       if(VSize(pawn.Velocity) != 0) 
-         Pawn.FaceRotation(NewRotation, deltatime);
-   }
-
-//================================
-// Legacy Code, to know how to interpolate
-//================================
-
-      // else 
-      // { 
-         v1 = normal(vector(Rotation));
+      {
+         // Pawn.FaceRotation(NewRotation, deltatime);
+          v1 = normal(vector(Rotation));
          v2 = normal(vector(pawn.Rotation));
          dott = v1 dot v2; 
          if(dott < pawnRotationDotAngle || NewRotation.pitch > 5000)
@@ -134,12 +148,25 @@ function UpdateRotation( float DeltaTime )
             interpolateForCameraIsActive = false;
 
             if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
-            Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+            {
+               if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 60000, true),DeltaTime); 
+                  else
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, 120000, true),DeltaTime); 
+             }
 
             if(pitchcc!=NewRotation.pitch)
-            {
                pitchcc = NewRotation.pitch;
-            }
+      }
+   }
+
+//================================
+// Legacy Code, to know how to interpolate
+//================================
+
+      // else 
+      // { 
+
       //    }
 
 }   
@@ -350,7 +377,7 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
-   pawnRotationDotAngle = 0.16f 
+   pawnRotationDotAngle = 0.94f 
     interpolateForCameraIsActive = false
     allowPawnRotationWhenStationary = 1.0f
 // defaultMesh=SkeletalMesh'EmberBase.ember_player_mesh'
