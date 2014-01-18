@@ -81,6 +81,8 @@ var int  kickCounter;
 //=============================================
 var AnimNodeBlendList IdleAnimNodeBlendList;
 var AnimNodeBlendList RunAnimNodeBlendList;
+var AnimNodeBlendList LeftStrafeAnimNodeBlendList;
+var AnimNodeBlendList RightStrafeAnimNodeBlendList;
 var int currentStance;
 var bool idleBool, runBool;
 var float idleBlendTime, runBlendTime;
@@ -347,6 +349,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
         AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
   		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
   		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
+  		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('LeftStrafeAnimNodeBlendList'));
+  		RightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RightStrafeAnimNodeBlendList'));  		
+
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
@@ -784,6 +789,8 @@ function animationControl()
   				//Pick a random idle animation
     			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
 				RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+				RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+				LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
     			//Set sword orientation temp_fix_for_animation
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
@@ -1457,6 +1464,8 @@ function overrideStanceChange()
 {
 	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
 	RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 }
 //===============================
 // Console Vars
