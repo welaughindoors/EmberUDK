@@ -211,7 +211,7 @@ function WeaponAttach()
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 
-	Sword.rotate(0,0,16384);
+	// Sword.rotate(0,0,16384);
 }
 
 /*

@@ -32,6 +32,12 @@ var float interpMovementAttack;
 var float interpMovement;
 var float interpStationaryAttack;
 //=============================================
+// AI Commands
+//=============================================
+var int ai_followPlayer;
+var int ai_attackPlayer;
+var float ai_attackPlayerRange;
+//=============================================
 // Overrided Functions
 //=============================================
 /*
@@ -367,6 +373,29 @@ exec function dot_angle_examples(float dot_angle = -3949212)
 {
    GetALocalPlayerController().ClientMessage("Example angles: 1 = 0 degrees, 0.5 = 45 degrees, 0 = 90 degrees, -0.5 = 135 degrees, -1 = 180 degrees.");
 }
+
+//===================================
+// AI Command Functions
+//===================================
+exec function ep_ai_follow_player(float NewVariable = -3949212)
+{ 
+   getAIStatus();
+  ai_followPlayer = (NewVariable == -3949212) ? ModifiedDebugPrint("Follow player when player is seen. 1 = true, 0 = false. Current Value - ", ai_followPlayer) : NewVariable;
+  setAIStatus();
+}
+exec function ep_ai_attack_player(float NewVariable = -3949212)
+{ 
+   getAIStatus();
+  ai_attackPlayer = (NewVariable == -3949212) ? ModifiedDebugPrint("Attack player when player is seen and within X units (ep_ai_attack_player_range). 1 = true, 0 = false. Current Value - ", ai_attackPlayer) : NewVariable;
+  setAIStatus();
+}
+exec function ep_ai_attack_player_range(float NewVariable = -3949212)
+{ 
+   getAIStatus();
+  ai_attackPlayerRange = (NewVariable == -3949212) ? ModifiedDebugPrint("Range to start attack animations. Current Value - ", ai_attackPlayerRange) : NewVariable;
+   setAIStatus();
+}
+
 function float ModifiedDebugPrint(string sMessage, float variable)
 {
    GetALocalPlayerController().ClientMessage(sMessage @ string(variable));
@@ -376,6 +405,26 @@ function bool ModifiedDebugPrintBool(string sMessage, bool variable)
 {
    GetALocalPlayerController().ClientMessage(sMessage @ string(variable));
    return variable;
+}
+function getAIStatus()
+{
+   local TestPawn tPawn;
+   foreach Worldinfo.AllActors( class'TestPawn', tPawn ) 
+   {
+   ai_followPlayer = tPawn.followPlayer;
+   ai_attackPlayer = tPawn.attackPlayer;
+   ai_attackPlayerRange = tPawn.attackPlayerRange;
+   }
+}
+function setAIStatus()
+{
+   local TestPawn tPawn;
+   foreach Worldinfo.AllActors( class'TestPawn', tPawn ) 
+   {
+   tPawn.followPlayer = ai_followPlayer;
+   tPawn.attackPlayer = ai_attackPlayer;
+   tPawn.attackPlayerRange = ai_attackPlayerRange;
+   }
 }
 /*
 resetMesh

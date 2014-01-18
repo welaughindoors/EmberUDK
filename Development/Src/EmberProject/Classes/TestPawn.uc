@@ -31,7 +31,16 @@ var Sword Sword;
 // Animation
 //=============================================
 var AnimNodePlayCustomAnim Attack1;
+var AnimNodeBlendList IdleAnimNodeBlendList;
+var AnimNodeBlendList RunAnimNodeBlendList;
+var AnimNodeBlendList LeftStrafeAnimNodeBlendList;
+var AnimNodeBlendList RightStrafeAnimNodeBlendList;
 var bool 					defaultDelay;
+
+
+var int followPlayer;
+var float attackPlayerRange;
+var int attackPlayer;
 
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
@@ -241,6 +250,11 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     if ( SkelComp == Mesh)
     {
     	Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+  		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
+  		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
+  		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('LeftStrafeAnimNodeBlendList'));
+  		RightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RightStrafeAnimNodeBlendList'));  
+  		overrideStanceChange();
     }
 
 }
@@ -276,6 +290,7 @@ function WeaponAttach()
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+	 Sword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');  
 }
 
 
@@ -449,9 +464,20 @@ function goToIdleMotherfucker()
 Sword.SetInitialState();
 Attack1.PlayCustomAnimByDuration('ember_idle_2',0.1, 0.2, 0, false);
 }
-
+function overrideStanceChange()
+{
+	local int currentStance;
+	currentStance = 3;
+	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15); 
+	RunAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15);
+	RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15);
+	LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15);
+}
 DefaultProperties
 {
+  followPlayer = 1;
+  attackPlayer = 1;
+  attackPlayerRange = 150;
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'

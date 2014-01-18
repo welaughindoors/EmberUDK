@@ -970,7 +970,7 @@ defaultproperties
 
 
 // Rotation=(Pitch=000 ,Yaw=0, Roll=49152 )
-// Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
+Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
 
     End Object
     Mesh = SwordMesh
