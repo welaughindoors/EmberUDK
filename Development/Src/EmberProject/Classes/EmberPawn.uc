@@ -83,6 +83,9 @@ var AnimNodeBlendList IdleAnimNodeBlendList;
 var AnimNodeBlendList RunAnimNodeBlendList;
 var AnimNodeBlendList LeftStrafeAnimNodeBlendList;
 var AnimNodeBlendList RightStrafeAnimNodeBlendList;
+var AnimNodeBlendList WalkAnimNodeBlendList;
+var AnimNodeBlendList wLeftStrafeAnimNodeBlendList;
+var AnimNodeBlendList wRightStrafeAnimNodeBlendList;
 var int currentStance;
 var bool idleBool, runBool;
 var float idleBlendTime, runBlendTime;
@@ -351,7 +354,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
   		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('LeftStrafeAnimNodeBlendList'));
   		RightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RightStrafeAnimNodeBlendList'));  		
-
+		WalkAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('WalkAnimNodeBlendList'));  		
+		wLeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wLeftStrafeAnimNodeBlendList'));  		
+		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  		
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
@@ -791,6 +796,9 @@ function animationControl()
 				RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 				RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 				LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+				WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+				wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+				wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
     			//Set sword orientation temp_fix_for_animation
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
@@ -1466,6 +1474,9 @@ function overrideStanceChange()
 	RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 }
 //===============================
 // Console Vars

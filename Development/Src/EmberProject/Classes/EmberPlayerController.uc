@@ -424,10 +424,10 @@ function setAIStatus()
    tPawn.followPlayer = ai_followPlayer;
    tPawn.attackPlayer = ai_attackPlayer;
    tPawn.attackPlayerRange = ai_attackPlayerRange;
-   }
+   } 
 }
 /*
-resetMesh
+resetMesh 
 	Sets custom mesh
 */
 public function resetMesh()
