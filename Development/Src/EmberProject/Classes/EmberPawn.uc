@@ -208,7 +208,7 @@ WeaponAttach
 	Used to detect collisions. atm WIP.
 */
 function WeaponAttach()
-{
+{ 
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
 
@@ -227,9 +227,11 @@ function WeaponAttach()
  // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
  
     Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
+    Mesh.AttachComponentToSocket(MediumDecoSword.Mesh, 'BalanceAttach');
+    Mesh.AttachComponentToSocket(HeavyDecoSword.Mesh, 'HeavyAttach');
     LightDecoSword.Mesh.SetHidden(true);
-    MediumDecoSword.Mesh.SetHidden(true);
-    HeavyDecoSword.Mesh.SetHidden(true);
+    MediumDecoSword.Mesh.SetHidden(false);
+    HeavyDecoSword.Mesh.SetHidden(false);
 }
 
 /*
@@ -1455,6 +1457,8 @@ function LightStance()
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
     LightDecoSword.Mesh.SetHidden(true);
+    HeavyDecoSword.Mesh.SetHidden(false);
+    MediumDecoSword.Mesh.SetHidden(false);
 	overrideStanceChange();
 }
 function BalanceStance()
@@ -1467,6 +1471,8 @@ function BalanceStance()
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
     LightDecoSword.Mesh.SetHidden(false);
+    HeavyDecoSword.Mesh.SetHidden(false);
+    MediumDecoSword.Mesh.SetHidden(true);
 	overrideStanceChange();
 }
 function HeavyStance()
@@ -1479,6 +1485,8 @@ function HeavyStance()
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
     LightDecoSword.Mesh.SetHidden(false);
+    HeavyDecoSword.Mesh.SetHidden(true);
+    MediumDecoSword.Mesh.SetHidden(false);
 overrideStanceChange();
 }
 function SheatheWeapon()
