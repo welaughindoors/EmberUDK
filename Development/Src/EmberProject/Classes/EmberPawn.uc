@@ -82,16 +82,17 @@ var int  kickCounter;
 //=============================================
 // General Animations
 //=============================================
-var AnimNodeBlendList IdleAnimNodeBlendList;
-var AnimNodeBlendList RunAnimNodeBlendList;
-var AnimNodeBlendList LeftStrafeAnimNodeBlendList;
-var AnimNodeBlendList RightStrafeAnimNodeBlendList;
-var AnimNodeBlendList WalkAnimNodeBlendList;
-var AnimNodeBlendList wLeftStrafeAnimNodeBlendList;
-var AnimNodeBlendList wRightStrafeAnimNodeBlendList;
-var int currentStance;
-var bool idleBool, runBool;
-var float idleBlendTime, runBlendTime;
+var AnimNodeBlendList 	IdleAnimNodeBlendList;
+var AnimNodeBlendList 	RunAnimNodeBlendList;
+var AnimNodeBlendList 	LeftStrafeAnimNodeBlendList;
+var AnimNodeBlendList 	RightStrafeAnimNodeBlendList;
+var AnimNodeBlendList 	WalkAnimNodeBlendList;
+var AnimNodeBlendList 	wLeftStrafeAnimNodeBlendList;
+var AnimNodeBlendList 	wRightStrafeAnimNodeBlendList;
+var AnimNodeBlendList 	FullBodyBlendList;
+var int  				currentStance;
+var bool 				idleBool, runBool;
+var float 				idleBlendTime, runBlendTime;
 
 //=============================================
 // Attack Animations
@@ -200,6 +201,9 @@ simulated event PostBeginPlay()
 goingTowardsHighVelModifier = 0.03;
 goingTowardsLowVelModifier = 30;
 goingAwayVelModifier = 55;
+
+//Temp delete m
+
 }
 
 /*
@@ -355,7 +359,6 @@ Simulated Event Tick(float DeltaTime)
 	animationControl();
 
 } 
-
 /*
 PostInitAnimTree
 	Allows custom animations.
@@ -373,7 +376,8 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		RightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RightStrafeAnimNodeBlendList'));  		
 		WalkAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('WalkAnimNodeBlendList'));  		
 		wLeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wLeftStrafeAnimNodeBlendList'));  		
-		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  		
+		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
+		FullBodyBlendList = AnimNodeBlendList(Mesh.FindAnimNode('FullBodyBlendList'));  		
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
@@ -798,6 +802,7 @@ function animationControl()
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
   			}
+  			FullBodyBlendList.SetActiveChild(1,idleBlendTime);//Use Full Body Blending
   		}
 	}
 	else
@@ -820,6 +825,7 @@ function animationControl()
 				// Sword.rotate(0,0,16384);
     			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
   			}
+  			FullBodyBlendList.SetActiveChild(0,idleBlendTime);//Split body blending at spine
   		}
     	//Set sword orientation, temp_fix_for_animation
 		// Sword.rotate(0,0,49152);
@@ -1573,6 +1579,7 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
+	notSpawned=true
 	idleBlendTime=0.15f
 	runBlendTime=0.15f
 	bCanStrafe=false
