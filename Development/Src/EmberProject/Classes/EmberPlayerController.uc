@@ -118,7 +118,7 @@ function UpdateRotation( float DeltaTime )
    NewRotation.Roll = Rotation.Roll;
 
 // if(VSize(pawn.Velocity) != 0)   
-   // if ( Pawn != None )
+   // if ( Pawn != N one )
 
    if(allowPawnRotationWhenStationary == 1)
    {

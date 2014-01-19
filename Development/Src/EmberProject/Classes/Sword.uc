@@ -483,7 +483,7 @@ function TraceAttack()
 
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
     Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
-    Mesh.GetSocketWorldLocationAndRotation('BlockOne', Block);  
+    // Mesh.GetSocketWorldLocationAndRotation('BlockOne', Block);  
 
 //Prepare Arrays
     interpolatedPoints_TemporaryHitArray.length = 0;
@@ -540,13 +540,15 @@ if(!bTracers)
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
     // }
   }
-        hitActor = Trace(HitLocation, HitNormal, Start, Block, true, , hitInfo); 
-        DrawDebugLine(Start, Block, 0,0,0, true);
-         if(hitInfo.item == 0)
-         {
-            swordParried(hitActor);
-            return ;
-         }
+  //TODO: BlockOne
+        // hitActor = Trace(HitLocation, HitNormal, Start, Block, true, , hitInfo); 
+        // DrawDebugLine(Start, Block, 0,0,0, true);
+         // if(hitInfo.item == 0)
+         // {
+         //    swordParried(hitActor);
+         //    return ;
+         // }
+
   //get the size difference from the current tip and last recorded tip
   tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
 

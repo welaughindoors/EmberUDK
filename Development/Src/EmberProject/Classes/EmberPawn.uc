@@ -4,9 +4,26 @@
 //=============================================
 //temp_fix_for_animation
 // -- Temporary fix until animation is corrected
+//TODO:
+// -- Shit TODO
 
 class EmberPawn extends UTPawn;
-//override to make player mesh visible by default
+
+//=============================================
+// Combo / Attack System Vars
+//=============================================
+
+var name lightLeftString1;
+var name lightRightString1;
+var name lightForwardString1;
+
+var name mediumLeftString1;
+var name mediumRightString1;
+var name mediumForwardString1;
+
+var name heavyLeftString1;
+var name heavyRightString1;
+var name heavyForwardString1;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -672,18 +689,30 @@ local float timeTakesToComplete;
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 	timeTakesToComplete = 1.0;
 	// FlushPersistentDebugLines();1.5,0.36
-	DebugPrint("rift -");
 
-if(currentStance == 3)
-{
-	timeTakesToComplete = 1.5;
-	Sword.setTracerDelay(0.55, 1);
-Attack1.PlayCustomAnimByDuration('ember_heavy_right',timeTakesToComplete, 0.5, 0, false);
-}
-	else
-Attack1.PlayCustomAnimByDuration('ember_temp_right_attack',timeTakesToComplete, 0.5, 0, false);
+	//TODO: timer isn't 100% accurate, only 99%. Can cause a que attack to make sword 'active' but animation isn't playing
+
+	switch(currentStance)
+	{
+		case 1:
+			Attack1.PlayCustomAnimByDuration(lightRightString1,timeTakesToComplete, 0.5, 0, false);
+			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
+		break;
+
+		case 2:
+			//timeTakesToComplete = 1.5;
+			//Sword.setTracerDelay(0.55, 1);
+			Attack1.PlayCustomAnimByDuration(mediumRightString1,timeTakesToComplete, 0.5, 0, false);
+		break;
+
+		case 3:
+			timeTakesToComplete = 1.5;
+			Sword.setTracerDelay(0.55, 1);
+			Attack1.PlayCustomAnimByDuration(heavyRightString1,timeTakesToComplete, 0.5, 0, false);
+		break;
+	}
+
 	SetTimer(timeTakesToComplete, false, 'AttackEnd');
-	// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
     Sword.GoToState('Attacking');
 }
 
@@ -712,17 +741,42 @@ function leftAttack()
 {
 //ember_temp_left_attack
 local float timeTakesToComplete;
-    Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
 	timeTakesToComplete = 1.0;
 	// FlushPersistentDebugLines();
 	DebugPrint("left -");
-	Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0, false);
-	SetTimer(timeTakesToComplete, false, 'AttackEnd');
+
+	// Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0, false);
+	// SetTimer(timeTakesToComplete, false, 'AttackEnd');
 	// SetTimer(timeTakesToComplete, false, 'AttackEnd');
 
-	Sword.setTracerDelay(0.30);
-    Sword.GoToState('Attacking'); 
+	switch(currentStance)
+	{
+		case 1:
+
+    Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
+    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
+
+			Sword.setTracerDelay(0.30);
+			// lightLeftString1=;
+			Attack1.PlayCustomAnimByDuration(lightLeftString1,timeTakesToComplete, 0.5, 0, false);
+			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
+		break;
+
+		case 2:
+			//timeTakesToComplete = 1.5;
+			//Sword.setTracerDelay(0.55, 1);
+			Attack1.PlayCustomAnimByDuration(mediumLeftString1,timeTakesToComplete, 0.5, 0, false);
+		break;
+
+		case 3:
+			// timeTakesToComplete = 1.5;
+			// Sword.setTracerDelay(0.55, 1);
+			Attack1.PlayCustomAnimByDuration(heavyLeftString1,timeTakesToComplete, 0.5, 0, false);
+		break;
+	}
+
+	SetTimer(timeTakesToComplete, false, 'AttackEnd');
+    Sword.GoToState('Attacking');
 }
 
 /*
@@ -739,12 +793,34 @@ function forwardAttack()
 	timeTakesToComplete = 1.0;
 	FlushPersistentDebugLines();
 	DebugPrint("fwd -");
-	Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
-	SetTimer(timeTakesToComplete, false, 'AttackEnd');
+	// Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
 	// Sword.rotate(7500,0,49152); //temp_fix_for_animation
-	Sword.setTracerDelay(0.65);
-    Sword.GoToState('Attacking');
+	// Sword.setTracerDelay(0.65);
 // forwardAttack1.StopCustomAnim(0);
+
+	switch(currentStance)
+	{
+		case 1:
+			Sword.setTracerDelay(0.65); 
+			Attack1.PlayCustomAnimByDuration(lightForwardString1,timeTakesToComplete, 0.5, 0, false);
+			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
+		break;
+
+		case 2:
+			//timeTakesToComplete = 1.5;
+			Sword.setTracerDelay(0.4, 0.7);
+			Attack1.PlayCustomAnimByDuration(mediumForwardString1,timeTakesToComplete, 0.5, 0, false);
+		break;
+
+		case 3:
+			// timeTakesToComplete = 1.5;
+			// Sword.setTracerDelay(0.55, 1);
+			Attack1.PlayCustomAnimByDuration(heavyForwardString1,timeTakesToComplete, 0.5, 0, false);
+		break;
+	}
+
+	SetTimer(timeTakesToComplete, false, 'AttackEnd');
+    Sword.GoToState('Attacking');
 }
 /*
 AttackEnd
@@ -1579,6 +1655,27 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
+
+//=============================================
+// Combo / Attack System Vars
+//=============================================
+
+lightLeftString1	=	ember_temp_left_attack
+lightRightString1	=	ember_temp_right_attack
+lightForwardString1	=	ember_attack_forward
+
+mediumLeftString1	=
+mediumRightString1	=
+mediumForwardString1=	ember_medium_forward
+
+heavyLeftString1	=
+heavyRightString1	=	ember_heavy_right
+heavyForwardString1	=
+
+//=============================================
+// End Combo / Attack System Vars
+//=============================================
+
 	notSpawned=true
 	idleBlendTime=0.15f
 	runBlendTime=0.15f
