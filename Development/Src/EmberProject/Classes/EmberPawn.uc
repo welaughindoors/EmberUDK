@@ -8,7 +8,10 @@
 class EmberPawn extends UTPawn;
 //override to make player mesh visible by default
 
-var SkeletalMeshComponent PlayerMeshComponent;
+// var SkeletalMeshComponent PlayerMeshComponent;
+var decoSword LightDecoSword;
+var decoSword MediumDecoSword;
+var decoSword HeavyDecoSword;
 var AnimNodeSlot AnimSlot;
 var bool SwordState;
 var PlayerController customPlayerController;
@@ -210,11 +213,23 @@ function WeaponAttach()
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
 
         Sword = Spawn(class'Sword', self);
+        LightDecoSword = Spawn(class'decoSword', self);
+        MediumDecoSword = Spawn(class'decoSword', self);
+        HeavyDecoSword = Spawn(class'decoSword', self);
+        LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
+        MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2');
+        HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
-
-	// Sword.rotate(0,0,16384);
+     // LightAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
+ // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2');
+ // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
+ 
+    Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
+    LightDecoSword.Mesh.SetHidden(true);
+    MediumDecoSword.Mesh.SetHidden(true);
+    HeavyDecoSword.Mesh.SetHidden(true);
 }
 
 /*
@@ -790,7 +805,7 @@ function animationControl()
 		idleBool = false;
 		runBool = true;
 		 if (RunAnimNodeBlendList.BlendTimeToGo <= 0.f)
-  			{
+  			{ 
   				//Pick a random idle animation
     			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
 				RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
@@ -816,7 +831,7 @@ function animationControl()
 tetherBeamProjectile
 	Launches a projectile specified by EmberProjectile.uc
 	Upon hitting a target, executes tetherLocationHit
-*/
+*/  
 function tetherBeamProjectile()
 {
 	local projectile P;
@@ -1439,6 +1454,7 @@ function LightStance()
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+    LightDecoSword.Mesh.SetHidden(true);
 	overrideStanceChange();
 }
 function BalanceStance()
@@ -1450,6 +1466,7 @@ function BalanceStance()
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+    LightDecoSword.Mesh.SetHidden(false);
 	overrideStanceChange();
 }
 function HeavyStance()
@@ -1461,6 +1478,7 @@ function HeavyStance()
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
+    LightDecoSword.Mesh.SetHidden(false);
 overrideStanceChange();
 }
 function SheatheWeapon()
@@ -1521,6 +1539,25 @@ exec function ep_player_jump_boost(float JumpBoost = -3949212)
 { 
 	JumpZ = (JumpBoost == -3949212) ? ModifiedDebugPrint("The boost player gets when jumping. Current Value -", JumpZ) : JumpBoost;
 }
+exec function ep_player_decoSword_light(int Var1 = -3949212, int Var2 = -3949212, int Var3 = -3949212)
+{ 
+	local int v1, v2, v3;
+	if(Var1 == -3949212 && Var2 == -3949212 && Var3 == -3949212)
+	{
+		DebugPrint("Rotates Light DecoSword. Uses the weird bit angle system. 360 degrees = 65536");
+		DebugPrint("pitch:"@LightDecoSword.Rotation.pitch);
+		DebugPrint("yaw:"@LightDecoSword.Rotation.Yaw);
+		DebugPrint("roll:"@LightDecoSword.Rotation.Roll);
+	}
+	else
+	{
+		v1 = (Var1 == -3949212) ? LightDecoSword.Rotation.pitch : Var1;
+		v2 = (Var2 == -3949212) ? LightDecoSword.Rotation.Yaw : Var2;
+		v3 = (Var3 == -3949212) ? LightDecoSword.Rotation.Roll : Var3;
+		LightDecoSword.rotate(v1, v2, v3);
+	}
+	// -180,45,-180
+}
 function float ModifiedDebugPrint(string sMessage, float variable)
 {
 	DebugPrint(sMessage @ string(variable));
@@ -1560,7 +1597,8 @@ defaultproperties
 //   SwordMesh=MyWeaponSkeletalMeshBegin Object Name=CollisionCylinder
 	// // 	// CollisionRadius=+00102.00000
 	// // 	// CollisionHeight=+00102.800000
-	
+
+
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=0025.00000
 		CollisionHeight=0047.5.00000
