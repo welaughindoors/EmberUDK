@@ -264,8 +264,37 @@ function WeaponAttach()
     LightDecoSword.Mesh.SetHidden(true);
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
-}
+    	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
+    	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
+    	// WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment( ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', Sword.Mesh, 'EndControl', true, , );
+		// Sword.Mesh.AttachComponentToSocket(jumpEffects, 'StartControl');
+		// jumpEffects.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue');
+		// jumpEffects.ActivateSystem(true);
 
+		setTrailEffects();
+}
+function setTrailEffects()
+{ 
+//Declare a new Emitter
+local UTEmitter SwordEmitter;      
+local vector Loc;
+local rotator Roter;    
+ 
+//Lets Get the Intial Location Rotation
+Sword.Mesh.GetSocketWorldLocationAndRotation('EndControl', Loc, Roter);
+ 
+//Spawn The Emitter In to The Pool
+SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
+ 
+//Set it to the Socket
+SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
+ 
+//Set the template
+SwordEmitter.SetTemplate(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', false); 
+ 
+//Never End
+SwordEmitter.LifeSpan = 0;
+}
 /*
 Tick
 	Every ~0.088s, this function is called.
