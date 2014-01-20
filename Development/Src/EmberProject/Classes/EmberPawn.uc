@@ -129,9 +129,11 @@ var AnimNodeBlendList AttackGateNode;
 var AnimNodeBlendList AttackBlendNode;
 var AnimNodePlayCustomAnim Attack1;
 var AnimNodePlayCustomAnim Attack2;
-var float 				animationQueueAndDirection;
 var UDKSkelControl_Rotate SpineRotator;
 
+// var float 				animationQueueAndDirection;
+var array<byte> savedByteDirection;
+//
 //=============================================
 // Weapon
 //=============================================
@@ -270,8 +272,8 @@ function WeaponAttach()
 		// Sword.Mesh.AttachComponentToSocket(jumpEffects, 'StartControl');
 		// jumpEffects.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue');
 		// jumpEffects.ActivateSystem(true);
-
-		setTrailEffects();
+//TODO:readd
+		// setTrailEffects();
 }
 function setTrailEffects()
 { 
@@ -290,12 +292,12 @@ SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
 SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
  
 //Set the template
-SwordEmitter.SetTemplate(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', false); 
+SwordEmitter.SetTemplate(ParticleSystem'VH_Manta.Effects.PS_Manta_Projectile', false); 
  
 //Never End
 SwordEmitter.LifeSpan = 0;
 }
-/*
+/* 
 Tick
 	Every ~0.088s, this function is called.
 */
@@ -672,42 +674,117 @@ doAttack
 	Determines which attack to use.
 	Queues Attacks
 */
-function doAttack( float strafeDirection)
+// function doAttack( float strafeDirection)
+// {
+// 	local float timerCounter;
+// 	local float queueCounter;
+// // 	local vector jumpLocation;
+// // 	local rotator jumpRotation;
+
+// // 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
+
+// // 	DebugPrint("l - "@Rotation - jumpRotation);
+// // 	DebugPrint("l - "@jumpRotation - Rotation);
+// // return;
+// 	queueCounter = 0.25;
+
+// 	timerCounter = GetTimeLeftOnAttack();
+// 	DebugPrint("attack Requested");
+// 	if(timerCounter > queueCounter)
+// 	{
+// 	DebugPrint("attack Denied");
+// 	return;
+// 	}
+// 	if(timerCounter < queueCounter && timerCounter > 0)
+// 	{
+// 	DebugPrint("attack Queued");
+// 	animationQueueAndDirection = (strafeDirection == 0) ? 1337.0 : strafeDirection;
+// 	// animationQueueAndDirection = strafeDirection;
+// 	return;
+// 	}
+// 	if(strafeDirection > 0)
+// 		rightAttack();
+// 	else if(strafeDirection < 0)
+// 		leftAttack();
+// 	else
+// 		forwardAttack();
+// }
+function doAttack( array<byte> byteDirection)
 {
 	local float timerCounter;
 	local float queueCounter;
-// 	local vector jumpLocation;
-// 	local rotator jumpRotation;
+	local int totalKeyFlag;
 
-// 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
+	totalKeyFlag = 0;
+	savedByteDirection[0] = byteDirection[0];
+	savedByteDirection[1] = byteDirection[1];
+	savedByteDirection[2] = byteDirection[2];
+	savedByteDirection[3] = byteDirection[3];
 
-// 	DebugPrint("l - "@Rotation - jumpRotation);
-// 	DebugPrint("l - "@jumpRotation - Rotation);
-// return;
+	
+	if((savedByteDirection[0] ^ 1) == 0 ) totalKeyFlag++;
+	if((savedByteDirection[1] ^ 1) == 0 ) totalKeyFlag++;
+	if((savedByteDirection[2] ^ 1) == 0 ) totalKeyFlag++;
+	if((savedByteDirection[3] ^ 1) == 0 ) totalKeyFlag++;
+
 	queueCounter = 0.25;
 
 	timerCounter = GetTimeLeftOnAttack();
 	DebugPrint("attack Requested");
-	if(timerCounter > queueCounter)
-	{
-	DebugPrint("attack Denied");
-	return;
-	}
-	if(timerCounter < queueCounter && timerCounter > 0)
-	{
-	DebugPrint("attack Queued");
-	animationQueueAndDirection = (strafeDirection == 0) ? 1337.0 : strafeDirection;
-	// animationQueueAndDirection = strafeDirection;
-	return;
-	}
-	if(strafeDirection > 0)
-		rightAttack();
-	else if(strafeDirection < 0)
-		leftAttack();
-	else
-		forwardAttack();
-}
 
+	if(timerCounter > queueCounter)
+		{
+		DebugPrint("attack Denied");
+		return;
+		}
+
+	if(timerCounter < queueCounter && timerCounter > 0)
+		{
+		DebugPrint("attack Queued");
+		savedByteDirection[4] = 1;
+		return;
+		}
+
+		switch(totalKeyFlag)
+		{
+			//no keys pressed
+			case 0:
+				forwardAttack();
+			break;
+
+			//one key pressed 
+			case 1:
+				if((savedByteDirection[0] ^ 1) == 0 ) forwardAttack(); //W
+				if((savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //A
+				if((savedByteDirection[2] ^ 1) == 0 ) forwardAttack(); //S
+				if((savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //D
+			break;
+
+			//two keys pressed
+			case 2:
+				// if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) forwardLeftAttack(); //W+A
+				// else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) forwardRightAttack(); //W+D
+				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) forwardLeftAttack(); //S+A
+				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) forwardRightAttack(); //S+D
+
+				if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //W+A
+				else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //W+D
+				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //S+A
+				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //S+D
+
+				//for keys W + S and A + D
+				else forwardAttack();
+
+			break;
+
+			//3-4 keys pressed
+			case 3:
+			case 4:
+				forwardAttack();
+			break;
+		}
+
+}
 exec function setTracers(int tracers)
 {
 	Sword.setTracers(tracers);
@@ -867,10 +944,10 @@ function AttackEnd()
 
     animationControl();
 
-    if(animationQueueAndDirection != 0)
+    if(savedByteDirection[4] == 1)
     {
-    	animationQueueAndDirection == 1337 ? doAttack(0) : doAttack(animationQueueAndDirection);
-    	animationQueueAndDirection = 0;
+    	savedByteDirection[4] = 0;
+    	doAttack(savedByteDirection);
     }
 
 	// forwardAttack1.SetActiveChild(0);
@@ -1600,6 +1677,7 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
+	savedByteDirection=(0,0,0,0,0);
 
 //=============================================
 // Combo / Attack System Vars

@@ -32,6 +32,10 @@ var float interpMovementAttack;
 var float interpMovement;
 var float interpStationaryAttack;
 //=============================================
+// Hook Vars
+//=============================================
+var array<byte> verticalShift;
+//=============================================
 // AI Commands
 //=============================================
 var int ai_followPlayer;
@@ -60,7 +64,9 @@ ignores SeePlayer, HearNoise, Bump;
    LocalPlayer(Player).ViewportClient.SetMouse(MPos.X, MPos.Y+2);
 
       //Does attack or block, depends on FireModeNum
-   FireModeNum == 0 ? EmberPawn(pawn).doAttack(playerStrafeDirection) : EmberPawn(pawn).doBlock();
+      
+   // FireModeNum == 0 ? EmberPawn(pawn).doAttack(playerStrafeDirection) : EmberPawn(pawn).doBlock();
+   FireModeNum == 0 ? EmberPawn(pawn).doAttack(verticalShift) : EmberPawn(pawn).doBlock();
 
    }
 simulated function StopFire(optional byte FireModeNum )
@@ -296,7 +302,7 @@ EmberPawn(pawn).BalanceStance();
 /*
 HeavyStance
    Switch to Light Stance
-*/
+*/ 
 exec function HeavyStance()
 {
 EmberPawn(pawn).HeavyStance();
@@ -307,12 +313,35 @@ SheatheWeapon
 */
 exec function SheatheWeapon()
 {
-EmberPawn(pawn).SheatheWeapon();
+EmberPawn(pawn).SheatheWeapon(); 
+}
+//============================================= 
+// Hooks Functions
+//=============================================
+exec function hookW()
+{
+     verticalShift[0] = verticalShift[0] ^ 1;
+}
+exec function hookA()
+{
+    verticalShift[1] = verticalShift[1] ^ 1;
+}
+exec function hookS()
+{
+    verticalShift[2] = verticalShift[2] ^ 1;
+} 
+exec function hookD()
+{
+    verticalShift[3] = verticalShift[3] ^ 1;
 }
 
 //=============================================
 // Custom Functions
 //=============================================
+exec function DebugPrint(string a)
+{
+   GetALocalPlayerController().ClientMessage(a);
+}
 /*
 spawnDummy
   Creates a dummy at player's spawn point
@@ -442,6 +471,7 @@ self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
 
 defaultproperties
 {
+   verticalShift=(0,0,0,0);
    interpMovementAttack = 60000f
    interpMovement = 120000f
    interpStationaryAttack = 60000f
