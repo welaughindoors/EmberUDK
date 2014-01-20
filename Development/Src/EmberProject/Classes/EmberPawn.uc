@@ -92,10 +92,12 @@ var rotator 					jumpRotation;
 var vector 						jumpLocation;
 var float 						gravityAccel;
 
-var float 						SlowDescentTimer;
+var float 						JumpVelocityPinchTimer;
 
 var vector 						movementVector;
 var bool 						startSpaceMarineLanding;
+
+var float 						JumpVelocityPinch_LandedTimer;
 
 
 //=============================================
@@ -367,13 +369,11 @@ Simulated Event Tick(float DeltaTime)
 	// }
 
 	// Probably not required
-	bReadyToDoubleJump = true;
+	// bReadyToDoubleJump = true;
  
-	if(jumpActive)
-		SlowDescent(DeltaTime);
+	// if(jumpActive)
+		JumpVelocityPinch(DeltaTime);
 
-	if(startSpaceMarineLanding)
-		spaceMarineLandingInAction(DeltaTime);
 
 	// Probably can be removed
 	// if(Physics == PHYS_Walking && jumpActive)
@@ -511,49 +511,50 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
 DoDoubleJump
 	Jetpack main function
 */
-function DoDoubleJump( bool bUpdating )
-{
-	// if ( !bIsCrouched && !bWantsToCrouch )
-	// {
-		if(jumpActive)
-		{
-			spaceMarineLanding();
-			return;
-		}
-		if(!bUpdating)
-		{
-			// disableJetPack();
-			disableJumpEffect(true);
-			return;
-		}
-		if(verticalJumpActive)
-			return;
-		if ( !IsLocallyControlled() || AIController(Controller) != None )
-		{
-			MultiJumpRemaining -= 1;
-		}
-		Velocity.Z = JumpZ + (MultiJumpBoost);
-		verticalJumpActive = true;
-		UTInventoryManager(InvManager).OwnerEvent('MultiJump');
-		SetPhysics(PHYS_Falling);
-		BaseEyeHeight = DoubleJumpEyeHeight;
-		if (!bUpdating)
-		{
-			SoundGroupClass.Static.PlayDoubleJumpSound(self);
-		}
+// function DoDoubleJump( bool bUpdating )
+// {
+// 	// if ( !bIsCrouched && !bWantsToCrouch )
+// 	// {
+// 		if(jumpActive)
+// 		{
+// 			spaceMarineLanding();
+// 			return;
+// 		}
+// 		if(!bUpdating)
+// 		{
+// 			// disableJetPack();
+// 			disableJumpEffect(true);
+// 			return;
+// 		}
+// 		if(verticalJumpActive)
+// 			return;
+// 		if ( !IsLocallyControlled() || AIController(Controller) != None )
+// 		{
+// 			MultiJumpRemaining -= 1;
+// 		}
+// 		Velocity.Z = JumpZ + (MultiJumpBoost);
+// 		verticalJumpActive = true;
+// 		UTInventoryManager(InvManager).OwnerEvent('MultiJump');
+// 		SetPhysics(PHYS_Falling);
+// 		BaseEyeHeight = DoubleJumpEyeHeight;
+// 		if (!bUpdating)
+// 		{
+// 			SoundGroupClass.Static.PlayDoubleJumpSound(self);
+// 		}
 
-	if(!jumpActive)
-	{
-	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
-	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', jumpLocation, jumpRotation, self); 
-	// 	Mesh.AttachComponentToSocket(jumpEffects, 'BackPack');
+// 	if(!jumpActive)
+// 	{
 
-	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
-	SetTimer(0.05, true, 'disableJumpEffect');
-	// SetTimer(0.1, true, 'extendJump');
-	}
-	// }
-}
+// 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
+// 	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', jumpLocation, jumpRotation, self); 
+// 	// 	Mesh.AttachComponentToSocket(jumpEffects, 'BackPack');
+
+// 	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
+// 	SetTimer(0.05, true, 'disableJumpEffect');
+// 	// SetTimer(0.1, true, 'extendJump');
+// 	}
+// 	// }
+// }
 //=============================================
 // Debug Functions
 //=============================================
@@ -1384,124 +1385,33 @@ exec function PlayAttack(name AnimationName, float AnimationSpeed)
     AnimSlot.PlayCustomAnim( AnimationName, AnimationSpeed, 0.00, 0.00, false, true);
 }
 
-/*
-disableJetPack
-*/
-function disableJetPack()
-{
-		ClearTimer('extendJump');
-		jumpActive = false;
-}
 
-/*
-extendJump
-	No longer used. Pending deletion.
-*/
-function extendJump()
+function JumpVelocityPinch(float fDeltaTime)
 {
-	// DoDoubleJump(true);
-}
 
-/*
-disableJumpEffect
-	When approaching point of incidence on verticle velocity, disable jetpack thrust effect
-*/
-function disableJumpEffect(bool force = false)
-{
-	if(velocity.z < 50 )
-	{
-		jumpEffects.DeactivateSystem();
-		ClearTimer('disableJumpEffect');
-		SlowDescentTimer = 0;
-		jumpActive = true;
-		verticalJumpActive = false;
-		// SlowDescent();
-	}
-}
-/*
-SlowDescent
-	SpaceMarine like jetpack
-		For about 0.5s (seems like 0.75 in game), a slowed descent after point of incidence on verticle velocity
-			This allows for precision aiming for next grapple
-		Afterwords, until a tetherbeam is created or ground is hit, player speeds up till hits ground
-*/
-function SlowDescent(float fDeltaTime)
-{
-	if(tetherBeam != none)
-	{
-		jumpActive = false;
-		return;
-	}
-	SlowDescentTimer += fDeltaTime;
-		
-	 	gravityAccel = GetGravityZ();
-        // Scale acceleration to velocity
-      gravityAccel *= 2.0;
-        // addedGravity as a percent of Pawn.GetGravityZ(), 1.0 adds 1 full G of acceleration, 2.0 adds 2 full G's of acceleration, etc, etc, 0.0 adds no acceleration
-      if(SlowDescentTimer < 0.5)
-      {
-      gravityAccel *= 0.45;
-      Velocity.Z -= gravityAccel * fDeltaTime;
-  		}
-  		else
+//TODO: Velocity keeps capping at 320, need to find a logarithmic approach
+
+ if(physics == PHYS_Falling) //we are in the air
+ 	jumpActive = true;
+
+  		if(physics == PHYS_Walking && jumpActive) //When we land after being in the air
   		{
-      	gravityAccel *= 0.47;
-      	Velocity.Z += gravityAccel * fDeltaTime;
+  			JumpVelocityPinch_LandedTimer=fDeltaTime; //set the timer to something else
+  			jumpActive = false; //disable toggle so we don't activate this again
   		}
-  		if(physics == PHYS_Walking)
-  			jumpActive = false;
+
+  		if(JumpVelocityPinch_LandedTimer != 0) //if the timer isn't 0
+  		{
+  			JumpVelocityPinch_LandedTimer += fDeltaTime; //increase timer by tick ammount
+  			if( JumpVelocityPinch_LandedTimer <= 0.5 ) //while it's less than half a second
+  				if(VSize(Velocity) > 320) //and if velocity is greater than 320 (440 is max speed when walking)
+  				Velocity *= 0.8; //multiply itself by 0.8
+  		}
+
+  		if(JumpVelocityPinch_LandedTimer > 0.5) //if timer has gone past 0.5 seconds
+  			JumpVelocityPinch_LandedTimer = 0; //set it to 0.
 }
 
-/*
-spaceMarineLanding
-	Pressing space again during descent will launch player downwards to location.
-	Probably need fix on spacebar, make it do something else or something
-*/
-function spaceMarineLanding()
-{
-   	local vector HitLocation, HitNormal, landingLocation, vPlayer, startTraceLoc;
-	// local actor wall;
-
-	vPlayer = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 10;
-	
-	//pawn location + 100 in direction of player camera
-	startTraceLoc = Location + vPlayer ;
-	 
-	//trace only to tether's max length. TODO: Set max limit for landing
-	Self.trace(HitLocation, hitNormal, 
-				startTraceLoc + tetherMaxLength * vPlayer, 
-				startTraceLoc
-			);
-
-	//Make landing location a little further from actual hit location, due to gravity pushing down.
-	//TODO: Fix this cause it's still off
-	landingLocation = location - (HitLocation * 1.2);
-	//Get Unit Vector pointing towards landing site
-	movementVector = normal(landingLocation);
-	//Says we're ready to land
-	startSpaceMarineLanding = true;
-}
-
-/*
-spaceMarineLandingInAction
-	Plays during tick
-	Launches player towards landing location * 150 units
-	Stops when hitting ground
-		TODO: If aiming up, it'll launch player and never lands, launching you to the moon.
-*/
-function spaceMarineLandingInAction(float fDeltaTime)
-{
-	if(physics == PHYS_Walking)
-	{
-		startSpaceMarineLanding = false;
-		return;
-	}
-	// vc = Location - curTargetWall.Location;
-	
-                SetPhysics(PHYS_Falling);
-			velocity -= movementVector * 150;
-		
-}
 /*
 DoKick
 	Does a tracer for ~ 2.5 seconds from left foot to left knee
