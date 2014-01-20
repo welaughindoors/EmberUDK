@@ -1504,18 +1504,23 @@ function JumpVelocityPinch(float fDeltaTime)
   		{
   			JumpVelocityPinch_LandedTimer=fDeltaTime; //set the timer to something else
   			jumpActive = false; //disable toggle so we don't activate this again
+  			AccelRate *= 0.3;
+  			Velocity *= 0.60;
   		}
 
   		if(JumpVelocityPinch_LandedTimer != 0) //if the timer isn't 0
   		{
   			JumpVelocityPinch_LandedTimer += fDeltaTime; //increase timer by tick ammount
-  			if( JumpVelocityPinch_LandedTimer <= 0.5 ) //while it's less than half a second
-  				if(VSize(Velocity) > 320) //and if velocity is greater than 320 (440 is max speed when walking)
-  				Velocity *= 0.8; //multiply itself by 0.8
+  			// if( JumpVelocityPinch_LandedTimer <= 0.5 ) //while it's less than half a second
+  				// if(VSize(Velocity) > 320) //and if velocity is greater than 320 (440 is max speed when walking)
+  				// AccelRate *= 1.05; //multiply itself by 0.8
   		}
 
   		if(JumpVelocityPinch_LandedTimer > 0.5) //if timer has gone past 0.5 seconds
+  		{
   			JumpVelocityPinch_LandedTimer = 0; //set it to 0.
+  			AccelRate=2048.0;
+  		}
 }
 
 /*
