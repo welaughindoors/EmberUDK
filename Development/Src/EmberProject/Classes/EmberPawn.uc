@@ -14,16 +14,25 @@ class EmberPawn extends UTPawn;
 //=============================================
 
 var name lightLeftString1;
+var array<float>lightLeftString1Mods;
 var name lightRightString1;
+var array<float>lightRightString1Mods;
 var name lightForwardString1;
+var array<float>lightForwardString1Mods;
 
 var name mediumLeftString1;
+var array<float>mediumLeftString1Mods;
 var name mediumRightString1;
+var array<float>mediumRightString1Mods;
 var name mediumForwardString1;
+var array<float>mediumForwardString1Mods;
 
 var name heavyLeftString1;
+var array<float>heavyLeftString1Mods;
 var name heavyRightString1;
+var array<float>heavyRightString1Mods;
 var name heavyForwardString1;
+var array<float>heavyForwardString1Mods;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -669,6 +678,19 @@ function doAttack( float strafeDirection)
 		forwardAttack();
 }
 
+exec function setTracers(int tracers)
+{
+	Sword.setTracers(tracers);
+}
+
+// function rightAttackEnd()
+// {
+// 	DebugPrint("dun -");
+// 	//forwardAttack1.StopCustomAnim(0);
+//     Sword.SetInitialState();
+//     Sword.resetTracers();
+//     animationControl();
+// }
 /*
 rightAttack
 	Flushes existing debug lines
@@ -679,15 +701,11 @@ rightAttack
 */
 function rightAttack()
 {
-//
-local float timeTakesToComplete;
-
    	// AttackGateNode.SetActiveChild(1, 0);
    	// AttackBlendNode.SetActiveChild(0, 0);
 
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
-	timeTakesToComplete = 1.0;
 	// FlushPersistentDebugLines();1.5,0.36
 
 	//TODO: timer isn't 100% accurate, only 99%. Can cause a que attack to make sword 'active' but animation isn't playing
@@ -695,39 +713,25 @@ local float timeTakesToComplete;
 	switch(currentStance)
 	{
 		case 1:
-			Attack1.PlayCustomAnimByDuration(lightRightString1,timeTakesToComplete, 0.5, 0, false);
-			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
+			Sword.setTracerDelay(lightRightString1Mods[1],lightRightString1Mods[2]);
+			SetTimer(lightRightString1Mods[0], false, 'AttackEnd');			
+			Attack1.PlayCustomAnimByDuration(lightRightString1,lightRightString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 2:
-			//timeTakesToComplete = 1.5;
-			//Sword.setTracerDelay(0.55, 1);
-			Attack1.PlayCustomAnimByDuration(mediumRightString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(mediumRightString1Mods[1],mediumRightString1Mods[2]);
+			SetTimer(mediumRightString1Mods[0], false, 'AttackEnd');	
+			Attack1.PlayCustomAnimByDuration(mediumRightString1,mediumRightString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
-			timeTakesToComplete = 1.5;
-			Sword.setTracerDelay(0.55, 1);
-			Attack1.PlayCustomAnimByDuration(heavyRightString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(heavyRightString1Mods[1],heavyRightString1Mods[2]);
+			SetTimer(heavyRightString1Mods[0], false, 'AttackEnd');	
+			Attack1.PlayCustomAnimByDuration(heavyRightString1,heavyRightString1Mods[0], 0.5, 0, false);
 		break;
 	}
 
-	SetTimer(timeTakesToComplete, false, 'AttackEnd');
     Sword.GoToState('Attacking');
-}
-
-exec function setTracers(int tracers)
-{
-	Sword.setTracers(tracers);
-}
-
-function rightAttackEnd()
-{
-	DebugPrint("dun -");
-	//forwardAttack1.StopCustomAnim(0);
-    Sword.SetInitialState();
-    Sword.resetTracers();
-    animationControl();
 }
 /*
 leftAttack
@@ -741,7 +745,6 @@ function leftAttack()
 {
 //ember_temp_left_attack
 local float timeTakesToComplete;
-	timeTakesToComplete = 1.0;
 	// FlushPersistentDebugLines();
 	DebugPrint("left -");
 
@@ -753,29 +756,26 @@ local float timeTakesToComplete;
 	{
 		case 1:
 
-    Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
+    		Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
+    		Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
 
-			Sword.setTracerDelay(0.30);
-			// lightLeftString1=;
-			Attack1.PlayCustomAnimByDuration(lightLeftString1,timeTakesToComplete, 0.5, 0, false);
-			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
+			Sword.setTracerDelay(lightLeftString1Mods[1], lightLeftString1Mods[2]);
+			SetTimer(lightLeftString1Mods[0], false, 'AttackEnd');
+			Attack1.PlayCustomAnimByDuration(lightLeftString1,lightLeftString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 2:
-			//timeTakesToComplete = 1.5;
-			//Sword.setTracerDelay(0.55, 1);
-			Attack1.PlayCustomAnimByDuration(mediumLeftString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(mediumLeftString1Mods[1], mediumLeftString1Mods[2]);
+			SetTimer(mediumLeftString1Mods[0], false, 'AttackEnd');
+			Attack1.PlayCustomAnimByDuration(mediumLeftString1,mediumLeftString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
-			// timeTakesToComplete = 1.5;
-			// Sword.setTracerDelay(0.55, 1);
-			Attack1.PlayCustomAnimByDuration(heavyLeftString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(heavyLeftString1Mods[1], heavyLeftString1Mods[2]);
+			SetTimer(heavyLeftString1Mods[0], false, 'AttackEnd');
+			Attack1.PlayCustomAnimByDuration(heavyLeftString1,heavyLeftString1Mods[0], 0.5, 0, false);
 		break;
-	}
-
-	SetTimer(timeTakesToComplete, false, 'AttackEnd');
+	}	
     Sword.GoToState('Attacking');
 }
 
@@ -790,36 +790,33 @@ forwardAttack
 function forwardAttack()
 {
 	local float timeTakesToComplete;
-	timeTakesToComplete = 1.0;
 	FlushPersistentDebugLines();
 	DebugPrint("fwd -");
-	// Attack1.PlayCustomAnimByDuration('ember_attack_forward',timeTakesToComplete, 0.5, 0, false);
-	// Sword.rotate(7500,0,49152); //temp_fix_for_animation
-	// Sword.setTracerDelay(0.65);
-// forwardAttack1.StopCustomAnim(0);
 
 	switch(currentStance)
 	{
 		case 1:
 			Sword.setTracerDelay(0.65); 
-			Attack1.PlayCustomAnimByDuration(lightForwardString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(lightForwardString1Mods[1], lightForwardString1Mods[2]);
+			SetTimer(lightForwardString1Mods[0], false, 'AttackEnd');
+			Attack1.PlayCustomAnimByDuration(lightForwardString1,lightForwardString1Mods[0], 0.5, 0, false);
 			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
 		break;
 
 		case 2:
 			//timeTakesToComplete = 1.5;
 			Sword.setTracerDelay(0.4, 0.7);
-			Attack1.PlayCustomAnimByDuration(mediumForwardString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(mediumForwardString1Mods[1], mediumForwardString1Mods[2]);
+			SetTimer(mediumForwardString1Mods[0], false, 'AttackEnd');
+			Attack1.PlayCustomAnimByDuration(mediumForwardString1,mediumForwardString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
-			// timeTakesToComplete = 1.5;
-			// Sword.setTracerDelay(0.55, 1);
-			Attack1.PlayCustomAnimByDuration(heavyForwardString1,timeTakesToComplete, 0.5, 0, false);
+			Sword.setTracerDelay(heavyForwardString1Mods[1], heavyForwardString1Mods[2]);
+			SetTimer(heavyForwardString1Mods[0], false, 'AttackEnd');
+			Attack1.PlayCustomAnimByDuration(heavyForwardString1,heavyForwardString1Mods[0], 0.5, 0, false);
 		break;
 	}
-
-	SetTimer(timeTakesToComplete, false, 'AttackEnd');
     Sword.GoToState('Attacking');
 }
 /*
@@ -1672,6 +1669,24 @@ heavyLeftString1	=
 heavyRightString1	=	ember_heavy_right
 heavyForwardString1	=
 
+
+//Mods:
+// -- Duration
+// -- Time till Tracer is Active (s)
+// -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
+// ex: (1.0, 0.5, 0): duration = 1s, tracers start after 0.5s, last till animation finishes
+lightLeftString1Mods=(1.0,0.5,0)
+lightRightString1Mods=(1.0,0,0)
+lightForwardString1Mods=(1.0,0.65,0)
+
+mediumLeftString1Mods=(0,0,0) 
+mediumRightString1Mods=(0,0,0)
+mediumForwardString1Mods=(1.0,0.4,0.7)
+
+heavyLeftString1Mods=(0,0,0)
+heavyRightString1Mods=(1.5,0.55,0.95)
+heavyForwardString1Mods=(0,0,0)
+
 //=============================================
 // End Combo / Attack System Vars
 //=============================================
@@ -1684,37 +1699,17 @@ heavyForwardString1	=
 	tetherStatusForVel = false
 	tetherMaxLength = 4000
 	MultiJumpBoost=1622.0
-	CustomGravityScaling = 1.6
-	JumpZ=750 //default-322.0
+	CustomGravityScaling = 1.8
+	JumpZ=500//JumpZ=750 //default-322.0
         bCollideActors=True
       bBlockActors=True
       currentStance = 1;
-
-	// Begin Object Class=SkeletalMeshComponent Name=SwordMesh
- //        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
- //         // bForceUpdateAttachmentsInTick=True
- //         Scale=2
- //    End Object
- //    Components.Add(SwordMesh)
-
-//     Begin Object Class=SkeletalMeshComponent Name=MyWeaponSkeletalMesh
-//     CastShadow=true
-//     bCastDynamicShadow=true
-//     bOwnerNoSee=false
-//     // LightEnvironment=MyLightEnvironment;
-//         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-//     Scale=0.5
-// Rotation=(Pitch=0 ,Yaw=0, Roll=49152 )
-//   End Object
-//   SwordMesh=MyWeaponSkeletalMeshBegin Object Name=CollisionCylinder
-	// // 	// CollisionRadius=+00102.00000
-	// // 	// CollisionHeight=+00102.800000
-
 
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=0025.00000
 		CollisionHeight=0047.5.00000
 	End Object
    	Components.Add(CollisionCylinder)
+   	
 	CollisionComponent=CollisionCylinder
 }
