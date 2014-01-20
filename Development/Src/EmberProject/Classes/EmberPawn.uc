@@ -1528,6 +1528,9 @@ function DoKick()
 //===============================
 function LightStance()
 {
+	if(GetTimeLeftOnAttack() > 0)
+		return;
+
 	currentStance = 1;
 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
 	Mesh.DetachComponent(Sword.mesh);
@@ -1542,6 +1545,9 @@ function LightStance()
 }
 function BalanceStance()
 {
+	if(GetTimeLeftOnAttack() > 0)
+		return;
+
 	currentStance = 2;
 	swordMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2';
 	Mesh.DetachComponent(Sword.mesh);
@@ -1556,7 +1562,10 @@ function BalanceStance()
 }
 function HeavyStance()
 {
- currentStance = 3;
+	if(GetTimeLeftOnAttack() > 0)
+		return;
+
+ 	currentStance = 3;
 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.flammard';  
 	Mesh.DetachComponent(Sword.mesh);  
     Mesh.DetachComponent(Sword.CollisionComponent);
@@ -1699,7 +1708,7 @@ heavyForwardString1Mods=(0,0,0)
 	tetherStatusForVel = false
 	tetherMaxLength = 4000
 	MultiJumpBoost=1622.0
-	CustomGravityScaling = 1.8
+	CustomGravityScaling = 1.8//1.6
 	JumpZ=500//JumpZ=750 //default-322.0
         bCollideActors=True
       bBlockActors=True
@@ -1710,6 +1719,6 @@ heavyForwardString1Mods=(0,0,0)
 		CollisionHeight=0047.5.00000
 	End Object
    	Components.Add(CollisionCylinder)
-   	
+
 	CollisionComponent=CollisionCylinder
 }
