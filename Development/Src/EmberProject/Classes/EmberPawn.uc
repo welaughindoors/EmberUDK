@@ -19,6 +19,10 @@ var name lightRightString1;
 var array<float>lightRightString1Mods;
 var name lightForwardString1;
 var array<float>lightForwardString1Mods;
+var name lightForwardLeftString1;
+var array<float>lightForwardLeftString1Mods;
+var name lightForwardRightString1;
+var array<float>lightForwardRightString1Mods;
 
 var name mediumLeftString1;
 var array<float>mediumLeftString1Mods;
@@ -26,6 +30,10 @@ var name mediumRightString1;
 var array<float>mediumRightString1Mods;
 var name mediumForwardString1;
 var array<float>mediumForwardString1Mods;
+var name mediumForwardLeftString1;
+var array<float>mediumForwardLeftString1Mods;
+var name mediumForwardRightString1;
+var array<float>mediumForwardRightString1Mods;
 
 var name heavyLeftString1;
 var array<float>heavyLeftString1Mods;
@@ -33,6 +41,10 @@ var name heavyRightString1;
 var array<float>heavyRightString1Mods;
 var name heavyForwardString1;
 var array<float>heavyForwardString1Mods;
+var name heavyForwardLeftString1;
+var array<float>heavyForwardLeftString1Mods;
+var name heavyForwardRightString1;
+var array<float>heavyForwardRightString1Mods;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -760,17 +772,17 @@ function doAttack( array<byte> byteDirection)
 				if((savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //D
 			break;
 
-			//two keys pressed
+			//two keys pressed 
 			case 2:
-				// if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) forwardLeftAttack(); //W+A
-				// else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) forwardRightAttack(); //W+D
-				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) forwardLeftAttack(); //S+A
-				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) forwardRightAttack(); //S+D
+				if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) forwardLeftAttack(); //W+A
+				else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) forwardRightAttack(); //W+D
+				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) forwardLeftAttack(); //S+A
+				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) forwardRightAttack(); //S+D
 
-				if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //W+A
-				else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //W+D
-				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //S+A
-				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //S+D
+				// if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //W+A
+				// else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //W+D
+				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //S+A
+				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //S+D
 
 				//for keys W + S and A + D
 				else forwardAttack();
@@ -798,6 +810,56 @@ exec function setTracers(int tracers)
 //     Sword.resetTracers();
 //     animationControl();
 // }
+function forwardLeftAttack()
+{
+		switch(currentStance)
+	{
+		case 1:
+			Sword.setTracerDelay(lightForwardLeftString1Mods[1],lightForwardLeftString1Mods[2]);
+			SetTimer(lightForwardLeftString1Mods[0], false, 'AttackEnd');			
+			Attack1.PlayCustomAnimByDuration(lightForwardLeftString1,lightForwardLeftString1Mods[0], 0.5, 0, false);
+		break;
+
+		case 2:
+			Sword.setTracerDelay(mediumForwardLeftString1Mods[1],mediumForwardLeftString1Mods[2]);
+			SetTimer(mediumForwardLeftString1Mods[0], false, 'AttackEnd');	
+			Attack1.PlayCustomAnimByDuration(mediumForwardLeftString1,mediumForwardLeftString1Mods[0], 0.5, 0, false);
+		break;
+
+		case 3:
+			Sword.setTracerDelay(heavyForwardLeftString1Mods[1],heavyForwardLeftString1Mods[2]);
+			SetTimer(heavyForwardLeftString1Mods[0], false, 'AttackEnd');	
+			Attack1.PlayCustomAnimByDuration(heavyForwardLeftString1,heavyForwardLeftString1Mods[0], 0.5, 0, false);
+		break;
+	}
+
+    Sword.GoToState('Attacking');
+}
+function forwardRightAttack()
+{
+		switch(currentStance)
+	{
+		case 1:
+			Sword.setTracerDelay(lightForwardRightString1Mods[1],lightForwardRightString1Mods[2]);
+			SetTimer(lightForwardRightString1Mods[0], false, 'AttackEnd');			
+			Attack1.PlayCustomAnimByDuration(lightForwardRightString1,lightForwardRightString1Mods[0], 0.5, 0, false);
+		break;
+
+		case 2:
+			Sword.setTracerDelay(mediumForwardRightString1Mods[1],mediumForwardRightString1Mods[2]);
+			SetTimer(mediumForwardRightString1Mods[0], false, 'AttackEnd');	
+			Attack1.PlayCustomAnimByDuration(mediumForwardRightString1,mediumForwardRightString1Mods[0], 0.5, 0, false);
+		break;
+
+		case 3:
+			Sword.setTracerDelay(heavyForwardRightString1Mods[1],heavyForwardRightString1Mods[2]);
+			SetTimer(heavyForwardRightString1Mods[0], false, 'AttackEnd');	
+			Attack1.PlayCustomAnimByDuration(heavyForwardRightString1,heavyForwardRightString1Mods[0], 0.5, 0, false);
+		break;
+	}
+
+    Sword.GoToState('Attacking');
+}
 /*
 rightAttack
 	Flushes existing debug lines
@@ -851,7 +913,6 @@ leftAttack
 function leftAttack()
 {
 //ember_temp_left_attack
-local float timeTakesToComplete;
 	// FlushPersistentDebugLines();
 	DebugPrint("left -");
 
@@ -896,7 +957,6 @@ forwardAttack
 */
 function forwardAttack()
 {
-	local float timeTakesToComplete;
 	FlushPersistentDebugLines();
 	DebugPrint("fwd -");
 
@@ -1682,23 +1742,35 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
-	savedByteDirection=(0,0,0,0,0);
+	savedByteDirection=(0,0,0,0,0); 
 
 //=============================================
 // Combo / Attack System Vars
 //=============================================
+/* Note:
+/- Placement in EmberPawn is temporary
+/- Light/Medium/Heavy stances will be set in their 
+/- Respective Sword.uc files when Ready.
+*/
 
-lightLeftString1	=	ember_temp_left_attack
-lightRightString1	=	ember_temp_right_attack
-lightForwardString1	=	ember_attack_forward
 
-mediumLeftString1	=
-mediumRightString1	=
-mediumForwardString1=	ember_medium_forward
+lightLeftString1			=	ember_temp_left_attack
+lightRightString1			=	ember_temp_right_attack
+lightForwardString1			=	ember_attack_forward
+lightForwardLeftString1 	=	ember_temp_left_attack
+lightForwardRightString1 	= 	ember_temp_right_attack
 
-heavyLeftString1	=
-heavyRightString1	=	ember_heavy_right
-heavyForwardString1	=
+mediumLeftString1			=
+mediumRightString1			=
+mediumForwardString1 		=	ember_medium_forward
+mediumForwardLeftString1 	= 
+mediumForwardRightString1 	= 
+
+heavyLeftString1			=
+heavyRightString1			=	ember_heavy_right
+heavyForwardString1			=
+heavyForwardLeftString1 	= 
+heavyForwardRightString1 	= 	ember_heavy_right
 
 
 //Mods:
@@ -1706,17 +1778,23 @@ heavyForwardString1	=
 // -- Time till Tracer is Active (s)
 // -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
 // ex: (1.0, 0.5, 0): duration = 1s, tracers start after 0.5s, last till animation finishes
-lightLeftString1Mods=(1.0,0.5,0)
-lightRightString1Mods=(1.0,0,0)
-lightForwardString1Mods=(1.0,0.65,0)
+lightLeftString1Mods 			=(1,0.5,0)
+lightRightString1Mods 			=(1,0,0)
+lightForwardString1Mods 		=(1,0.65,0)
+lightForwardLeftString1Mods		=(1,0,0)
+lightForwardRightString1Mods 	=(1,0,0)
 
-mediumLeftString1Mods=(0,0,0) 
-mediumRightString1Mods=(0,0,0)
-mediumForwardString1Mods=(1.0,0.4,0.7)
+mediumLeftString1Mods 			=(1,0,0) 
+mediumRightString1Mods 			=(1,0,0)
+mediumForwardString1Mods 		=(1.0,0.4,0.7)
+mediumForwardLeftString1Mods 	=(1,0,0)
+mediumForwardRightString1Mods 	=(1,0,0)
 
-heavyLeftString1Mods=(0,0,0)
-heavyRightString1Mods=(1.5,0.55,0.95)
-heavyForwardString1Mods=(0,0,0)
+heavyLeftString1Mods 			=(1,0,0)
+heavyRightString1Mods 			=(1.5,0.55,0.95)
+heavyForwardString1Mods 		=(1,0,0)
+heavyForwardLeftString1Mods 	=(1,0,0)
+heavyForwardRightString1Mods 	=(1.5,0.55,0.95)
 
 //=============================================
 // End Combo / Attack System Vars
