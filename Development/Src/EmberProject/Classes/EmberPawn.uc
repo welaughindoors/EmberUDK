@@ -1766,11 +1766,11 @@ mediumForwardString1 		=	ember_medium_forward
 mediumForwardLeftString1 	= 
 mediumForwardRightString1 	= 
 
-heavyLeftString1			=
-heavyRightString1			=	ember_heavy_right
+heavyLeftString1			=   ember_heavy_left
+heavyRightString1			=	
 heavyForwardString1			=
-heavyForwardLeftString1 	= 
-heavyForwardRightString1 	= 	ember_heavy_right
+heavyForwardLeftString1 	=   ember_heavy_left
+heavyForwardRightString1 	= 	
 
 
 //Mods:
@@ -1786,15 +1786,15 @@ lightForwardRightString1Mods 	=(1,0,0)
 
 mediumLeftString1Mods 			=(1,0,0) 
 mediumRightString1Mods 			=(1,0,0)
-mediumForwardString1Mods 		=(1.0,0.4,0.7)
+mediumForwardString1Mods 		=(1.3,0.5,0.7)
 mediumForwardLeftString1Mods 	=(1,0,0)
 mediumForwardRightString1Mods 	=(1,0,0)
 
-heavyLeftString1Mods 			=(1,0,0)
-heavyRightString1Mods 			=(1.5,0.55,0.95)
+heavyLeftString1Mods 			=(2.0,0.70,1.05)
+heavyRightString1Mods 			=(1,0,0)
 heavyForwardString1Mods 		=(1,0,0)
-heavyForwardLeftString1Mods 	=(1,0,0)
-heavyForwardRightString1Mods 	=(1.5,0.55,0.95)
+heavyForwardLeftString1Mods 	=(2.0,0.70,1.05)
+heavyForwardRightString1Mods 	=(1,0,0)
 
 //=============================================
 // End Combo / Attack System Vars
