@@ -1771,7 +1771,7 @@ lightForwardRightString1 	= 	ember_temp_right_attack
 mediumLeftString1			=
 mediumRightString1			=
 mediumForwardString1 		=	ember_medium_forward
-mediumForwardLeftString1 	= 
+mediumForwardLeftString1 	=   ember_medium_diagonal_left
 mediumForwardRightString1 	= 
 
 heavyLeftString1			=   ember_heavy_left
@@ -1796,7 +1796,7 @@ lightForwardRightString1Mods 	=(1,0,0)
 mediumLeftString1Mods 			=(1,0,0) 
 mediumRightString1Mods 			=(1,0,0)
 mediumForwardString1Mods 		=(1.3,0.5,0.7)
-mediumForwardLeftString1Mods 	=(1,0,0)
+mediumForwardLeftString1Mods 	=(1.5,0.5,0.7)
 mediumForwardRightString1Mods 	=(1,0,0)
 
 heavyLeftString1Mods 			=(2.0,0.70,1.05)
