@@ -149,6 +149,8 @@ var float heavyDamagePerTracer;
 
 // var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
+
+var byte  tempBalanceString;
 //
 //=============================================
 // Weapon
@@ -747,24 +749,29 @@ function doAttack( array<byte> byteDirection)
 	if((savedByteDirection[2] ^ 1) == 0 ) totalKeyFlag++;
 	if((savedByteDirection[3] ^ 1) == 0 ) totalKeyFlag++;
 
-	queueCounter = 0.25;
+	queueCounter = 0.55;
 
 	timerCounter = GetTimeLeftOnAttack();
 	DebugPrint("attack Requested");
-
 	if(timerCounter > queueCounter)
 		{
 		DebugPrint("attack Denied");
 		return;
 		}
 
+	if(tempBalanceString != 1)
+{
 	if(timerCounter < queueCounter && timerCounter > 0)
 		{
 		DebugPrint("attack Queued");
 		savedByteDirection[4] = 1;
 		return;
 		}
-
+}
+else if (tempBalanceString == 1)
+{
+	tempBalanceString = 0;
+}
 		switch(totalKeyFlag)
 		{
 			//no keys pressed
@@ -832,6 +839,7 @@ function forwardLeftAttack()
 			Sword.setTracerDelay(mediumForwardLeftString1Mods[1],mediumForwardLeftString1Mods[2]);
 			SetTimer(mediumForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(mediumForwardLeftString1,mediumForwardLeftString1Mods[0], 0.5, 0, false);
+			tempBalanceString++;
 		break;
 
 		case 3:
@@ -965,12 +973,12 @@ forwardAttack
 */
 function forwardAttack()
 {
-	FlushPersistentDebugLines();
 	DebugPrint("fwd -");
 
 	switch(currentStance)
 	{
 		case 1:
+	FlushPersistentDebugLines();
 			Sword.setTracerDelay(0.65); 
 			Sword.setTracerDelay(lightForwardString1Mods[1], lightForwardString1Mods[2]);
 			SetTimer(lightForwardString1Mods[0]*1.1, false, 'AttackEnd');
@@ -1751,6 +1759,7 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
+	tempBalanceString=0;
 	savedByteDirection=(0,0,0,0,0); 
 
 //=============================================
