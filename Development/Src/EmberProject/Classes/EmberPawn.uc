@@ -135,13 +135,17 @@ var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
 
 //=============================================
-// Attack Animations
+// Attack 
 //=============================================
-var AnimNodeBlendList AttackGateNode;
-var AnimNodeBlendList AttackBlendNode;
-var AnimNodePlayCustomAnim Attack1;
-var AnimNodePlayCustomAnim Attack2;
-var UDKSkelControl_Rotate SpineRotator;
+var AnimNodeBlendList 		AttackGateNode;
+var AnimNodeBlendList 		AttackBlendNode;
+var AnimNodePlayCustomAnim 	Attack1;
+var AnimNodePlayCustomAnim	Attack2;
+var UDKSkelControl_Rotate 	SpineRotator;
+
+var float lightDamagePerTracer;
+var float mediumDamagePerTracer;
+var float heavyDamagePerTracer;
 
 // var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
@@ -253,7 +257,7 @@ WeaponAttach
 	Attaches a skeleton mesh of the weapon in same place as weapon
 	Used to detect collisions. atm WIP.
 */
-function WeaponAttach()
+function WeaponAttach() 
 { 
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
@@ -278,6 +282,10 @@ function WeaponAttach()
     LightDecoSword.Mesh.SetHidden(true);
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
+
+
+Sword.setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
+overrideStanceChange();
     	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
     	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
     	// WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment( ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', Sword.Mesh, 'EndControl', true, , );
@@ -816,19 +824,19 @@ function forwardLeftAttack()
 	{
 		case 1:
 			Sword.setTracerDelay(lightForwardLeftString1Mods[1],lightForwardLeftString1Mods[2]);
-			SetTimer(lightForwardLeftString1Mods[0], false, 'AttackEnd');			
+			SetTimer(lightForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');			
 			Attack1.PlayCustomAnimByDuration(lightForwardLeftString1,lightForwardLeftString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 2:
 			Sword.setTracerDelay(mediumForwardLeftString1Mods[1],mediumForwardLeftString1Mods[2]);
-			SetTimer(mediumForwardLeftString1Mods[0], false, 'AttackEnd');	
+			SetTimer(mediumForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(mediumForwardLeftString1,mediumForwardLeftString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
 			Sword.setTracerDelay(heavyForwardLeftString1Mods[1],heavyForwardLeftString1Mods[2]);
-			SetTimer(heavyForwardLeftString1Mods[0], false, 'AttackEnd');	
+			SetTimer(heavyForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(heavyForwardLeftString1,heavyForwardLeftString1Mods[0], 0.5, 0, false);
 		break;
 	}
@@ -841,19 +849,19 @@ function forwardRightAttack()
 	{
 		case 1:
 			Sword.setTracerDelay(lightForwardRightString1Mods[1],lightForwardRightString1Mods[2]);
-			SetTimer(lightForwardRightString1Mods[0], false, 'AttackEnd');			
+			SetTimer(lightForwardRightString1Mods[0]*1.1, false, 'AttackEnd');			
 			Attack1.PlayCustomAnimByDuration(lightForwardRightString1,lightForwardRightString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 2:
 			Sword.setTracerDelay(mediumForwardRightString1Mods[1],mediumForwardRightString1Mods[2]);
-			SetTimer(mediumForwardRightString1Mods[0], false, 'AttackEnd');	
+			SetTimer(mediumForwardRightString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(mediumForwardRightString1,mediumForwardRightString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
 			Sword.setTracerDelay(heavyForwardRightString1Mods[1],heavyForwardRightString1Mods[2]);
-			SetTimer(heavyForwardRightString1Mods[0], false, 'AttackEnd');	
+			SetTimer(heavyForwardRightString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(heavyForwardRightString1,heavyForwardRightString1Mods[0], 0.5, 0, false);
 		break;
 	}
@@ -883,19 +891,19 @@ function rightAttack()
 	{
 		case 1:
 			Sword.setTracerDelay(lightRightString1Mods[1],lightRightString1Mods[2]);
-			SetTimer(lightRightString1Mods[0], false, 'AttackEnd');			
+			SetTimer(lightRightString1Mods[0]*1.1, false, 'AttackEnd');			
 			Attack1.PlayCustomAnimByDuration(lightRightString1,lightRightString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 2:
 			Sword.setTracerDelay(mediumRightString1Mods[1],mediumRightString1Mods[2]);
-			SetTimer(mediumRightString1Mods[0], false, 'AttackEnd');	
+			SetTimer(mediumRightString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(mediumRightString1,mediumRightString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
 			Sword.setTracerDelay(heavyRightString1Mods[1],heavyRightString1Mods[2]);
-			SetTimer(heavyRightString1Mods[0], false, 'AttackEnd');	
+			SetTimer(heavyRightString1Mods[0]*1.1, false, 'AttackEnd');	
 			Attack1.PlayCustomAnimByDuration(heavyRightString1,heavyRightString1Mods[0], 0.5, 0, false);
 		break;
 	}
@@ -928,19 +936,19 @@ function leftAttack()
     		Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
 
 			Sword.setTracerDelay(lightLeftString1Mods[1], lightLeftString1Mods[2]);
-			SetTimer(lightLeftString1Mods[0], false, 'AttackEnd');
+			SetTimer(lightLeftString1Mods[0]*1.1, false, 'AttackEnd');
 			Attack1.PlayCustomAnimByDuration(lightLeftString1,lightLeftString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 2:
 			Sword.setTracerDelay(mediumLeftString1Mods[1], mediumLeftString1Mods[2]);
-			SetTimer(mediumLeftString1Mods[0], false, 'AttackEnd');
+			SetTimer(mediumLeftString1Mods[0]*1.1, false, 'AttackEnd');
 			Attack1.PlayCustomAnimByDuration(mediumLeftString1,mediumLeftString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
 			Sword.setTracerDelay(heavyLeftString1Mods[1], heavyLeftString1Mods[2]);
-			SetTimer(heavyLeftString1Mods[0], false, 'AttackEnd');
+			SetTimer(heavyLeftString1Mods[0]*1.1, false, 'AttackEnd');
 			Attack1.PlayCustomAnimByDuration(heavyLeftString1,heavyLeftString1Mods[0], 0.5, 0, false);
 		break;
 	}	
@@ -965,7 +973,7 @@ function forwardAttack()
 		case 1:
 			Sword.setTracerDelay(0.65); 
 			Sword.setTracerDelay(lightForwardString1Mods[1], lightForwardString1Mods[2]);
-			SetTimer(lightForwardString1Mods[0], false, 'AttackEnd');
+			SetTimer(lightForwardString1Mods[0]*1.1, false, 'AttackEnd');
 			Attack1.PlayCustomAnimByDuration(lightForwardString1,lightForwardString1Mods[0], 0.5, 0, false);
 			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
 		break;
@@ -974,13 +982,13 @@ function forwardAttack()
 			//timeTakesToComplete = 1.5;
 			Sword.setTracerDelay(0.4, 0.7);
 			Sword.setTracerDelay(mediumForwardString1Mods[1], mediumForwardString1Mods[2]);
-			SetTimer(mediumForwardString1Mods[0], false, 'AttackEnd');
+			SetTimer(mediumForwardString1Mods[0]*1.1, false, 'AttackEnd');
 			Attack1.PlayCustomAnimByDuration(mediumForwardString1,mediumForwardString1Mods[0], 0.5, 0, false);
 		break;
 
 		case 3:
 			Sword.setTracerDelay(heavyForwardString1Mods[1], heavyForwardString1Mods[2]);
-			SetTimer(heavyForwardString1Mods[0], false, 'AttackEnd');
+			SetTimer(heavyForwardString1Mods[0]*1.1, false, 'AttackEnd');
 			Attack1.PlayCustomAnimByDuration(heavyForwardString1,heavyForwardString1Mods[0], 0.5, 0, false);
 		break;
 	}
@@ -1672,6 +1680,7 @@ function overrideStanceChange()
 	WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	Sword.setStance(currentStance);
 }
 //===============================
 // Console Vars
@@ -1753,7 +1762,6 @@ defaultproperties
 /- Respective Sword.uc files when Ready.
 */
 
-
 lightLeftString1			=	ember_temp_left_attack
 lightRightString1			=	ember_temp_right_attack
 lightForwardString1			=	ember_attack_forward
@@ -1772,12 +1780,13 @@ heavyForwardString1			=
 heavyForwardLeftString1 	=   ember_heavy_left
 heavyForwardRightString1 	= 	
 
+/* Mods:
+/ -- Duration
+/ -- Time till Tracer is Active (s)
+/ -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
+/ ex: (1.0, 0.5, 0): duration = 1s, tracers start after 0.5s, last till animation finishes
+*/
 
-//Mods:
-// -- Duration
-// -- Time till Tracer is Active (s)
-// -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
-// ex: (1.0, 0.5, 0): duration = 1s, tracers start after 0.5s, last till animation finishes
 lightLeftString1Mods 			=(1,0.5,0)
 lightRightString1Mods 			=(1,0,0)
 lightForwardString1Mods 		=(1,0.65,0)
@@ -1796,6 +1805,15 @@ heavyForwardString1Mods 		=(1,0,0)
 heavyForwardLeftString1Mods 	=(2.0,0.70,1.05)
 heavyForwardRightString1Mods 	=(1,0,0)
 
+/* Damage:
+/- Is temporary. But each tracer (atm default = 15) 
+/- will do X damage for Y stance
+*/ 
+
+lightDamagePerTracer 	= 10
+mediumDamagePerTracer 	= 20
+heavyDamagePerTracer 	= 30
+
 //=============================================
 // End Combo / Attack System Vars
 //=============================================
@@ -1810,9 +1828,9 @@ heavyForwardRightString1Mods 	=(1,0,0)
 	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.8//1.6
 	JumpZ=500//JumpZ=750 //default-322.0
-        bCollideActors=True
-      bBlockActors=True
-      currentStance = 1;
+    bCollideActors=True
+    bBlockActors=True
+    currentStance = 1;
 
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=0025.00000

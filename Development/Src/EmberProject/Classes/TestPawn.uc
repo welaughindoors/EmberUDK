@@ -43,21 +43,21 @@ var float attackPlayerRange;
 var int attackPlayer;
 
 //For when the player takes damage
-// event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
-// {
-// 	local float tHealth;
-// 	GetALocalPlayerController().ClientMessage("tPawn Damage -" $Damage);
-// 	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
-// 	tHealth = Health - Damage;
-// 	Health = FMax(tHealth, 0);
-// 	GetALocalPlayerController().ClientMessage("tPawn tHealth -" $tHealth);
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+{
+	local float tHealth;
+	GetALocalPlayerController().ClientMessage("tPawn Damage -" $Damage);
+	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+	tHealth = Health - Damage;
+	Health = FMax(tHealth, 0);
+	GetALocalPlayerController().ClientMessage("tPawn tHealth -" $tHealth);
 
-// 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
-// 	if(Health==0)
-// 	{
-// 		GotoState('Dying');
-// 	}
-// }
+	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
+	if(Health==0)
+	{
+		GotoState('Dying');
+	}
+}
 /*
 Tick
   Per tick:
@@ -137,107 +137,107 @@ function grappleHooked(vector target, pawn player)
 TakeDamage
 	disable DmgType_Crushed, @renable in final?
 */
-event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
-	{
-		local Vector shotDir, ApplyImpulse,BloodMomentum;
-		local class<UTDamageType> UTDamage;
-		local UTEmit_HitEffect HitEffect;
+// event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+// 	{
+// 		local Vector shotDir, ApplyImpulse,BloodMomentum;
+// 		local class<UTDamageType> UTDamage;
+// 		local UTEmit_HitEffect HitEffect;
 	
-	if(damageType == class'DmgType_Crushed')
-		return;
+// 	if(damageType == class'DmgType_Crushed')
+// 		return;
 
-		if ( class'UTGame'.Static.UseLowGore(WorldInfo) )
-		{
-			if ( !bGibbed )
-			{
-				UTDamage = class<UTDamageType>(DamageType);
-				if (UTDamage != None && ShouldGib(UTDamage))
-				{
-					bTearOffGibs = true;
-					bGibbed = true;
-				}
-			}
-			return;
-		}
+// 		if ( class'UTGame'.Static.UseLowGore(WorldInfo) )
+// 		{
+// 			if ( !bGibbed )
+// 			{
+// 				UTDamage = class<UTDamageType>(DamageType);
+// 				if (UTDamage != None && ShouldGib(UTDamage))
+// 				{
+// 					bTearOffGibs = true;
+// 					bGibbed = true;
+// 				}
+// 			}
+// 			return;
+// 		}
 
-		// When playing death anim, we keep track of how long since we took that kind of damage.
-		if(DeathAnimDamageType != None)
-		{
-			if(DamageType == DeathAnimDamageType)
-			{
-				TimeLastTookDeathAnimDamage = WorldInfo.TimeSeconds;
-			}
-		}
+// 		// When playing death anim, we keep track of how long since we took that kind of damage.
+// 		if(DeathAnimDamageType != None)
+// 		{
+// 			if(DamageType == DeathAnimDamageType)
+// 			{
+// 				TimeLastTookDeathAnimDamage = WorldInfo.TimeSeconds;
+// 			}
+// 		}
 
-		if (!bGibbed && (InstigatedBy != None || EffectIsRelevant(Location, true, 0)))
-		{
-			UTDamage = class<UTDamageType>(DamageType);
+// 		if (!bGibbed && (InstigatedBy != None || EffectIsRelevant(Location, true, 0)))
+// 		{
+// 			UTDamage = class<UTDamageType>(DamageType);
 
-			// accumulate damage taken in a single tick
-			if ( AccumulationTime != WorldInfo.TimeSeconds )
-			{
-				AccumulateDamage = 0;
-				AccumulationTime = WorldInfo.TimeSeconds;
-			}
-			AccumulateDamage += Damage;
+// 			// accumulate damage taken in a single tick
+// 			if ( AccumulationTime != WorldInfo.TimeSeconds )
+// 			{
+// 				AccumulateDamage = 0;
+// 				AccumulationTime = WorldInfo.TimeSeconds;
+// 			}
+// 			AccumulateDamage += Damage;
 
-			Health -= Damage;
-			if ( UTDamage != None )
-			{
-				if ( ShouldGib(UTDamage) )
-				{
-					if ( bHideOnListenServer || (WorldInfo.NetMode == NM_DedicatedServer) )
-					{
-						bTearOffGibs = true;
-						bGibbed = true;
-						return;
-					}
-					SpawnGibs(UTDamage, HitLocation);
-				}
-				else if ( !bHideOnListenServer && (WorldInfo.NetMode != NM_DedicatedServer) )
-				{
-					CheckHitInfo( HitInfo, Mesh, Normal(Momentum), HitLocation );
-					UTDamage.Static.SpawnHitEffect(self, Damage, Momentum, HitInfo.BoneName, HitLocation);
+// 			Health -= Damage;
+// 			if ( UTDamage != None )
+// 			{
+// 				if ( ShouldGib(UTDamage) )
+// 				{
+// 					if ( bHideOnListenServer || (WorldInfo.NetMode == NM_DedicatedServer) )
+// 					{
+// 						bTearOffGibs = true;
+// 						bGibbed = true;
+// 						return;
+// 					}
+// 					SpawnGibs(UTDamage, HitLocation);
+// 				}
+// 				else if ( !bHideOnListenServer && (WorldInfo.NetMode != NM_DedicatedServer) )
+// 				{
+// 					CheckHitInfo( HitInfo, Mesh, Normal(Momentum), HitLocation );
+// 					UTDamage.Static.SpawnHitEffect(self, Damage, Momentum, HitInfo.BoneName, HitLocation);
 
-					if ( UTDamage.default.bCausesBlood && !class'UTGame'.Static.UseLowGore(WorldInfo)
-						&& ((PlayerController(Controller) == None) || (WorldInfo.NetMode != NM_Standalone)) )
-					{
-						BloodMomentum = Momentum;
-						if ( BloodMomentum.Z > 0 )
-							BloodMomentum.Z *= 0.5;
-						HitEffect = Spawn(GetFamilyInfo().default.BloodEmitterClass,self,, HitLocation, rotator(BloodMomentum));
-						HitEffect.AttachTo(Self,HitInfo.BoneName);
-					}
+// 					if ( UTDamage.default.bCausesBlood && !class'UTGame'.Static.UseLowGore(WorldInfo)
+// 						&& ((PlayerController(Controller) == None) || (WorldInfo.NetMode != NM_Standalone)) )
+// 					{
+// 						BloodMomentum = Momentum;
+// 						if ( BloodMomentum.Z > 0 )
+// 							BloodMomentum.Z *= 0.5;
+// 						HitEffect = Spawn(GetFamilyInfo().default.BloodEmitterClass,self,, HitLocation, rotator(BloodMomentum));
+// 						HitEffect.AttachTo(Self,HitInfo.BoneName);
+// 					}
 
-					if ( (UTDamage.default.DamageOverlayTime > 0) && (UTDamage.default.DamageBodyMatColor != class'UTDamageType'.default.DamageBodyMatColor) )
-					{
-						SetBodyMatColor(UTDamage.default.DamageBodyMatColor, UTDamage.default.DamageOverlayTime);
-					}
+// 					if ( (UTDamage.default.DamageOverlayTime > 0) && (UTDamage.default.DamageBodyMatColor != class'UTDamageType'.default.DamageBodyMatColor) )
+// 					{
+// 						SetBodyMatColor(UTDamage.default.DamageBodyMatColor, UTDamage.default.DamageOverlayTime);
+// 					}
 
-					if( (Physics != PHYS_RigidBody) || (Momentum == vect(0,0,0)) || (HitInfo.BoneName == '') )
-						return;
+// 					if( (Physics != PHYS_RigidBody) || (Momentum == vect(0,0,0)) || (HitInfo.BoneName == '') )
+// 						return;
 
-					shotDir = Normal(Momentum);
-					ApplyImpulse = (DamageType.Default.KDamageImpulse * shotDir);
+// 					shotDir = Normal(Momentum);
+// 					ApplyImpulse = (DamageType.Default.KDamageImpulse * shotDir);
 
-					if( UTDamage.Default.bThrowRagdoll && (Velocity.Z > -10) )
-					{
-						ApplyImpulse += Vect(0,0,1)*DamageType.default.KDeathUpKick;
-					}
-					// AddImpulse() will only wake up the body for the bone we hit, so force the others to wake up
-					Mesh.WakeRigidBody();
-					Mesh.AddImpulse(ApplyImpulse, HitLocation, HitInfo.BoneName, true);
-				}
-			}
-		}
+// 					if( UTDamage.Default.bThrowRagdoll && (Velocity.Z > -10) )
+// 					{
+// 						ApplyImpulse += Vect(0,0,1)*DamageType.default.KDeathUpKick;
+// 					}
+// 					// AddImpulse() will only wake up the body for the bone we hit, so force the others to wake up
+// 					Mesh.WakeRigidBody();
+// 					Mesh.AddImpulse(ApplyImpulse, HitLocation, HitInfo.BoneName, true);
+// 				}
+// 			}
+// 		}
 
-	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
-	Health = FMax(Health, 0);	
-	if(Health==0)
-	{
-		GotoState('Dying');
-	}
-}
+// 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
+// 	Health = FMax(Health, 0);	
+// 	if(Health==0)
+// 	{
+// 		GotoState('Dying');
+// 	}
+// }
 
 /*
 PostInitAnimTree
