@@ -141,6 +141,18 @@ var AnimNodeBlendList 		AttackGateNode;
 var AnimNodeBlendList 		AttackBlendNode;
 var AnimNodePlayCustomAnim 	Attack1;
 var AnimNodePlayCustomAnim	Attack2;
+var AnimNodeSlot			AttackSlot[2];
+// var AnimNodeSlot			AttackSlot2;
+var AnimNodeBlend			AttackBlend;
+var byte 					blendAttackCounter;
+
+var struct AttackPacketStruct
+{
+	var name AnimName;
+	var array<float> Mods;
+} AttackPacket;
+
+
 var UDKSkelControl_Rotate 	SpineRotator;
 
 var float lightDamagePerTracer;
@@ -150,7 +162,6 @@ var float heavyDamagePerTracer;
 // var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
 
-var byte  tempBalanceString;
 //
 //=============================================
 // Weapon
@@ -458,6 +469,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
 		FullBodyBlendList = AnimNodeBlendList(Mesh.FindAnimNode('FullBodyBlendList'));  		
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+  		AttackSlot[0] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
+  		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
+  		// AttackSlot2 = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
+  		AttackBlend = AnimNodeBlend(Mesh.FindAnimNode('AttackBlend'));
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
   		// AimNode = AnimNodeAimOffset(SkelComp.FindAnimNode('AimNode'));
@@ -468,8 +483,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     }
 
 }
+
 //=============================================
-// Overrided Functions
+// Overrided Functions 
 //=============================================
 event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
 {
@@ -675,7 +691,7 @@ cancelBlock
 */
 function cancelBlock()
 {
-	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.5, 0, false);
+	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
     Sword.SetInitialState();
     // swordBlockIsActive = false;//temp_fix_for_animation
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
@@ -731,6 +747,45 @@ doAttack
 // 	else
 // 		forwardAttack();
 // }
+
+simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
+{
+    // local name NextComboAnim;
+    // if (AttackSlot.GetCustomAnimNodeSeq() == SeqNode)
+    // {
+        // if (CurCombo == COMBO_SmashDown)
+        // {
+            // if (AttackSlot.GetPlayedAnimation() == mediumForwardString1)
+            // blendAttackCounter=1;
+            // DebugPrint("anim ends");
+            AttackBlend.setBlendTarget(1, 0.5);
+            Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+			SetTimer(AttackPacket.Mods[0]*1.1, false, 'AttackEnd');	
+            AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], 0.3, 0.5);
+    // DebugPrint("blendAttackCounter22"@1);
+            // blendAttackCounter++;
+			// AttackSlot[blendAttackCounter].SetActorAnimEndNotification(true);
+
+
+//            AttackSlot2.PlayCustomAnimByDuration(mediumForwardString1,mediumForwardString1Mods[0], 0.3, 0.5, false);
+
+                // NextComboAnim = 'JumpUp';
+            // else if (ComboSlot.GetPlayedAnimation() == 'JumpUp')
+                // NextComboAnim = 'SmashDown';
+            // else
+                // NextComboAnim = 'UpperCut';
+        // }
+    // }
+}
+function forcedAnimEnd()
+{
+
+			AttackBlend.setBlendTarget(0, 0.2);    
+            Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
+            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], 0.3, 0.5);
+}
+
 function doAttack( array<byte> byteDirection)
 {
 	local float timerCounter;
@@ -748,30 +803,39 @@ function doAttack( array<byte> byteDirection)
 	if((savedByteDirection[1] ^ 1) == 0 ) totalKeyFlag++;
 	if((savedByteDirection[2] ^ 1) == 0 ) totalKeyFlag++;
 	if((savedByteDirection[3] ^ 1) == 0 ) totalKeyFlag++;
-
-	queueCounter = 0.55;
+	// queueCounter = 0.55;
+	queueCounter = 5.55;
 
 	timerCounter = GetTimeLeftOnAttack();
-	DebugPrint("attack Requested");
+	DebugPrint("attack Requested"@GetTimeLeftOnAttack());
 	if(timerCounter > queueCounter)
 		{
 		DebugPrint("attack Denied");
 		return;
 		}
-
-	if(tempBalanceString != 1)
-{
-	if(timerCounter < queueCounter && timerCounter > 0)
+		if(timerCounter > 0)
 		{
-		DebugPrint("attack Queued");
-		savedByteDirection[4] = 1;
-		return;
+			DebugPrint("b Queue");
+		AttackSlot[0].SetActorAnimEndNotification(true);
+		AttackSlot[1].SetActorAnimEndNotification(true);
 		}
-}
-else if (tempBalanceString == 1)
-{
-	tempBalanceString = 0;
-}
+
+	// blendAttackCounter = (blendAttackCounter > 1) ? 0 : blendAttackCounter;
+	// DebugPrint("blendAttackCounter"@blendAttackCounter);
+
+// 	if(tempBalanceString != 1)
+// {
+// 	if(timerCounter < queueCounter && timerCounter > 0)
+// 		{
+// 		DebugPrint("attack Queued");
+// 		savedByteDirection[4] = 1;
+// 		return;
+// 		}
+// }
+// else if (tempBalanceString == 1)
+// {
+// 	tempBalanceString = 0;
+// }
 		switch(totalKeyFlag)
 		{
 			//no keys pressed
@@ -825,27 +889,55 @@ exec function setTracers(int tracers)
 //     Sword.resetTracers();
 //     animationControl();
 // }
+function copyToAttackStruct(name animName, array<float> mods)
+{
+	local int i;
+
+	AttackPacket.AnimName = animName;
+	for(i = 0; i < 3; i++)
+		AttackPacket.Mods[i] = mods[i];
+}
+
 function forwardLeftAttack()
 {
 		switch(currentStance)
 	{
 		case 1:
-			Sword.setTracerDelay(lightForwardLeftString1Mods[1],lightForwardLeftString1Mods[2]);
-			SetTimer(lightForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');			
-			Attack1.PlayCustomAnimByDuration(lightForwardLeftString1,lightForwardLeftString1Mods[0], 0.5, 0, false);
+			copyToAttackStruct(lightForwardLeftString1, lightForwardLeftString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
+			// Sword.setTracerDelay(lightForwardLeftString1Mods[1],lightForwardLeftString1Mods[2]);
+			// SetTimer(lightForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');			
+			// Attack1.PlayCustomAnimByDuration(lightForwardLeftString1,lightForwardLeftString1Mods[0], 0.1, 0.3, false);
+	// AttackSlot.PlayCustomAnimByDuration(mediumForwardLeftString1,mediumForwardLeftString1Mods[0], 0.3, 0.3, false);
+	// AttackSlot.SetActorAnimEndNotification(true);
+	// blendAttackCounter
+
 		break;
 
 		case 2:
-			Sword.setTracerDelay(mediumForwardLeftString1Mods[1],mediumForwardLeftString1Mods[2]);
-			SetTimer(mediumForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');	
-			Attack1.PlayCustomAnimByDuration(mediumForwardLeftString1,mediumForwardLeftString1Mods[0], 0.5, 0, false);
-			tempBalanceString++;
+			copyToAttackStruct(mediumForwardLeftString1, mediumForwardLeftString1Mods);
+			// if(GetTimeLeftOnAttack() == 0)
+			// if(GetTimeLeftOnAttack() == 0)
+				// blendAttackCounter = 1;
+				if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
+				// else
+				// {
+					// DebugPrint("a");
+					// blendAttackCounter = blendAttackCounter ^ 1;
+					// AttackSlot[blendAttackCounter].SetActorAnimEndNotification(true);
+				// }
+			// Sword.setTracerDelay(mediumForwardLeftString1Mods[1],mediumForwardLeftString1Mods[2]);
+			// SetTimer(mediumForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');	
+			// Attack1.PlayCustomAnimByDuration(mediumForwardLeftString1,mediumForwardLeftString1Mods[0], 0.1, 0.5, false);
+			// tempBalanceString++;
 		break;
 
 		case 3:
-			Sword.setTracerDelay(heavyForwardLeftString1Mods[1],heavyForwardLeftString1Mods[2]);
-			SetTimer(heavyForwardLeftString1Mods[0]*1.1, false, 'AttackEnd');	
-			Attack1.PlayCustomAnimByDuration(heavyForwardLeftString1,heavyForwardLeftString1Mods[0], 0.5, 0, false);
+			copyToAttackStruct(heavyForwardLeftString1, heavyForwardLeftString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 	}
 
@@ -856,21 +948,30 @@ function forwardRightAttack()
 		switch(currentStance)
 	{
 		case 1:
-			Sword.setTracerDelay(lightForwardRightString1Mods[1],lightForwardRightString1Mods[2]);
-			SetTimer(lightForwardRightString1Mods[0]*1.1, false, 'AttackEnd');			
-			Attack1.PlayCustomAnimByDuration(lightForwardRightString1,lightForwardRightString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(lightForwardRightString1Mods[1],lightForwardRightString1Mods[2]);
+			// SetTimer(lightForwardRightString1Mods[0]*1.1, false, 'AttackEnd');			
+			// Attack1.PlayCustomAnimByDuration(lightForwardRightString1,lightForwardRightString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(lightForwardRightString1, lightForwardRightString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 
 		case 2:
-			Sword.setTracerDelay(mediumForwardRightString1Mods[1],mediumForwardRightString1Mods[2]);
-			SetTimer(mediumForwardRightString1Mods[0]*1.1, false, 'AttackEnd');	
-			Attack1.PlayCustomAnimByDuration(mediumForwardRightString1,mediumForwardRightString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(mediumForwardRightString1Mods[1],mediumForwardRightString1Mods[2]);
+			// SetTimer(mediumForwardRightString1Mods[0]*1.1, false, 'AttackEnd');	
+			// Attack1.PlayCustomAnimByDuration(mediumForwardRightString1,mediumForwardRightString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(mediumForwardRightString1, mediumForwardRightString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 
 		case 3:
-			Sword.setTracerDelay(heavyForwardRightString1Mods[1],heavyForwardRightString1Mods[2]);
-			SetTimer(heavyForwardRightString1Mods[0]*1.1, false, 'AttackEnd');	
-			Attack1.PlayCustomAnimByDuration(heavyForwardRightString1,heavyForwardRightString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(heavyForwardRightString1Mods[1],heavyForwardRightString1Mods[2]);
+			// SetTimer(heavyForwardRightString1Mods[0]*1.1, false, 'AttackEnd');	
+			// Attack1.PlayCustomAnimByDuration(heavyForwardRightString1,heavyForwardRightString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(heavyForwardRightString1, heavyForwardRightString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 	}
 
@@ -898,21 +999,30 @@ function rightAttack()
 	switch(currentStance)
 	{
 		case 1:
-			Sword.setTracerDelay(lightRightString1Mods[1],lightRightString1Mods[2]);
-			SetTimer(lightRightString1Mods[0]*1.1, false, 'AttackEnd');			
-			Attack1.PlayCustomAnimByDuration(lightRightString1,lightRightString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(lightRightString1Mods[1],lightRightString1Mods[2]);
+			// SetTimer(lightRightString1Mods[0]*1.1, false, 'AttackEnd');			
+			// Attack1.PlayCustomAnimByDuration(lightRightString1,lightRightString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(lightRightString1, lightRightString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 
 		case 2:
-			Sword.setTracerDelay(mediumRightString1Mods[1],mediumRightString1Mods[2]);
-			SetTimer(mediumRightString1Mods[0]*1.1, false, 'AttackEnd');	
-			Attack1.PlayCustomAnimByDuration(mediumRightString1,mediumRightString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(mediumRightString1Mods[1],mediumRightString1Mods[2]);
+			// SetTimer(mediumRightString1Mods[0]*1.1, false, 'AttackEnd');	
+			// Attack1.PlayCustomAnimByDuration(mediumRightString1,mediumRightString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(mediumRightString1, mediumRightString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 
 		case 3:
-			Sword.setTracerDelay(heavyRightString1Mods[1],heavyRightString1Mods[2]);
-			SetTimer(heavyRightString1Mods[0]*1.1, false, 'AttackEnd');	
-			Attack1.PlayCustomAnimByDuration(heavyRightString1,heavyRightString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(heavyRightString1Mods[1],heavyRightString1Mods[2]);
+			// SetTimer(heavyRightString1Mods[0]*1.1, false, 'AttackEnd');	
+			// Attack1.PlayCustomAnimByDuration(heavyRightString1,heavyRightString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(heavyRightString1, heavyRightString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 	}
 
@@ -932,7 +1042,7 @@ function leftAttack()
 	// FlushPersistentDebugLines();
 	DebugPrint("left -");
 
-	// Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.5, 0, false);
+	// Attack1.PlayCustomAnimByDuration('ember_temp_left_attack',timeTakesToComplete, 0.1, 0.3, false);
 	// SetTimer(timeTakesToComplete, false, 'AttackEnd');
 	// SetTimer(timeTakesToComplete, false, 'AttackEnd');
 
@@ -940,24 +1050,33 @@ function leftAttack()
 	{
 		case 1:
 
-    		Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
-    		Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
+   //  		Mesh.AttachComponentToSocket(Sword.Mesh, 'DualWeaponPoint');
+   //  		Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'DualWeaponPoint');
 
-			Sword.setTracerDelay(lightLeftString1Mods[1], lightLeftString1Mods[2]);
-			SetTimer(lightLeftString1Mods[0]*1.1, false, 'AttackEnd');
-			Attack1.PlayCustomAnimByDuration(lightLeftString1,lightLeftString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(lightLeftString1Mods[1], lightLeftString1Mods[2]);
+			// SetTimer(lightLeftString1Mods[0]*1.1, false, 'AttackEnd');
+			// Attack1.PlayCustomAnimByDuration(lightLeftString1,lightLeftString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(lightLeftString1, lightLeftString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 
 		case 2:
-			Sword.setTracerDelay(mediumLeftString1Mods[1], mediumLeftString1Mods[2]);
-			SetTimer(mediumLeftString1Mods[0]*1.1, false, 'AttackEnd');
-			Attack1.PlayCustomAnimByDuration(mediumLeftString1,mediumLeftString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(mediumLeftString1Mods[1], mediumLeftString1Mods[2]);
+			// SetTimer(mediumLeftString1Mods[0]*1.1, false, 'AttackEnd');
+			// Attack1.PlayCustomAnimByDuration(mediumLeftString1,mediumLeftString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(mediumLeftString1, mediumLeftString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 
 		case 3:
-			Sword.setTracerDelay(heavyLeftString1Mods[1], heavyLeftString1Mods[2]);
-			SetTimer(heavyLeftString1Mods[0]*1.1, false, 'AttackEnd');
-			Attack1.PlayCustomAnimByDuration(heavyLeftString1,heavyLeftString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(heavyLeftString1Mods[1], heavyLeftString1Mods[2]);
+			// SetTimer(heavyLeftString1Mods[0]*1.1, false, 'AttackEnd');
+			// Attack1.PlayCustomAnimByDuration(heavyLeftString1,heavyLeftString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(heavyLeftString1, heavyLeftString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 	}	
     Sword.GoToState('Attacking');
@@ -979,25 +1098,34 @@ function forwardAttack()
 	{
 		case 1:
 	FlushPersistentDebugLines();
-			Sword.setTracerDelay(0.65); 
-			Sword.setTracerDelay(lightForwardString1Mods[1], lightForwardString1Mods[2]);
-			SetTimer(lightForwardString1Mods[0]*1.1, false, 'AttackEnd');
-			Attack1.PlayCustomAnimByDuration(lightForwardString1,lightForwardString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(0.65); 
+			// Sword.setTracerDelay(lightForwardString1Mods[1], lightForwardString1Mods[2]);
+			// SetTimer(lightForwardString1Mods[0]*1.1, false, 'AttackEnd');
+			// Attack1.PlayCustomAnimByDuration(lightForwardString1,lightForwardString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(lightForwardString1, lightForwardString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 			// Sword.setTracerDelay(0.30, timeTakesToComplete - 0.2);
 		break;
 
 		case 2:
+			copyToAttackStruct(mediumForwardString1, mediumForwardString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 			//timeTakesToComplete = 1.5;
-			Sword.setTracerDelay(0.4, 0.7);
-			Sword.setTracerDelay(mediumForwardString1Mods[1], mediumForwardString1Mods[2]);
-			SetTimer(mediumForwardString1Mods[0]*1.1, false, 'AttackEnd');
-			Attack1.PlayCustomAnimByDuration(mediumForwardString1,mediumForwardString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(0.4, 0.7);
+			// Sword.setTracerDelay(mediumForwardString1Mods[1], mediumForwardString1Mods[2]);
+			// SetTimer(mediumForwardString1Mods[0]*1.1, false, 'AttackEnd');
+			// Attack1.PlayCustomAnimByDuration(mediumForwardString1,mediumForwardString1Mods[0], 0.2, 0.5, false);
 		break;
 
 		case 3:
-			Sword.setTracerDelay(heavyForwardString1Mods[1], heavyForwardString1Mods[2]);
-			SetTimer(heavyForwardString1Mods[0]*1.1, false, 'AttackEnd');
-			Attack1.PlayCustomAnimByDuration(heavyForwardString1,heavyForwardString1Mods[0], 0.5, 0, false);
+			// Sword.setTracerDelay(heavyForwardString1Mods[1], heavyForwardString1Mods[2]);
+			// SetTimer(heavyForwardString1Mods[0]*1.1, false, 'AttackEnd');
+			// Attack1.PlayCustomAnimByDuration(heavyForwardString1,heavyForwardString1Mods[0], 0.1, 0.3, false);
+			copyToAttackStruct(heavyForwardString1, heavyForwardString1Mods);
+			if(GetTimeLeftOnAttack() == 0)
+				forcedAnimEnd();
 		break;
 	}
     Sword.GoToState('Attacking');
@@ -1759,7 +1887,7 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
-	tempBalanceString=0;
+	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
 
 //=============================================
@@ -1793,7 +1921,7 @@ heavyForwardRightString1 	=
 / -- Duration
 / -- Time till Tracer is Active (s)
 / -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
-/ ex: (1.0, 0.5, 0): duration = 1s, tracers start after 0.5s, last till animation finishes
+/ ex: (1.0, 0.1, 0.3): duration = 1s, tracers start after 0.5s, last till animation finishes
 */
 
 lightLeftString1Mods 			=(1,0.5,0)
