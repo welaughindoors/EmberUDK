@@ -758,6 +758,8 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             // if (AttackSlot.GetPlayedAnimation() == mediumForwardString1)
             // blendAttackCounter=1;
             // DebugPrint("anim ends");
+   			ClearTimer('AttackEnd');
+            Sword.resetTracers();
             AttackBlend.setBlendTarget(1, 0.5);
             Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0]*1.1, false, 'AttackEnd');	
