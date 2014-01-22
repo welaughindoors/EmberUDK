@@ -1909,7 +1909,7 @@ mediumLeftString1			=
 mediumRightString1			=
 mediumForwardString1 		=	ember_medium_forward
 mediumForwardLeftString1 	=   ember_medium_diagonal_left
-mediumForwardRightString1 	= 
+mediumForwardRightString1 	=   ember_medium_diagonal_right
 
 heavyLeftString1			=   ember_heavy_left
 heavyRightString1			=	
@@ -1934,7 +1934,7 @@ mediumLeftString1Mods 			=(1,0,0)
 mediumRightString1Mods 			=(1,0,0)
 mediumForwardString1Mods 		=(1.3,0.5,0.7)
 mediumForwardLeftString1Mods 	=(1.5,0.5,0.7)
-mediumForwardRightString1Mods 	=(1,0,0)
+mediumForwardRightString1Mods 	=(1.5,0.5,0.7)
 
 heavyLeftString1Mods 			=(2.0,0.70,1.05)
 heavyRightString1Mods 			=(1,0,0)
