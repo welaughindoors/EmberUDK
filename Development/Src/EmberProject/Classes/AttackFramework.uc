@@ -99,35 +99,38 @@ heavyBackRightString1 		=
 /* Mods:
 / -- Duration
 / -- Time till Tracer is Active (s)
-/ -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
-/ ex: (1.0, 0.1, 0.3): duration = 1s, tracers start after 0.5s, last till animation finishes
+/ -- Time till Tracer gets Deactivated (s),  if 0 = active for all attack
+/ -- Blend in duration (s)
+/ -- Blend out duration (s)
+/ ex: (1, 0.5, 0, 0.3, 0.5): duration = 1s,  tracers start after 0.5s,  last till animation finishes, 
+/ the first 0.3s of animation is blended with previous animation, the last 0.5s will blend with next animation
 */
 
-lightLeftString1Mods 			=(1,0.5,0)
-lightRightString1Mods 			=(1,0,0)
-lightForwardString1Mods 		=(1,0.65,0)
-lightForwardLeftString1Mods		=(1,0,0)
-lightForwardRightString1Mods 	=(1,0,0)
-lightBackString1Mods 			=(1,0,0)
-lightBackLeftString1Mods		=(1,0,0)
-lightBackRightString1Mods 		=(1,0,0)
+lightLeftString1Mods 			=(1, 0.5, 0, 0.3, 0.5)
+lightRightString1Mods 			=(1, 0, 0, 0.3, 0.5)
+lightForwardString1Mods 		=(1, 0.65, 0, 0.3, 0.5)
+lightForwardLeftString1Mods		=(1, 0, 0, 0.3, 0.5)
+lightForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5)
+lightBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
+lightBackLeftString1Mods		=(1, 0, 0, 0.3, 0.5)
+lightBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 
-mediumLeftString1Mods 			=(1,0,0) 
-mediumRightString1Mods 			=(1,0,0)
-mediumForwardString1Mods 		=(1.3,0.5,0.7)
-mediumForwardLeftString1Mods 	=(1.5,0.5,0.7)
-mediumForwardRightString1Mods 	=(1.5,0.5,0.7)
-mediumBackString1Mods 			=(1,0,0)
-mediumBackLeftString1Mods 		=(1,0,0)
-mediumBackRightString1Mods	 	=(1,0,0)
+mediumLeftString1Mods 			=(1, 0, 0, 0.3, 0.5) 
+mediumRightString1Mods 			=(1, 0, 0, 0.3, 0.5)
+mediumForwardString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5)
+mediumForwardLeftString1Mods 	=(1.5, 0.5, 0.7, 0.3, 0.5)
+mediumForwardRightString1Mods 	=(1.5, 0.5, 0.7, 0.3, 0.5)
+mediumBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
+mediumBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
+mediumBackRightString1Mods	 	=(1, 0, 0, 0.3, 0.5)
 
-heavyLeftString1Mods 			=(2.0,0.70,1.05)
-heavyRightString1Mods 			=(1,0,0)
-heavyForwardString1Mods 		=(1,0,0)
-heavyForwardLeftString1Mods 	=(2.0,0.70,1.05)
-heavyForwardRightString1Mods 	=(1,0,0)
-heavyBackString1Mods 			=(1,0,0)
-heavyBackLeftString1Mods 		=(1,0,0)
-heavyBackRightString1Mods 		=(1,0,0)
+heavyLeftString1Mods 			=(2.0, 0.70, 1.05, 0.3, 0.5)
+heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5)
+heavyForwardString1Mods 		=(1, 0, 0, 0.3, 0.5)
+heavyForwardLeftString1Mods 	=(2.0, 0.70, 1.05, 0.3, 0.5)
+heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5)
+heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
+heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
+heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 
 }

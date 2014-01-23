@@ -732,7 +732,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             AttackBlend.setBlendTarget(1, 0.5);
             Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0]*1.1, false, 'AttackEnd');	
-            AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], 0.3, 0.5);
+            AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
             // AttackSlot[1].rate = 30;
     // DebugPrint("blendAttackCounter22"@1);
             // blendAttackCounter++;
@@ -755,7 +755,7 @@ function forcedAnimEnd()
 			AttackBlend.setBlendTarget(0, 0.2);    
             Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
-            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], 0.3, 0.5);
+            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
 
 function doAttack( array<byte> byteDirection)
@@ -864,9 +864,8 @@ exec function setTracers(int tracers)
 function copyToAttackStruct(name animName, array<float> mods)
 {
 	local int i;
-
 	AttackPacket.AnimName = animName;
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < mods.length; i++)
 		AttackPacket.Mods[i] = mods[i];
 }
 
