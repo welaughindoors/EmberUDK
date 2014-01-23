@@ -344,7 +344,7 @@ SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
 SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
  
 //Set the template
-SwordEmitter.SetTemplate(ParticleSystem'VH_Manta.Effects.PS_Manta_Projectile', false); 
+SwordEmitter.SetTemplate(ParticleSystem'ArtAnimation.TestTrail', false); 
  
 //Never End
 SwordEmitter.LifeSpan = 0;

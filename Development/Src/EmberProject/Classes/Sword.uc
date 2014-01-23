@@ -836,6 +836,7 @@ Mesh.SetAnimTreeTemplate(defaultAnimTree );
   DebugPrint(""@Attack2);
   Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAnim2'));
   DebugPrint(""@Attack2);
+  Attack2.PlayCustomAnim('ember_flammard_tracer',0.1, 0.3, 0, true);
   //flammard_tree
 }
 
