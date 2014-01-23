@@ -13,59 +13,7 @@ class EmberPawn extends UTPawn;
 // Combo / Attack System Vars
 //=============================================
 
-var name lightLeftString1;
-var array<float>lightLeftString1Mods;
-var name lightRightString1;
-var array<float>lightRightString1Mods;
-var name lightForwardString1;
-var array<float>lightForwardString1Mods;
-var name lightForwardLeftString1;
-var array<float>lightForwardLeftString1Mods;
-var name lightForwardRightString1;
-var array<float>lightForwardRightString1Mods;
-
-var name lightBackString1;
-var array<float>lightBackString1Mods;
-var name lightBackLeftString1;
-var array<float>lightBackLeftString1Mods;
-var name lightBackRightString1;
-var array<float>lightBackRightString1Mods;
-
-var name mediumLeftString1;
-var array<float>mediumLeftString1Mods;
-var name mediumRightString1;
-var array<float>mediumRightString1Mods;
-var name mediumForwardString1;
-var array<float>mediumForwardString1Mods;
-var name mediumForwardLeftString1;
-var array<float>mediumForwardLeftString1Mods;
-var name mediumForwardRightString1;
-var array<float>mediumForwardRightString1Mods;
-
-var name mediumBackString1;
-var array<float>mediumBackString1Mods;
-var name mediumBackLeftString1;
-var array<float>mediumBackLeftString1Mods;
-var name mediumBackRightString1;
-var array<float>mediumBackRightString1Mods;
-
-var name heavyLeftString1;
-var array<float>heavyLeftString1Mods;
-var name heavyRightString1;
-var array<float>heavyRightString1Mods;
-var name heavyForwardString1;
-var array<float>heavyForwardString1Mods;
-var name heavyForwardLeftString1;
-var array<float>heavyForwardLeftString1Mods;
-var name heavyForwardRightString1;
-var array<float>heavyForwardRightString1Mods;
-
-var name heavyBackString1;
-var array<float>heavyBackString1Mods;
-var name heavyBackLeftString1;
-var array<float>heavyBackLeftString1Mods;
-var name heavyBackRightString1;
-var array<float>heavyBackRightString1Mods;
+var AttackFramework aFramework;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -280,6 +228,7 @@ goingTowardsHighVelModifier = 0.03;
 goingTowardsLowVelModifier = 30;
 goingAwayVelModifier = 55;
 
+// AttackFramework aFramework = new AttackFramework ();
 //Temp delete m
 
 }
@@ -295,6 +244,7 @@ function WeaponAttach()
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
 
         Sword = Spawn(class'Sword', self);
+        aFramework = new class'EmberProject.AttackFramework';
         LightDecoSword = Spawn(class'decoSword', self);
         MediumDecoSword = Spawn(class'decoSword', self);
         HeavyDecoSword = Spawn(class'decoSword', self);
@@ -774,7 +724,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
     // {
         // if (CurCombo == COMBO_SmashDown)
         // {
-            // if (AttackSlot.GetPlayedAnimation() == mediumForwardString1)
+            // if (AttackSlot.GetPlayedAnimation() == AttackFramework.mediumForwardString1)
             // blendAttackCounter=1;
             // DebugPrint("anim ends");
    			ClearTimer('AttackEnd');
@@ -789,7 +739,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			// AttackSlot[blendAttackCounter].SetActorAnimEndNotification(true);
 
 
-//            AttackSlot2.PlayCustomAnimByDuration(mediumForwardString1,mediumForwardString1Mods[0], 0.3, 0.5, false);
+//            AttackSlot2.PlayCustomAnimByDuration(AttackFramework.mediumForwardString1,AttackFramework.mediumForwardString1Mods[0], 0.3, 0.5, false);
 
                 // NextComboAnim = 'JumpUp';
             // else if (ComboSlot.GetPlayedAnimation() == 'JumpUp')
@@ -924,18 +874,18 @@ function BackAttack()
 {
 	DebugPrint("fwd -");
 
-	switch(currentStance)
+	switch(currentStance) 
 	{
 		case 1:
-			copyToAttackStruct(lightBackString1, lightBackString1Mods);
+			copyToAttackStruct(aFramework.lightBackString1, aFramework.lightBackString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumBackString1, mediumBackString1Mods);
+			copyToAttackStruct(aFramework.mediumBackString1, aFramework.mediumBackString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavyBackString1, heavyBackString1Mods);
+			copyToAttackStruct(aFramework.heavyBackString1, aFramework.heavyBackString1Mods);
 		break;
 	}
 			if(GetTimeLeftOnAttack() == 0)
@@ -947,15 +897,15 @@ function backLeftAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(lightbackLeftString1, lightbackLeftString1Mods);
+			copyToAttackStruct(aFramework.lightbackLeftString1, aFramework.lightbackLeftString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumbackLeftString1, mediumbackLeftString1Mods);
+			copyToAttackStruct(aFramework.mediumbackLeftString1, aFramework.mediumbackLeftString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavybackLeftString1, heavybackLeftString1Mods);
+			copyToAttackStruct(aFramework.heavybackLeftString1, aFramework.heavybackLeftString1Mods);
 		break;
 	}
 
@@ -969,15 +919,15 @@ function backRightAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(lightBackRightString1, lightbackRightString1Mods);
+			copyToAttackStruct(aFramework.lightBackRightString1, aFramework.lightbackRightString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumbackRightString1, mediumbackRightString1Mods);
+			copyToAttackStruct(aFramework.mediumbackRightString1, aFramework.mediumbackRightString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavybackRightString1, heavybackRightString1Mods);
+			copyToAttackStruct(aFramework.heavybackRightString1, aFramework.heavybackRightString1Mods);
 		break;
 	}
 
@@ -990,15 +940,15 @@ function forwardLeftAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(lightForwardLeftString1, lightForwardLeftString1Mods);
+			copyToAttackStruct(aFramework.lightForwardLeftString1, aFramework.lightForwardLeftString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumForwardLeftString1, mediumForwardLeftString1Mods);
+			copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavyForwardLeftString1, heavyForwardLeftString1Mods);
+			copyToAttackStruct(aFramework.heavyForwardLeftString1, aFramework.heavyForwardLeftString1Mods);
 		break;
 	}
 			if(GetTimeLeftOnAttack() == 0)
@@ -1012,15 +962,15 @@ function forwardRightAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(lightForwardRightString1, lightForwardRightString1Mods);
+			copyToAttackStruct(aFramework.lightForwardRightString1, aFramework.lightForwardRightString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumForwardRightString1, mediumForwardRightString1Mods);
+			copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavyForwardRightString1, heavyForwardRightString1Mods);
+			copyToAttackStruct(aFramework.heavyForwardRightString1, aFramework.heavyForwardRightString1Mods);
 		break;
 	}
 
@@ -1042,15 +992,15 @@ function rightAttack()
 	switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(lightRightString1, lightRightString1Mods);
+			copyToAttackStruct(aFramework.lightRightString1, aFramework.lightRightString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumRightString1, mediumRightString1Mods);
+			copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavyRightString1, heavyRightString1Mods);
+			copyToAttackStruct(aFramework.heavyRightString1, aFramework.heavyRightString1Mods);
 		break;
 	}
 
@@ -1075,15 +1025,15 @@ function leftAttack()
 	switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(lightLeftString1, lightLeftString1Mods);
+			copyToAttackStruct(aFramework.lightLeftString1, aFramework.lightLeftString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumLeftString1, mediumLeftString1Mods);
+			copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavyLeftString1, heavyLeftString1Mods);
+			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
 		break;
 	}	
 			if(GetTimeLeftOnAttack() == 0)
@@ -1107,15 +1057,15 @@ function forwardAttack()
 	{
 		case 1:
 	FlushPersistentDebugLines();
-			copyToAttackStruct(lightForwardString1, lightForwardString1Mods);
+			copyToAttackStruct(aFramework.lightForwardString1,aFramework.lightForwardString1Mods);
 		break;
 
 		case 2:
-			copyToAttackStruct(mediumForwardString1, mediumForwardString1Mods);
+			copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
 		break;
 
 		case 3:
-			copyToAttackStruct(heavyForwardString1, heavyForwardString1Mods);
+			copyToAttackStruct(aFramework.heavyForwardString1, aFramework.heavyForwardString1Mods);
 		break;
 	}
 			if(GetTimeLeftOnAttack() == 0)
@@ -1883,86 +1833,6 @@ defaultproperties
 {
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
-
-//=============================================
-// Combo / Attack System Vars
-//=============================================
-/* Note:
-/- Placement in EmberPawn is temporary
-/- Light/Medium/Heavy stances will be set in their 
-/- Respective Sword.uc files when Ready.
-*/
-
-lightLeftString1			=	ember_temp_left_attack
-lightRightString1			=	ember_temp_right_attack
-lightForwardString1			=	ember_attack_forward
-lightForwardLeftString1 	=	ember_temp_left_attack
-lightForwardRightString1 	= 	ember_temp_right_attack
-lightBackString1			=	
-lightBackLeftString1 		=	
-lightBackRightString1 		= 	
-
-mediumLeftString1			=
-mediumRightString1			=
-mediumForwardString1 		=	ember_medium_forward
-mediumForwardLeftString1 	=   ember_medium_diagonal_left
-mediumForwardRightString1 	=   ember_medium_diagonal_right
-mediumBackString1 			=	
-mediumBackLeftString1 		=   
-mediumBackRightString1 		=   
-
-heavyLeftString1			=   ember_heavy_left
-heavyRightString1			=	
-heavyForwardString1			=
-heavyForwardLeftString1 	=   ember_heavy_left
-heavyForwardRightString1 	= 	
-heavyBackString1			=
-heavyBackLeftString1 		=   
-heavyBackRightString1 		= 	
-
-
-/* Mods:
-/ -- Duration
-/ -- Time till Tracer is Active (s)
-/ -- Time till Tracer gets Deactivated (s), if 0 = active for all attack
-/ ex: (1.0, 0.1, 0.3): duration = 1s, tracers start after 0.5s, last till animation finishes
-*/
-
-lightLeftString1Mods 			=(1,0.5,0)
-lightRightString1Mods 			=(1,0,0)
-lightForwardString1Mods 		=(1,0.65,0)
-lightForwardLeftString1Mods		=(1,0,0)
-lightForwardRightString1Mods 	=(1,0,0)
-lightBackString1Mods 			=(1,0,0)
-lightBackLeftString1Mods		=(1,0,0)
-lightBackRightString1Mods 		=(1,0,0)
-
-mediumLeftString1Mods 			=(1,0,0) 
-mediumRightString1Mods 			=(1,0,0)
-mediumForwardString1Mods 		=(1.3,0.5,0.7)
-mediumForwardLeftString1Mods 	=(1.5,0.5,0.7)
-mediumForwardRightString1Mods 	=(1.5,0.5,0.7)
-mediumBackString1Mods 			=(1,0,0)
-mediumBackLeftString1Mods 		=(1,0,0)
-mediumBackRightString1Mods	 	=(1,0,0)
-
-heavyLeftString1Mods 			=(2.0,0.70,1.05)
-heavyRightString1Mods 			=(1,0,0)
-heavyForwardString1Mods 		=(1,0,0)
-heavyForwardLeftString1Mods 	=(2.0,0.70,1.05)
-heavyForwardRightString1Mods 	=(1,0,0)
-heavyBackString1Mods 			=(1,0,0)
-heavyBackLeftString1Mods 		=(1,0,0)
-heavyBackRightString1Mods 		=(1,0,0)
-
-/* Damage:
-/- Is temporary. But each tracer (atm default = 15) 
-/- will do X damage for Y stance
-*/ 
-
-lightDamagePerTracer 	= 10
-mediumDamagePerTracer 	= 20
-heavyDamagePerTracer 	= 30
 
 //=============================================
 // End Combo / Attack System Vars
