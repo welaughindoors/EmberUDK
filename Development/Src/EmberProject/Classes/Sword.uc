@@ -1,5 +1,6 @@
 class Sword extends Actor;
 var SkeletalMeshComponent Mesh;
+var AnimTree defaultAnimTree;
 
 
 //=============================================
@@ -25,6 +26,7 @@ var array<Actor> HitArray, HitArray2, HitArray3, HitArray4, HitArray5, HitArray6
 
 var array<Actor> interpolatedPoints_HitArray, interpolatedPoints_TemporaryHitArray;
 var array<traceHitInfo> interpolatedPoints_TemporaryHitInfo;
+var AnimNodePlayCustomAnim  Attack2;
 //=============================================
 // Tracer Delay Vars
 //=============================================
@@ -822,6 +824,21 @@ return;
         // DebugPrint("tDamage -"@DamageAmount);
         //         bDidATracerHit = false;
 }
+
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+  DebugPrint("from sword");
+}
+
+function getAnim()
+{  
+Mesh.SetAnimTreeTemplate(defaultAnimTree );
+  DebugPrint(""@Attack2);
+  Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAnim2'));
+  DebugPrint(""@Attack2);
+  //flammard_tree
+}
+
 function TraceAttackNoTracers()
 {
    local Vector HitLocation, HitNormal;
@@ -987,6 +1004,7 @@ defaultproperties
       blockDistance=55.0
       blockCone=0.5;
       attackIsActive = false
+      defaultAnimTree=AnimTree'ArtAnimation.flammard_tree'
 
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
         // SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'

@@ -140,9 +140,7 @@ var float 				idleBlendTime, runBlendTime;
 var AnimNodeBlendList 		AttackGateNode;
 var AnimNodeBlendList 		AttackBlendNode;
 var AnimNodePlayCustomAnim 	Attack1;
-var AnimNodePlayCustomAnim	Attack2;
 var AnimNodeSlot			AttackSlot[2];
-// var AnimNodeSlot			AttackSlot2;
 var AnimNodeBlend			AttackBlend;
 var byte 					blendAttackCounter;
 
@@ -455,6 +453,8 @@ PostInitAnimTree
 */
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
+	local SkeletalMeshComponent flam;
+	flam = SkeletalMeshComponent'ArtAnimation.Meshes.flammard';
     //Setting up a reference to our animtree to play custom stuff.
     super.PostInitAnimTree(SkelComp);
     if ( SkelComp == Mesh)
@@ -476,12 +476,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
   		// AimNode = AnimNodeAimOffset(SkelComp.FindAnimNode('AimNode'));
-  		// Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack2'));
 
   		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
     }
-
 }
 
 //=============================================
@@ -764,6 +762,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0]*1.1, false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], 0.3, 0.5);
+            // AttackSlot[1].rate = 30;
     // DebugPrint("blendAttackCounter22"@1);
             // blendAttackCounter++;
 			// AttackSlot[blendAttackCounter].SetActorAnimEndNotification(true);
@@ -1058,6 +1057,7 @@ function leftAttack()
 			// Sword.setTracerDelay(lightLeftString1Mods[1], lightLeftString1Mods[2]);
 			// SetTimer(lightLeftString1Mods[0]*1.1, false, 'AttackEnd');
 			// Attack1.PlayCustomAnimByDuration(lightLeftString1,lightLeftString1Mods[0], 0.1, 0.3, false);
+
 			copyToAttackStruct(lightLeftString1, lightLeftString1Mods);
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
@@ -1077,6 +1077,8 @@ function leftAttack()
 			// SetTimer(heavyLeftString1Mods[0]*1.1, false, 'AttackEnd');
 			// Attack1.PlayCustomAnimByDuration(heavyLeftString1,heavyLeftString1Mods[0], 0.1, 0.3, false);
 			copyToAttackStruct(heavyLeftString1, heavyLeftString1Mods);
+
+  	Sword.Attack2.PlayCustomAnim('ember_flammard_tracer',1.0, 0.1, 0.3, true);
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
 		break;
@@ -1786,6 +1788,7 @@ function BalanceStance()
     HeavyDecoSword.Mesh.SetHidden(false);
     MediumDecoSword.Mesh.SetHidden(true);
 	overrideStanceChange();
+	
 }
 function HeavyStance()
 {
@@ -1797,6 +1800,7 @@ function HeavyStance()
 	Mesh.DetachComponent(Sword.mesh);  
     Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
+	Sword.getAnim();
 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
     LightDecoSword.Mesh.SetHidden(false);
