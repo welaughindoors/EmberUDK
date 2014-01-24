@@ -404,7 +404,7 @@ function detachTether()
 	// SetPhysics(PHYS_Walking);
         //state
 	 ePC.isTethering = false;
-	 ePawn.deactivateTetherBeam();
+	 // ePawn.deactivateTetherBeam();
 
 	//make sure to restore normal pawn animation playing
 	//see last section of tutorial

@@ -836,7 +836,7 @@ function getAnim()
   DebugPrint(""@Attack2);
   Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAnim2'));
   DebugPrint(""@Attack2);
-  Attack2.PlayCustomAnimByDuration('ember_flammard_tracer',15, 0.3, 0, true);
+  // Attack2.PlayCustomAnim('ember_flammard_tracer',15, 0.3, 0, true);
     //flammard_tree
 }
 

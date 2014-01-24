@@ -1009,7 +1009,7 @@ function leftAttack()
 		break;
 
 		case 3:
-		// Sword.Attack2.PlayCustomAnim('ember_flammard_tracer',1, 0.3, 0, true);
+		Sword.Attack2.PlayCustomAnimByDuration('ember_flammard_tracer', 2, 0.3, 0, true);
 			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
 		break;
 	}	
