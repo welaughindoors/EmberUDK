@@ -1417,10 +1417,10 @@ function array<ParticleSystemComponent> getTetherBeams()
 	return tetherBeam;
 }
 
-function deactivateTetherBeam()
+function deactivateAllTetherBeams()
 {
 	local int i;
-	
+
 	for(i=0; i < tetherBeam.length; i++)
 	{
 		if(tetherBeam[i] != none)
@@ -1431,6 +1431,20 @@ function deactivateTetherBeam()
 			}
 	}
 tetherBeam.length = 0;
+}
+
+function deactivateTetherBeam(int index)
+{
+	if(index >= tetherBeam.length)
+	return;
+
+		if(tetherBeam[index] != none)
+			{
+				tetherBeam[index].SetHidden(true);
+				tetherBeam[index].DeactivateSystem();
+				tetherBeam[index] = none;
+			}
+			tetherBeam.remove(index,1);
 }
  
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
