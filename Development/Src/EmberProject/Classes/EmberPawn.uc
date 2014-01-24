@@ -1412,7 +1412,7 @@ if(tetherBeam != none){
 		tetherBeam = none;
 	}
 }
-
+ 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
 //Rama's Tether System Calcs
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
