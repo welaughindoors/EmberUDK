@@ -49,6 +49,17 @@ var EmberPawn ePawn;
 var EmberPlayerController ePC;
 
 
+
+//These are the time related vars
+var int 					ticCount;
+var float 					timeFromStart;
+
+
+
+//tether misc.
+var rotator 				hitNormalRotator;
+
+
 //=============================================
 // Utility Functions
 //=============================================
@@ -62,10 +73,21 @@ simulated private function DebugPrint(string sMessage)
     ePawn.DebugPrint(sMessage);
 }
 
+function masterTetherRace()
+{
+
+
+
+}
+
 function runsPerTick(float deltaTime)
 {
+	timeFromStart+=deltaTime;
+	ticCount++;
+	//DebugPrint("hit -"@projectileHitLocation);
 	//every tick this runs
 	//Note: Tethercalcs also run per tick ONLY when tether's active though
+	
 }
 
 function setInfo(Pawn p, PlayerController pc)
@@ -161,7 +183,9 @@ function createTether()
 	//I provide you with the beam resource to use here:
 	//requires Nov 2012 UDK
 	//Rama Tether Beam Package [Download] For You
-	ePawn.createTetherBeam(ePawn.Location + vect(0, 0, 32) + vc * 48, rotator(HitNormal));
+
+	hitNormalRotator = rotator(HitNormal);
+	ePawn.createTetherBeam(ePawn.Location + vect(0, 0, 32) + vc * 48, hitNormalRotator);
 
 
 	//Beam Source Point
@@ -179,12 +203,15 @@ function createTether()
 }
 
 function tetherCalcs() {
+	local array<vector> startLocsArray;
+	local array<vector> endLocsArray;
 	local int idunnowhatimdoing;
 	local actor wall;
 	local vector hitLoc;
 	local vector hitNormal;  //ignore this shit
 	local vector endLoc;
 	local vector startTraceLoc;
+	local vector defaultCheck;
 
 	//~~~~~~~~~~~~~~~~~
 	//Beam Source Point
@@ -198,6 +225,7 @@ function tetherCalcs() {
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
 	ePawn.DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
     wall = ePawn.trace(hitLoc, hitNormal, vc, projectileHitLocation);
+    DebugPrint("hitlog - "@hitLoc==defaultCheck);
 
 	
     	    	// DrawDebugLine(vc, curTargetWall.Location, -1, 0, -1, true);
@@ -224,7 +252,14 @@ function tetherCalcs() {
 	//fluctuating frame rate / time dilation
 
 	//update beam based on on skeletal mesh socket
-	ePawn.updateBeamSource(vc);
+	if(hitLoc==defaultCheck)
+	{
+		ePawn.updateBeamSource(vc);
+	}
+	else
+	{
+		//work in progress
+	}
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
 	
 	//save prev tick pos to see change in position
@@ -233,9 +268,9 @@ function tetherCalcs() {
 
 	if(enemyPawn != none)
 	{
-		DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
+		//DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
 		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation);
-}
+	}
 	
 	//~~~~~~~~~~~~~~~~~~~
 	//Actual Tether Constraint
