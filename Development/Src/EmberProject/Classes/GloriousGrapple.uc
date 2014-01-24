@@ -80,7 +80,8 @@ function tetherLocationHit(vector hit, vector lol, actor Other)
 function createTether() 
 {
 	local vector hitLoc;
-	local vector tVar;
+	local vector headSocket;
+	local vector grappleSocket;
 	local vector hitNormal;
 	local actor wall;
 	local vector startTraceLoc;
@@ -92,12 +93,12 @@ function createTether()
 	vc = normal(Vector(ePC.Rotation)) * 50;
 	//vc = Owner.Rotation;
 	
-	ePawn.Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', tVar, r);
+	ePawn.Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
 	//pawn location + 100 in direction of player camera
 
 	hitLoc = ePawn.location;
 	hitLoc.z += 10;
-	startTraceLoc = tVar + vc ;
+	startTraceLoc = headSocket + vc ;
 	// startTraceLoc = Location + vc ;
 	 
 	endLoc =startTraceLoc + tetherMaxLength * vc;
@@ -159,8 +160,8 @@ function createTether()
 
 
 	//Beam Source Point
-	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', tVar, r);
-	ePawn.updateBeamSource(tVar);
+	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
+	ePawn.updateBeamSource(grappleSocket);
 	
 	
 	//Beam End
@@ -175,10 +176,10 @@ function createTether()
 function tetherCalcs() {
 	local int idunnowhatimdoing;
 	local actor wall;
-local vector hitLoc;
-local vector hitNormal;  //ignore this shit
-local vector endLoc;
-local vector startTraceLoc;
+	local vector hitLoc;
+	local vector hitNormal;  //ignore this shit
+	local vector endLoc;
+	local vector startTraceLoc;
 
 	//~~~~~~~~~~~~~~~~~
 	//Beam Source Point
