@@ -600,7 +600,7 @@ tethermod - Debug Function
 */
 exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 {
-	if(a == 0 && b == 0 && c == 0)
+	if(a == 0 && b == 0 && c == 0 && d == 0)
 	{
 		DebugPrint ("goingTowardsHigh -"@GG.goingTowardsHighVelModifier);
 		DebugPrint("goingTowardsLow -"@GG.goingTowardsLowVelModifier);
