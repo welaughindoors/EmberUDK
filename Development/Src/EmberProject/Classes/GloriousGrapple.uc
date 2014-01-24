@@ -62,6 +62,11 @@ simulated private function DebugPrint(string sMessage)
     ePawn.DebugPrint(sMessage);
 }
 
+function runsPerTick(float deltaTime)
+{
+	//every tick this runs
+	//Note: Tethercalcs also run per tick ONLY when tether's active though
+}
 
 function setInfo(Pawn p, PlayerController pc)
 {

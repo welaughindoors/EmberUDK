@@ -279,6 +279,7 @@ Tick
 Simulated Event Tick(float DeltaTime)
 {
 	Super.Tick(DeltaTime);
+	GG.runsPerTick(deltatime);
 
 	// DebugPrint(""@width);
 
