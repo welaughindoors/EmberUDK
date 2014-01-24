@@ -434,7 +434,7 @@ function bool ModifiedDebugPrintBool(string sMessage, bool variable)
 {
    GetALocalPlayerController().ClientMessage(sMessage @ string(variable));
    return variable;
-}
+} 
 function getAIStatus()
 {
    local TestPawn tPawn;
