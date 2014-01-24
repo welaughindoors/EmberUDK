@@ -249,7 +249,7 @@ overrideStanceChange();
 		// jumpEffects.ActivateSystem(true);
 //TODO:readd
 
-		setTrailEffects();
+		// setTrailEffects();
 }
 function setTrailEffects()
 { 
@@ -598,18 +598,20 @@ tethermod - Debug Function
 			Changes goingAwayVelModifier modifier
 	Can change multiple modifiers at the same time
 */
-exec function tethermod(float a, float b, float c)
+exec function tethermod(float a = -341234, float b = -341234, float c = -341234, float D = -341234)
 {
-	if(a == 0 && b == 0 && c == 0)
+	if(a == -341234 && b == -341234 && c == -341234)
 	{
 		DebugPrint ("goingTowardsHigh -"@GG.goingTowardsHighVelModifier);
-		DebugPrint(", goingTowardsLow -"@GG.goingTowardsLowVelModifier);
-		DebugPrint(", goingAway -"@GG.goingAwayVelModifier);
+		DebugPrint("goingTowardsLow -"@GG.goingTowardsLowVelModifier);
+		DebugPrint("goingAway -"@GG.goingAwayVelModifier);
+		DebugPrint("tetherlength -"@GG.tetherlength);
 		return;
 	}
 	GG.goingTowardsHighVelModifier = (a != 0) ? a : GG.goingTowardsHighVelModifier;
 	GG.goingTowardsLowVelModifier = (b != 0) ? b : GG.goingTowardsLowVelModifier;
 	GG.goingAwayVelModifier = (c != 0) ? c : GG.goingAwayVelModifier;
+	GG.tetherlength = (d != -341234) ? d : GG.tetherlength;
 }
 
 	// b != 0 ? goingTowardsLowVelModifier = b : ;
@@ -1007,6 +1009,7 @@ function leftAttack()
 		break;
 
 		case 3:
+		// Sword.Attack2.PlayCustomAnim('ember_flammard_tracer',1, 0.3, 0, true);
 			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
 		break;
 	}	

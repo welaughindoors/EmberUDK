@@ -174,7 +174,7 @@ function createTether()
 	// if (tetherlength > 1000) 
 		// tetherlength = 1000;
 
-	tetherlength = vsize(hitLoc - ePawn.Location) * 0.75;
+	// tetherlength = vsize(hitLoc - ePawn.Location) * 0.75;
 	// if (tetherlength > 500) 
 		// tetherlength = 500;
 	//~~~
