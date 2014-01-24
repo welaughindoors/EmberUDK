@@ -598,9 +598,9 @@ tethermod - Debug Function
 			Changes goingAwayVelModifier modifier
 	Can change multiple modifiers at the same time
 */
-exec function tethermod(float a = -341234, float b = -341234, float c = -341234, float D = -341234)
+exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 {
-	if(a == -341234 && b == -341234 && c == -341234)
+	if(a == 0 && b == 0 && c == 0)
 	{
 		DebugPrint ("goingTowardsHigh -"@GG.goingTowardsHighVelModifier);
 		DebugPrint("goingTowardsLow -"@GG.goingTowardsLowVelModifier);
@@ -611,7 +611,7 @@ exec function tethermod(float a = -341234, float b = -341234, float c = -341234,
 	GG.goingTowardsHighVelModifier = (a != 0) ? a : GG.goingTowardsHighVelModifier;
 	GG.goingTowardsLowVelModifier = (b != 0) ? b : GG.goingTowardsLowVelModifier;
 	GG.goingAwayVelModifier = (c != 0) ? c : GG.goingAwayVelModifier;
-	GG.tetherlength = (d != -341234) ? d : GG.tetherlength;
+	GG.tetherlength = (d != 0) ? d : GG.tetherlength;
 }
 
 	// b != 0 ? goingTowardsLowVelModifier = b : ;
