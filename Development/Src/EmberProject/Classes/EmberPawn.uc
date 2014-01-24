@@ -248,7 +248,8 @@ overrideStanceChange();
 		// jumpEffects.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue');
 		// jumpEffects.ActivateSystem(true);
 //TODO:readd
-		// setTrailEffects();
+
+		setTrailEffects();
 }
 function setTrailEffects()
 { 
@@ -267,7 +268,7 @@ SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
 SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
  
 //Set the template
-SwordEmitter.SetTemplate(ParticleSystem'ArtAnimation.TestTrail', false); 
+SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
  
 //Never End
 SwordEmitter.LifeSpan = 0;
