@@ -9,6 +9,7 @@
 / -- a new function in the pawn to do so. therefore to update
 / -- the start and end points of the beam, use:
 / -- ePawn.updateBeamSource and ePawn.updateBeamEnd
+/ -- all beams: ePawn.getTetherBeams();
 / -- 
 / -- DrawDebugLine can't be used here, so we'll reference it from ePawn
 / -- use ePawn.DrawDebugLine instead. same goes for trace
@@ -190,15 +191,15 @@ function createTether()
 
 	//Beam Source Point
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
-	ePawn.updateBeamSource(grappleSocket);
+	ePawn.updateBeamSource(grappleSocket, 0);
 	
 	
 	//Beam End
 	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
 	if(enemyPawn != none)
-		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation);
+		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
 	else
-		ePawn.updateBeamEnd(projectileHitLocation);
+		ePawn.updateBeamEnd(projectileHitLocation, 0);
 	
 }
 
@@ -254,7 +255,7 @@ function tetherCalcs() {
 	//update beam based on on skeletal mesh socket
 	if(hitLoc==defaultCheck)
 	{
-		ePawn.updateBeamSource(vc);
+		ePawn.updateBeamSource(vc, 0);
 	}
 	else
 	{
@@ -269,7 +270,7 @@ function tetherCalcs() {
 	if(enemyPawn != none)
 	{
 		//DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
-		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation);
+		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
 	}
 	
 	//~~~~~~~~~~~~~~~~~~~

@@ -26,7 +26,7 @@ var PlayerController customPlayerController;
 // var() SkeletalMeshComponent SwordMesh;
 var SkeletalMesh swordMesh;
 var vector cameraOutLoc;
-var ParticleSystemComponent tetherBeam;
+var array<ParticleSystemComponent> tetherBeam;
 
 
 //=============================================
@@ -1395,26 +1395,42 @@ startSprint
 
 function createTetherBeam(vector v1, rotator r1)
 {
-	tetherBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', v1,r1);
-		tetherBeam.SetHidden(false);
-	tetherBeam.ActivateSystem(true);
+	local ParticleSystemComponent newBeam;
+
+	newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', v1,r1);
+	newBeam.SetHidden(false);
+	newBeam.ActivateSystem(true);
+	tetherBeam.AddItem(newBeam);
 }
-function updateBeamEnd(vector projectileHitLocation)
+function updateBeamEnd(vector projectileHitLocation, int index)
 {
-	tetherBeam.SetVectorParameter('TetherEnd', projectileHitLocation);
+	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation);
 }
 
-function updateBeamSource(vector tVar)
+function updateBeamSource(vector tVar, int index)
 {
-	tetherBeam.SetVectorParameter('TetherSource', tVar);
+	tetherBeam[index].SetVectorParameter('TetherSource', tVar);
 }
+
+function array<ParticleSystemComponent> getTetherBeams()
+{
+	return tetherBeam;
+}
+
 function deactivateTetherBeam()
 {
-if(tetherBeam != none){
-		tetherBeam.SetHidden(true);
-		tetherBeam.DeactivateSystem();
-		tetherBeam = none;
+	local int i;
+	
+	for(i=0; i < tetherBeam.length; i++)
+	{
+		if(tetherBeam[i] != none)
+			{
+				tetherBeam[i].SetHidden(true);
+				tetherBeam[i].DeactivateSystem();
+				tetherBeam[i] = none;
+			}
 	}
+tetherBeam.length = 0;
 }
  
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
