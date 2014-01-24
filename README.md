@@ -46,3 +46,8 @@ TODO:
 - UI. Menu UI, Multiplayer UI, Server List, HUD
 - HUD: HP, Crosshair, Stances (1,2,3), Strings?
 - Everything.
+
+
+ISSUES:
+==========
+- Grapple doesn't work correctly on low-end computers (Intel Core 2 Duo CPU E8400 @3.00GHz)
