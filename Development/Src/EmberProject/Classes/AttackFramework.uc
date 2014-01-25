@@ -81,7 +81,7 @@ lightBackLeftString1 		=
 lightBackRightString1 		= 	
 
 mediumLeftString1			=   ember_medium_left
-mediumRightString1			=
+mediumRightString1			=   ember_medium_right
 mediumForwardString1 		=	ember_medium_forward
 mediumForwardLeftString1 	=   ember_medium_diagonal_left
 mediumForwardRightString1 	=   ember_medium_diagonal_right
@@ -118,11 +118,11 @@ lightBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
 lightBackLeftString1Mods		=(1, 0, 0, 0.3, 0.5)
 lightBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 
-mediumLeftString1Mods 			=(1, 0, 0, 0.3, 0.5) 
-mediumRightString1Mods 			=(1, 0, 0, 0.3, 0.5)
+mediumLeftString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5) 
+mediumRightString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5)
 mediumForwardString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5)
-mediumForwardLeftString1Mods 	=(1.5, 0.5, 0.7, 0.3, 0.5)
-mediumForwardRightString1Mods 	=(1.5, 0.5, 0.7, 0.3, 0.5)
+mediumForwardLeftString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5)
+mediumForwardRightString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5)
 mediumBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
 mediumBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
 mediumBackRightString1Mods	 	=(1, 0, 0, 0.3, 0.5)
