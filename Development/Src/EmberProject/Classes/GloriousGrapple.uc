@@ -235,8 +235,8 @@ function tetherCalcs() {
 	//dual weapon point is left hand 
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
 	//ePawn.DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
-    wall = ePawn.trace(hitLoc, hitNormal, vc, projectileHitLocation);
-   // DebugPrint("hitlog - "@hitLoc==defaultCheck);
+    wall = ePawn.trace(hitLoc, hitNormal, projectileHitLocation, vc);
+    //DebugPrint("hitlog - "@hitLoc==defaultCheck);
 
 	
     	    	// DrawDebugLine(vc, curTargetWall.Location, -1, 0, -1, true);
