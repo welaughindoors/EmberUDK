@@ -228,12 +228,12 @@ function WeaponAttach()
         aFramework = new class'EmberProject.AttackFramework';
         GG = new class'EmberProject.GloriousGrapple';
         GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
-        LightDecoSword = Spawn(class'decoSword', self);
+        // LightDecoSword = Spawn(class'decoSword', self);
         MediumDecoSword = Spawn(class'decoSword', self);
-        HeavyDecoSword = Spawn(class'decoSword', self);
-        LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
+        // HeavyDecoSword = Spawn(class'decoSword', self);
+        // LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
         MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_scabbard_katana');
-        HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
+        // HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword[0].Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword[0].CollisionComponent, 'WeaponPoint');
@@ -241,9 +241,15 @@ function WeaponAttach()
  // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
  // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
  
-    Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
+MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
+    MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].CollisionComponent, 'KattanaSocket');
+    Mesh.AttachComponentToSocket(Sword[2].Mesh, 'HeavyAttach');
+    Mesh.AttachComponentToSocket(Sword[2].CollisionComponent, 'HeavyAttach');
+
+ //TODO:Add these back in
+    // Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
     Mesh.AttachComponentToSocket(MediumDecoSword.Mesh, 'BalanceAttach');
-    Mesh.AttachComponentToSocket(HeavyDecoSword.Mesh, 'HeavyAttach');
+    // Mesh.AttachComponentToSocket(HeavyDecoSword.Mesh, 'HeavyAttach');
     LightDecoSword.Mesh.SetHidden(true);
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
@@ -1762,8 +1768,8 @@ function LightStance()
 switch(currentStance)
 {
 	case 2:
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'BalanceAttach');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'BalanceAttach');
+	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'KattanaSocket');
+    MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
 	break;
 
 	case 3:
@@ -1809,7 +1815,6 @@ function BalanceStance()
 	break;
 }
 	currentStance = 2;
-
 	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
@@ -1843,11 +1848,11 @@ function HeavyStance()
 	break;
 
 	case 2:
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'BalanceAttach');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'BalanceAttach');
+	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'KattanaSocket');
+    MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
 	break;
 }
-	currentStance = 2;
+	currentStance = 3;
 
 	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
