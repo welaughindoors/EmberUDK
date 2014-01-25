@@ -107,7 +107,7 @@ var array<byte> savedByteDirection;
 //=============================================
 // Weapon
 //=============================================
-var Sword Sword;
+var array<Sword> Sword;
 var bool  tracerRecordBool;
 // var bool swordBlockIsActive; //temp_fix_for_animation
 //=============================================
@@ -213,8 +213,18 @@ function WeaponAttach()
 { 
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
+    local Sword tSword;
 
-        Sword = Spawn(class'Sword', self);
+        tSword = Spawn(class'Sword', self);
+		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
+        Sword.AddItem(tSword);
+        tSword = Spawn(class'Sword', self);
+		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
+        Sword.AddItem(tSword);
+        tSword = Spawn(class'Sword', self);
+		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
+        Sword.AddItem(tSword);
+
         aFramework = new class'EmberProject.AttackFramework';
         GG = new class'EmberProject.GloriousGrapple';
         GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
@@ -225,8 +235,8 @@ function WeaponAttach()
         MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_scabbard_katana');
         HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
-    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword[0].Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword[0].CollisionComponent, 'WeaponPoint');
      // LightAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
  // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
  // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
@@ -239,7 +249,9 @@ function WeaponAttach()
     HeavyDecoSword.Mesh.SetHidden(false);
 
 
-Sword.setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
+Sword[0].setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
+Sword[1].setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
+Sword[2].setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
 overrideStanceChange();
     	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
     	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
@@ -258,20 +270,20 @@ local UTEmitter SwordEmitter;
 local vector Loc;
 local rotator Roter;    
  
-//Lets Get the Intial Location Rotation
-Sword.Mesh.GetSocketWorldLocationAndRotation('EndControl', Loc, Roter);
+// //Lets Get the Intial Location Rotation
+// Sword.Mesh.GetSocketWorldLocationAndRotation('EndControl', Loc, Roter);
  
-//Spawn The Emitter In to The Pool
-SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
+// //Spawn The Emitter In to The Pool
+// SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
  
-//Set it to the Socket
-SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
+// //Set it to the Socket
+// SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
  
-//Set the template
-SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+// //Set the template
+// SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
  
-//Never End
-SwordEmitter.LifeSpan = 0;
+// //Never End
+// SwordEmitter.LifeSpan = 0;
 }
 /* 
 Tick
@@ -626,7 +638,7 @@ doBlock
 function doBlock()
 {
 	Attack1.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
-	Sword.GoToState('Blocking');
+	Sword[currentStance-1].GoToState('Blocking');
 
 		// Sword.rotate(0,0,49152); //temp_fix_for_animation
 		// swordBlockIsActive = true;//temp_fix_for_animation
@@ -638,7 +650,7 @@ cancelBlock
 function cancelBlock()
 {
 	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
-    Sword.SetInitialState();
+    Sword[currentStance-1].SetInitialState();
     // swordBlockIsActive = false;//temp_fix_for_animation
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
 
@@ -705,9 +717,9 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             // blendAttackCounter=1;
             // DebugPrint("anim ends");
    			ClearTimer('AttackEnd');
-            Sword.resetTracers();
+            Sword[currentStance-1].resetTracers();
             AttackBlend.setBlendTarget(1, 0.5);
-            Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+            Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0]*1.1, false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
             // AttackSlot[1].rate = 30;
@@ -730,7 +742,7 @@ function forcedAnimEnd()
 {
 
 			AttackBlend.setBlendTarget(0, 0.2);    
-            Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+            Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
@@ -827,7 +839,7 @@ function doAttack( array<byte> byteDirection)
 }
 exec function setTracers(int tracers)
 {
-	Sword.setTracers(tracers);
+	Sword[currentStance-1].setTracers(tracers);
 }
 
 // function rightAttackEnd()
@@ -866,7 +878,7 @@ function BackAttack()
 	}
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 function backLeftAttack()
 {
@@ -887,7 +899,7 @@ function backLeftAttack()
 
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 
 function backRightAttack()
@@ -909,7 +921,7 @@ function backRightAttack()
 
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 function forwardLeftAttack()
 {
@@ -930,7 +942,7 @@ function forwardLeftAttack()
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
 
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 
 function forwardRightAttack()
@@ -953,7 +965,7 @@ function forwardRightAttack()
 	if(GetTimeLeftOnAttack() == 0)
 		forcedAnimEnd();
 
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 /*
 rightAttack
@@ -982,7 +994,7 @@ function rightAttack()
 
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 /*
 leftAttack
@@ -1009,13 +1021,13 @@ function leftAttack()
 		break;
 
 		case 3:
-		Sword.Attack2.PlayCustomAnimByDuration('ember_flammard_tracer', 2, 0.3, 0, true);
+		// Sword.Attack2.PlayCustomAnimByDuration('ember_flammard_tracer', 2, 0.3, 0, true);
 			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
 		break;
 	}	
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 
 /*
@@ -1047,7 +1059,7 @@ function forwardAttack()
 	}
 			if(GetTimeLeftOnAttack() == 0)
 				forcedAnimEnd();
-    Sword.GoToState('Attacking');
+    Sword[currentStance-1].GoToState('Attacking');
 }
 /*
 AttackEnd
@@ -1059,11 +1071,11 @@ function AttackEnd()
 	DebugPrint("dun -");
 	//forwardAttack1.StopCustomAnim(0);
 	// Sword.rotate(0,0,49152);
-    Sword.SetInitialState();
-    Sword.resetTracers();
+    Sword[currentStance-1].SetInitialState();
+    Sword[currentStance-1].resetTracers();
 
-    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+    // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+    // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 
     animationControl();
 
@@ -1743,16 +1755,29 @@ function LightStance()
 	if(GetTimeLeftOnAttack() > 0)
 		return;
 
+	// swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
+	// Mesh.DetachComponent(Sword[currentStance-1].mesh);
+    // Mesh.DetachComponent(Sword[currentStance-1].CollisionComponent);
+	// Sword.Mesh.SetSkeletalMesh(swordMesh);
+switch(currentStance)
+{
+	case 2:
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'BalanceAttach');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'BalanceAttach');
+	break;
+
+	case 3:
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+	break;
+}
 	currentStance = 1;
-	swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
-	Mesh.DetachComponent(Sword.mesh);
-    Mesh.DetachComponent(Sword.CollisionComponent);
-	Sword.Mesh.SetSkeletalMesh(swordMesh);
-	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
-    LightDecoSword.Mesh.SetHidden(true);
-    HeavyDecoSword.Mesh.SetHidden(false);
-    MediumDecoSword.Mesh.SetHidden(false);
+
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+    // LightDecoSword.Mesh.SetHidden(true);
+    // HeavyDecoSword.Mesh.SetHidden(false);
+    // MediumDecoSword.Mesh.SetHidden(false);
 	overrideStanceChange();
 }
 function BalanceStance()
@@ -1760,16 +1785,36 @@ function BalanceStance()
 	if(GetTimeLeftOnAttack() > 0)
 		return;
 
+	// currentStance = 2;
+	// swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana';
+	// Mesh.DetachComponent(Sword.mesh);
+ //    Mesh.DetachComponent(Sword.CollisionComponent);
+	// Sword.Mesh.SetSkeletalMesh(swordMesh);
+	//     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+ //    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
+ //    // LightDecoSword.Mesh.SetHidden(false);
+ //    // HeavyDecoSword.Mesh.SetHidden(false);
+ //    // MediumDecoSword.Mesh.SetHidden(true);
+
+ switch(currentStance)
+{
+	case 1:
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+	break;
+
+	case 3:
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+	break;
+}
 	currentStance = 2;
-	swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana';
-	Mesh.DetachComponent(Sword.mesh);
-    Mesh.DetachComponent(Sword.CollisionComponent);
-	Sword.Mesh.SetSkeletalMesh(swordMesh);
-	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
-    LightDecoSword.Mesh.SetHidden(false);
-    HeavyDecoSword.Mesh.SetHidden(false);
-    MediumDecoSword.Mesh.SetHidden(true);
+
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+    // LightDecoSword.Mesh.SetHidden(true);
+    // HeavyDecoSword.Mesh.SetHidden(false);
+    // MediumDecoSword.Mesh.SetHidden(false);
 	overrideStanceChange();
 	
 }
@@ -1778,23 +1823,44 @@ function HeavyStance()
 	if(GetTimeLeftOnAttack() > 0)
 		return;
 
- 	currentStance = 3;
-	swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy';  
-	Mesh.DetachComponent(Sword.mesh);  
-    Mesh.DetachComponent(Sword.CollisionComponent);
-	Sword.Mesh.SetSkeletalMesh(swordMesh);
-	Sword.getAnim();
-	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
-    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
-    LightDecoSword.Mesh.SetHidden(false);
-    HeavyDecoSword.Mesh.SetHidden(true);
-    MediumDecoSword.Mesh.SetHidden(false);
-overrideStanceChange();
+//  	currentStance = 3;
+// 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy';  
+// 	Mesh.DetachComponent(Sword.mesh);  
+//     Mesh.DetachComponent(Sword.CollisionComponent);
+// 	Sword.Mesh.SetSkeletalMesh(swordMesh);
+// 	Sword.getAnim();
+// 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
+//     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
+//     LightDecoSword.Mesh.SetHidden(false);
+//     HeavyDecoSword.Mesh.SetHidden(true);
+//     MediumDecoSword.Mesh.SetHidden(false);
+// overrideStanceChange();
+ switch(currentStance)
+{
+	case 1:
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+	break;
+
+	case 2:
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'BalanceAttach');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'BalanceAttach');
+	break;
+}
+	currentStance = 2;
+
+	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
+    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+    // LightDecoSword.Mesh.SetHidden(true);
+    // HeavyDecoSword.Mesh.SetHidden(false);
+    // MediumDecoSword.Mesh.SetHidden(false);
+	overrideStanceChange();
+
 }
 function SheatheWeapon()
 {
-	Mesh.DetachComponent(Sword.mesh);
-    Mesh.DetachComponent(Sword.CollisionComponent);
+	Mesh.DetachComponent(Sword[currentStance-1].mesh);
+    Mesh.DetachComponent(Sword[currentStance-1].CollisionComponent);
 } 
 function overrideStanceChange()
 {
@@ -1805,7 +1871,7 @@ function overrideStanceChange()
 	WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	Sword.setStance(currentStance);
+	Sword[currentStance-1].setStance(currentStance);
 }
 //===============================
 // Console Vars
@@ -1814,16 +1880,16 @@ function overrideStanceChange()
 exec function ep_sword_block_distance(float distance = -3949212)
 {
 	if(distance == -3949212)
-		DebugPrint("Distance till sword block 'parries' opponent. Current Value -"@Sword.blockDistance);
+		DebugPrint("Distance till sword block 'parries' opponent. Current Value -"@Sword[currentStance-1].blockDistance);
 	else
-  		Sword.blockDistance = distance;
+  		Sword[currentStance-1].blockDistance = distance;
 }
 exec function ep_sword_block_cone(float coneDotProductAngle = -3949212)
 {
 	if(coneDotProductAngle == -3949212)
-		DebugPrint("DotProductAngle for active block. 0.5 is ~45 degrees. 0 is 90 degrees. Current Value -"@Sword.blockCone);
+		DebugPrint("DotProductAngle for active block. 0.5 is ~45 degrees. 0 is 90 degrees. Current Value -"@Sword[currentStance-1].blockCone);
 	else
-  		Sword.blockCone = coneDotProductAngle;
+  		Sword[currentStance-1].blockCone = coneDotProductAngle;
 }
 exec function ep_player_anim_run_blend_time(float runBlendTimeMod = -3949212)
 {
