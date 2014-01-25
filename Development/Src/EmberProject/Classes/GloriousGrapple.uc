@@ -432,7 +432,7 @@ function detachTether()
 
 DefaultProperties
 {
-	
+	tetherlength = 1200;
 goingTowardsHighVelModifier = 0.03;
 goingTowardsLowVelModifier = 30;
 goingAwayVelModifier = 55;
