@@ -96,10 +96,6 @@ var struct AttackPacketStruct
 
 var UDKSkelControl_Rotate 	SpineRotator;
 
-var float lightDamagePerTracer;
-var float mediumDamagePerTracer;
-var float heavyDamagePerTracer;
-
 // var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
 
@@ -239,7 +235,7 @@ function WeaponAttach()
     HeavyDecoSword.Mesh.SetHidden(false);
 
 
-Sword.setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
+Sword.setDamageForEachStance(aFramework.lightDamagePerTracer, aFramework.mediumDamagePerTracer, aFramework.heavyDamagePerTracer);
 overrideStanceChange();
     	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
     	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 

@@ -55,6 +55,9 @@ var name heavyBackRightString1;
 var array<float>heavyBackRightString1Mods;
 
 
+var float lightDamagePerTracer;
+var float mediumDamagePerTracer;
+var float heavyDamagePerTracer;
 
 
 DefaultProperties
@@ -133,4 +136,12 @@ heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
 heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
 heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 
+/* Damage:
+/ -- Damage per tracer
+/ -- Limited framework atm
+*/
+
+lightDamagePerTracer 	= 5
+mediumDamagePerTracer 	= 10
+heavyDamagePerTracer	= 17
 }
