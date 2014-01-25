@@ -1406,10 +1406,21 @@ function updateBeamEnd(vector projectileHitLocation, int index)
 {
 	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation);
 }
-
 function updateBeamSource(vector tVar, int index)
 {
 	tetherBeam[index].SetVectorParameter('TetherSource', tVar);
+}
+function vector getBeamEnd(int index)
+{
+	local vector projectileHitLocation;
+	tetherBeam[index].GetVectorParameter('TetherEnd', projectileHitLocation);
+	return projectileHitLocation;
+}
+function vector getBeamSource(int index)
+{
+	local vector tVar;
+	tetherBeam[index].GetVectorParameter('TetherSource', tVar);
+	return tVar;
 }
 
 function array<ParticleSystemComponent> getTetherBeams()
