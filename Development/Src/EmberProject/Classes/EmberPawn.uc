@@ -222,14 +222,14 @@ function WeaponAttach()
         MediumDecoSword = Spawn(class'decoSword', self);
         HeavyDecoSword = Spawn(class'decoSword', self);
         LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
-        MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
-        HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
+        MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_scabbard_katana');
+        HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
      // LightAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
  // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
- // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
+ // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
  
     Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
     Mesh.AttachComponentToSocket(MediumDecoSword.Mesh, 'BalanceAttach');
@@ -400,7 +400,7 @@ PostInitAnimTree
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
 	local SkeletalMeshComponent flam;
-	flam = SkeletalMeshComponent'ArtAnimation.Meshes.flammard';
+	flam = SkeletalMeshComponent'ArtAnimation.Meshes.ember_weapon_heavy';
     //Setting up a reference to our animtree to play custom stuff.
     super.PostInitAnimTree(SkelComp);
     if ( SkelComp == Mesh)
@@ -1779,7 +1779,7 @@ function HeavyStance()
 		return;
 
  	currentStance = 3;
-	swordMesh=SkeletalMesh'ArtAnimation.Meshes.flammard';  
+	swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy';  
 	Mesh.DetachComponent(Sword.mesh);  
     Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
