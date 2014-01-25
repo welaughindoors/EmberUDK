@@ -55,9 +55,6 @@ var name heavyBackRightString1;
 var array<float>heavyBackRightString1Mods;
 
 
-var float lightDamagePerTracer;
-var float mediumDamagePerTracer;
-var float heavyDamagePerTracer;
 
 
 DefaultProperties
@@ -85,9 +82,9 @@ mediumRightString1			=   ember_medium_right
 mediumForwardString1 		=	ember_medium_forward
 mediumForwardLeftString1 	=   ember_medium_diagonal_left
 mediumForwardRightString1 	=   ember_medium_diagonal_right
-mediumBackString1 			=	
-mediumBackLeftString1 		=   
-mediumBackRightString1 		=   
+mediumBackString1 			=	ember_medium_forward
+mediumBackLeftString1 		=   ember_medium_diagonal_left_reverse
+mediumBackRightString1 		=   ember_medium_diagonal_right_reverse
 
 heavyLeftString1			=   ember_heavy_left
 heavyRightString1			=	
@@ -123,9 +120,9 @@ mediumRightString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5)
 mediumForwardString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5)
 mediumForwardLeftString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5)
 mediumForwardRightString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5)
-mediumBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
-mediumBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
-mediumBackRightString1Mods	 	=(1, 0, 0, 0.3, 0.5)
+mediumBackString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5)
+mediumBackLeftString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5)
+mediumBackRightString1Mods	 	=(1.3, 0.5, 0.7, 0.3, 0.5)
 
 heavyLeftString1Mods 			=(2.0, 0.70, 1.05, 0.3, 0.5)
 heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5)
@@ -136,12 +133,4 @@ heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
 heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
 heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 
-/* Damage:
-/ -- Damage per tracer
-/ -- Limited framework atm
-*/
-
-lightDamagePerTracer 	= 5
-mediumDamagePerTracer 	= 10
-heavyDamagePerTracer	= 17
 }

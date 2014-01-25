@@ -96,6 +96,10 @@ var struct AttackPacketStruct
 
 var UDKSkelControl_Rotate 	SpineRotator;
 
+var float lightDamagePerTracer;
+var float mediumDamagePerTracer;
+var float heavyDamagePerTracer;
+
 // var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
 
@@ -218,13 +222,13 @@ function WeaponAttach()
         MediumDecoSword = Spawn(class'decoSword', self);
         HeavyDecoSword = Spawn(class'decoSword', self);
         LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
-        MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2');
+        MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
         HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
      // LightAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
- // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2');
+ // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
  // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');
  
     Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
@@ -235,7 +239,7 @@ function WeaponAttach()
     HeavyDecoSword.Mesh.SetHidden(false);
 
 
-Sword.setDamageForEachStance(aFramework.lightDamagePerTracer, aFramework.mediumDamagePerTracer, aFramework.heavyDamagePerTracer);
+Sword.setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
 overrideStanceChange();
     	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
     	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
@@ -1757,7 +1761,7 @@ function BalanceStance()
 		return;
 
 	currentStance = 2;
-	swordMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2';
+	swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana';
 	Mesh.DetachComponent(Sword.mesh);
     Mesh.DetachComponent(Sword.CollisionComponent);
 	Sword.Mesh.SetSkeletalMesh(swordMesh);
