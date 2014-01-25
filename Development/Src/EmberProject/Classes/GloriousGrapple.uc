@@ -59,6 +59,9 @@ var float 					timeFromStart;
 
 //tether misc.
 var rotator 				hitNormalRotator;
+var array<vector> 			startLocsArray;
+var array<vector>			endLocsArray;
+var int 					extraTether;
 
 
 //=============================================
@@ -116,6 +119,8 @@ function createTether()
 	local vector endLoc;
 	// local float floaty;
 	local int isPawn;
+
+
 	//~~~ Trace ~~~
 
 	vc = normal(Vector(ePC.Rotation)) * 50;
@@ -158,7 +163,9 @@ function createTether()
 	// Tether Success
 	//~~~~~~~~~~~~~~~
 	//Clear any old tether
+
 	detachTether();
+	extraTether=0;
 	
 
 	enemyPawnToggle = enemyPawnToggle ? false : false;
@@ -192,20 +199,23 @@ function createTether()
 	//Beam Source Point
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
 	ePawn.updateBeamSource(grappleSocket, 0);
-	
+	startLocsArray.AddItem(grappleSocket);
 	
 	//Beam End
 	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
-	if(enemyPawn != none)
+	if(enemyPawn != none){
 		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
-	else
+		
+	}
+	else{
 		ePawn.updateBeamEnd(projectileHitLocation, 0);
+		endLocsArray.AddItem(projectileHitLocation);
+	}
 	
 }
 
 function tetherCalcs() {
-	local array<vector> startLocsArray;
-	local array<vector> endLocsArray;
+
 	local int idunnowhatimdoing;
 	local actor wall;
 	local vector hitLoc;
@@ -224,9 +234,9 @@ function tetherCalcs() {
 
 	//dual weapon point is left hand 
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
-	ePawn.DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
+	//ePawn.DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
     wall = ePawn.trace(hitLoc, hitNormal, vc, projectileHitLocation);
-    DebugPrint("hitlog - "@hitLoc==defaultCheck);
+   // DebugPrint("hitlog - "@hitLoc==defaultCheck);
 
 	
     	    	// DrawDebugLine(vc, curTargetWall.Location, -1, 0, -1, true);
@@ -255,10 +265,17 @@ function tetherCalcs() {
 	//update beam based on on skeletal mesh socket
 	if(hitLoc==defaultCheck)
 	{
-		ePawn.updateBeamSource(vc, 0);
+		ePawn.updateBeamSource(vc, extraTether);
 	}
 	else
 	{
+		ePawn.updateBeamSource(hitLoc, extraTether);
+		ePawn.createTetherBeam(ePawn.Location + vect(0, 0, 32) + vc * 48, hitNormalRotator);
+		extraTether++;
+		
+		ePawn.updateBeamSource(vc, extraTether);
+		ePawn.updateBeamEnd(hitLoc, extraTether);
+		projectileHitLocation=hitLoc;
 		//work in progress
 	}
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
@@ -271,6 +288,8 @@ function tetherCalcs() {
 	{
 		//DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
 		ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
+		//seriously fuck this
+		//will deal with this fucking shit later, too complicated for my pleb mind, John
 	}
 	
 	//~~~~~~~~~~~~~~~~~~~
@@ -404,7 +423,7 @@ function detachTether()
 	// SetPhysics(PHYS_Walking);
         //state
 	 ePC.isTethering = false;
-	 // ePawn.deactivateTetherBeam();
+	 ePawn.deactivateAllTetherBeams();
 
 	//make sure to restore normal pawn animation playing
 	//see last section of tutorial
