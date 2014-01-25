@@ -827,15 +827,15 @@ return;
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
-  DebugPrint("from sword");
+  // DebugPrint("from sword");
 }
 
 function getAnim()
 {  
 // Mesh.SetAnimTreeTemplate(defaultAnimTree );
-  DebugPrint(""@Attack2);
+  // DebugPrint(""@Attack2);
   Attack2 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAnim2'));
-  DebugPrint(""@Attack2);
+  // DebugPrint(""@Attack2);
   // Attack2.PlayCustomAnim('ember_flammard_tracer',15, 0.3, 0, true);
     //flammard_tree
 }
@@ -1012,7 +1012,7 @@ defaultproperties
         SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.gladius'
         PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
         AnimTreeTemplate=AnimTree'ArtAnimation.flammard_tree'
-        AnimSets(0)=AnimSet'ArtAnimation.Meshes.flammard_Anims'
+        // AnimSets(0)=AnimSet'ArtAnimation.Meshes.flammard_Anims'
         bCacheAnimSequenceNodes=false
        AlwaysLoadOnClient=true
        AlwaysLoadOnServer=true
