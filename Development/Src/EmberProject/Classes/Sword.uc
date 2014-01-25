@@ -57,10 +57,8 @@ var float blockCone;
 //=============================================
 // Damage Vars
 //=============================================
-var float lightDamagePerTracer;
-var float mediumDamagePerTracer;
-var float heavyDamagePerTracer;
-var int   currentStance;
+var float DamagePerTracer;
+// var int   currentStance;
 
 /*
 DebugPrint
@@ -478,23 +476,21 @@ function setTracers(int tracers)
   tracerAmount = tracers;
 }
 /* 
-  setDamageForEachStance
+  setDamage
     Temp. Each tracer will do X damage for Y Stance
 */
-function setDamageForEachStance(float l, float m, float h)
+function setDamage(float damage)
 {
-  lightDamagePerTracer = l;
-  mediumDamagePerTracer = m;
-  heavyDamagePerTracer = h;
+  DamagePerTracer = damage;
 }
-/* 
-  setStance
-    sets stance.
-*/
-function setStance(int s)
-{
-  currentStance = s;
-}
+// /* 
+//   setStance
+//     sets stance.
+// */
+// function setStance(int s)
+// {
+//   currentStance = s;
+// }
 
 function TraceAttack()
 {
@@ -620,22 +616,23 @@ oldInterpolatedPoints.length = 0;
           //       bDidATracerHit = true;
           //       DamageAmount+=x + (tVel * 0.165);
 
-switch(currentStance)
-{
-  case 1:
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(lightDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
-    DamageAmount+=lightDamagePerTracer;
-  break;
-  case 2:
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(mediumDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
-    DamageAmount+=mediumDamagePerTracer;
-  break;
-  case 3:
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(heavyDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
-    DamageAmount+=heavyDamagePerTracer;
-  break;
+// switch(currentStance)
+// {
+  // case 1:
+  // DebugPrint("hit "@DamagePerTracer);
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+    DamageAmount+=DamagePerTracer;
+//   break;
+//   case 2:
+//     interpolatedPoints_TemporaryHitArray[i].TakeDamage(mediumDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+//     DamageAmount+=mediumDamagePerTracer;
+//   break;
+//   case 3:
+//     interpolatedPoints_TemporaryHitArray[i].TakeDamage(heavyDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+//     DamageAmount+=heavyDamagePerTracer;
+//   break;
 
-}
+// }
 
           
                 //Add them to the hit array, so we don't hit them twice in one motion.

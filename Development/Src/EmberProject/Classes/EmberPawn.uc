@@ -96,11 +96,7 @@ var struct AttackPacketStruct
 
 var UDKSkelControl_Rotate 	SpineRotator;
 
-var float lightDamagePerTracer;
-var float mediumDamagePerTracer;
-var float heavyDamagePerTracer;
-
-// var float 				animationQueueAndDirection;
+var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
 
 //
@@ -195,8 +191,11 @@ simulated event PostBeginPlay()
     //Add pawn to world info to be accessed from anywhere
    	EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
 
+    aFramework = new class'EmberProject.AttackFramework';
+    GG = new class'EmberProject.GloriousGrapple';
+    GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
    	//1 second attach skele mesh
-    SetTimer(0.5, false, 'WeaponAttach'); 
+    SetTimer(0.2, false, 'WeaponAttach'); 
 
 
 // AttackFramework aFramework = new AttackFramework ();
@@ -217,17 +216,16 @@ function WeaponAttach()
 
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
+		tSword.setDamage(aFramework.lightDamagePerTracer);
         Sword.AddItem(tSword);
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
+		tSword.setDamage(aFramework.mediumDamagePerTracer);
         Sword.AddItem(tSword);
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
+		tSword.setDamage(aFramework.heavyDamagePerTracer);
         Sword.AddItem(tSword);
-
-        aFramework = new class'EmberProject.AttackFramework';
-        GG = new class'EmberProject.GloriousGrapple';
-        GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
         // LightDecoSword = Spawn(class'decoSword', self);
         MediumDecoSword = Spawn(class'decoSword', self);
         // HeavyDecoSword = Spawn(class'decoSword', self);
@@ -255,9 +253,6 @@ MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
     HeavyDecoSword.Mesh.SetHidden(false);
 
 
-Sword[0].setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
-Sword[1].setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
-Sword[2].setDamageForEachStance(lightDamagePerTracer, mediumDamagePerTracer, heavyDamagePerTracer);
 overrideStanceChange();
     	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
     	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
@@ -1876,12 +1871,23 @@ function overrideStanceChange()
 	WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	Sword[currentStance-1].setStance(currentStance);
+	// Sword[currentStance-1].setStance(currentStance);
 }
 //===============================
 // Console Vars
 //===============================
 
+// exec function ep_sword_stance_damages(float l = 0 ,float m = 0, float h = 0)
+// {
+// 	if(l == 0 && m == 0 && h == 0)
+// 	{
+// 		DebugPrint("light -"@)
+// 	}
+// 	if(distance == -3949212)
+// 		DebugPrint("Distance till sword block 'parries' opponent. Current Value -"@Sword[currentStance-1].blockDistance);
+// 	else
+//   		Sword[currentStance-1].blockDistance = distance;
+// }
 exec function ep_sword_block_distance(float distance = -3949212)
 {
 	if(distance == -3949212)
