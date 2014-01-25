@@ -77,7 +77,7 @@ lightBackString1			=
 lightBackLeftString1 		=	
 lightBackRightString1 		= 	
 
-mediumLeftString1			=
+mediumLeftString1			=   ember_medium_left
 mediumRightString1			=
 mediumForwardString1 		=	ember_medium_forward
 mediumForwardLeftString1 	=   ember_medium_diagonal_left
