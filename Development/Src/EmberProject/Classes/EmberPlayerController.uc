@@ -74,33 +74,34 @@ simulated function StopFire(optional byte FireModeNum )
    if(FireModeNum == 1)
    EmberPawn(pawn).cancelBlock();
 }
-   function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
-   {
-		if ( (DoubleClickMove == DCLICK_Active) && (Pawn.Physics == PHYS_Falling) )
-			DoubleClickDir = DCLICK_Active;
-		else if ( (DoubleClickMove != DCLICK_None) && (DoubleClickMove < DCLICK_Active) )
-		{
-			if ( EmberPawn(Pawn).Dodge(DoubleClickMove) )
-				DoubleClickDir = DCLICK_Active;
-		}
 
-   playerStrafeDirection = PlayerInput.aStrafe;
-      if( Pawn == None )
-      {
-         return;
-      }
+// function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
+//    {
+// 		if ( (DoubleClickMove == DCLICK_Active) && (Pawn.Physics == PHYS_Falling) )
+// 			DoubleClickDir = DCLICK_Active;
+// 		else if ( (DoubleClickMove != DCLICK_None) && (DoubleClickMove < DCLICK_Active) )
+// 		{
+// 			if ( EmberPawn(Pawn).Dodge(DoubleClickMove) )
+// 				DoubleClickDir = DCLICK_Active;
+// 		}
 
-      if (Role == ROLE_Authority)
-      {
-         // Update ViewPitch for remote clients
-         Pawn.SetRemoteViewPitch( Rotation.Pitch );
-      }
+//    playerStrafeDirection = PlayerInput.aStrafe;
+//       if( Pawn == None )
+//       {
+//          return;
+//       }
 
-      Pawn.Acceleration = NewAccel;
+//       if (Role == ROLE_Authority)
+//       {
+//          // Update ViewPitch for remote clients
+//          Pawn.SetRemoteViewPitch( Rotation.Pitch );
+//       }
 
-      CheckJumpOrDuck();
-		Super.ProcessMove(DeltaTime,NewAccel,DoubleClickMove,DeltaRot);
-   }
+//       Pawn.Acceleration = NewAccel;
+
+//       CheckJumpOrDuck();
+// 		Super.ProcessMove(DeltaTime,NewAccel,DoubleClickMove,DeltaRot);
+//    }
 }
 /*
 UpdateRotation
@@ -284,8 +285,13 @@ CntrlIsRequested
 */
 exec function CntrlIsRequested()
 {
-   EmberPawn(pawn).kickCounter = 0;
-   EmberPawn(pawn).DoKick();
+   // EmberPawn(pawn).DoDodge(DClick_Right);
+   // EmberPawn(pawn).DoKick();
+}
+exec function doDodge()
+{
+  //DCLICK_Forward 
+  EmberPawn(pawn).DoDodge(verticalShift);
 }
 /*
 LightStance

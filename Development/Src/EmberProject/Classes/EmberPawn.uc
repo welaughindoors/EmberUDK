@@ -15,6 +15,7 @@ class EmberPawn extends UTPawn;
 
 var AttackFramework aFramework;
 var GloriousGrapple GG;
+var EmberDodge Dodge;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -195,7 +196,10 @@ simulated event PostBeginPlay()
    	EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
 
     aFramework = new class'EmberProject.AttackFramework';
+    Dodge = new class'EmberProject.EmberDodge';
     GG = new class'EmberProject.GloriousGrapple';
+
+    Dodge.setOwner(self);
     GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
    	//1 second attach skele mesh
     SetTimer(0.2, false, 'WeaponAttach'); 
@@ -205,7 +209,18 @@ simulated event PostBeginPlay()
 //Temp delete m
 
 }
-
+function disableMoveInput(bool yn)
+{
+	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.IgnoreMoveInput(yn);
+}
+function disableLookInput(bool yn)
+{
+	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.IgnoreLookInput(yn);
+}
+function bool DoDodge(array<byte> inputA)
+{
+	Dodge.DoDodge(inputA);
+}
 /*
 WeaponAttach
 	Attaches a skeleton mesh of the weapon in same place as weapon
@@ -328,6 +343,9 @@ Simulated Event Tick(float DeltaTime)
 			if(Physics == PHYS_Walking)
 				GG.tetherStatusForVel = false;
 		}
+		if(Dodge.bDodging)
+			Dodge.Count(DeltaTime);
+		
 
 // if(GetTimeLeftOnAttack() > 0 || debugConeBool)
 // debugCone();
