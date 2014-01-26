@@ -35,7 +35,7 @@ type command as shown here to see a description of what it does
 TODO:
 ==========
 
-##Inathero's doing this
+####Inathero's doing this
 - Change timer from anim preset duration to actual anim duration
 - Add Velocity pinching on attacks
 - Sword Trail implementation
@@ -44,10 +44,10 @@ TODO:
 - Velocity pinching on jumps
 - Advanced parry system
 
-#Biddybam's doing this
+####Biddybam's doing this
 - Better Grapple
 
-#Misc:
+####Misc:
 - Sheathe animation?
 - Camera Shake
 - Better Camera
