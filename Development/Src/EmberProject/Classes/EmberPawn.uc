@@ -100,6 +100,7 @@ var UDKSkelControl_Rotate 	SpineRotator;
 
 var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
+var float enableInaAudio;
 
 //
 //=============================================
@@ -763,6 +764,7 @@ function doAttack( array<byte> byteDirection)
 	local float timerCounter;
 	local float queueCounter;
 	local int totalKeyFlag;
+	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
 	totalKeyFlag = 0;
 	savedByteDirection[0] = byteDirection[0];
@@ -1946,6 +1948,11 @@ exec function ep_player_jump_boost(float JumpBoost = -3949212)
 { 
 	JumpZ = (JumpBoost == -3949212) ? ModifiedDebugPrint("The boost player gets when jumping. Current Value -", JumpZ) : JumpBoost;
 }
+exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
+{ 
+	enableInaAudio = (enableAudio_One_or_Zero == -3949212) ? ModifiedDebugPrint("Inathero's op audio. 1 = on, 0 = off. Current - ", enableInaAudio) : enableAudio_One_or_Zero;
+}
+
 // exec function ep_player_decoSword_light(int Var1 = -3949212, int Var2 = -3949212, int Var3 = -3949212)
 // { 
 // 	local int v1, v2, v3;
@@ -1975,6 +1982,7 @@ defaultproperties
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
+	enableInaAudio = 0;
 
 //=============================================
 // End Combo / Attack System Vars
