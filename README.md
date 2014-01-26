@@ -35,7 +35,7 @@ type command as shown here to see a description of what it does
 TODO:
 ==========
 
-#Inathero's doing this
+##Inathero's doing this
 - Change timer from anim preset duration to actual anim duration
 - Add Velocity pinching on attacks
 - Sword Trail implementation
@@ -49,6 +49,7 @@ TODO:
 
 #Misc:
 - Sheathe animation?
+- Camera Shake
 - Better Camera
 - UI. Menu UI, Multiplayer UI, Server List, HUD
 - HUD: HP, Crosshair, Stances (1,2,3), Strings?
