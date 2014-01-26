@@ -242,7 +242,7 @@ function WeaponAttach()
 		// tSword.setPhysicsAsset(2);
         Sword.AddItem(tSword);
         tSword = Spawn(class'Sword', self);
-		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
+		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy2');
 		tSword.setDamage(aFramework.heavyDamagePerTracer);
         Sword.AddItem(tSword);
 

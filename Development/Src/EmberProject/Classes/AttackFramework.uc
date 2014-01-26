@@ -91,7 +91,7 @@ mediumBackRightString1 		=   ember_medium_diagonal_right_reverse
 
 heavyLeftString1			=   ember_heavy_left
 heavyRightString1			=	
-heavyForwardString1			=
+heavyForwardString1			=   ember_heavy_forward
 heavyForwardLeftString1 	=   ember_heavy_left
 heavyForwardRightString1 	= 	
 heavyBackString1			=
@@ -129,12 +129,13 @@ mediumBackRightString1Mods	 	=(1.3, 0.5, 0.7, 0.3, 0.5)
 
 heavyLeftString1Mods 			=(2.0, 0.70, 1.05, 0.3, 0.5)
 heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5)
-heavyForwardString1Mods 		=(1, 0, 0, 0.3, 0.5)
+heavyForwardString1Mods 		=(1.5, 1.0, 2.0, 0.2, 0.28)
 heavyForwardLeftString1Mods 	=(2.0, 0.70, 1.05, 0.3, 0.5)
 heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5)
 heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5)
 heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5)
 heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
+
 
 /* Damage:
 / -- Set damage per tracer
