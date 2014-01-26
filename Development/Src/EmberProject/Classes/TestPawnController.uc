@@ -67,10 +67,11 @@ function prepareTheAttack()
 {
   local float timeToAttack;
       timeToAttack = 1.00;
+      // DebugPrint("prep");
     if(VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange && startTheClock >= timeToAttack && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
     {
       startTheClock = 0;
-      TestPawn(pawn).doAttack ('ember_heavy_right', 1.5, 0.55, 1.0) ;
+      TestPawn(pawn).doAttack ('ember_medium_forward', 1.5, 0.55, 1.0) ;
     }
 }
 //================================

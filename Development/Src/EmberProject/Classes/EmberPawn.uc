@@ -28,7 +28,7 @@ var SkeletalMesh swordMesh;
 var vector cameraOutLoc;
 var array<ParticleSystemComponent> tetherBeam;
 
-
+var array<SoundCue> huahs;
 //=============================================
 // Sprint System
 //=============================================
@@ -54,6 +54,8 @@ var bool 						startSpaceMarineLanding;
 
 var float 						JumpVelocityPinch_LandedTimer;
 
+
+var bool debugConeBool;
 
 //=============================================
 // Foot/Kick System
@@ -221,11 +223,17 @@ function WeaponAttach()
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
 		tSword.setDamage(aFramework.mediumDamagePerTracer);
+		// tSword.setPhysicsAsset(2);
         Sword.AddItem(tSword);
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
 		tSword.setDamage(aFramework.heavyDamagePerTracer);
         Sword.AddItem(tSword);
+
+        huahs.AddItem(SoundCue'EmberSounds.huahcue1');
+        // huahs.AddItem(SoundNodeWave'EmberSounds.huah2');
+        // huahs.AddItem(SoundNodeWave'EmberSounds.huah3');
+        // huahs.AddItem(SoundNodeWave'EmberSounds.huah4');
         // LightDecoSword = Spawn(class'decoSword', self);
         MediumDecoSword = Spawn(class'decoSword', self);
         // HeavyDecoSword = Spawn(class'decoSword', self);
@@ -320,7 +328,9 @@ Simulated Event Tick(float DeltaTime)
 				GG.tetherStatusForVel = false;
 		}
 
-
+// if(GetTimeLeftOnAttack() > 0 || debugConeBool)
+// debugCone();
+// Sword[1].findActors();
 	// TODO: Move all this to a function
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Prevents Sprint Boost In Air, Remove This Section If Boost Is Required
@@ -412,8 +422,8 @@ PostInitAnimTree
 */
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
-	local SkeletalMeshComponent flam;
-	flam = SkeletalMeshComponent'ArtAnimation.Meshes.ember_weapon_heavy';
+	// local SkeletalMeshComponent flam;
+	// flam = SkeletalMeshComponent'ArtAnimation.Meshes.ember_weapon_heavy';
     //Setting up a reference to our animtree to play custom stuff.
     super.PostInitAnimTree(SkelComp);
     if ( SkelComp == Mesh)
@@ -429,7 +439,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		FullBodyBlendList = AnimNodeBlendList(Mesh.FindAnimNode('FullBodyBlendList'));  		
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		AttackSlot[0] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
-  		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
+  		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
   		// AttackSlot2 = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
   		AttackBlend = AnimNodeBlend(Mesh.FindAnimNode('AttackBlend'));
   		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
@@ -753,7 +763,7 @@ function doAttack( array<byte> byteDirection)
 	local float timerCounter;
 	local float queueCounter;
 	local int totalKeyFlag;
-
+	PlaySound(huahs[0]);
 	totalKeyFlag = 0;
 	savedByteDirection[0] = byteDirection[0];
 	savedByteDirection[1] = byteDirection[1];
@@ -1182,7 +1192,16 @@ function tetherLocationHit(vector hit, vector lol, actor Other)
 	// enemyPawnToggle = (enemyPawn != none) ? true : false;
 	// createTether();
 }
-
+function debugCone()
+{
+	local vector v1, v2, swordLoc;
+	local rotator swordRot;
+	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', swordLoc, swordRot);
+	v1 = normal(vector(swordRot)) << rot(0,-8192,0);
+	v2 = normal(vector(swordRot)) << rot(0,8192,0);
+	DrawDebugLine(swordLoc, (v1 * 50)+swordLoc, 0, 0, -1, true);
+	DrawDebugLine(swordLoc, (v2 * 50)+swordLoc, -1, 0, -1, true);
+}
 /*
 increaseTether
 */
@@ -1955,6 +1974,7 @@ defaultproperties
 {
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
+	debugConeBool=false;
 
 //=============================================
 // End Combo / Attack System Vars

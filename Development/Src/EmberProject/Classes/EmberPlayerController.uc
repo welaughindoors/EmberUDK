@@ -221,7 +221,10 @@ increaseTether
 */
 exec function increaseTether()
 {
-   EmberPawn(pawn).increaseTether();
+  DebugPrint("up");
+   // EmberPawn(pawn).increaseTether();
+   // EmberPawn(pawn).debugCone();
+   EmberPawn(pawn).debugConeBool = true;
 }
 /*
 decreaseTether
@@ -229,7 +232,8 @@ decreaseTether
 */
 exec function decreaseTether ()
 {
-   EmberPawn(pawn).decreaseTether();
+   // EmberPawn(pawn).decreaseTether();
+   EmberPawn(pawn).debugConeBool = false;
 }
 //=============================================
 // @Temporarily disabled. 

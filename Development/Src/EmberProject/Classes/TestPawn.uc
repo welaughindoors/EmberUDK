@@ -30,7 +30,9 @@ var Sword Sword;
 //=============================================
 // Animation
 //=============================================
-var AnimNodePlayCustomAnim Attack1;
+var AnimNodePlayCustomAnim 	Attack1;
+var AnimNodeSlot			AttackSlot[2];
+var AnimNodeBlend			AttackBlend;
 var AnimNodeBlendList IdleAnimNodeBlendList;
 var AnimNodeBlendList RunAnimNodeBlendList;
 var AnimNodeBlendList LeftStrafeAnimNodeBlendList;
@@ -238,7 +240,6 @@ TakeDamage
 // 		GotoState('Dying');
 // 	}
 // }
-
 /*
 PostInitAnimTree
 	Allows custom animations.
@@ -249,11 +250,15 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     super.PostInitAnimTree(SkelComp);
     if ( SkelComp == Mesh)
     {
-    	Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
   		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
   		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('LeftStrafeAnimNodeBlendList'));
   		RightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RightStrafeAnimNodeBlendList'));  
+  		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+  		AttackSlot[0] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
+  		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
+  		// AttackSlot2 = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
+  		AttackBlend = AnimNodeBlend(Mesh.FindAnimNode('AttackBlend'));
   		overrideStanceChange();
     }
 
@@ -290,7 +295,7 @@ function WeaponAttach()
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-	 Sword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');  
+	 // Sword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');  
 }
 
 
@@ -375,16 +380,22 @@ function SwordGotHit()
     Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0, 0, false);
 }
 
+function forcedAnimEnd()
+{
+	// (1.3, 0.5, 0.7, 0.3, 0.5)
+}
 /*
 doAttack
 	Used for attack tests
 */
 function doAttack (name animation, float duration, float t1, float t2) 
 {
-	 Sword = Spawn(class'Sword', self);
-	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-	Attack1.PlayCustomAnimByDuration(animation,duration, 0.2, 0, false);
-	Sword.setTracerDelay(t1,t2);
+	 // Sword = Spawn(class'Sword', self);
+	 // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+
+			AttackBlend.setBlendTarget(0, 0.2);    
+            Sword.setTracerDelay(t1,t2);	
+            AttackSlot[0].PlayCustomAnimByDuration(animation, duration,0.3,0.5);
     // Sword.GoToState('AttackingNoTracers');
     Sword.GoToState('Attacking');
 	SetTimer(duration, false, 'attackStop');
