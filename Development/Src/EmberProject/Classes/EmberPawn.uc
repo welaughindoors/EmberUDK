@@ -762,38 +762,19 @@ doAttack
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
-    // local name NextComboAnim;
-    // if (AttackSlot.GetCustomAnimNodeSeq() == SeqNode)
-    // {
-        // if (CurCombo == COMBO_SmashDown)
-        // {
-            // if (AttackSlot.GetPlayedAnimation() == AttackFramework.mediumForwardString1)
-            // blendAttackCounter=1;
-            // DebugPrint("anim ends");
+			DebugPrint("OnAnimEnd");
    			ClearTimer('AttackEnd');
             Sword[currentStance-1].resetTracers();
             AttackBlend.setBlendTarget(1, 0.5);
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-			SetTimer(AttackPacket.Mods[0]*1.1, false, 'AttackEnd');	
+			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-            // AttackSlot[1].rate = 30;
-    // DebugPrint("blendAttackCounter22"@1);
-            // blendAttackCounter++;
-			// AttackSlot[blendAttackCounter].SetActorAnimEndNotification(true);
 
-
-//            AttackSlot2.PlayCustomAnimByDuration(AttackFramework.mediumForwardString1,AttackFramework.mediumForwardString1Mods[0], 0.3, 0.5, false);
-
-                // NextComboAnim = 'JumpUp';
-            // else if (ComboSlot.GetPlayedAnimation() == 'JumpUp')
-                // NextComboAnim = 'SmashDown';
-            // else
-                // NextComboAnim = 'UpperCut';
-        // }
-    // }
 }
 function forcedAnimEnd()
 {
+	DebugPrint("forcedAnimEnd");
+		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
@@ -837,9 +818,11 @@ function doAttack( array<byte> byteDirection)
 		// DebugPrint("attack Denied");
 		// return;
 		// }
-		if(timerCounter > 0)
+		// ClearTimer('AttackEnd');
+		if(timerCounter > 0.5)
 		{
 			DebugPrint("b Queue");
+		
 		AttackSlot[0].SetActorAnimEndNotification(true);
 		AttackSlot[1].SetActorAnimEndNotification(true);
 		}
@@ -924,6 +907,37 @@ function copyToAttackStruct(name animName, array<float> mods)
 		AttackPacket.Mods[i] = mods[i];
 }
 
+
+/*
+forwardAttack
+	Flushes existing debug lines
+	Starts playing forward attack animation
+	Sets timer for end attack animation
+	Sets tracer delay
+*/
+function forwardAttack()
+{
+	DebugPrint("fwd -");
+
+	switch(currentStance)
+	{
+		case 1:
+			copyToAttackStruct(aFramework.lightForwardString1,aFramework.lightForwardString1Mods);
+		break;
+
+		case 2:
+			copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+		break;
+
+		case 3:
+			copyToAttackStruct(aFramework.heavyForwardString1, aFramework.heavyForwardString1Mods);
+		break;
+	}
+	DebugPrint("forward, time left:"@GetTimeLeftOnAttack());
+			if(GetTimeLeftOnAttack() <= 0.5)
+				forcedAnimEnd();
+    Sword[currentStance-1].GoToState('Attacking');
+}
 function BackAttack()
 {
 	DebugPrint("fwd -");
@@ -942,7 +956,7 @@ function BackAttack()
 			copyToAttackStruct(aFramework.heavyBackString1, aFramework.heavyBackString1Mods);
 		break;
 	}
-			if(GetTimeLeftOnAttack() == 0)
+			if(GetTimeLeftOnAttack() <= 0.5)
 				forcedAnimEnd();
     Sword[currentStance-1].GoToState('Attacking');
 }
@@ -963,7 +977,7 @@ function backLeftAttack()
 		break;
 	}
 
-			if(GetTimeLeftOnAttack() == 0)
+			if(GetTimeLeftOnAttack() <= 0.5)
 				forcedAnimEnd();
     Sword[currentStance-1].GoToState('Attacking');
 }
@@ -985,7 +999,7 @@ function backRightAttack()
 		break;
 	}
 
-			if(GetTimeLeftOnAttack() == 0)
+			if(GetTimeLeftOnAttack() <= 0.5)
 				forcedAnimEnd();
     Sword[currentStance-1].GoToState('Attacking');
 }
@@ -1005,7 +1019,7 @@ function forwardLeftAttack()
 			copyToAttackStruct(aFramework.heavyForwardLeftString1, aFramework.heavyForwardLeftString1Mods);
 		break;
 	}
-			if(GetTimeLeftOnAttack() == 0)
+			if(GetTimeLeftOnAttack() <= 0.5)
 				forcedAnimEnd();
 
     Sword[currentStance-1].GoToState('Attacking');
@@ -1028,7 +1042,7 @@ function forwardRightAttack()
 		break;
 	}
 
-	if(GetTimeLeftOnAttack() == 0)
+	if(GetTimeLeftOnAttack() <= 0.5)
 		forcedAnimEnd();
 
     Sword[currentStance-1].GoToState('Attacking');
@@ -1058,7 +1072,7 @@ function rightAttack()
 		break;
 	}
 
-			if(GetTimeLeftOnAttack() == 0)
+			if(GetTimeLeftOnAttack() <= 0.5)
 				forcedAnimEnd();
     Sword[currentStance-1].GoToState('Attacking');
 }
@@ -1091,38 +1105,7 @@ function leftAttack()
 			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
 		break;
 	}	
-			if(GetTimeLeftOnAttack() == 0)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
-}
-
-/*
-forwardAttack
-	Flushes existing debug lines
-	Starts playing forward attack animation
-	Sets timer for end attack animation
-	Sets tracer delay
-	@TODO: Detect if timer is active, if so do not do another attack
-*/
-function forwardAttack()
-{
-	DebugPrint("fwd -");
-
-	switch(currentStance)
-	{
-		case 1:
-			copyToAttackStruct(aFramework.lightForwardString1,aFramework.lightForwardString1Mods);
-		break;
-
-		case 2:
-			copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
-		break;
-
-		case 3:
-			copyToAttackStruct(aFramework.heavyForwardString1, aFramework.heavyForwardString1Mods);
-		break;
-	}
-			if(GetTimeLeftOnAttack() == 0)
+			if(GetTimeLeftOnAttack() <= 0.5)
 				forcedAnimEnd();
     Sword[currentStance-1].GoToState('Attacking');
 }
