@@ -382,6 +382,11 @@ function SwordGotHit()
     AttackBlend.setBlendTarget(1, 0); 
     Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0, 0, false);
 }
+function damageDone(float tDamage)
+{
+	if(Health < 150)
+		Health += tDamage / 2;
+}
 
 function forcedAnimEnd()
 {

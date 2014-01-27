@@ -735,7 +735,10 @@ oldInterpolatedPoints.length = 0;
     }
   }
         if(bDidATracerHit)
+        {
         DebugPrint("tDamage -"@DamageAmount);
+        TestPawn(owner).damageDone(DamageAmount);
+      }
                 bDidATracerHit = false;
 }
 /*

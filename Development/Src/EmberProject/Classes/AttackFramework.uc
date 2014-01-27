@@ -145,9 +145,9 @@ heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 / -- Set damage per tracer
 */
 
-lightDamagePerTracer = 1
-mediumDamagePerTracer = 2
-heavyDamagePerTracer = 3
+lightDamagePerTracer = 2.5
+mediumDamagePerTracer = 7.5
+heavyDamagePerTracer = 13
 
 /* Swords:
 / -- The Sword Meshes
