@@ -494,7 +494,7 @@ function setDamage(float damage)
 // {
 //   currentStance = s;
 // }
-function createExplosion(vector HitLocation, rotator roter){
+function hitEffect(vector HitLocation, rotator roter){
 // local ParticleSystemComponent ProjExplosion;
   
   //create explosion
@@ -520,11 +520,37 @@ SwordEmitter.SetTemplate(ParticleSystem'WP_ShockRifle.Particles.P_WP_ShockRifle_
 //Never End
 SwordEmitter.LifeSpan = 0.3;
 }
+function parryEffect(vector HitLocation, rotator roter = rot(0,0,0)){
+// local ParticleSystemComponent ProjExplosion;
+  
+  //create explosion
+  // ProjExplosion = 
+  // WorldInfo.MyEmitterPool.SpawnEmitter(
+  //   ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Beam_Impact_Red', 
+  //   HitLocation, 
+  //   rotator(HitNormal), 
+  //   None);
+  // ProjExplosion.LifeSpan = 0.5;
+  local UTEmitter SwordEmitter;      
+// local vector Loc;  
+  
+//Spawn The Emitter In to The Pool
+SwordEmitter = Spawn(class'UTEmitter', self,, HitLocation, roter);
+ 
+//Set it to the Socket
+// SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
+ 
+//Set the template
+SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Beam_Impact_HIT', false); 
+ 
+//Never End
+SwordEmitter.LifeSpan = 0.25;
+}
 
 function TraceAttack()
 {
    local Vector HitLocation, HitNormal;
-   local Vector Start, End, Block;
+   local Vector Start, End, Block, parryEffectLocation;
    local rotator bRotate;
    local traceHitInfo hitInfo;
    local Actor hitActor;
@@ -537,6 +563,7 @@ function TraceAttack()
 
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
     Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
+    Mesh.GetSocketWorldLocationAndRotation('MidControl', parryEffectLocation);  
     Mesh.GetSocketWorldLocationAndRotation('BlockOne', Block, bRotate);  
 
 //Prepare Arrays
@@ -580,7 +607,7 @@ if(oldBlock.z == 0 && oldBlock.y == 0 && oldBlock.x == 0)
 for(tCount = 0; tCount <= 1; tCount += 0.1)
 {
         hitActor = Trace(HitLocation, HitNormal,  VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), true, , hitInfo); 
-        DrawDebugLine( VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), -1,125,-1, true);
+        // DrawDebugLine( VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), -1,125,-1, true);
         // DebugPrint("bHits -"@hitInfo.Material);
         // DebugPrint("bHits -"@hitInfo.PhysMaterial );
         // DebugPrint("bHits -"@hitInfo.Item);
@@ -590,6 +617,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         DebugPrint("bHits -"@hitInfo.BoneName );
         // if(TestPawn(hitActor).doin)
             swordParried(hitActor);
+            parryEffect(parryEffectLocation);
+           
             return ;
           }
         // DebugPrint("bHits -"@hitInfo.HitComponent );
@@ -682,7 +711,7 @@ oldInterpolatedPoints.length = 0;
   // case 1:
   // DebugPrint("hit "@DamagePerTracer);
   // 
-  createExplosion(interpolatedPoints[i], rot(0,0,0));
+  hitEffect(interpolatedPoints[i], rot(0,0,0));
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
     DamageAmount+=DamagePerTracer;
 //   break;
