@@ -20,6 +20,7 @@ simulated event PostBeginPlay()
           if (thePlayer ==none && TestPawn(pawn).followPlayer == 1) //if we didnt already see a player
           {
     thePlayer = SeenPlayer; //make the pawn the target
+    Focus = SeenPlayer;
     startTheClock = 0;
     GoToState('Follow'); // trigger the movement code
                 // TestPawn(pawn).doAttack ('ember_attack_forward', 1.0, 0.65, 0) ;
@@ -54,6 +55,7 @@ Begin:
   if (thePlayer != None && TestPawn(pawn).followPlayer == 1)  // If we seen a player
     {
       noPlayerSeen = false;
+      Focus = thePlayer;
     if(VSize(pawn.location - thePlayer.location) > 200)
     MoveTo(thePlayer.Location); // Move directly to the players location
     GoToState('Follow');  // when we get there
@@ -67,6 +69,7 @@ function prepareTheAttack()
 {
   local float timeToAttack;
       timeToAttack = 1.00;
+      Focus = thePlayer;
       // DebugPrint("prep");
     if(VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange && startTheClock >= timeToAttack && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
     {

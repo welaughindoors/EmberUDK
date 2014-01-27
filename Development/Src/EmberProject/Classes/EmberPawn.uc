@@ -219,7 +219,7 @@ function disableLookInput(bool yn)
 }
 function bool DoDodge(array<byte> inputA)
 {
-	Dodge.DoDodge(inputA);
+	return Dodge.DoDodge(inputA);
 }
 /*
 WeaponAttach
@@ -295,20 +295,41 @@ local UTEmitter SwordEmitter;
 local vector Loc;
 local rotator Roter;    
  
-// //Lets Get the Intial Location Rotation
-// Sword.Mesh.GetSocketWorldLocationAndRotation('EndControl', Loc, Roter);
+//Lets Get the Intial Location Rotation
+Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', Loc, Roter);
  
-// //Spawn The Emitter In to The Pool
-// SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
+//Spawn The Emitter In to The Pool
+SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
  
-// //Set it to the Socket
-// SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
+//Set it to the Socket
+SwordEmitter.SetBase(self,, Sword[currentStance-1].Mesh, 'EndControl'); 
  
-// //Set the template
-// SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+//Set the template
+SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
  
-// //Never End
-// SwordEmitter.LifeSpan = 0;
+//Never End
+SwordEmitter.LifeSpan = 0;
+}
+function setDodgeEffect()
+{
+	local UTEmitter SwordEmitter;      
+local vector Loc;
+local rotator Roter;    
+ 
+//Lets Get the Intial Location Rotation
+Mesh.GetSocketWorldLocationAndRotation('Dodge1', Loc, Roter);
+ 
+//Spawn The Emitter In to The Pool
+SwordEmitter = Spawn(class'UTEmitter', self,, Loc, rotator(vector(roter) << rot(0,-8192,0)));
+ 
+//Set it to the Socket
+SwordEmitter.SetBase(self,, Mesh, 'Dodge1'); 
+ 
+//Set the template
+SwordEmitter.SetTemplate(ParticleSystem'VH_Cicada.Effects.P_VH_Cicada_Exhaust', false); 
+ 
+//Never End
+SwordEmitter.LifeSpan = 3;
 }
 /* 
 Tick
@@ -347,8 +368,8 @@ Simulated Event Tick(float DeltaTime)
 			Dodge.Count(DeltaTime);
 		
 
-// if(GetTimeLeftOnAttack() > 0 || debugConeBool)
-// debugCone();
+if(debugConeBool)
+debugCone();
 // Sword[1].findActors();
 	// TODO: Move all this to a function
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -770,15 +791,22 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 }
 function forcedAnimEnd()
 {
-
 			AttackBlend.setBlendTarget(0, 0.2);    
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
+function  forcedAnimEndByParry()
+{
+				AttackBlend.setBlendTarget(0, 0.2);    
+            // Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+			// SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
+            AttackSlot[0].PlayCustomAnimByDuration('ember_jerkoff_block', 0.5, 0.1, 0.1);
+}
 
 function doAttack( array<byte> byteDirection)
 {
+	
 	local float timerCounter;
 	local float queueCounter;
 	local int totalKeyFlag;
@@ -796,15 +824,16 @@ function doAttack( array<byte> byteDirection)
 	if((savedByteDirection[2] ^ 1) == 0 ) totalKeyFlag++;
 	if((savedByteDirection[3] ^ 1) == 0 ) totalKeyFlag++;
 	// queueCounter = 0.55;
-	queueCounter = 5.55;
+	// queueCounter = 5.55;
 
+	FlushPersistentDebugLines();
 	timerCounter = GetTimeLeftOnAttack();
 	DebugPrint("attack Requested"@GetTimeLeftOnAttack());
-	if(timerCounter > queueCounter)
-		{
-		DebugPrint("attack Denied");
-		return;
-		}
+	// if(timerCounter > queueCounter)
+		// {
+		// DebugPrint("attack Denied");
+		// return;
+		// }
 		if(timerCounter > 0)
 		{
 			DebugPrint("b Queue");
@@ -1076,7 +1105,6 @@ function forwardAttack()
 	switch(currentStance)
 	{
 		case 1:
-	FlushPersistentDebugLines();
 			copyToAttackStruct(aFramework.lightForwardString1,aFramework.lightForwardString1Mods);
 		break;
 
@@ -1119,12 +1147,12 @@ function AttackEnd()
 	// forwardAttack1.SetActiveChild(0);
 }
 /*
-goToIdleMotherfucker
+SwordGotHit
 	Temporary animation for 'parries'
 */
-function goToIdleMotherfucker()
+function SwordGotHit()
 {
-Attack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
+	forcedAnimEndByParry();
 }
 /*
 animationControl
@@ -1213,14 +1241,36 @@ function tetherLocationHit(vector hit, vector lol, actor Other)
 	// createTether();
 }
 function debugCone()
-{
-	local vector v1, v2, swordLoc;
-	local rotator swordRot;
-	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', swordLoc, swordRot);
-	v1 = normal(vector(swordRot)) << rot(0,-8192,0);
-	v2 = normal(vector(swordRot)) << rot(0,8192,0);
-	DrawDebugLine(swordLoc, (v1 * 50)+swordLoc, 0, 0, -1, true);
-	DrawDebugLine(swordLoc, (v2 * 50)+swordLoc, -1, 0, -1, true);
+{   local Vector HitLocation, HitNormal;
+   local Vector Start, End, Block;
+   local rotator bRotate;
+   local traceHitInfo hitInfo;
+   local Actor hitActor;
+        // local float tVel;
+        local float fDistance;
+        local vector lVect;
+        local int i;
+          local float tCount;
+	// local vector v1, v2, swordLoc;
+	// local rotator swordRot;
+	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', swordLoc, swordRot);
+	// v1 = normal(vector(swordRot)) << rot(0,-8192,0);
+	// v2 = normal(vector(swordRot)) << rot(0,8192,0);
+	// DrawDebugLine(swordLoc, (v1 * 50)+swordLoc, 0, 0, -1, true);
+	// DrawDebugLine(swordLoc, (v2 * 50)+swordLoc, -1, 0, -1, true);
+	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
+	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
+	    hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
+        DrawDebugLine( Start, End, -1,125,-1, true);
+        DebugPrint("bHits -"@hitInfo.Material);
+        DebugPrint("bHits -"@hitInfo.PhysMaterial );
+        DebugPrint("bHits -"@hitInfo.Item);
+        DebugPrint("bHits -"@hitInfo.LevelIndex );
+        // if(hitInfo.BoneName == 'sword_blade')
+        DebugPrint("bHits -"@hitInfo.BoneName );
+        DebugPrint("bHits -"@hitInfo.HitComponent );
+        DebugPrint("bHits -"@hitActor);
+        DebugPrint("----");
 }
 /*
 increaseTether
@@ -2006,13 +2056,10 @@ defaultproperties
 // End Combo / Attack System Vars
 //=============================================
 
-	notSpawned=true
 	idleBlendTime=0.15f
 	runBlendTime=0.15f
 	bCanStrafe=false
 	SwordState = false
-	tetherStatusForVel = false
-	tetherMaxLength = 4000
 	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.8//1.6
 	JumpZ=500//JumpZ=750 //default-322.0

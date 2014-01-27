@@ -187,6 +187,7 @@ swordParried
 function swordParried(actor hitActor)
 {
   TestPawn(hitActor).SwordGotHit();
+  TestPawn(owner).SwordGotHit();
   // EmberPawn(Owner).goToIdleMotherfucker();
   tracerCounter = tracerStartDelay + 1;
   bFuckTheAttack = true;
@@ -494,7 +495,7 @@ function setDamage(float damage)
 //   currentStance = s;
 // }
 function createExplosion(vector HitLocation, rotator roter){
-local ParticleSystemComponent ProjExplosion;
+// local ParticleSystemComponent ProjExplosion;
   
   //create explosion
   // ProjExplosion = 
@@ -505,7 +506,7 @@ local ParticleSystemComponent ProjExplosion;
   //   None);
   // ProjExplosion.LifeSpan = 0.5;
   local UTEmitter SwordEmitter;      
-local vector Loc;  
+// local vector Loc;  
   
 //Spawn The Emitter In to The Pool
 SwordEmitter = Spawn(class'UTEmitter', self,, HitLocation, roter);
@@ -527,10 +528,10 @@ function TraceAttack()
    local rotator bRotate;
    local traceHitInfo hitInfo;
    local Actor hitActor;
-        local float tVel;
+        // local float tVel;
         local float fDistance;
         local vector lVect;
-        local int i, x;
+        local int i;
           local float tCount;
   bFuckTheAttack = false;
 
@@ -567,8 +568,46 @@ if(!bTracers)
     interpolatedPoints_DidWeHitActor.AddItem(false);
   }
 }
-        // DrawDebugLine(Start, End, -1, 0, 0, true);
 
+
+  //TODO: BlockOne
+        
+        // DrawDebugLine(Start, Block, 0,0,0, true);
+
+if(oldBlock.z == 0 && oldBlock.y == 0 && oldBlock.x == 0)
+  oldBlock = Block;
+// DebugPrint("block start");
+for(tCount = 0; tCount <= 1; tCount += 0.1)
+{
+        hitActor = Trace(HitLocation, HitNormal,  VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), true, , hitInfo); 
+        DrawDebugLine( VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), -1,125,-1, true);
+        // DebugPrint("bHits -"@hitInfo.Material);
+        // DebugPrint("bHits -"@hitInfo.PhysMaterial );
+        // DebugPrint("bHits -"@hitInfo.Item);
+        // DebugPrint("bHits -"@hitInfo.LevelIndex );
+        if(hitInfo.BoneName == 'sword_blade')
+        {
+        DebugPrint("bHits -"@hitInfo.BoneName );
+        // if(TestPawn(hitActor).doin)
+            swordParried(hitActor);
+            return ;
+          }
+        // DebugPrint("bHits -"@hitInfo.HitComponent );
+        // DebugPrint("bHits -"@hitActor);
+        // DebugPrint("----");
+      }
+         // DrawDebugLine( Block , 10* normal(vector(bRotate)),-1,125,-1, true);
+         // DrawDebugLine( Block , (Block + vect(-10,0,0))* normal(vector(bRotate)),-1,125,-1, true);
+         // DrawDebugLine( Block , (Block + vect(0,10,0)) *normal(vector(bRotate)),-1,125,-1, true);
+         // DrawDebugLine( Block , (Block + vect(0,-10,0))* normal(vector(bRotate)),-1,125,-1, true);
+
+        // DrawDebugLine( VLerp (oldInterpolatedPoints, Start, tCount),Start, -1,125,-1, true);
+      
+        
+           oldBlock = Block;
+
+        // DrawDebugLine(Start, End, -1, 0, 0, true);
+// DebugPrint("block end, hit start");
 // for each point, do a trace and get hit info
   for (i = 0; i < interpolatedPoints.Length; ++i) 
   {
@@ -594,32 +633,9 @@ if(!bTracers)
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
     // }
   }
-  //TODO: BlockOne
-        hitActor = Trace(HitLocation, HitNormal, Start, Block, true, , hitInfo); 
-        DrawDebugLine(Start, Block, 0,0,0, true);
-
-if(oldBlock.z == 0 && oldBlock.y == 0 && oldBlock.x == 0)
-  oldBlock = Block;
-
-// for(tCount = 0.1; tCount < 1; tCount += 0.1)
-// {
-        // DrawDebugLine( VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), -1,125,-1, true);
-         // DrawDebugLine( Block , 10* normal(vector(bRotate)),-1,125,-1, true);
-         // DrawDebugLine( Block , (Block + vect(-10,0,0))* normal(vector(bRotate)),-1,125,-1, true);
-         // DrawDebugLine( Block , (Block + vect(0,10,0)) *normal(vector(bRotate)),-1,125,-1, true);
-         // DrawDebugLine( Block , (Block + vect(0,-10,0))* normal(vector(bRotate)),-1,125,-1, true);
-
-        // DrawDebugLine( VLerp (oldInterpolatedPoints, Start, tCount),Start, -1,125,-1, true);
-      // }
-        oldBlock = Block;
-         if(hitInfo.item == 0)
-         {
-            swordParried(hitActor);
-            return ;
-         }
-
+// DebugPrint("hit end, hit analysis");
   //get the size difference from the current tip and last recorded tip
-  tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
+  // tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
 
                 bDidATracerHit = false;
 //Make the old interpolated points to = current ones, preparing for next trace
@@ -647,7 +663,7 @@ oldInterpolatedPoints.length = 0;
           //@TODO: Fix this damage thing to work right
           interpolatedPoints_DidWeHitActor[i] = true;
           // x = (i > 5) ? 5 : i;
-          x = interpolatedPoints.Length - i;
+          // x = interpolatedPoints.Length - i;
           // DebugPrint("hit - "$x);
           // DebugPrint("i - "$i);
           //Take damage
@@ -909,6 +925,7 @@ interpolatedPoints_DidWeHitActor.length = 0;
 interpolatedPoints_HitArray.length = 0;
 DamageAmount = 0;
 tracerTempColourCounter = 0;
+oldBlock = vect(0,0,0);
 }
 
 /*
@@ -961,9 +978,9 @@ defaultproperties
 // ember_flammard_tracer
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
         // SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-        SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.gladius'
+        SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana'
         AnimTreeTemplate=AnimTree'ArtAnimation.flammard_tree'
-        // PhysicsAsset = PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics'
+        PhysicsAsset = PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics'
         // AnimSets(0)=AnimSet'ArtAnimation.Meshes.flammard_Anims'
         bCacheAnimSequenceNodes=false
        AlwaysLoadOnClient=true

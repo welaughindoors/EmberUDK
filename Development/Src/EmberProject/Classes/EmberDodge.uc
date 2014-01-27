@@ -23,6 +23,8 @@ function Count(float dTime)
 		counter = 0;
 	}
 }
+//ParticleSystem'VH_Cicada.Effects.P_VH_Cicada_Exhaust'
+//Dodge1/2
 
 function bool DoDodge(array<byte> direction)
 {
@@ -44,6 +46,11 @@ function bool DoDodge(array<byte> direction)
   else if((direction[3] ^ 1) == 0) dVect = DodgeSpeed*Normal(Y);
   else if((direction[0] ^ 1) == 0) dVect = DodgeSpeed*Normal(X);
   else if((direction[2] ^ 1) == 0) dVect = -DodgeSpeed*Normal(X);
+
+  if((direction[3] ^ 1) == 0)
+  {
+player.setDodgeEffect();
+  }
   
 		// switch ( DoubleClickMove )
 		// {

@@ -295,6 +295,7 @@ function WeaponAttach()
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
+		Sword.setDamage(10);
 	 // Sword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');  
 }
 
@@ -377,6 +378,8 @@ function SwordGotHit()
     GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
     Sword.SetInitialState();
     Sword.attackIsActive = false;
+    AttackSlot[0].StopCustomAnim(0.1);
+    AttackBlend.setBlendTarget(1, 0); 
     Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0, 0, false);
 }
 
@@ -400,7 +403,14 @@ function doAttack (name animation, float duration, float t1, float t2)
     Sword.GoToState('Attacking');
 	SetTimer(duration, false, 'attackStop');
 }
-
+/*
+GetTimeLeftOnAttack
+	Returns time left on attack timer
+*/
+function float GetTimeLeftOnAttack()
+{
+	 return (GetTimerRate('attackStop') - GetTimerCount('attackStop'));
+}
 /*
 attackStop
 	reset Sword status
@@ -410,6 +420,7 @@ function attackStop()
 	// Sword.rotate(0,0,49152);
     Sword.SetInitialState();
     Sword.resetTracers();
+	// Attack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
 }
 /*
 doAttackRecording
@@ -478,7 +489,7 @@ Attack1.PlayCustomAnimByDuration('ember_idle_2',0.1, 0.2, 0, false);
 function overrideStanceChange()
 {
 	local int currentStance;
-	currentStance = 3;
+	currentStance = 2;
 	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15); 
 	RunAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15);
 	RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, 0.15);
@@ -493,7 +504,9 @@ defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
-	bCollideActors=true
+	
+      bCollideActors=True
+      bBlockActors=True
 	bPushesRigidBodies=true
 	bStatic=False
 	bMovable=True
@@ -517,7 +530,7 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
 AnimtreeTemplate=AnimTree'ArtAnimation.Armature_Tree'
 AnimSets(0)=AnimSet'ArtAnimation.AnimSets.Armature'
-PhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
+PhysicsAsset=PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics'
 		LightEnvironment=MyLightEnvironment
 		BlockRigidBody=TRUE
 		MinDistFactorForKinematicUpdate=0.0
