@@ -76,6 +76,7 @@ var AnimNodeBlendList 	WalkAnimNodeBlendList;
 var AnimNodeBlendList 	wLeftStrafeAnimNodeBlendList;
 var AnimNodeBlendList 	wRightStrafeAnimNodeBlendList;
 var AnimNodeBlendList 	FullBodyBlendList;
+var AnimNodeBlendList 	JumpAttackSwitch;
 var int  				currentStance;
 var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
@@ -477,6 +478,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		wLeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wLeftStrafeAnimNodeBlendList'));  		
 		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
 		FullBodyBlendList = AnimNodeBlendList(Mesh.FindAnimNode('FullBodyBlendList'));  		
+		JumpAttackSwitch = AnimNodeBlendList(Mesh.FindAnimNode('JumpAttackSwitch'));  		
   		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
   		AttackSlot[0] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
   		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
@@ -488,6 +490,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
   		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
+  		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
 }
 
@@ -806,7 +809,7 @@ function  forcedAnimEndByParry()
 
 function doAttack( array<byte> byteDirection)
 {
-	
+
 	local float timerCounter;
 	local float queueCounter;
 	local int totalKeyFlag;
@@ -857,6 +860,9 @@ function doAttack( array<byte> byteDirection)
 // {
 // 	tempBalanceString = 0;
 // }
+//If you jump, it'll still do attack as if you were on ground
+JumpAttackSwitch.SetActiveChild(0, 0.3);
+
 		switch(totalKeyFlag)
 		{
 			//no keys pressed
@@ -1128,6 +1134,8 @@ AttackEnd
 function AttackEnd()
 {
 	DebugPrint("dun -");
+//when you jump, now shows jump anim
+JumpAttackSwitch.SetActiveChild(1, 0.3);
 	//forwardAttack1.StopCustomAnim(0);
 	// Sword.rotate(0,0,49152);
     Sword[currentStance-1].SetInitialState();

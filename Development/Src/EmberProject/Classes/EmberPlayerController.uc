@@ -503,5 +503,7 @@ defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
  
 // defaultAnimSet(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
-defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
+// defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
+defaultPhysicsAsset=PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics'
+
 }
