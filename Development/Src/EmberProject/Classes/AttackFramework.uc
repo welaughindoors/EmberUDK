@@ -59,6 +59,10 @@ var float lightDamagePerTracer;
 var float mediumDamagePerTracer;
 var float heavyDamagePerTracer;
 
+var SkeletalMesh lightSwordMesh;
+var SkeletalMesh mediumSwordMesh;
+var SkeletalMesh heavySwordMesh;
+
 
 DefaultProperties
 {	
@@ -144,5 +148,13 @@ heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5)
 lightDamagePerTracer = 5
 mediumDamagePerTracer = 10
 heavyDamagePerTracer = 20
+
+/* Swords:
+/ -- The Sword Meshes
+*/
+
+lightSwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.gladius'
+mediumSwordMesh = SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana'
+heavySwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy2'
 
 }

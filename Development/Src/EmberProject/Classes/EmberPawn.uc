@@ -233,16 +233,16 @@ function WeaponAttach()
     local Sword tSword;
 
         tSword = Spawn(class'Sword', self);
-		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
+		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
 		tSword.setDamage(aFramework.lightDamagePerTracer);
         Sword.AddItem(tSword);
         tSword = Spawn(class'Sword', self);
-		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
+		tSword.Mesh.SetSkeletalMesh(aFramework.mediumSwordMesh);
 		tSword.setDamage(aFramework.mediumDamagePerTracer);
 		// tSword.setPhysicsAsset(2);
         Sword.AddItem(tSword);
         tSword = Spawn(class'Sword', self);
-		tSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy2');
+		tSword.Mesh.SetSkeletalMesh(aFramework.heavySwordMesh);
 		tSword.setDamage(aFramework.heavyDamagePerTracer);
         Sword.AddItem(tSword);
 
