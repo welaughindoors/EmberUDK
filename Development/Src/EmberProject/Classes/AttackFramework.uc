@@ -90,8 +90,8 @@ mediumForwardString1 		=	ember_medium_forward
 mediumForwardLeftString1 	=   ember_medium_diagonal_left
 mediumForwardRightString1 	=   ember_medium_diagonal_right
 mediumBackString1 			=	ember_medium_forward
-mediumBackLeftString1 		=   ember_medium_diagonal_left_reverse
-mediumBackRightString1 		=   ember_medium_diagonal_right_reverse
+mediumBackRightString1 		=   ember_medium_diagonal_left_reverse
+mediumBackLeftString1 		=   ember_medium_diagonal_right_reverse
 
 heavyLeftString1			=   ember_heavy_left
 heavyRightString1			=	

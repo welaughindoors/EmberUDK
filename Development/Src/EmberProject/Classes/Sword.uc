@@ -514,7 +514,7 @@ SwordEmitter = Spawn(class'UTEmitter', self,, HitLocation, roter);
 // SwordEmitter.SetBase(self,, Sword.Mesh, 'EndControl');
  
 //Set the template
-SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Beam_Impact_Red', false); 
+SwordEmitter.SetTemplate(ParticleSystem'WP_ShockRifle.Particles.P_WP_ShockRifle_Ball_Impact', false); 
  
 //Never End
 SwordEmitter.LifeSpan = 0.3;
