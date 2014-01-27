@@ -325,6 +325,13 @@ exec function SheatheWeapon()
 {
 EmberPawn(pawn).SheatheWeapon(); 
 }
+
+exec function TempTaunt()
+{
+  local SoundCue taunt;
+  taunt = SoundCue'EmberSounds.Taunts';
+  PlaySound(taunt);
+}
 //============================================= 
 // Hooks Functions
 //=============================================
