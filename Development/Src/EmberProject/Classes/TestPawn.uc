@@ -396,6 +396,7 @@ function doAttack (name animation, float duration, float t1, float t2)
 	 // Sword = Spawn(class'Sword', self);
 	 // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
 
+	FlushPersistentDebugLines();
 			AttackBlend.setBlendTarget(0, 0.2);    
             Sword.setTracerDelay(t1,t2);	
             AttackSlot[0].PlayCustomAnimByDuration(animation, duration,0.3,0.5);

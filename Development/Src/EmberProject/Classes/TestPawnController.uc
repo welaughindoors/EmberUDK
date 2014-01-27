@@ -3,6 +3,7 @@ class TestPawnController extends GameAIController;
 var Pawn thePlayer; //variable to hold the target pawn
 var float startTheClock;
 var bool noPlayerSeen;
+var array<name> attackList;
 
 simulated private function DebugPrint(string sMessage)
 {
@@ -12,6 +13,14 @@ simulated private function DebugPrint(string sMessage)
 simulated event PostBeginPlay()
 {
   super.PostBeginPlay();
+       attackList.AddItem('ember_medium_left');
+      attackList.AddItem('ember_medium_right');
+    attackList.AddItem('ember_medium_forward');
+  attackList.AddItem('ember_medium_diagonal_left');
+   attackList.AddItem('ember_medium_diagonal_right');
+       attackList.AddItem('ember_medium_forward');
+    attackList.AddItem('ember_medium_diagonal_left_reverse');
+     attackList.AddItem('ember_medium_diagonal_right_reverse');
 
 }
 
@@ -68,13 +77,14 @@ Begin:
 function prepareTheAttack()
 {
   local float timeToAttack;
-      timeToAttack = 1.00;
+      // timeToAttack = 0.3;
       Focus = thePlayer;
       // DebugPrint("prep");
-    if(VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange && startTheClock >= timeToAttack && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
+    if(VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange && TestPawn(pawn).GetTimeLeftOnAttack() == 0&& !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
     {
       startTheClock = 0;
-      TestPawn(pawn).doAttack ('ember_medium_forward', 1.5, 0.55, 1.0) ;
+
+      TestPawn(pawn).doAttack (attackList[Rand(attackList.length)], 1.0, 0.4, 1.0) ;
     }
 }
 //================================
