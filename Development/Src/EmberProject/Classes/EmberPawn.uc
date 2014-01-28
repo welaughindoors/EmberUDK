@@ -77,6 +77,7 @@ var AnimNodeBlendList 	wLeftStrafeAnimNodeBlendList;
 var AnimNodeBlendList 	wRightStrafeAnimNodeBlendList;
 var AnimNodeBlendList 	FullBodyBlendList;
 var AnimNodeBlendList 	JumpAttackSwitch;
+var AnimNodeBlendList 	DashOverrideSwitch;
 var int  				currentStance;
 var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
@@ -86,7 +87,7 @@ var float 				idleBlendTime, runBlendTime;
 //=============================================
 var AnimNodeBlendList 		AttackGateNode;
 var AnimNodeBlendList 		AttackBlendNode;
-var AnimNodePlayCustomAnim 	Attack1;
+var AnimNodePlayCustomAnim 	EmberDash;
 var AnimNodeSlot			AttackSlot[2];
 var AnimNodeBlend			AttackBlend;
 var byte 					blendAttackCounter;
@@ -332,6 +333,11 @@ SwordEmitter.SetTemplate(ParticleSystem'VH_Cicada.Effects.P_VH_Cicada_Exhaust', 
 //Never End
 SwordEmitter.LifeSpan = 3;
 }
+function setDodgeStance(int index, float duration)
+{	
+	EmberDash.PlayCustomAnim('ember_medium_dash_forward',1.0, duration/3, 0, false);
+	DashOverrideSwitch.SetActiveChild(index, 0);	
+}
 /* 
 Tick
 	Every ~0.088s, this function is called.
@@ -478,8 +484,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		wLeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wLeftStrafeAnimNodeBlendList'));  		
 		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
 		FullBodyBlendList = AnimNodeBlendList(Mesh.FindAnimNode('FullBodyBlendList'));  		
-		JumpAttackSwitch = AnimNodeBlendList(Mesh.FindAnimNode('JumpAttackSwitch'));  		
-  		Attack1 = AnimNodePlayCustomAnim(Mesh.FindAnimNode('CustomAttack'));
+		JumpAttackSwitch = AnimNodeBlendList(Mesh.FindAnimNode('JumpAttackSwitch'));  
+		DashOverrideSwitch  = AnimNodeBlendList(Mesh.FindAnimNode('DashOverrideSwitch'));  
+  		EmberDash = AnimNodePlayCustomAnim(Mesh.FindAnimNode('EmberDash'));
   		AttackSlot[0] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
   		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
   		// AttackSlot2 = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
@@ -691,7 +698,7 @@ doBlock
 */
 function doBlock()
 {
-	Attack1.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
+	EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	Sword[currentStance-1].GoToState('Blocking');
 
 		// Sword.rotate(0,0,49152); //temp_fix_for_animation
@@ -703,12 +710,12 @@ cancelBlock
 */
 function cancelBlock()
 {
-	Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
+	EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
     Sword[currentStance-1].SetInitialState();
     // swordBlockIsActive = false;//temp_fix_for_animation
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
 
-	// Attack1.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
+	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
 /*
 GetTimeLeftOnAttack
@@ -894,7 +901,7 @@ exec function setTracers(int tracers)
 // function rightAttackEnd()
 // {
 // 	DebugPrint("dun -");
-// 	//forwardAttack1.StopCustomAnim(0);
+// 	//forwardEmberDash.StopCustomAnim(0);
 //     Sword.SetInitialState();
 //     Sword.resetTracers();
 //     animationControl();
@@ -1119,7 +1126,7 @@ function AttackEnd()
 	DebugPrint("dun -");
 //when you jump, now shows jump anim
 JumpAttackSwitch.SetActiveChild(1, 0.3);
-	//forwardAttack1.StopCustomAnim(0);
+	//forwardEmberDash.StopCustomAnim(0);
 	// Sword.rotate(0,0,49152);
     Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
@@ -1135,7 +1142,7 @@ JumpAttackSwitch.SetActiveChild(1, 0.3);
     	doAttack(savedByteDirection);
     }
 
-	// forwardAttack1.SetActiveChild(0);
+	// forwardEmberDash.SetActiveChild(0);
 }
 /*
 SwordGotHit

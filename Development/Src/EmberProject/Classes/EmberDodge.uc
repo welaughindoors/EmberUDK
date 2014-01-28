@@ -42,6 +42,8 @@ function bool DoDodge(array<byte> direction)
 		bDodging = true;
 		player.Velocity.Z = -player.default.GroundSpeed;
 
+	player.setDodgeStance(0, DodgeDuration);
+
   if((direction[1] ^ 1) == 0) dVect = -DodgeSpeed*Normal(Y);
   else if((direction[3] ^ 1) == 0) dVect = DodgeSpeed*Normal(Y);
   else if((direction[0] ^ 1) == 0) dVect = DodgeSpeed*Normal(X);
@@ -146,6 +148,7 @@ function UnDodge()
 	IdealVelocity = normal(DodgeVelocity)*player.default.GroundSpeed;
 	player.Velocity.X = IdealVelocity.X;
 	player.Velocity.Y = IdealVelocity.Y;
+	player.setDodgeStance(0, DodgeDuration);
 }
 
 DefaultProperties
