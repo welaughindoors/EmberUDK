@@ -804,6 +804,7 @@ function doAttack( array<byte> byteDirection)
 	local int totalKeyFlag;
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
+	PlaySound(Sword[currentStance-1].SwordSounds[0]);
 	totalKeyFlag = 0;
 	savedByteDirection[0] = byteDirection[0];
 	savedByteDirection[1] = byteDirection[1];

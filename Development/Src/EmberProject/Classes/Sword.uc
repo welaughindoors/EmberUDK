@@ -18,6 +18,7 @@ var bool bTracers, bDidATracerHit, bFuckTheAttack;
 var int   tracerAmount;
 var float   tracerTempColourCounter;
 var bool attackIsActive;
+var array<SoundCue> SwordSounds;
 
 //=============================================
 // Each tracer to trace only once per attack
@@ -520,6 +521,7 @@ SwordEmitter.SetTemplate(ParticleSystem'WP_ShockRifle.Particles.P_WP_ShockRifle_
  
 //Never End
 SwordEmitter.LifeSpan = 0.3;
+PlaySound(SwordSounds[1]);
 }
 function parryEffect(vector HitLocation, rotator roter = rot(0,0,0)){
 // local ParticleSystemComponent ProjExplosion;
@@ -546,11 +548,12 @@ SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Beam_Imp
  
 //Never End
 SwordEmitter.LifeSpan = 0.25;
+PlaySound(SwordSounds[2]);
 }
 
 function TraceAttack()
 {
-   local Vector HitLocation, HitNormal;
+   local Vector HitLocation, HitNormal, sVelocity;
    local Vector Start, End, Block, parryEffectLocation;
    local rotator bRotate;
    local traceHitInfo hitInfo;
@@ -576,6 +579,7 @@ function TraceAttack()
 //Get normal vector along sword + distance
     lVect = normal(End - Start);
     fDistance = VSize(End - Start);
+
 
 //Prepare distance. Determines # of tracers
     fDistance /= tracerAmount-1;
@@ -671,6 +675,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
     // }
   }
+
 // DebugPrint("hit end, hit analysis");
   //get the size difference from the current tip and last recorded tip
   // tVel = VSize(interpolatedPoints[interpolatedPoints.length - 1] - oldInterpolatedPoints[interpolatedPoints.length - 1]);
@@ -720,11 +725,15 @@ oldInterpolatedPoints.length = 0;
   // case 1:
   // DebugPrint("hit "@DamagePerTracer);
   // 
+   sVelocity = normal(interpolatedPoints_TemporaryHitArray[i].Location - owner.Location);
+   sVelocity.Z = 0;
+   DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*1000, -1, 0, 0, true);
+
   hitEffect(interpolatedPoints[i], rot(0,0,0));
   if( reduceDamage )
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * 1000.f, class'UTDmgType_LinkBeam');
   else
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * 1000.f, class'UTDmgType_LinkBeam');
     DamageAmount+=DamagePerTracer;
 //   break;
 //   case 2:
@@ -948,6 +957,9 @@ simulated event PostBeginPlay()
 {
 tracerAmount = 15;
 tracerTempColourCounter = 0;
+SwordSounds.AddItem(SoundCue'EmberSounds.SwordSwings');
+SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitFlesh');
+SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitSword');
 }
 
 /*
