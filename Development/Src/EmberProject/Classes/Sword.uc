@@ -616,10 +616,12 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         {
         DebugPrint("bHits -"@hitInfo.BoneName );
         // if(TestPawn(hitActor).doin)
+  if(TestPawn(hitActor).GetTimeLeftOnAttack() > 0)
+  {
             swordParried(hitActor);
-            parryEffect(parryEffectLocation);
-           
+            parryEffect(parryEffectLocation);           
             return ;
+  }
           }
         // DebugPrint("bHits -"@hitInfo.HitComponent );
         // DebugPrint("bHits -"@hitActor);
