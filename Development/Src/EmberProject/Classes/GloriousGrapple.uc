@@ -244,8 +244,10 @@ function tetherCalcs() {
     	if(testWall==none){
     		//ePawn.updateBeamEnd(ePawn.getBeamEnd(extraTether-1), extraTether); this is not the way
     		ePawn.updateBeamSource(vc, extraTether-1);
+    		projectileHitLocation=ePawn.getBeamEnd(extraTether-1);
     		ePawn.deactivateTetherBeam(extraTether);
     		extraTether--;
+
        	}
     }
 
