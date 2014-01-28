@@ -16,6 +16,7 @@ class EmberPawn extends UTPawn;
 var AttackFramework aFramework;
 var GloriousGrapple GG;
 var EmberDodge Dodge;
+var GrappleRopeBlock testBlock;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -28,6 +29,7 @@ var PlayerController customPlayerController;
 var SkeletalMesh swordMesh;
 var vector cameraOutLoc;
 var array<ParticleSystemComponent> tetherBeam;
+var array<GrappleRopeBlock> ropeBlockArray;
 
 var array<SoundCue> huahs;
 //=============================================
@@ -233,7 +235,6 @@ function WeaponAttach()
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
     local Sword tSword;
-
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
 		tSword.setDamage(aFramework.lightDamagePerTracer);
@@ -1496,7 +1497,6 @@ startSprint
 function createTetherBeam(vector v1, rotator r1)
 {
 	local ParticleSystemComponent newBeam;
-
 	newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', v1,r1);
 	newBeam.SetHidden(false);
 	newBeam.ActivateSystem(true);
@@ -1558,6 +1558,25 @@ function deactivateTetherBeam(int index)
 			tetherBeam.remove(index,1);
 }
  
+function GrappleRopeBlock createRopeBlock()
+{
+  	ropeBlockArray.AddItem(Spawn(class'GrappleRopeBlock', self));	
+  	return ropeBlockArray[ropeBlockArray.length-1];
+}
+
+function array<GrappleRopeBlock> getRopeBlocks()
+{
+	return RopeBlockArray;
+}
+function deleteBlock(GrappleRopeBlock block)
+{
+	local GrappleRopeBlock g;
+	g = RopeBlockArray[RopeBlockArray.Find(block)];
+	RopeBlockArray.RemoveItem(block);
+	g.Destroy();
+	return;
+}
+// Destroy
 //~~~~~~~~~~~~~~~~~~~~~~~~~~
 //Rama's Tether System Calcs
 //~~~~~~~~~~~~~~~~~~~~~~~~~~

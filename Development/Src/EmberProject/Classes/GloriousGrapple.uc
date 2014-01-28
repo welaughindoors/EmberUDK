@@ -13,6 +13,22 @@
 / -- 
 / -- DrawDebugLine can't be used here, so we'll reference it from ePawn
 / -- use ePawn.DrawDebugLine instead. same goes for trace
+/ -- 
+/ -- Rope Blocks:
+
+RopeBlock = ePawn.createRopeBlock();
+
+RopeBlock.SetLocation(vector Location);
+RopeBlock.SetRotation(rotator Rotation); //you can also do Rotator(Vector())
+
+ePawn.getRopeBlocks(); //returns array consisting of all rope blocks
+
+ePawn.deleteBlock(RopeBlock); // Will delete that specific block. Its per block not array
+
+//Delete all blocks:
+
+while(ePawn.getRopeBlocks().length != 0)
+	ePawn.deleteBlock([ePawn.getRopeBlocks().length-1]);
 */
 
 class GloriousGrapple extends Object;
@@ -48,6 +64,7 @@ var vector vc2;
 var GameInfo EmberGameInfo;
 var EmberPawn ePawn;
 var EmberPlayerController ePC;
+var GrappleRopeBlock RopeBlock;
 
 
 
