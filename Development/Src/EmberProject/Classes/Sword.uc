@@ -60,6 +60,7 @@ var float blockCone;
 // Damage Vars
 //=============================================
 var float DamagePerTracer;
+var bool  reduceDamage;
 // var int   currentStance;
 
 /*
@@ -601,6 +602,8 @@ if(!bTracers)
         
         // DrawDebugLine(Start, Block, 0,0,0, true);
 
+ reduceDamage = false;
+
 if(oldBlock.z == 0 && oldBlock.y == 0 && oldBlock.x == 0)
   oldBlock = Block;
 // DebugPrint("block start");
@@ -621,6 +624,10 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
             swordParried(hitActor);
             parryEffect(parryEffectLocation);           
             return ;
+  }
+  else
+  {
+    reduceDamage = true;
   }
           }
         // DebugPrint("bHits -"@hitInfo.HitComponent );
@@ -714,6 +721,9 @@ oldInterpolatedPoints.length = 0;
   // DebugPrint("hit "@DamagePerTracer);
   // 
   hitEffect(interpolatedPoints[i], rot(0,0,0));
+  if( reduceDamage )
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
+  else
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
     DamageAmount+=DamagePerTracer;
 //   break;
@@ -1003,7 +1013,7 @@ defaultproperties
 {
       bCollideActors=True
       bBlockActors=True
-
+      reduceDamage = false
       blockDistance=55.0
       blockCone=0.5;
       attackIsActive = false
