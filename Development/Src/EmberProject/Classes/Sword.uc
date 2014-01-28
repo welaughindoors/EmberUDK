@@ -626,7 +626,12 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
   if(TestPawn(hitActor).GetTimeLeftOnAttack() > 0)
   {
             swordParried(hitActor);
-            parryEffect(parryEffectLocation);           
+            parryEffect(parryEffectLocation);      
+
+   // sVelocity = Normal(End - Start);
+   sVelocity = Normal(Vector(Owner.Rotation));
+   DrawDebugLine(Start, sVelocity*7500, 0, -1, 0, true);
+    hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * 9500.f, class'UTDmgType_LinkBeam');     
             return ;
   }
   else
@@ -725,15 +730,20 @@ oldInterpolatedPoints.length = 0;
   // case 1:
   // DebugPrint("hit "@DamagePerTracer);
   // 
-   sVelocity = normal(interpolatedPoints_TemporaryHitArray[i].Location - owner.Location);
-   sVelocity.Z = 0;
-   DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*1000, -1, 0, 0, true);
+   // sVelocity = normal(interpolatedPoints_TemporaryHitArray[i].Location - owner.Location);
+    // local vector v1, v2, swordLoc;
+  // local rotator swordRot;
+  // Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', swordLoc, swordRot);
+  // v1 = normal(vector(swordRot)) << rot(0,-8192,0);
+   // sVelocity = Normal(End - Start);
+   sVelocity = Normal(Vector(Owner.Rotation));
+   DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*7500, -1, 0, 0, true);
 
   hitEffect(interpolatedPoints[i], rot(0,0,0));
   if( reduceDamage )
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * 1000.f, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * 7500.f, class'UTDmgType_LinkBeam');
   else
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * 1000.f, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * 7500.f, class'UTDmgType_LinkBeam');
     DamageAmount+=DamagePerTracer;
 //   break;
 //   case 2:
