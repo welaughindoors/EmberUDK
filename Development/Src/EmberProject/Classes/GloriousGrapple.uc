@@ -218,8 +218,11 @@ function tetherCalcs() {
 
 	local int idunnowhatimdoing;
 	local actor wall;
+	local actor testWall;
 	local vector hitLoc;
 	local vector hitNormal;  //ignore this shit
+	local vector testHitLoc;
+	local vector testHitNormal;
 	local vector endLoc;
 	local vector startTraceLoc;
 	local vector defaultCheck;
@@ -236,6 +239,16 @@ function tetherCalcs() {
 	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
 	//ePawn.DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
     wall = ePawn.trace(hitLoc, hitNormal, projectileHitLocation, vc);
+    if(extraTether>=1){
+    	testWall = ePawn.trace(testHitLoc, testHitNormal, ePawn.getBeamEnd(extraTether-1), vc);
+    	if(testWall==none){
+    		//ePawn.updateBeamEnd(ePawn.getBeamEnd(extraTether-1), extraTether); this is not the way
+    		ePawn.updateBeamSource(vc, extraTether-1);
+    		ePawn.deactivateTetherBeam(extraTether);
+    		extraTether--;
+       	}
+    }
+
     //DebugPrint("hitlog - "@hitLoc==defaultCheck);
 
 	
