@@ -2069,6 +2069,7 @@ defaultproperties
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
 	enableInaAudio = 0;
+	GroundSpeed=300.0;
 
 //=============================================
 // End Combo / Attack System Vars

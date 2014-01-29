@@ -506,6 +506,7 @@ DefaultProperties
   followPlayer = 1;
   attackPlayer = 1;
   attackPlayerRange = 150;
+  GroundSpeed=300.0;
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
@@ -519,7 +520,7 @@ defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Ph
 	bAvoidLedges=true
 	bStopAtLedges=true
 	LedgeCheckThreshold=0.5f
-	Health = 250
+	Health = 100
 	
 	Begin Object Name=CollisionCylinder
 	// // 	// CollisionRadius=+00102.00000
