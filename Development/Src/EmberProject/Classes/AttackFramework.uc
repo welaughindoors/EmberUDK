@@ -86,6 +86,26 @@ function SetUpDirectionals()
 	lightLeftString1Mods.AddItem(dLeft);	
 	lightRightString1Mods.AddItem(dRight);
 	lightForwardString1Mods.AddItem(dTop);
+    lightForwardLeftString1Mods.AddItem(dTopLeft);
+    lightForwardRightString1Mods.AddItem(dTopRight);
+    lightBackLeftString1Mods.AddItem(dBottomLeft);
+    lightBackRightString1Mods.AddItem(dBottomRight);
+
+    mediumLeftString1Mods.AddItem(dLeft);	
+	mediumRightString1Mods.AddItem(dRight);
+	mediumForwardString1Mods.AddItem(dTop);
+    mediumForwardLeftString1Mods.AddItem(dTopLeft);
+    mediumForwardRightString1Mods.AddItem(dTopRight);
+    mediumBackLeftString1Mods.AddItem(dBottomLeft);
+    mediumBackRightString1Mods.AddItem(dBottomRight);
+
+    heavyLeftString1Mods.AddItem(dLeft);	
+	heavyRightString1Mods.AddItem(dRight);
+	heavyForwardString1Mods.AddItem(dTop);
+    heavyForwardLeftString1Mods.AddItem(dTopLeft);
+    heavyForwardRightString1Mods.AddItem(dTopRight);
+    heavyBackLeftString1Mods.AddItem(dBottomLeft);
+    heavyBackRightString1Mods.AddItem(dBottomRight);
 }
 
 DefaultProperties

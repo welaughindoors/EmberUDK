@@ -44,6 +44,12 @@ var int followPlayer;
 var float attackPlayerRange;
 var int attackPlayer;
 
+var struct AttackPacketStruct
+{
+	var name AnimName;
+	var array<float> Mods;
+} AttackPacket;
+
 //For when the player takes damage
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
@@ -296,6 +302,12 @@ function WeaponAttach()
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
 		Sword.setDamage(10);
+		AttackPacket.Mods.AddItem(0);
+		AttackPacket.Mods.AddItem(0);
+		AttackPacket.Mods.AddItem(0);
+		AttackPacket.Mods.AddItem(0);
+		AttackPacket.Mods.AddItem(0);
+		AttackPacket.Mods.AddItem(2);
 	 // Sword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');  
 }
 

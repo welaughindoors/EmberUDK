@@ -349,6 +349,7 @@ Simulated Event Tick(float DeltaTime)
 	Super.Tick(DeltaTime);
 	GG.runsPerTick(deltatime);
 
+
 	// DebugPrint(""@width);
 
 	//for fps issues and keeping things properly up to date
@@ -2070,7 +2071,7 @@ defaultproperties
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
 	enableInaAudio = 0;
-	GroundSpeed=300.0;
+	// GroundSpeed=300.0;
 
 //=============================================
 // End Combo / Attack System Vars

@@ -1,7 +1,7 @@
 class Sword extends Actor;
 var SkeletalMeshComponent Mesh;
 var AnimTree defaultAnimTree;
-
+var AttackFramework_Parry aParry;
 
 //=============================================
 // Previous Socket Saved Positions
@@ -621,10 +621,14 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         // DebugPrint("bHits -"@hitInfo.LevelIndex );
         if(hitInfo.BoneName == 'sword_blade')
         {
-        DebugPrint("bHits -"@hitInfo.BoneName );
         // if(TestPawn(hitActor).doin)
   if(TestPawn(hitActor).GetTimeLeftOnAttack() > 0)
   {
+    // DebugPrint("p1"@aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[5], TestPawn(hitActor).AttackPacket.Mods[5]));
+    // DebugPrint("p2_own"@EmberPawn(Owner).AttackPacket.Mods[5]);
+    // DebugPrint("p3_targ"@TestPawn(hitActor).AttackPacket.Mods[5]);
+            if(aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[5], TestPawn(hitActor).AttackPacket.Mods[5]))
+            {
             swordParried(hitActor);
             parryEffect(parryEffectLocation);      
 
@@ -633,6 +637,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
    DrawDebugLine(Start, sVelocity*7500, 0, -1, 0, true);
     hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * 9500.f, class'UTDmgType_LinkBeam');     
             return ;
+          }
   }
   else
   {
@@ -967,6 +972,7 @@ simulated event PostBeginPlay()
 {
 tracerAmount = 15;
 tracerTempColourCounter = 0;
+aParry = new class'EmberProject.AttackFramework_Parry';
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordSwings');
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitFlesh');
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitSword');
