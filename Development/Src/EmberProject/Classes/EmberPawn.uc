@@ -205,6 +205,7 @@ simulated event PostBeginPlay()
 
     Dodge.setOwner(self);
     GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
+    aFramework.InitFramework();
    	//1 second attach skele mesh
     SetTimer(0.2, false, 'WeaponAttach'); 
 

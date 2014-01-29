@@ -1,5 +1,18 @@
 class AttackFramework extends Object;
 
+
+// struct DirectionAttackStruct
+// {}
+// const LLeft=3;
+const dTop 			= 0;
+const dBottom 		= 1;
+const dLeft 		= 2;
+const dRight 		= 3;
+const dTopLeft 		= 4;
+const dTopRight 	= 5;
+const dBottomLeft 	= 6;
+const dBottomRight 	= 7;
+
 var name lightLeftString1;
 var array<float>lightLeftString1Mods;
 var name lightRightString1;
@@ -22,7 +35,7 @@ var name mediumLeftString1;
 var array<float>mediumLeftString1Mods;
 var name mediumRightString1;
 var array<float>mediumRightString1Mods;
-var name mediumForwardString1;
+var name mediumForwardString1; 
 var array<float>mediumForwardString1Mods;
 var name mediumForwardLeftString1;
 var array<float>mediumForwardLeftString1Mods;
@@ -63,6 +76,17 @@ var SkeletalMesh lightSwordMesh;
 var SkeletalMesh mediumSwordMesh;
 var SkeletalMesh heavySwordMesh;
 
+function InitFramework()
+{
+	SetUpDirectionals();
+}
+
+function SetUpDirectionals()
+{
+	lightLeftString1Mods.AddItem(dLeft);	
+	lightRightString1Mods.AddItem(dRight);
+	lightForwardString1Mods.AddItem(dTop);
+}
 
 DefaultProperties
 {	
@@ -109,6 +133,7 @@ heavyBackRightString1 		=
 / -- Time till Tracer gets Deactivated (s),  if 0 = active for all attack
 / -- Blend in duration (s)
 / -- Blend out duration (s)
+/ -- Direction Classification 
 / ex: (1, 0.5, 0, 0.3, 0.5): duration = 1s,  tracers start after 0.5s,  last till animation finishes, 
 / the first 0.3s of animation is blended with previous animation, the last 0.5s will blend with next animation
 */

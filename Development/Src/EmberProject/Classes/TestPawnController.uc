@@ -80,24 +80,12 @@ function prepareTheAttack()
       // timeToAttack = 0.3;
       Focus = thePlayer;
       // DebugPrint("prep");
-      if(pawn.Health > 100)
-      {
     if(VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange && TestPawn(pawn).GetTimeLeftOnAttack() == 0&& !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
     {
       startTheClock = 0;
-
-      TestPawn(pawn).doAttack (attackList[Rand(attackList.length)], 1.0, 0.4, 1.0) ;
+//Rand(attackList.length)
+      TestPawn(pawn).doAttack (attackList[0], 1.5, 0.4, 1.5) ;
     }
-  }
-  else
-  {
-    if(VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange*2 && TestPawn(pawn).GetTimeLeftOnAttack() == 0 && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
-    {
-      startTheClock = 0;
-
-      TestPawn(pawn).doAttack (attackList[Rand(attackList.length)], 0.75, 0.2, 0.75) ;
-    }
-  }
 }
 //================================
 // Console Vars
