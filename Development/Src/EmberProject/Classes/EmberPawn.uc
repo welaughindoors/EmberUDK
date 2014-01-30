@@ -474,10 +474,20 @@ function HitBlue()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
+	local float shakeAmount;
 
   	PC = UTPlayerController(Instigator.Controller);
   	ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
-  	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
+  	switch(currentStance)
+  	{
+  		case 1: shakeAmount = aFramework.lightCameraShake;
+  		break;
+  		case 2: shakeAmount = aFramework.mediumCameraShake;
+  		break;
+  		case 3: shakeAmount = aFramework.heavyCameraShake;
+  		break;
+  	}
+  	PC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
 }
 /*
 HitRed
@@ -487,10 +497,20 @@ function HitRed()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
+	local float shakeAmount;
 
   	PC = UTPlayerController(Instigator.Controller);
   	ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
-  	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
+  	switch(currentStance)
+  	{
+  		case 1: shakeAmount = aFramework.lightCameraShake;
+  		break;
+  		case 2: shakeAmount = aFramework.mediumCameraShake;
+  		break;
+  		case 3: shakeAmount = aFramework.heavyCameraShake;
+  		break;
+  	}
+  	PC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
 }
 /*
 HitGreen
@@ -500,11 +520,21 @@ function HitGreen()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
+	local float shakeAmount;
 
   	PC = UTPlayerController(Instigator.Controller);
   	ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
-  	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
-}
+  	switch(currentStance)
+  	{
+  		case 1: shakeAmount = aFramework.lightCameraShake;
+  		break;
+  		case 2: shakeAmount = aFramework.mediumCameraShake;
+  		break;
+  		case 3: shakeAmount = aFramework.heavyCameraShake;
+  		break;
+  	}
+  	PC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  }
 /*
 PostInitAnimTree
 	Allows custom animations.

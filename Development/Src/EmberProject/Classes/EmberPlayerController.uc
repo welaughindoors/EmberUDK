@@ -328,9 +328,21 @@ EmberPawn(pawn).SheatheWeapon();
 
 exec function TempTaunt()
 {
-  local SoundCue taunt;
-  taunt = SoundCue'EmberSounds.Taunts';
-  PlaySound(taunt);
+  // local SoundCue taunt;
+  // taunt = SoundCue'EmberSounds.Taunts';
+  // PlaySound(taunt);
+  local vector vecty, nub, TraceStart, TraceEnd;
+  
+  local Actor archetype;
+  local TestPawn AI;
+
+// archetype = Actor(DynamicLoadObject("TestPawn'ArtAnimation.AI_1'", class'TestPawn'));
+TraceStart = Pawn.Location;
+TraceEnd = TraceStart + Vector( Pawn.Rotation ) * 5000;
+   DrawDebugLine(TraceStart,TraceEnd, -1, 0, 0, true);
+Trace(vecty, nub, TraceStart, TraceEnd);
+DebugPrint(""@vecty);
+AI = Spawn(class'TestPawn', , ,vecty);
 }
 //============================================= 
 // Hooks Functions

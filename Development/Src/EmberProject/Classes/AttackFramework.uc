@@ -13,6 +13,10 @@ const dTopRight 	= 5;
 const dBottomLeft 	= 6;
 const dBottomRight 	= 7;
 
+var float lightCameraShake;
+var float mediumCameraShake;
+var float heavyCameraShake;
+
 var name lightLeftString1;
 var array<float>lightLeftString1Mods;
 var name lightRightString1;
@@ -201,5 +205,18 @@ heavyDamagePerTracer = 13
 lightSwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.gladius'
 mediumSwordMesh = SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana'
 heavySwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy2'
+
+/* Camera shakes
+/ -- Currently:
+/ -- Light : Camera shake in Light stance
+/ -- Medium : Camera shake in Medium stance
+/ -- Heavy : Camera shake in Heavy stance
+/ -- Lower values = less shake + colour
+/ -- Higher values = more shake + colour
+*/
+
+lightCameraShake = 0.1
+mediumCameraShake = 0.21
+heavyCameraShake = 0.47
 
 }
