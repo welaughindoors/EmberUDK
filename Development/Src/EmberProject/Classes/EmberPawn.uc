@@ -467,6 +467,32 @@ debugCone();
 
 } 
 /*
+HitBlue
+	Shakes camera with slight blue tint
+*/
+function HitBlue()
+{
+	Local CameraAnim ShakeDatBooty;
+	local UTPlayerController PC;
+
+  	PC = UTPlayerController(Instigator.Controller);
+  	ShakeDatBooty=CameraAnim'Camera_FX.VH_Scorpion.C_VH_Scorpion_Boost_Blue';
+  	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
+}
+/*
+HitRed
+	Shakes camera with slight blue tint
+*/
+function Hitred()
+{
+	Local CameraAnim ShakeDatBooty;
+	local UTPlayerController PC;
+
+  	PC = UTPlayerController(Instigator.Controller);
+  	ShakeDatBooty=CameraAnim'Camera_FX.VH_Scorpion.C_VH_Scorpion_Boost_Red';
+  	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
+}
+/*
 PostInitAnimTree
 	Allows custom animations.
 */

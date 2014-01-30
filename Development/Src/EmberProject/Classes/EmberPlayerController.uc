@@ -184,7 +184,7 @@ function UpdateRotation( float DeltaTime )
       // { 
 
       //    }
-
+ViewShake( DeltaTime );
 }   
 
 /* 
