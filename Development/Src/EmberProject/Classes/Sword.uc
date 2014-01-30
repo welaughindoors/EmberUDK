@@ -352,6 +352,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
             swordParried(hitActor);
             parryEffect(parryEffectLocation);      
 
+    EmberPawn(Owner).HitGreen();
+    EmberPawn(hitActor).HitGreen();
    // sVelocity = Normal(End - Start);
    sVelocity = Normal(Vector(Owner.Rotation));
    DrawDebugLine(Start, sVelocity*7500, 0, -1, 0, true);

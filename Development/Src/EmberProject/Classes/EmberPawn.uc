@@ -476,20 +476,33 @@ function HitBlue()
 	local UTPlayerController PC;
 
   	PC = UTPlayerController(Instigator.Controller);
-  	ShakeDatBooty=CameraAnim'Camera_FX.VH_Scorpion.C_VH_Scorpion_Boost_Blue';
+  	ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
   	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
 }
 /*
 HitRed
 	Shakes camera with slight blue tint
 */
-function Hitred()
+function HitRed()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
 
   	PC = UTPlayerController(Instigator.Controller);
-  	ShakeDatBooty=CameraAnim'Camera_FX.VH_Scorpion.C_VH_Scorpion_Boost_Red';
+  	ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
+  	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
+}
+/*
+HitGreen
+	Shakes camera with slight green tint
+*/
+function HitGreen()
+{
+	Local CameraAnim ShakeDatBooty;
+	local UTPlayerController PC;
+
+  	PC = UTPlayerController(Instigator.Controller);
+  	ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
   	PC.ClientPlayCameraAnim(ShakeDatBooty, 0.3f);
 }
 /*
