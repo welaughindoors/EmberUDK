@@ -81,7 +81,7 @@ function prepareTheAttack()
       Focus = thePlayer;
       // DebugPrint("prep");
       //VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange &&
-    if( TestPawn(pawn).GetTimeLeftOnAttack() == 0&& !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
+    if( TestPawn(pawn).GetTimeLeftOnAttack() == 0 && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
     {
       startTheClock = 0;
 //Rand(attackList.length)

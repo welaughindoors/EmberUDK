@@ -186,7 +186,36 @@ function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector C
 // System Functions
 //=============================================
 
+event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+{
+	local int OldHealth;
 
+	Velocity.Z += 25;
+
+	// Attached Bio glob instigator always gets kill credit
+	if (AttachedProj != None && !AttachedProj.bDeleteMe && AttachedProj.InstigatorController != None)
+	{
+		EventInstigator = AttachedProj.InstigatorController;
+	}
+
+	// reduce rocket jumping
+	if (EventInstigator == Controller)
+	{
+		momentum *= 0.6;
+	}
+
+	// accumulate damage taken in a single tick
+	if ( AccumulationTime != WorldInfo.TimeSeconds )
+	{
+		AccumulateDamage = 0;
+		AccumulationTime = WorldInfo.TimeSeconds;
+	}
+    OldHealth = Health;
+	AccumulateDamage += Damage;
+	Super.TakeDamage(Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+	AccumulateDamage = AccumulateDamage + OldHealth - Health - Damage;
+
+}
 /*
 PostBeginPlay
 	The initial startup for the class
@@ -845,6 +874,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
    			ClearTimer('AttackEnd');
             Sword[currentStance-1].resetTracers();
             AttackBlend.setBlendTarget(1, 0.5);
+            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
@@ -856,6 +886,7 @@ function forcedAnimEnd()
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
@@ -875,7 +906,7 @@ function doAttack( array<byte> byteDirection)
 	local int totalKeyFlag;
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
-	PlaySound(Sword[currentStance-1].SwordSounds[0]);
+	// PlaySound(Sword[currentStance-1].SwordSounds[0]);
 	totalKeyFlag = 0;
 	savedByteDirection[0] = byteDirection[0];
 	savedByteDirection[1] = byteDirection[1];

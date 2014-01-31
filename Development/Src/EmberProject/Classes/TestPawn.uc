@@ -51,20 +51,53 @@ var struct AttackPacketStruct
 } AttackPacket;
 
 //For when the player takes damage
-event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+// event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
+// {
+// 	local float tHealth;
+// 	GetALocalPlayerController().ClientMessage("tPawn Damage -" $Damage);
+// 	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+// 	tHealth = Health - Damage;
+// 	Health = FMax(tHealth, 0);
+// 	GetALocalPlayerController().ClientMessage("tPawn tHealth -" $tHealth);
+
+// 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
+// 	if(Health==0)
+// 	{
+// 		GotoState('Dying');
+// 	}
+// }
+event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
-	local float tHealth;
-	GetALocalPlayerController().ClientMessage("tPawn Damage -" $Damage);
-	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
-	tHealth = Health - Damage;
-	Health = FMax(tHealth, 0);
-	GetALocalPlayerController().ClientMessage("tPawn tHealth -" $tHealth);
+	local int OldHealth;
+
+	if(Momentum.Z < 50) Momentum.Z = 50;
+	// Velocity.Z *= 1.20;
+
+	// Attached Bio glob instigator always gets kill credit
+	if (AttachedProj != None && !AttachedProj.bDeleteMe && AttachedProj.InstigatorController != None)
+	{
+		EventInstigator = AttachedProj.InstigatorController;
+	}
+
+	// reduce rocket jumping
+	if (EventInstigator == Controller)
+	{
+		momentum *= 0.6;
+	}
+
+	// accumulate damage taken in a single tick
+	if ( AccumulationTime != WorldInfo.TimeSeconds )
+	{
+		AccumulateDamage = 0;
+		AccumulationTime = WorldInfo.TimeSeconds;
+	}
+    OldHealth = Health;
+	AccumulateDamage += Damage;
+	Super.TakeDamage(Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+	AccumulateDamage = AccumulateDamage + OldHealth - Health - Damage;
 
 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
-	if(Health==0)
-	{
-		GotoState('Dying');
-	}
+
 }
 /*
 Tick
@@ -416,6 +449,7 @@ function doAttack (name animation, float duration, float t1, float t2)
 	FlushPersistentDebugLines();
 			AttackBlend.setBlendTarget(0, 0.2);    
             Sword.setTracerDelay(t1,t2);	
+            Sword.setKnockback(9500);
             AttackSlot[0].PlayCustomAnimByDuration(animation, duration,0.3,0.5);
     // Sword.GoToState('AttackingNoTracers');
     Sword.GoToState('Attacking');

@@ -62,6 +62,7 @@ var float blockCone;
 //=============================================
 var float DamagePerTracer;
 var bool  reduceDamage;
+var float Knockback;
 // var int   currentStance;
 
 /*
@@ -356,8 +357,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
     EmberPawn(hitActor).HitGreen();
    // sVelocity = Normal(End - Start);
    sVelocity = Normal(Vector(Owner.Rotation));
-   DrawDebugLine(Start, sVelocity*7500, 0, -1, 0, true);
-    hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * 9500.f, class'UTDmgType_LinkBeam');     
+   DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
+    hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');     
             return ;
           }
   }
@@ -463,14 +464,15 @@ oldInterpolatedPoints.length = 0;
   // Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', swordLoc, swordRot);
   // v1 = normal(vector(swordRot)) << rot(0,-8192,0);
    // sVelocity = Normal(End - Start);
-   sVelocity = Normal(Vector(Owner.Rotation));
-   DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*7500, -1, 0, 0, true);
+   // sVelocity = Normal(Vector(Owner.Rotation));
+   sVelocity = Normal(interpolatedPoints_TemporaryHitArray[i].Location - Owner.Location);
+   DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*Knockback, -1, 0, 0, true);
 
   hitEffect(interpolatedPoints[i], rot(0,0,0));
   if( reduceDamage )
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * 7500.f, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
   else
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * 7500.f, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     DamageAmount+=DamagePerTracer;
     EmberPawn(Owner).HitBlue();
     EmberPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
@@ -500,6 +502,10 @@ oldInterpolatedPoints.length = 0;
         TestPawn(owner).damageDone(DamageAmount);
       }
                 bDidATracerHit = false;
+}
+function setKnockback(float knob)
+{
+  Knockback = knob;
 }
 /*
   TraceBlock
