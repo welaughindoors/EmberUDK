@@ -8,8 +8,10 @@ Controls
 - 2    : Medium Stance
 - 3    : Heavy Stance
 - 4    : Sheathe
+- Ctrl (hold) : Walk
+- Shift : Dash
 - Left Click : Attack
-- Right Click : Block
+- Right Click (hold) : Chambering
 
 Console Commands
 ===========
@@ -37,7 +39,6 @@ TODO:
 
 ####Inathero's doing this
 - Change timer from anim preset duration to actual anim duration
-- Add Velocity pinching on attacks
 - Sword Trail implementation
 - Shuffle 'dodge' booster thingy
 - Perhaps material left where sword touches object? like JKA
@@ -55,6 +56,27 @@ TODO:
 - HUD: HP, Crosshair, Stances (1,2,3), Strings?
 - Everything.
 
+Recently Completed:
+==========
+
+####Inathero
+- Chambering on Right Click
+- Basic Velocity Pinching on attacks
+- Basic Jump Velocity Pinching on landing
+- Basic Knockback (but per stance)
+- Basic Dodge when pressing Shift
+- Camera shakes on hit/damage/parry
+- Colour Camera blue = hit, red = damage, green = parry
+- Directional Parries
+- Some basic temporary sound assets
+- API's for Grapple
+
+####Biddybam
+- Grapple 'sticks' around edges, like a rope
+- Grapple 'unsticks' around edges when going back around
+
+####Admin + Coldhands Anim Team
+- Animations
 
 ISSUES:
 ==========
