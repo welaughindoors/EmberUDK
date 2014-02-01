@@ -11,7 +11,7 @@ Controls
 - Ctrl (hold) : Walk
 - Shift : Dash
 - Left Click : Attack
-- Right Click (hold) : Chambering
+- Left Click (Hold) : Queues Attack
 
 Console Commands
 ===========
@@ -44,9 +44,13 @@ TODO:
 - Perhaps material left where sword touches object? like JKA
 - Velocity pinching on jumps
 - Advanced parry system
+- Walking blending tweaking
 
 ####Biddybam's doing this
 - Better Grapple
+
+####Admin's doing this
+- Walking animation + blending
 
 ####Misc:
 - Sheathe animation?
@@ -60,7 +64,7 @@ Recently Completed:
 ==========
 
 ####Inathero
-- Chambering on Right Click
+- Better Queuing of attacks on left click (hold)
 - Basic Velocity Pinching on attacks
 - Basic Jump Velocity Pinching on landing
 - Basic Knockback (but per stance)
