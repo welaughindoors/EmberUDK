@@ -65,6 +65,7 @@ Recently Completed:
 
 ####Inathero
 - Better Queuing of attacks on left click (hold)
+- Chamber Attacks and feints on right click (hold/tap)
 - Basic Velocity Pinching on attacks
 - Basic Jump Velocity Pinching on landing
 - Basic Knockback (but per stance)

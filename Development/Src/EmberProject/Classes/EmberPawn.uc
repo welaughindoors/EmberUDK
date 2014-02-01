@@ -94,12 +94,15 @@ var AnimNodePlayCustomAnim 	EmberDash;
 var AnimNodeSlot			AttackSlot[2];
 var AnimNodeBlend			AttackBlend;
 var byte 					blendAttackCounter;
+var bool 					bAttackQueueing;
 var bool 					bChambering;
+var float 					iChamberingCounter;
 
 var struct AttackPacketStruct
 {
 	var name AnimName;
 	var array<float> Mods;
+	var float tDur;
 } AttackPacket;
 
 
@@ -411,11 +414,20 @@ Simulated Event Tick(float DeltaTime)
 
 if(VelocityPinch.bApplyVelocityPinch)
 	VelocityPinch.ApplyVelocityPinch(DeltaTime);
-if(bChambering)
+if(bAttackQueueing)
 {
 	// DebugPrint("chambe active");
 		AttackSlot[0].SetActorAnimEndNotification(true);
 		AttackSlot[1].SetActorAnimEndNotification(true);
+}
+if(bChambering)
+{
+	iChamberingCounter += DeltaTime;
+	if(iChamberingCounter >= AttackPacket.Mods[6])
+		{
+	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+}
 }
 if(debugConeBool)
 debugCone();
@@ -809,7 +821,7 @@ function doAttackQueue()
 	local UTPlayerController PC;
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
-bChambering = true;
+bAttackQueueing = true;
 if(GetTimeLeftOnAttack() == 0)
 {
 	PC = UTPlayerController(Instigator.Controller);
@@ -824,12 +836,41 @@ function stopAttackQueue()
     // swordBlockIsActive = false;//temp_fix_for_animation
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
 DebugPrint("stopAttackQueue");
-bChambering = false;
+bAttackQueueing = false;
 
 		AttackSlot[0].SetActorAnimEndNotification(false);
 		AttackSlot[1].SetActorAnimEndNotification(false);
 
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
+}
+function doChamber()
+{
+	local UTPlayerController PC;
+	bChambering = true;
+	iChamberingCounter = 0;
+	ClearTimer('AttackEnd');
+	AttackEnd();
+	// if(GetTimeLeftOnAttack() < 0.5)
+	// {
+	PC = UTPlayerController(Instigator.Controller);
+	doAttack(EmberPlayerController(PC).verticalShift);
+	// }
+}
+function stopChamber()
+
+{
+	bChambering = false;
+	if(iChamberingCounter >= AttackPacket.Mods[6])
+	{
+			Sword[currentStance-1].GoToState('Attacking');
+            Sword[currentStance-1].setTracerDelay(0,AttackPacket.Mods[2] - AttackPacket.Mods[6]);
+			SetTimer(AttackPacket.Mods[0] - AttackPacket.Mods[6], false, 'AttackEnd');	
+			VelocityPinch.ApplyVelocityPinch(,0,(AttackPacket.Mods[2] - AttackPacket.Mods[6])  * 1.1);
+	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+		AttackSlot[0].SetActorAnimEndNotification(false);
+		AttackSlot[1].SetActorAnimEndNotification(false);
+	}
 }
 /*
 GetTimeLeftOnAttack
@@ -888,7 +929,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			// VelocityPinch.ApplyVelocityPinch(,,true);
    			ClearTimer('AttackEnd');
             Sword[currentStance-1].resetTracers();
-			if(bChambering)
+			if(bAttackQueueing)
 			{
 				PC = UTPlayerController(Instigator.Controller);
 				doAttack(EmberPlayerController(PC).verticalShift);
@@ -896,6 +937,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			}
             AttackBlend.setBlendTarget(1, 0.5);
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
+            if(!bChambering)
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
@@ -906,11 +948,15 @@ function forcedAnimEnd()
 	DebugPrint("forcedAnimEnd");
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
+			if(!bChambering)
+			{
+			Sword[currentStance-1].GoToState('Attacking');
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
-            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 			VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
+			}
+            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
+            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
 function  forcedAnimEndByParry()
 {
@@ -1040,6 +1086,11 @@ function copyToAttackStruct(name animName, array<float> mods)
 		AttackPacket.Mods[i] = mods[i];
 }
 
+function EndPreAttack()
+{
+	if(GetTimeLeftOnAttack() <= 0.5)
+		forcedAnimEnd();
+}
 
 /*
 forwardAttack
@@ -1066,10 +1117,7 @@ function forwardAttack()
 			copyToAttackStruct(aFramework.heavyForwardString1, aFramework.heavyForwardString1Mods);
 		break;
 	}
-	DebugPrint("forward, time left:"@GetTimeLeftOnAttack());
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 function BackAttack()
 {
@@ -1089,9 +1137,7 @@ function BackAttack()
 			copyToAttackStruct(aFramework.heavyBackString1, aFramework.heavyBackString1Mods);
 		break;
 	}
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 function backLeftAttack()
 {
@@ -1109,10 +1155,7 @@ function backLeftAttack()
 			copyToAttackStruct(aFramework.heavybackLeftString1, aFramework.heavybackLeftString1Mods);
 		break;
 	}
-
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 
 function backRightAttack()
@@ -1131,10 +1174,7 @@ function backRightAttack()
 			copyToAttackStruct(aFramework.heavybackRightString1, aFramework.heavybackRightString1Mods);
 		break;
 	}
-
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 function forwardLeftAttack()
 {
@@ -1152,10 +1192,7 @@ function forwardLeftAttack()
 			copyToAttackStruct(aFramework.heavyForwardLeftString1, aFramework.heavyForwardLeftString1Mods);
 		break;
 	}
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 
 function forwardRightAttack()
@@ -1174,11 +1211,7 @@ function forwardRightAttack()
 			copyToAttackStruct(aFramework.heavyForwardRightString1, aFramework.heavyForwardRightString1Mods);
 		break;
 	}
-
-	if(GetTimeLeftOnAttack() <= 0.5)
-		forcedAnimEnd();
-
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 /*
 rightAttack
@@ -1204,10 +1237,7 @@ function rightAttack()
 			copyToAttackStruct(aFramework.heavyRightString1, aFramework.heavyRightString1Mods);
 		break;
 	}
-
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 /*
 leftAttack
@@ -1238,9 +1268,7 @@ function leftAttack()
 			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
 		break;
 	}	
-			if(GetTimeLeftOnAttack() <= 0.5)
-				forcedAnimEnd();
-    Sword[currentStance-1].GoToState('Attacking');
+	EndPreAttack();
 }
 /*
 AttackEnd
@@ -2163,6 +2191,10 @@ exec function ep_player_jump_boost(float JumpBoost = -3949212)
 exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
 { 
 	enableInaAudio = (enableAudio_One_or_Zero == -3949212) ? ModifiedDebugPrint("Inathero's op audio. 1 = on, 0 = off. Current - ", enableInaAudio) : enableAudio_One_or_Zero;
+}
+exec function ep_chamber(float t)
+{
+	AttackPacket.tDur = t;
 }
 
 // exec function ep_player_decoSword_light(int Var1 = -3949212, int Var2 = -3949212, int Var3 = -3949212)

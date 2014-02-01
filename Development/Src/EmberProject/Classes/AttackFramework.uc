@@ -157,39 +157,42 @@ heavyBackRightString1 		=
 / -- Time till Tracer gets Deactivated (s),  if 0 = active for all attack
 / -- Blend in duration (s)
 / -- Blend out duration (s)
-/ -- Direction Classification 
 / -- Knockback
-/ ex: (1, 0.5, 0, 0.3, 0.5, 7500): duration = 1s,  tracers start after 0.5s,  last till animation finishes, 
+/ -- Time Till Chamber (s)
+/ ex: (1, 0.5, 0, 0.3, 0.5, 7500, 0.48): duration = 1s,  tracers start after 0.5s,  last till animation finishes, 
 / the first 0.3s of animation is blended with previous animation, the last 0.5s will blend with next animation
 / will do ~ 7500 knockback
+/ 0.48s after attack starts, attack will pause if chambered
+/ Condensed:
+/ (Duration, Time Till Tracer Active, Time Till Tracer Ends, Blend In, Blend Out, Knockback, Time Till Chamber)
 */
 
-lightLeftString1Mods 			=(1, 0.5, 0, 0.3, 0.5, 7500)
-lightRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500)
-lightForwardString1Mods 		=(1, 0.65, 0, 0.3, 0.5, 7500)
-lightForwardLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500)
-lightForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 7500)
-lightBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500)
-lightBackLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500)
-lightBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 7500)
+lightLeftString1Mods 			=(1, 0.5, 0, 0.3, 0.5, 7500, 0.4)
+lightRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
+lightForwardString1Mods 		=(1, 0.65, 0, 0.3, 0.5, 7500, 0.4)
+lightForwardLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
+lightForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
+lightBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
+lightBackLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
+lightBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
 
-mediumLeftString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500) 
-mediumRightString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500)
-mediumForwardString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5, 9500)
-mediumForwardLeftString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5, 9500)
-mediumForwardRightString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5, 9500)
-mediumBackString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500)
-mediumBackLeftString1Mods 		=(1.3, 0.43, 0.65, 0.3, 0.5, 9500)
-mediumBackRightString1Mods	 	=(1.3, 0.43, 0.65, 0.3, 0.5, 9500)
+mediumLeftString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4) 
+mediumRightString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
+mediumForwardString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
+mediumForwardLeftString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
+mediumForwardRightString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
+mediumBackString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
+mediumBackLeftString1Mods 		=(1.3, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
+mediumBackRightString1Mods	 	=(1.3, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
 
-heavyLeftString1Mods 			=(2.0, 0.70, 1.05, 0.3, 0.5, 20000)
-heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000)
-heavyForwardString1Mods 		=(1.5, 1.0, 2.0, 0.2, 0.28, 20000)
-heavyForwardLeftString1Mods 	=(2.0, 0.70, 1.05, 0.3, 0.5, 20000)
-heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 20000)
-heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000)
-heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000)
-heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000)
+heavyLeftString1Mods 			=(2.0, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
+heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
+heavyForwardString1Mods 		=(1.5, 1.0, 2.0, 0.2, 0.28, 20000, 0.8)
+heavyForwardLeftString1Mods 	=(2.0, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
+heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
+heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
+heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
+heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
 
 
 /* Damage:

@@ -66,7 +66,7 @@ ignores SeePlayer, HearNoise, Bump;
       //Does attack or block, depends on FireModeNum
       
    // FireModeNum == 0 ? EmberPawn(pawn).doAttack(playerStrafeDirection) : EmberPawn(pawn).doBlock();
-   if(FireModeNum == 0) EmberPawn(pawn).doAttackQueue();// : EmberPawn(pawn).doBlock();
+   (FireModeNum == 0) ? EmberPawn(pawn).doAttackQueue() : EmberPawn(pawn).doChamber();
    // DebugPrint("startfire");
 
    }
@@ -74,7 +74,7 @@ exec function StopFire(optional byte FireModeNum )
 {
    // if(FireModeNum == 0)
    // DebugPrint("stopfire");
-   EmberPawn(pawn).stopAttackQueue();
+  (FireModeNum == 0) ?EmberPawn(pawn).stopAttackQueue() : EmberPawn(pawn).stopChamber();
 }
 
 // function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
