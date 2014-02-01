@@ -17,6 +17,7 @@ var AttackFramework aFramework;
 var GloriousGrapple GG;
 var EmberDodge Dodge;
 var GrappleRopeBlock testBlock;
+var EmberVelocityPinch VelocityPinch;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -93,6 +94,7 @@ var AnimNodePlayCustomAnim 	EmberDash;
 var AnimNodeSlot			AttackSlot[2];
 var AnimNodeBlend			AttackBlend;
 var byte 					blendAttackCounter;
+var bool 					bChambering;
 
 var struct AttackPacketStruct
 {
@@ -231,8 +233,9 @@ simulated event PostBeginPlay()
     aFramework = new class'EmberProject.AttackFramework';
     Dodge = new class'EmberProject.EmberDodge';
     GG = new class'EmberProject.GloriousGrapple';
-
-    Dodge.setOwner(self);
+    VelocityPinch = new class'EmberProject.EmberVelocityPinch';
+    Dodge.SetOwner(self);
+    VelocityPinch.SetOwner(self);
     GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
     aFramework.InitFramework();
    	//1 second attach skele mesh
@@ -405,8 +408,14 @@ Simulated Event Tick(float DeltaTime)
 		}
 		if(Dodge.bDodging)
 			Dodge.Count(DeltaTime);
-		
 
+if(VelocityPinch.bApplyVelocityPinch)
+	VelocityPinch.ApplyVelocityPinch(DeltaTime);
+if(bChambering)
+{
+		AttackSlot[0].SetActorAnimEndNotification(true);
+		AttackSlot[1].SetActorAnimEndNotification(true);
+}
 if(debugConeBool)
 debugCone();
 // Sword[1].findActors();
@@ -799,11 +808,15 @@ doBlock
 */
 function doBlock()
 {
-	EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
-	Sword[currentStance-1].GoToState('Blocking');
-
-		// Sword.rotate(0,0,49152); //temp_fix_for_animation
-		// swordBlockIsActive = true;//temp_fix_for_animation
+	local UTPlayerController PC;
+	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
+	// Sword[currentStance-1].GoToState('Blocking');
+bChambering = true;
+if(GetTimeLeftOnAttack() == 0)
+{
+	PC = UTPlayerController(Instigator.Controller);
+	doAttack(EmberPlayerController(PC).verticalShift);
+}
 }/*
 cancelBlock
 	Cancels loop anim
@@ -811,10 +824,12 @@ cancelBlock
 */
 function cancelBlock()
 {
-	EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
-    Sword[currentStance-1].SetInitialState();
+	// EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
+    // Sword[currentStance-1].SetInitialState();
     // swordBlockIsActive = false;//temp_fix_for_animation
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
+
+bChambering = false;
 
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
@@ -870,7 +885,15 @@ doAttack
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
+	local UTPlayerController PC;
 			DebugPrint("OnAnimEnd");
+			// VelocityPinch.ApplyVelocityPinch(,,true);
+			if(bChambering)
+			{
+				PC = UTPlayerController(Instigator.Controller);
+				doAttack(EmberPlayerController(PC).verticalShift);
+				return;
+			}
    			ClearTimer('AttackEnd');
             Sword[currentStance-1].resetTracers();
             AttackBlend.setBlendTarget(1, 0.5);
@@ -878,7 +901,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-
+            VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 }
 function forcedAnimEnd()
 {
@@ -889,6 +912,7 @@ function forcedAnimEnd()
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
+			VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 }
 function  forcedAnimEndByParry()
 {
@@ -1228,6 +1252,8 @@ AttackEnd
 function AttackEnd()
 {
 	DebugPrint("dun -");
+
+	// VelocityPinch.ApplyVelocityPinch(,,true);
 //when you jump, now shows jump anim
 JumpAttackSwitch.SetActiveChild(1, 0.3);
 	//forwardEmberDash.StopCustomAnim(0);

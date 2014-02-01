@@ -22,10 +22,13 @@ var vector 		gHookTarget;
 var pawn 		playerPawn;
 var vector 		grappleSocketLocation;
 
+
 var pawn P;
 //=============================================
 // Weapon
 //=============================================
+
+var EmberVelocityPinch VelocityPinch;
 var Sword Sword;
 //=============================================
 // Animation
@@ -119,6 +122,8 @@ Simulated Event Tick(float DeltaTime)
    			gHookTimer += DeltaTime;
    			grappleHooked(gHookTarget, playerPawn);
    		}
+if(VelocityPinch.bApplyVelocityPinch)
+	VelocityPinch.ApplyVelocityPinch(DeltaTime);
 
 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocketLocation, r);
 }
@@ -316,6 +321,7 @@ simulated function PostBeginPlay()
 	super.PostBeginPlay();
 
 	SetPhysics(PHYS_Walking); // wake the physics up
+
 	
 	// set up @collision @detection based on mesh's PhysicsAsset
 	// CylinderComponent.SetActorCollision(false, false); // disable cylinder collision
@@ -323,6 +329,9 @@ simulated function PostBeginPlay()
 	// Mesh.SetTraceBlocking(true, true); // block traces (i.e. anything touching mesh)
 	// SetTimer(0.5, true, 'BrainTimer');
 	SetTimer(0.1, false, 'WeaponAttach');
+
+VelocityPinch = new class 'EmberProject.EmberVelocityPinch';
+VelocityPinch.SetOwner(self);
 
 }
 
@@ -448,7 +457,8 @@ function doAttack (name animation, float duration, float t1, float t2)
 
 	FlushPersistentDebugLines();
 			AttackBlend.setBlendTarget(0, 0.2);    
-            Sword.setTracerDelay(t1,t2);	
+            Sword.setTracerDelay(t1,t2);
+            VelocityPinch.ApplyVelocityPinch(, t1, t2);
             Sword.setKnockback(9500);
             AttackSlot[0].PlayCustomAnimByDuration(animation, duration,0.3,0.5);
     // Sword.GoToState('AttackingNoTracers');
