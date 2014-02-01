@@ -413,6 +413,7 @@ if(VelocityPinch.bApplyVelocityPinch)
 	VelocityPinch.ApplyVelocityPinch(DeltaTime);
 if(bChambering)
 {
+	// DebugPrint("chambe active");
 		AttackSlot[0].SetActorAnimEndNotification(true);
 		AttackSlot[1].SetActorAnimEndNotification(true);
 }
@@ -802,11 +803,8 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 //=============================================
 // Custom Functions
 //=============================================
-/*
-doBlock
-	goes to a block state
-*/
-function doBlock()
+
+function doAttackQueue()
 {
 	local UTPlayerController PC;
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
@@ -817,19 +815,19 @@ if(GetTimeLeftOnAttack() == 0)
 	PC = UTPlayerController(Instigator.Controller);
 	doAttack(EmberPlayerController(PC).verticalShift);
 }
-}/*
-cancelBlock
-	Cancels loop anim
-	Goes to idle anim
-*/
-function cancelBlock()
+
+}
+function stopAttackQueue()
 {
 	// EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
     // Sword[currentStance-1].SetInitialState();
     // swordBlockIsActive = false;//temp_fix_for_animation
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
-
+DebugPrint("stopAttackQueue");
 bChambering = false;
+
+		AttackSlot[0].SetActorAnimEndNotification(false);
+		AttackSlot[1].SetActorAnimEndNotification(false);
 
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
@@ -888,14 +886,14 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 	local UTPlayerController PC;
 			DebugPrint("OnAnimEnd");
 			// VelocityPinch.ApplyVelocityPinch(,,true);
+   			ClearTimer('AttackEnd');
+            Sword[currentStance-1].resetTracers();
 			if(bChambering)
 			{
 				PC = UTPlayerController(Instigator.Controller);
 				doAttack(EmberPlayerController(PC).verticalShift);
 				return;
 			}
-   			ClearTimer('AttackEnd');
-            Sword[currentStance-1].resetTracers();
             AttackBlend.setBlendTarget(1, 0.5);
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
