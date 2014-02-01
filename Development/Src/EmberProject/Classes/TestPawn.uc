@@ -562,7 +562,7 @@ DefaultProperties
   followPlayer = 1;
   attackPlayer = 1;
   attackPlayerRange = 150;
-  GroundSpeed=300.0;
+  // GroundSpeed=300.0;
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
