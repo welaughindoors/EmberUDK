@@ -131,6 +131,28 @@ End Variables
 */
 
 
+// simulated event ReplicatedEvent(name VarName)
+// {
+//   DebugPrint("Rep Event Received - "@VarName);
+//      if(VarName == 'RepMesh')
+//      {
+//       DebugPrint("RepMesh");
+//           if(self.Pawn.Mesh.SkeletalMesh != RepMesh)
+//           {
+//             DebugPrint("Rep Mesh Change");
+//                self.Pawn.Mesh.SetSkeletalMesh(RepMesh);
+//           }
+//      }
+//      else
+//      {
+//           super.ReplicatedEvent(VarName);
+//      }
+// }
+// replication
+// {
+//     if (bNetDirty)
+//             RepMesh;
+// }
 //=============================================
 // Utility Functions
 //=============================================
@@ -271,6 +293,10 @@ simulated function WeaponAttach()
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
     local Sword tSword;
+    local UTPlayerController PC;
+  	PC = UTPlayerController(Instigator.Controller);
+	EmberPlayerController(PC).resetNetworkMesh();
+	
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
 		tSword.setDamage(aFramework.lightDamagePerTracer);
@@ -383,10 +409,12 @@ Tick
 */
 Simulated Event Tick(float DeltaTime)
 {
+	// local UTPlayerController PC;
 	Super.Tick(DeltaTime);
 	GG.runsPerTick(deltatime);
 
-
+  	// PC = UTPlayerController(Instigator.Controller);
+	// EmberPlayerController(PC).resetNetworkMesh();
 	// DebugPrint(""@width);
 
 	//for fps issues and keeping things properly up to date

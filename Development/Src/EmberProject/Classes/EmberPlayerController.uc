@@ -1,6 +1,19 @@
 class EmberPlayerController extends UTPlayerController;
 
+//==========
+// Network of Death
+//----------
+struct RepMeshAnimsAssets
+{
+var SkeletalMesh defaultMesh;
+var MaterialInterface defaultMaterial0;
+var MaterialInterface defaultMaterial1;
+var AnimTree defaultAnimTree;
+var array<AnimSet> defaultAnimSet;
+var PhysicsAsset defaultPhysicsAsset; 
+};
 
+var repnotify RepMeshAnimsAssets PostBeginCharacterInformation;
 
 //=============================================
 // Mesh and Character Variables
@@ -10,7 +23,6 @@ var MaterialInterface defaultMaterial0;
 var MaterialInterface defaultMaterial1;
 var AnimTree defaultAnimTree;
 var array<AnimSet> defaultAnimSet;
-var AnimNodeSequence defaultAnimSeq;
 var PhysicsAsset defaultPhysicsAsset;
 
 //=============================================
@@ -44,6 +56,29 @@ var float ai_attackPlayerRange;
 //=============================================
 // Overrided Functions
 //=============================================
+
+simulated event ReplicatedEvent(name VarName)
+{
+  DebugPrint("Rep Event Received - "@VarName);
+     if(VarName == 'PostBeginCharacterInformation')
+     {
+      DebugPrint("PostBeginCharacterInformation");
+          // if(self.Pawn.Mesh.SkeletalMesh != PostBeginCharacterInformation.defaultMesh)
+          // {
+            // DebugPrint("Rep Mesh Change");
+               // self.Pawn.Mesh.SetSkeletalMesh(RepMesh);
+          // }
+     }
+     else
+     {
+          super.ReplicatedEvent(VarName);
+     }
+}
+replication
+{
+    if (bNetDirty)
+      PostBeginCharacterInformation;
+}
 /*
 PlayerWalking
 	Used for dodge. Queued for removal
@@ -194,7 +229,7 @@ PostBeginPlay
 */
 Simulated Event PostBeginPlay() {
    super.postbeginplay();
-
+DebugPrint("post begin");
    //set Self's worldinfo var
    EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
 
@@ -490,14 +525,32 @@ function setAIStatus()
 resetMesh 
 	Sets custom mesh
 */
-public function resetMesh()
+simulated function resetMesh()
 {
+PostBeginCharacterInformation.defaultMesh = defaultMesh;
+PostBeginCharacterInformation.defaultMaterial0 = defaultMaterial0;
+PostBeginCharacterInformation.defaultMaterial1 = defaultMaterial1;
+PostBeginCharacterInformation.defaultAnimTree = defaultAnimTree;
+PostBeginCharacterInformation.defaultAnimSet = defaultAnimSet;
+PostBeginCharacterInformation.defaultPhysicsAsset = defaultPhysicsAsset;
 self.Pawn.Mesh.SetSkeletalMesh(defaultMesh);
 self.Pawn.Mesh.SetMaterial(0,defaultMaterial0);
 self.Pawn.Mesh.SetMaterial(1,defaultMaterial1); 
 self.Pawn.Mesh.SetPhysicsAsset(defaultPhysicsAsset );
 self.Pawn.Mesh.AnimSets=defaultAnimSet; 
 self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
+// RepMesh = defaultMesh;
+}
+
+simulated function resetNetworkMesh()
+{
+self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
+self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
+self.Pawn.Mesh.SetMaterial(1,PostBeginCharacterInformation.defaultMaterial1); 
+self.Pawn.Mesh.SetPhysicsAsset(PostBeginCharacterInformation.defaultPhysicsAsset );
+self.Pawn.Mesh.AnimSets=PostBeginCharacterInformation.defaultAnimSet; 
+self.Pawn.Mesh.SetAnimTreeTemplate(PostBeginCharacterInformation.defaultAnimTree );
+// RepMesh = defaultMesh;
 }
 
 defaultproperties

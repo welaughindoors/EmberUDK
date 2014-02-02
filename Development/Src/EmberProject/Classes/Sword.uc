@@ -187,7 +187,7 @@ swordParried
   Tells sword to reset state.
 
 */
-function swordParried(actor hitActor)
+simulated function swordParried(actor hitActor)
 {
   TestPawn(hitActor).SwordGotHit();
   TestPawn(owner).SwordGotHit();
@@ -272,7 +272,7 @@ SwordEmitter.LifeSpan = 0.25;
 PlaySound(SwordSounds[2]);
 }
 
-function TraceAttack()
+simulated function TraceAttack()
 {
    local Vector HitLocation, HitNormal, sVelocity;
    local Vector Start, End, Block, parryEffectLocation;
