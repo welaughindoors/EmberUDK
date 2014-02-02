@@ -108,7 +108,7 @@ exec function StopFire(optional byte FireModeNum )
 /*
 UpdateRotation
 */
-function UpdateRotation( float DeltaTime )
+simulated function UpdateRotation( float DeltaTime )
 {
    local Rotator   DeltaRot, newRotation, ViewRotation;
    local vector v1, v2;

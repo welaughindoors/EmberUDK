@@ -139,7 +139,7 @@ DebugPrint
 	Easy way to print out debug messages
 	If wanting to print variables, use: DebugPrint("var :" $var);
 */
-simulated function DebugPrint(string sMessage)
+function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
 }
@@ -257,7 +257,7 @@ function disableLookInput(bool yn)
 {
 	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.IgnoreLookInput(yn);
 }
-function bool DoDodge(array<byte> inputA)
+simulated function bool DoDodge(array<byte> inputA)
 {
 	return Dodge.DoDodge(inputA);
 }
@@ -266,7 +266,7 @@ WeaponAttach
 	Attaches a skeleton mesh of the weapon in same place as weapon
 	Used to detect collisions. atm WIP.
 */
-function WeaponAttach() 
+simulated function WeaponAttach() 
 { 
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
@@ -327,7 +327,7 @@ overrideStanceChange();
 
 		// setTrailEffects();
 }
-function setTrailEffects()
+simulated function setTrailEffects()
 { 
 //Declare a new Emitter
 local UTEmitter SwordEmitter;      
@@ -349,7 +349,8 @@ SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordR
 //Never End
 SwordEmitter.LifeSpan = 0;
 }
-function setDodgeEffect()
+
+simulated function setDodgeEffect()
 {
 	local UTEmitter SwordEmitter;      
 local vector Loc;
@@ -370,7 +371,8 @@ SwordEmitter.SetTemplate(ParticleSystem'VH_Cicada.Effects.P_VH_Cicada_Exhaust', 
 //Never End
 SwordEmitter.LifeSpan = 3;
 }
-function setDodgeStance(int index, float duration)
+
+simulated function setDodgeStance(int index, float duration)
 {	
 	EmberDash.PlayCustomAnim('ember_medium_dash_forward',1.0, duration/3, 0, false);
 	DashOverrideSwitch.SetActiveChild(index, 0);	
@@ -521,7 +523,7 @@ debugCone();
 HitBlue
 	Shakes camera with slight blue tint
 */
-function HitBlue()
+simulated function HitBlue()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
@@ -544,7 +546,7 @@ function HitBlue()
 HitRed
 	Shakes camera with slight blue tint
 */
-function HitRed()
+simulated function HitRed()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
@@ -567,7 +569,7 @@ function HitRed()
 HitGreen
 	Shakes camera with slight green tint
 */
-function HitGreen()
+simulated function HitGreen()
 {
 	Local CameraAnim ShakeDatBooty;
 	local UTPlayerController PC;
@@ -627,11 +629,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 //=============================================
 // Overrided Functions 
 //=============================================
-event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
-{
-	DebugPrint("hit");
-}
-
 /* 
 BecomeViewTarget
 	Required for modified Third Person
@@ -816,7 +813,7 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 // Custom Functions
 //=============================================
 
-function doAttackQueue()
+simulated function doAttackQueue()
 {
 	local UTPlayerController PC;
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
@@ -829,7 +826,7 @@ if(GetTimeLeftOnAttack() == 0)
 }
 
 }
-function stopAttackQueue()
+simulated function stopAttackQueue()
 {
 	// EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
     // Sword[currentStance-1].SetInitialState();
@@ -843,7 +840,7 @@ bAttackQueueing = false;
 
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
-function doChamber()
+simulated function doChamber()
 {
 	local UTPlayerController PC;
 	bChambering = true;
@@ -856,7 +853,7 @@ function doChamber()
 	doAttack(EmberPlayerController(PC).verticalShift);
 	// }
 }
-function stopChamber()
+simulated function stopChamber()
 
 {
 	bChambering = false;
@@ -876,7 +873,7 @@ function stopChamber()
 GetTimeLeftOnAttack
 	Returns time left on attack timer
 */
-function float GetTimeLeftOnAttack()
+simulated function float GetTimeLeftOnAttack()
 {
 	 return (GetTimerRate('AttackEnd') - GetTimerCount('AttackEnd'));
 }
@@ -943,7 +940,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
             VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 }
-function forcedAnimEnd()
+simulated function forcedAnimEnd()
 {
 	DebugPrint("forcedAnimEnd");
 		ClearTimer('AttackEnd');
@@ -958,7 +955,7 @@ function forcedAnimEnd()
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
-function  forcedAnimEndByParry()
+simulated function  forcedAnimEndByParry()
 {
 				AttackBlend.setBlendTarget(0, 0.2);    
             // Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
@@ -966,7 +963,7 @@ function  forcedAnimEndByParry()
             AttackSlot[0].PlayCustomAnimByDuration('ember_jerkoff_block', 0.5, 0.1, 0.1);
 }
 
-function doAttack( array<byte> byteDirection)
+simulated function doAttack( array<byte> byteDirection)
 {
 
 	local float timerCounter;
@@ -1078,7 +1075,7 @@ exec function setTracers(int tracers)
 //     Sword.resetTracers();
 //     animationControl();
 // }
-function copyToAttackStruct(name animName, array<float> mods)
+simulated function copyToAttackStruct(name animName, array<float> mods)
 {
 	local int i;
 	AttackPacket.AnimName = animName;
@@ -1086,7 +1083,7 @@ function copyToAttackStruct(name animName, array<float> mods)
 		AttackPacket.Mods[i] = mods[i];
 }
 
-function EndPreAttack()
+simulated function EndPreAttack()
 {
 	if(GetTimeLeftOnAttack() <= 0.5)
 		forcedAnimEnd();
@@ -1099,7 +1096,7 @@ forwardAttack
 	Sets timer for end attack animation
 	Sets tracer delay
 */
-function forwardAttack()
+simulated function forwardAttack()
 {
 	DebugPrint("fwd -");
 
@@ -1119,7 +1116,7 @@ function forwardAttack()
 	}
 	EndPreAttack();
 }
-function BackAttack()
+simulated function BackAttack()
 {
 	DebugPrint("fwd -");
 
@@ -1139,7 +1136,7 @@ function BackAttack()
 	}
 	EndPreAttack();
 }
-function backLeftAttack()
+simulated function backLeftAttack()
 {
 		switch(currentStance)
 	{
@@ -1158,7 +1155,7 @@ function backLeftAttack()
 	EndPreAttack();
 }
 
-function backRightAttack()
+simulated function backRightAttack()
 {
 		switch(currentStance)
 	{
@@ -1176,7 +1173,7 @@ function backRightAttack()
 	}
 	EndPreAttack();
 }
-function forwardLeftAttack()
+simulated function forwardLeftAttack()
 {
 		switch(currentStance)
 	{
@@ -1195,7 +1192,7 @@ function forwardLeftAttack()
 	EndPreAttack();
 }
 
-function forwardRightAttack()
+simulated function forwardRightAttack()
 {
 		switch(currentStance)
 	{
@@ -1221,7 +1218,7 @@ rightAttack
 	Sets tracer delay
 	@TODO: Detect if timer is active, if so do not do another attack
 */
-function rightAttack()
+simulated function rightAttack()
 {
 	switch(currentStance)
 	{
@@ -1247,7 +1244,7 @@ leftAttack
 	Sets tracer delay
 	@TODO: Detect if timer is active, if so do not do another attack
 */
-function leftAttack()
+simulated function leftAttack()
 {
 //ember_temp_left_attack
 	// FlushPersistentDebugLines();
@@ -1275,7 +1272,7 @@ AttackEnd
 	Resets sword, tracers, and idle stance at end of forward attack
 	@TODO: Make perhaps only one attack end animation funcion
 */
-function AttackEnd()
+simulated function AttackEnd()
 {
 	DebugPrint("dun -");
 
@@ -1304,7 +1301,7 @@ JumpAttackSwitch.SetActiveChild(1, 0.3);
 SwordGotHit
 	Temporary animation for 'parries'
 */
-function SwordGotHit()
+simulated function SwordGotHit()
 {
 	forcedAnimEndByParry();
 }
@@ -1312,7 +1309,7 @@ function SwordGotHit()
 animationControl
 	When player is idle, pick only one of the random idle animations w/ 0.25 blend
 */
-function animationControl()
+simulated function animationControl()
 {
 	if(Vsize(Velocity) == 0) 
 	{ 
@@ -1368,7 +1365,7 @@ tetherBeamProjectile
 	Launches a projectile specified by EmberProjectile.uc
 	Upon hitting a target, executes tetherLocationHit
 */  
-function tetherBeamProjectile()
+simulated function tetherBeamProjectile()
 {
 	local projectile P;
 	local vector newLoc;
@@ -1385,7 +1382,7 @@ function tetherBeamProjectile()
 tetherLocationHit
 	returns hit and location of tetherBeamProjectile
 */
-function tetherLocationHit(vector hit, vector lol, actor Other)
+simulated function tetherLocationHit(vector hit, vector lol, actor Other)
 {
 	GG.tetherLocationHit(hit, lol, Other);
 	// projectileHitVector=hit;
@@ -1394,7 +1391,7 @@ function tetherLocationHit(vector hit, vector lol, actor Other)
 	// enemyPawnToggle = (enemyPawn != none) ? true : false;
 	// createTether();
 }
-function debugCone()
+simulated function debugCone()
 {   local Vector HitLocation, HitNormal;
    local Vector Start, End, Block;
    local rotator bRotate;
@@ -1448,7 +1445,7 @@ function decreaseTether()
 /*
 detachTether
 */
-function detachTether() 
+simulated function detachTether() 
 {
 	GG.detachTether();
 	// curTargetWall = none;
@@ -1649,7 +1646,7 @@ startSprint
 // 	GroundSpeed = originalSpeed;
 // }
 
-function createTetherBeam(vector v1, rotator r1)
+simulated function createTetherBeam(vector v1, rotator r1)
 {
 	local ParticleSystemComponent newBeam;
 	newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', v1,r1);
@@ -1657,33 +1654,33 @@ function createTetherBeam(vector v1, rotator r1)
 	newBeam.ActivateSystem(true);
 	tetherBeam.AddItem(newBeam);
 }
-function updateBeamEnd(vector projectileHitLocation, int index)
+simulated function updateBeamEnd(vector projectileHitLocation, int index)
 {
 	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation);
 }
-function updateBeamSource(vector tVar, int index)
+simulated function updateBeamSource(vector tVar, int index)
 {
 	tetherBeam[index].SetVectorParameter('TetherSource', tVar);
 }
-function vector getBeamEnd(int index)
+simulated function vector getBeamEnd(int index)
 {
 	local vector projectileHitLocation;
 	tetherBeam[index].GetVectorParameter('TetherEnd', projectileHitLocation);
 	return projectileHitLocation;
 }
-function vector getBeamSource(int index)
+simulated function vector getBeamSource(int index)
 {
 	local vector tVar;
 	tetherBeam[index].GetVectorParameter('TetherSource', tVar);
 	return tVar;
 }
 
-function array<ParticleSystemComponent> getTetherBeams()
+simulated function array<ParticleSystemComponent> getTetherBeams()
 {
 	return tetherBeam;
 }
 
-function deactivateAllTetherBeams()
+simulated function deactivateAllTetherBeams()
 {
 	local int i;
 
@@ -1699,7 +1696,7 @@ function deactivateAllTetherBeams()
 tetherBeam.length = 0;
 }
 
-function deactivateTetherBeam(int index)
+simulated function deactivateTetherBeam(int index)
 {
 	if(index >= tetherBeam.length)
 	return;
@@ -1713,17 +1710,17 @@ function deactivateTetherBeam(int index)
 			tetherBeam.remove(index,1);
 }
  
-function GrappleRopeBlock createRopeBlock()
+simulated function GrappleRopeBlock createRopeBlock()
 {
   	ropeBlockArray.AddItem(Spawn(class'GrappleRopeBlock', self));	
   	return ropeBlockArray[ropeBlockArray.length-1];
 }
 
-function array<GrappleRopeBlock> getRopeBlocks()
+simulated function array<GrappleRopeBlock> getRopeBlocks()
 {
 	return RopeBlockArray;
 }
-function deleteBlock(GrappleRopeBlock block)
+simulated function deleteBlock(GrappleRopeBlock block)
 {
 	local GrappleRopeBlock g;
 	g = RopeBlockArray[RopeBlockArray.Find(block)];
@@ -1746,7 +1743,7 @@ function deleteBlock(GrappleRopeBlock block)
 //in other tether functions
 //and their values should NOT be recalculated every tick
 
-function tetherCalcs() {
+simulated function tetherCalcs() {
 	GG.tetherCalcs();
 // 	local int idunnowhatimdoing;
 // 	//~~~~~~~~~~~~~~~~~
@@ -1940,7 +1937,7 @@ exec function SetSwordState(bool inHand)
 /*
 GetSwordState
 */
-function bool GetSwordState()
+simulated function bool GetSwordState()
 {
     //getting our sword state.
     return SwordState;   
@@ -1957,7 +1954,7 @@ exec function PlayAttack(name AnimationName, float AnimationSpeed)
 }
 
 
-function JumpVelocityPinch(float fDeltaTime)
+simulated function JumpVelocityPinch(float fDeltaTime)
 {
 
 //TODO: Velocity keeps capping at 320, need to find a logarithmic approach
@@ -1992,7 +1989,7 @@ function JumpVelocityPinch(float fDeltaTime)
 DoKick
 	Does a tracer for ~ 2.5 seconds from left foot to left knee
 */
-function DoKick()
+simulated function DoKick()
 {
 	kickCounter++;
 	if(kickCounter < 20)
@@ -2012,7 +2009,7 @@ function DoKick()
 //===============================
 // Stances Functions
 //===============================
-function LightStance()
+simulated function LightStance()
 {
 	if(GetTimeLeftOnAttack() > 0)
 		return;
@@ -2042,7 +2039,7 @@ switch(currentStance)
     // MediumDecoSword.Mesh.SetHidden(false);
 	overrideStanceChange();
 }
-function BalanceStance()
+simulated function BalanceStance()
 {
 	if(GetTimeLeftOnAttack() > 0)
 		return;
@@ -2079,7 +2076,7 @@ function BalanceStance()
 	overrideStanceChange();
 	
 }
-function HeavyStance()
+simulated function HeavyStance()
 {
 	if(GetTimeLeftOnAttack() > 0)
 		return;
@@ -2118,12 +2115,12 @@ function HeavyStance()
 	overrideStanceChange();
 
 }
-function SheatheWeapon()
+simulated function SheatheWeapon()
 {
 	Mesh.DetachComponent(Sword[currentStance-1].mesh);
     Mesh.DetachComponent(Sword[currentStance-1].CollisionComponent);
 } 
-function overrideStanceChange()
+simulated function overrideStanceChange()
 {
 	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
 	RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);

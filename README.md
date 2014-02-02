@@ -38,6 +38,7 @@ TODO:
 ==========
 
 ####Inathero's doing this
+- NETWORKING WTF
 - Change timer from anim preset duration to actual anim duration
 - Sword Trail implementation
 - Shuffle 'dodge' booster thingy
