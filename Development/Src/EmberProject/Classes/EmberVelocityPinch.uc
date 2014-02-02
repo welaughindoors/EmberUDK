@@ -50,5 +50,5 @@ simulated function ApplyVelocityPinch(float DeltaTime = -1, float TargetStartTim
 
 DefaultProperties
 {
-	genericVelocityPinch = 0.946; //Modifier
+	genericVelocityPinch = 0.930; //Modifier
 }

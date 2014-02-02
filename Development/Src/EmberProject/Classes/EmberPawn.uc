@@ -2252,7 +2252,7 @@ defaultproperties
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
 	enableInaAudio = 0;
-	// GroundSpeed=300.0;
+    GroundSpeed=400.0;
 
 //=============================================
 // End Combo / Attack System Vars
@@ -2264,7 +2264,7 @@ defaultproperties
 	SwordState = false
 	MultiJumpBoost=1622.0
 	CustomGravityScaling = 1.8//1.6
-	JumpZ=500//JumpZ=750 //default-322.0
+	JumpZ=750//JumpZ=750 //default-322.0
     bCollideActors=True
     bBlockActors=True
     currentStance = 1;

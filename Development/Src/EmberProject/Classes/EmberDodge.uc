@@ -153,7 +153,7 @@ function UnDodge()
 
 DefaultProperties
 {
-	DodgeSpeed = 1200
+	DodgeSpeed = 635
 	DodgeDuration = 0.2
 	bDodgeCapable = true
 	bDodging = false
