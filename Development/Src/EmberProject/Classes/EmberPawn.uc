@@ -20,7 +20,7 @@ var GrappleRopeBlock testBlock;
 var EmberVelocityPinch VelocityPinch;
 var EmberChamberFlags ChamberFlags;
 
-var byte opt;
+var bool ParryEnabled;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -456,6 +456,7 @@ if(bAttackQueueing)
 		AttackSlot[1].SetActorAnimEndNotification(true);
 }
 
+CheckIfEnableParry();
 
 if(debugConeBool)
 debugCone();
@@ -545,6 +546,13 @@ debugCone();
 	animationControl();
 
 } 
+function CheckIfEnableParry()
+{
+	if(VSize(velocity) <= 230)
+		ParryEnabled = true;
+		else
+		ParryEnabled = false;
+}
 /*
 HitBlue
 	Shakes camera with slight blue tint

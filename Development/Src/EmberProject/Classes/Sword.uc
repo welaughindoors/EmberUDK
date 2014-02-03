@@ -343,6 +343,22 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         if(hitInfo.BoneName == 'sword_blade')
         {
         // if(TestPawn(hitActor).doin)
+
+  if(EmberPawn(hitActor).ParryEnabled == true)
+  {
+
+    swordParried(hitActor);
+    swordParried(Owner);
+    parryEffect(parryEffectLocation);     
+
+    EmberPawn(Owner).HitGreen();
+    EmberPawn(hitActor).HitGreen();
+   sVelocity = Normal(Vector(Owner.Rotation));
+   DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
+    hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');  
+    return;
+  }
+
   if(TestPawn(hitActor).GetTimeLeftOnAttack() > 0)
   {
     // DebugPrint("p1"@aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[5], TestPawn(hitActor).AttackPacket.Mods[5]));
@@ -351,6 +367,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
             if(aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[7], TestPawn(hitActor).AttackPacket.Mods[7]))
             {
             swordParried(hitActor);
+    swordParried(Owner);
             parryEffect(parryEffectLocation);      
 
     EmberPawn(Owner).HitGreen();
