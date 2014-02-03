@@ -19,6 +19,7 @@ var EmberDodge Dodge;
 var GrappleRopeBlock testBlock;
 var EmberVelocityPinch VelocityPinch;
 var EmberChamberFlags ChamberFlags;
+var EmberCosmetic_ItemList Cosmetic_ItemList;
 
 var bool ParryEnabled;
 
@@ -264,12 +265,15 @@ simulated event PostBeginPlay()
     GG = new class'EmberProject.GloriousGrapple';
     VelocityPinch = new class'EmberProject.EmberVelocityPinch';
     ChamberFlags = new class 'EmberProject.EmberChamberFlags';
+    Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
+    Cosmetic_ItemList.InitiateCosmetics();
     Dodge.SetOwner(self);
     VelocityPinch.SetOwner(self);
     GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
     aFramework.InitFramework();
    	//1 second attach skele mesh
     SetTimer(0.2, false, 'WeaponAttach'); 
+    SetTimer(0.1, false, 'SetUpCosemtics');
 
 
 // AttackFramework aFramework = new AttackFramework ();
@@ -287,6 +291,17 @@ function disableLookInput(bool yn)
 simulated function bool DoDodge(array<byte> inputA)
 {
 	return Dodge.DoDodge(inputA);
+}
+simulated function SetUpCosemtics()
+{
+	local EmberCosmetic Cosmetic;
+	local int i;
+	for(i = 0; i < Cosmetic_ItemList.CosmeticItemList.length; i++)
+	{
+    Cosmetic = Spawn(class'EmberCosmetic', self);
+    Cosmetic.Mesh.SetSkeletalMesh(Cosmetic_ItemList.CosmeticItemList[i]);
+    Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.SocketLocationList[i]);
+	}
 }
 /*
 WeaponAttach
@@ -322,12 +337,12 @@ simulated function WeaponAttach()
         // huahs.AddItem(SoundNodeWave'EmberSounds.huah4');
         // LightDecoSword = Spawn(class'decoSword', self);
         MediumDecoSword = Spawn(class'decoSword', self);
-        Helmet = Spawn(class'decoSword', self);
+        // Helmet = Spawn(class'decoSword', self);
         // HeavyDecoSword = Spawn(class'decoSword', self);
         // LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
         MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_scabbard_katana');
-        Helmet.Mesh.SetSkeletalMesh(SkeletalMesh'Cosmetic.Headband');
-    Mesh.AttachComponentToSocket(Helmet.Mesh, 'Helmet');
+        // Helmet.Mesh.SetSkeletalMesh(SkeletalMesh'Cosmetic.Headband');
+    // Mesh.AttachComponentToSocket(Helmet.Mesh, 'Helmet');
         // HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
     Mesh.AttachComponentToSocket(Sword[0].Mesh, 'WeaponPoint');
