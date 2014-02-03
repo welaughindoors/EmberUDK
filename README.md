@@ -57,9 +57,11 @@ TODO:
 ####Admin's doing this
 - Walking animation + blending
 
+####Hydras's doing this
+- Testing out cosmetics
+
 ####Misc:
 - Sheathe animation?
-- Camera Shake
 - Better Camera
 - UI. Menu UI, Multiplayer UI, Server List, HUD
 - HUD: HP, Crosshair, Stances (1,2,3), Strings?
@@ -80,6 +82,7 @@ Recently Completed:
 - Directional Parries
 - Some basic temporary sound assets
 - API's for Grapple
+- API's for Cosmetic items
 
 ####Biddybam
 - Grapple 'sticks' around edges, like a rope
@@ -88,9 +91,20 @@ Recently Completed:
 ####Admin + Coldhands Anim Team
 - Animations
 
-ISSUES:
+####Hydra
+- Headband cosmetic
+
+Issues:
 ==========
 - Grapple doesn't work correctly on low-end computers (Intel Core 2 Duo CPU E8400 @3.00GHz)
+
+Networking Issues:
+==========
+- Grapple is completely dead
+- Sword replication on Test Pawns is null
+- Collision Z axis on test pawns is lower than default
+- Test Pawns damage is one hit killing. Probably due to null sword replication
+- Player does no damage
 
 Notes:
 ==========
