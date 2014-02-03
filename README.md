@@ -10,8 +10,12 @@ Controls
 - 4    : Sheathe
 - Ctrl (hold) : Walk
 - Shift : Dash
-- Left Click : Attack
-- Left Click (Hold) : Queues Attack
+- Left Click (tap): Attack
+- Left Click (tap + tap): Feints into an attack (have to tap during windup)
+- Left Click (Hold): Chamber's Attack
+
+- Right Click (tap): Feint windup
+- Right Click (hold): Chamber, release into attack (same as holding left click)
 
 Console Commands
 ===========

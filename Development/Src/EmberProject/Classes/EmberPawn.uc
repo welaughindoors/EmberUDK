@@ -18,6 +18,9 @@ var GloriousGrapple GG;
 var EmberDodge Dodge;
 var GrappleRopeBlock testBlock;
 var EmberVelocityPinch VelocityPinch;
+var EmberChamberFlags ChamberFlags;
+
+var byte opt;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
@@ -95,7 +98,7 @@ var AnimNodeSlot			AttackSlot[2];
 var AnimNodeBlend			AttackBlend;
 var byte 					blendAttackCounter;
 var bool 					bAttackQueueing;
-var bool 					bChambering;
+var bool 					bRightChambering;
 var float 					iChamberingCounter;
 
 var struct AttackPacketStruct
@@ -259,6 +262,7 @@ simulated event PostBeginPlay()
     Dodge = new class'EmberProject.EmberDodge';
     GG = new class'EmberProject.GloriousGrapple';
     VelocityPinch = new class'EmberProject.EmberVelocityPinch';
+    ChamberFlags = new class 'EmberProject.EmberChamberFlags';
     Dodge.SetOwner(self);
     VelocityPinch.SetOwner(self);
     GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
@@ -412,6 +416,7 @@ Simulated Event Tick(float DeltaTime)
 	// local UTPlayerController PC;
 	Super.Tick(DeltaTime);
 	GG.runsPerTick(deltatime);
+	LeftRightClicksAndChambersManagement(DeltaTime);
 
   	// PC = UTPlayerController(Instigator.Controller);
 	// EmberPlayerController(PC).resetNetworkMesh();
@@ -450,15 +455,8 @@ if(bAttackQueueing)
 		AttackSlot[0].SetActorAnimEndNotification(true);
 		AttackSlot[1].SetActorAnimEndNotification(true);
 }
-if(bChambering)
-{
-	iChamberingCounter += DeltaTime;
-	if(iChamberingCounter >= AttackPacket.Mods[6])
-		{
-	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
-	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
-}
-}
+
+
 if(debugConeBool)
 debugCone();
 // Sword[1].findActors();
@@ -846,12 +844,20 @@ simulated function doAttackQueue()
 	local UTPlayerController PC;
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
-bAttackQueueing = true;
-if(GetTimeLeftOnAttack() == 0)
-{
+// bAttackQueueing = true;
+	iChamberingCounter = 0;
+
+	ClearTimer('AttackEnd');
+	AttackEnd();
+
+	ChamberFlags.resetLeftChamberFlags();
+	ChamberFlags.setLeftChamberFlag(0);
+	ChamberFlags.setLeftChamberFlag(2);
+// if(GetTimeLeftOnAttack() == 0)
+// {
 	PC = UTPlayerController(Instigator.Controller);
 	doAttack(EmberPlayerController(PC).verticalShift);
-}
+// }
 
 }
 simulated function stopAttackQueue()
@@ -862,17 +868,30 @@ simulated function stopAttackQueue()
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
 DebugPrint("stopAttackQueue");
 bAttackQueueing = false;
+	ChamberFlags.removeLeftChamberFlag(0);
 
 		AttackSlot[0].SetActorAnimEndNotification(false);
 		AttackSlot[1].SetActorAnimEndNotification(false);
-
+if(ChamberFlags.CheckLeftFlag(1))
+{
+DebugPrint("LChamber End");
+			iChamberingCounter = 0;
+			Sword[currentStance-1].GoToState('Attacking');
+            Sword[currentStance-1].setTracerDelay(0,(AttackPacket.Mods[2] - AttackPacket.Mods[6]));
+			SetTimer((AttackPacket.Mods[0] - AttackPacket.Mods[6]), false, 'AttackEnd');	
+			VelocityPinch.ApplyVelocityPinch(,0,(AttackPacket.Mods[2] - AttackPacket.Mods[6])  * 1.1);
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+}
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
 simulated function doChamber()
 {
 	local UTPlayerController PC;
-	bChambering = true;
+	bRightChambering = true;
 	iChamberingCounter = 0;
+	ChamberFlags.resetRightChamberFlags();
+	ChamberFlags.setRightChamberFlag(0);
 	ClearTimer('AttackEnd');
 	AttackEnd();
 	// if(GetTimeLeftOnAttack() < 0.5)
@@ -884,8 +903,9 @@ simulated function doChamber()
 simulated function stopChamber()
 
 {
-	bChambering = false;
-	if(iChamberingCounter >= AttackPacket.Mods[6])
+	ChamberFlags.removeRightChamberFlag(0);
+	// if(iChamberingCounter >= AttackPacket.Mods[6])
+	if(ChamberFlags.CheckRightFlag(1))
 	{
 			Sword[currentStance-1].GoToState('Attacking');
             Sword[currentStance-1].setTracerDelay(0,AttackPacket.Mods[2] - AttackPacket.Mods[6]);
@@ -897,6 +917,55 @@ simulated function stopChamber()
 		AttackSlot[1].SetActorAnimEndNotification(false);
 	}
 }
+
+simulated function LeftRightClicksAndChambersManagement(float DeltaTime)
+{
+	
+if(ChamberFlags.CheckLeftFlag(0))
+{
+	iChamberingCounter += DeltaTime;
+	if(iChamberingCounter >= AttackPacket.Mods[6])
+		{
+			if(!ChamberFlags.CheckLeftFlag(1))
+			{
+			ChamberFlags.setLeftChamberFlag(1);
+			ClearTimer('AttackEnd');
+            Sword[currentStance-1].setTracerDelay(0,0);
+			Sword[currentStance-1].SetInitialState();
+			VelocityPinch.ApplyVelocityPinch(,0,0);
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+			}
+		}
+}
+
+if(ChamberFlags.CheckRightFlag(0))
+{
+	iChamberingCounter += DeltaTime;
+	if(iChamberingCounter >= AttackPacket.Mods[6])
+		{
+		ChamberFlags.setRightChamberFlag(1);
+			 
+	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+		}
+}
+else if(!ChamberFlags.CheckRightFlag(0) && iChamberingCounter > 0 && !ChamberFlags.CheckLeftFlag(2))
+{
+
+	iChamberingCounter += DeltaTime;
+	//If rightclick was released before windup... procede to windup time and then blend to idle
+	if(iChamberingCounter >= AttackPacket.Mods[6] && !ChamberFlags.CheckRightFlag(1))
+		{
+			DebugPrint("Chamber End");
+			iChamberingCounter = 0;
+			AttackEnd();
+			AttackSlot[0].StopCustomAnim(0.4);
+			AttackSlot[1].StopCustomAnim(0.4);
+		}
+}
+}
+
 /*
 GetTimeLeftOnAttack
 	Returns time left on attack timer
@@ -954,15 +1023,15 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			// VelocityPinch.ApplyVelocityPinch(,,true);
    			ClearTimer('AttackEnd');
             Sword[currentStance-1].resetTracers();
-			if(bAttackQueueing)
-			{
-				PC = UTPlayerController(Instigator.Controller);
-				doAttack(EmberPlayerController(PC).verticalShift);
-				return;
-			}
+			// if(ChamberFlags.CheckLeftFlag(0))
+			// {
+			// 	PC = UTPlayerController(Instigator.Controller);
+			// 	doAttack(EmberPlayerController(PC).verticalShift);
+			// 	return;
+			// }
             AttackBlend.setBlendTarget(1, 0.5);
-            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
-            if(!bChambering)
+            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
+			if(!ChamberFlags.CheckRightFlag(0))
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
@@ -973,7 +1042,7 @@ simulated function forcedAnimEnd()
 	DebugPrint("forcedAnimEnd");
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
-			if(!bChambering)
+			if(!ChamberFlags.CheckRightFlag(0))
 			{
 			Sword[currentStance-1].GoToState('Attacking');
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
@@ -1306,7 +1375,9 @@ simulated function AttackEnd()
 
 	// VelocityPinch.ApplyVelocityPinch(,,true);
 //when you jump, now shows jump anim
-JumpAttackSwitch.SetActiveChild(1, 0.3);
+
+	ChamberFlags.removeLeftChamberFlag(2);
+	JumpAttackSwitch.SetActiveChild(1, 0.3);
 	//forwardEmberDash.StopCustomAnim(0);
 	// Sword.rotate(0,0,49152);
     Sword[currentStance-1].SetInitialState();
