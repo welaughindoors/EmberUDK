@@ -254,7 +254,6 @@ PostBeginPlay
 */
 simulated event PostBeginPlay()
 {
-
 	super.PostBeginPlay();
 
     //Add pawn to world info to be accessed from anywhere
@@ -271,9 +270,10 @@ simulated event PostBeginPlay()
     VelocityPinch.SetOwner(self);
     GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
     aFramework.InitFramework();
+
    	//1 second attach skele mesh
     SetTimer(0.2, false, 'WeaponAttach'); 
-    SetTimer(0.1, false, 'SetUpCosemtics');
+    // SetTimer(0.1, false, 'SetUpCosmetics');
 
 
 // AttackFramework aFramework = new AttackFramework ();
@@ -292,7 +292,7 @@ simulated function bool DoDodge(array<byte> inputA)
 {
 	return Dodge.DoDodge(inputA);
 }
-simulated function SetUpCosemtics()
+simulated function SetUpCosmetics()
 {
 	local EmberCosmetic Cosmetic;
 	local int i;
@@ -313,9 +313,9 @@ simulated function WeaponAttach()
            // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
     // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
     local Sword tSword;
-    local UTPlayerController PC;
-  	PC = UTPlayerController(Instigator.Controller);
-	EmberPlayerController(PC).resetNetworkMesh();
+    // local UTPlayerController PC;
+  	// PC = UTPlayerController(Instigator.Controller);
+	// EmberPlayerController(PC).resetMesh();
 	
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
@@ -351,7 +351,7 @@ simulated function WeaponAttach()
  // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
  // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
  
-MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
+	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
     MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].CollisionComponent, 'KattanaSocket');
     Mesh.AttachComponentToSocket(Sword[2].Mesh, 'HeavyAttach');
     Mesh.AttachComponentToSocket(Sword[2].CollisionComponent, 'HeavyAttach');
@@ -364,7 +364,7 @@ MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
 
-
+SetUpCosmetics();
 overrideStanceChange();
     	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
     	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
@@ -436,11 +436,6 @@ Simulated Event Tick(float DeltaTime)
 	Super.Tick(DeltaTime);
 	GG.runsPerTick(deltatime);
 	LeftRightClicksAndChambersManagement(DeltaTime);
-
-  	// PC = UTPlayerController(Instigator.Controller);
-	// EmberPlayerController(PC).resetNetworkMesh();
-	// DebugPrint(""@width);
-
 	//for fps issues and keeping things properly up to date
 	//specially for skeletal controllers
 

@@ -112,6 +112,7 @@ playerControllerWORLD.resetMesh();
 {
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
+  PlayerReplicationInfoClass=class'EmberProject.EmberReplicationInfo'
    HUDType=class'EmberProject.EmberHUD'
    MapPrefixes[0]="UDN"
    DefaultInventory(0)=none

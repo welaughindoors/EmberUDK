@@ -11,9 +11,11 @@ var MaterialInterface defaultMaterial1;
 var AnimTree defaultAnimTree;
 var array<AnimSet> defaultAnimSet;
 var PhysicsAsset defaultPhysicsAsset; 
+var EmberCosmetic_ItemList Cosmetic_ItemList;
 };
 
 var repnotify RepMeshAnimsAssets PostBeginCharacterInformation;
+var repnotify int updatePlayerMeshes;
 
 //=============================================
 // Mesh and Character Variables
@@ -59,15 +61,32 @@ var float ai_attackPlayerRange;
 
 simulated event ReplicatedEvent(name VarName)
 {
+  local PlayerController PC;
   DebugPrint("Rep Event Received - "@VarName);
-     if(VarName == 'PostBeginCharacterInformation')
+     if(VarName == 'PostBeginCharacterInformation' )
      {
-      DebugPrint("PostBeginCharacterInformation");
-          // if(self.Pawn.Mesh.SkeletalMesh != PostBeginCharacterInformation.defaultMesh)
-          // {
-            // DebugPrint("Rep Mesh Change");
-               // self.Pawn.Mesh.SetSkeletalMesh(RepMesh);
-          // }
+        // ForEach LocalPlayerControllers(class'EmberPlayerController', PC)
+            // EmberPlayerController(PC).resetMesh();
+         // foreach Worldinfo.AllActors( class'EmberPlayerController', PC ) 
+    resetMesh();         
+    // ForEach LocalPlayerControllers(class'PlayerController', PC)
+    // {
+    //   DebugPrint("PostBeginCharacterInformation");
+    //   // if ( PC.PlayerReplicationInfo == self )
+    //   // {
+    //     EmberPlayerController(PC).SaveMeshValues();
+    //   // }
+    // }
+     }
+  
+     if(VarName == 'Pawn')
+     {
+        ForEach LocalPlayerControllers(class'PlayerController', PC)
+        {
+          DebugPrint("pawn reset "@PC); 
+        // foreach Worldinfo.AllActors( class'PlayerController', PC ) 
+                   EmberPlayerController(PC).resetMesh();
+                 }
      }
      else
      {
@@ -76,7 +95,7 @@ simulated event ReplicatedEvent(name VarName)
 }
 replication
 {
-    if (bNetDirty)
+    if (bNetDirty || bNetInitial)
       PostBeginCharacterInformation;
 }
 /*
@@ -99,7 +118,7 @@ ignores SeePlayer, HearNoise, Bump;
    LocalPlayer(Player).ViewportClient.SetMouse(MPos.X, MPos.Y+2);
 
       //Does attack or block, depends on FireModeNum
-      
+
    // FireModeNum == 0 ? EmberPawn(pawn).doAttack(playerStrafeDirection) : EmberPawn(pawn).doBlock();
    (FireModeNum == 0) ? EmberPawn(pawn).doAttackQueue() : EmberPawn(pawn).doChamber();
    // DebugPrint("startfire");
@@ -233,7 +252,8 @@ DebugPrint("post begin");
    //set Self's worldinfo var
    EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
 
-   SetTimer(0.25, false, 'resetMesh');
+  SaveMeshValues();
+  
 }
 //=============================================
 // Keybinded Functions
@@ -365,21 +385,33 @@ EmberPawn(pawn).SheatheWeapon();
 
 exec function TempTaunt()
 {
+  local EmberPawn pawner;
+  local EmberPlayerController PC;
   // local SoundCue taunt;
   // taunt = SoundCue'EmberSounds.Taunts';
   // PlaySound(taunt);
-  local vector vecty, nub, TraceStart, TraceEnd;
+//   local vector vecty, nub, TraceStart, TraceEnd;
   
-  local Actor archetype;
-  local TestPawn AI;
+//   local Actor archetype;
+//   local TestPawn AI;
 
-// archetype = Actor(DynamicLoadObject("TestPawn'ArtAnimation.AI_1'", class'TestPawn'));
-TraceStart = Pawn.Location;
-TraceEnd = TraceStart + Vector( Pawn.Rotation ) * 5000;
-   DrawDebugLine(TraceStart,TraceEnd, -1, 0, 0, true);
-Trace(vecty, nub, TraceStart, TraceEnd);
-DebugPrint(""@vecty);
-AI = Spawn(class'TestPawn', , ,vecty);
+// // archetype = Actor(DynamicLoadObject("TestPawn'ArtAnimation.AI_1'", class'TestPawn'));
+// TraceStart = Pawn.Location;
+// TraceEnd = TraceStart + Vector( Pawn.Rotation ) * 5000;
+//    DrawDebugLine(TraceStart,TraceEnd, -1, 0, 0, true);
+// Trace(vecty, nub, TraceStart, TraceEnd);
+// DebugPrint(""@vecty);
+// AI = Spawn(class'TestPawn', , ,vecty);
+updatePlayerMeshes++;
+// EmberReplicationInfo(playerreplicationinfo).updateMesh = updatePlayerMeshes; 
+DebugPrint("pp -"@updatePlayerMeshes);
+  // foreach Worldinfo.AllActors( class'EmberPawn', pawner ) 
+  // {
+  //   DebugPrint("pawner"@pawner);
+  //           PC = EmberPlayerController(pawner.Instigator.Controller);
+  //           PC.resetMesh();
+  //         }
+        // foreach Worldinfo.AllActors( class'EmberPlayerController', PC ) 
 }
 //============================================= 
 // Hooks Functions
@@ -525,7 +557,7 @@ function setAIStatus()
 resetMesh 
 	Sets custom mesh
 */
-simulated function resetMesh()
+simulated function SaveMeshValues()
 {
 PostBeginCharacterInformation.defaultMesh = defaultMesh;
 PostBeginCharacterInformation.defaultMaterial0 = defaultMaterial0;
@@ -533,23 +565,23 @@ PostBeginCharacterInformation.defaultMaterial1 = defaultMaterial1;
 PostBeginCharacterInformation.defaultAnimTree = defaultAnimTree;
 PostBeginCharacterInformation.defaultAnimSet = defaultAnimSet;
 PostBeginCharacterInformation.defaultPhysicsAsset = defaultPhysicsAsset;
-self.Pawn.Mesh.SetSkeletalMesh(defaultMesh);
-self.Pawn.Mesh.SetMaterial(0,defaultMaterial0);
-self.Pawn.Mesh.SetMaterial(1,defaultMaterial1); 
-self.Pawn.Mesh.SetPhysicsAsset(defaultPhysicsAsset );
-self.Pawn.Mesh.AnimSets=defaultAnimSet; 
-self.Pawn.Mesh.SetAnimTreeTemplate(defaultAnimTree );
+
+PostBeginCharacterInformation.Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
+PostBeginCharacterInformation.Cosmetic_ItemList.InitiateCosmetics();
 // RepMesh = defaultMesh;
+ SetTimer(0.1, false, 'resetMesh');
 }
 
-simulated function resetNetworkMesh()
+simulated function resetMesh()
 {
+  DebugPrint("Mesh Reset");
 self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
 self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
 self.Pawn.Mesh.SetMaterial(1,PostBeginCharacterInformation.defaultMaterial1); 
 self.Pawn.Mesh.SetPhysicsAsset(PostBeginCharacterInformation.defaultPhysicsAsset );
 self.Pawn.Mesh.AnimSets=PostBeginCharacterInformation.defaultAnimSet; 
 self.Pawn.Mesh.SetAnimTreeTemplate(PostBeginCharacterInformation.defaultAnimTree );
+EmberPawn(Pawn).SetUpCosmetics();
 // RepMesh = defaultMesh;
 }
 
@@ -572,5 +604,5 @@ defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_player'
 defaultAnimSet(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 // defaultPhysicsAsset=PhysicsAsset'CTF_Flag_IronGuard.Mesh.S_CTF_Flag_IronGuard_Physics'
 defaultPhysicsAsset=PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics'
-
+  
 }
