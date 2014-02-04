@@ -22,7 +22,7 @@ var vector 		gHookTarget;
 var pawn 		playerPawn;
 var vector 		grappleSocketLocation;
 
-
+var byte isParryActive;
 var pawn P;
 //=============================================
 // Weapon
@@ -429,12 +429,22 @@ SwordGotHit
 */
 function SwordGotHit()
 {
-    GetALocalPlayerController().ClientMessage("Faggot hit my sword!");
+	local int i;
+	if(isParryActive == 0)
+	{
+		isParryActive = 1;
+    GetALocalPlayerController().ClientMessage("TestPawn - Sword Hit");
     Sword.SetInitialState();
     Sword.attackIsActive = false;
-    AttackSlot[0].StopCustomAnim(0.1);
+    AttackSlot[0].StopCustomAnim(0.01);
+    ClearTimer('attackStop');
     AttackBlend.setBlendTarget(1, 0); 
-    Attack1.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0, 0, false);
+
+	i = Rand(Sword.aParry.ParryNames.length);
+
+	SetTimer(Sword.aParry.ParryMods[i], false, 'attackStop');
+	AttackSlot[0].PlayCustomAnimByDuration(Sword.aParry.ParryNames[i],Sword.aParry.ParryMods[i], 0, 0, false);
+	}
 }
 function damageDone(float tDamage)
 {
@@ -480,6 +490,8 @@ attackStop
 function attackStop()
 {
 	// Sword.rotate(0,0,49152);
+	if(isParryActive == 1)
+		isParryActive = 0;
     Sword.SetInitialState();
     Sword.resetTracers();
 	// Attack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
@@ -562,6 +574,7 @@ DefaultProperties
   followPlayer = 1;
   attackPlayer = 1;
   attackPlayerRange = 150;
+  isParryActive=0;
   // GroundSpeed=300.0;
 defaultMesh=SkeletalMesh'ArtAnimation.Meshes.ember_base'
 defaultAnimTree=AnimTree'ArtAnimation.Armature_Tree'

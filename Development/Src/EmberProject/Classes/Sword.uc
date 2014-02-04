@@ -191,6 +191,8 @@ simulated function swordParried(actor hitActor)
 {
   TestPawn(hitActor).SwordGotHit();
   TestPawn(owner).SwordGotHit();
+  EmberPawn(hitActor).SwordGotHit();
+  EmberPawn(owner).SwordGotHit();
   // EmberPawn(Owner).goToIdleMotherfucker();
   tracerCounter = tracerStartDelay + 1;
   bFuckTheAttack = true;
@@ -720,6 +722,8 @@ simulated event PostBeginPlay()
 tracerAmount = 15;
 tracerTempColourCounter = 0;
 aParry = new class'EmberProject.AttackFramework_Parry';
+aParry.initialize();
+
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordSwings');
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitFlesh');
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitSword');

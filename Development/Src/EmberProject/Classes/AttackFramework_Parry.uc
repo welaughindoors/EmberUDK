@@ -11,9 +11,44 @@ const dBottomRight 	= 7;
 
 var actor owner;
 
+var array<name> ParryNames;
+var array<float> ParryMods;
+
+//==================================================
+// API Part. Modify This
+//==================================================
+
+function initialize()
+{
+/* Version 1:
+| AddParryAndMods(name, mods);
+|
+| name = parry name
+| mods = duration of parry (s)
+|
+| One parry is picked from random currently
+|
+*/ 
+
+AddParryAndMods('ember_medium_parry', 0.45);
+
+}
+
+//==================================================
+// END API. Begin System Functions
+//==================================================
+
+
+
+
+
+
+
+
 function setOwner(actor own)
 {
 	owner = own;
+	initialize();
 }
 
 simulated function DebugPrint(string sMessage)
@@ -75,6 +110,12 @@ function bool CanAttackParry(int Direction_1, int Direction_2)
 		break;
 	}
 	return false;
+}
+
+function AddParryAndMods(name pName, float Duration)
+{
+	ParryNames.AddItem(pName);
+	ParryMods.AddItem(Duration);
 }
 
 DefaultProperties

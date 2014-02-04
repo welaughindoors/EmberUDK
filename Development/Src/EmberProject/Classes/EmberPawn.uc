@@ -1076,10 +1076,17 @@ simulated function forcedAnimEnd()
 }
 simulated function  forcedAnimEndByParry()
 {
-				AttackBlend.setBlendTarget(0, 0.2);    
-            // Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-			// SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
-            AttackSlot[0].PlayCustomAnimByDuration('ember_jerkoff_block', 0.5, 0.1, 0.1);
+	local int i;
+
+	DebugPrint("ember Pawn forced anim end by parry");
+
+    ClearTimer('attackStop');
+    AttackBlend.setBlendTarget(1, 0); 
+	SetTimer(0.5, false, 'attackStop');
+
+	i = Rand(Sword[currentStance-1].aParry.ParryNames.length);
+
+	AttackSlot[1].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 }
 
 simulated function doAttack( array<byte> byteDirection)
