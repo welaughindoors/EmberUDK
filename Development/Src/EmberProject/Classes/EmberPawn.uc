@@ -1095,6 +1095,8 @@ simulated function forcedAnimEnd()
 			Sword[currentStance-1].GoToState('Attacking');
             Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
 			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
+			if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
+			SetTimer(AttackPacket.Mods[1], false, 'AttackLock');	
 			VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 			}
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
@@ -1419,6 +1421,11 @@ simulated function leftAttack()
 	}	
 	EndPreAttack();
 }
+simulated function AttackLock()
+{
+	disableMoveInput(true);
+	disableLookInput(true);
+}
 /*
 AttackEnd
 	Resets sword, tracers, and idle stance at end of forward attack
@@ -1437,6 +1444,8 @@ simulated function AttackEnd()
 	// Sword.rotate(0,0,49152);
     Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
+	disableMoveInput(false);
+	disableLookInput(false);
 
     // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');

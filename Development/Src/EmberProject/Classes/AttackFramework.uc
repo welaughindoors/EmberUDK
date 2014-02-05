@@ -17,6 +17,8 @@ var float lightCameraShake;
 var float mediumCameraShake;
 var float heavyCameraShake;
 
+var array<name>TestLockAnim;
+
 var name lightLeftString1;
 var array<float>lightLeftString1Mods;
 var name lightRightString1;
@@ -110,6 +112,8 @@ function SetUpDirectionals()
     heavyForwardRightString1Mods.AddItem(dTopRight);
     heavyBackLeftString1Mods.AddItem(dBottomLeft);
     heavyBackRightString1Mods.AddItem(dBottomRight);
+
+    TestLockAnim.AddItem('ember_heavy_forward');
 }
 
 DefaultProperties
@@ -187,7 +191,7 @@ mediumBackRightString1Mods	 	=(1.4, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
 
 heavyLeftString1Mods 			=(1.7, 0.65, 0.85, 0.3, 0.5, 20000, 0.6)
 heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
-heavyForwardString1Mods 		=(1.4, 0.8, 0, 0.2, 0.28, 20000, 0.8)
+heavyForwardString1Mods 		=(1.4, 0.8, 1.4, 0.2, 0.1, 20000, 0.8)
 heavyForwardLeftString1Mods 	=(1.7, 0.65, 0.85, 0.3, 0.5, 20000, 0.6)
 heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
 heavyBackString1Mods 			=(1.4, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
