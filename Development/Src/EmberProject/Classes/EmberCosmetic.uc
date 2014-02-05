@@ -26,7 +26,7 @@ defaultproperties
 
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
         // SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-        SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.gladius'
+        // SkeletalMesh=SkeletalMesh'ArtAnimation.Meshes.gladius'
         // PhysicsAsset=PhysicsAsset'GDC_Materials.Meshes.SK_ExportSword2_Physics'
        AlwaysLoadOnClient=true
        AlwaysLoadOnServer=true
@@ -53,21 +53,8 @@ defaultproperties
        BlockZeroExtent=true 
        BlockNonZeroExtent=true
        CollideActors=true
-
-
-// Rotation=(Pitch=000 ,Yaw=0, Roll=49152 )
-// Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
-
-    End Object
+        End Object
     Mesh = SwordMesh
     Components.Add(SwordMesh)
-
-    // Begin Object class=CylinderComponent Name=CollisionCylinder
-    //     // CollisionRadius=+0160.000000
-    //     // CollisionHeight=+0165.000000
-    // End Object
-    // CollisionComponent = CollisionCylinder
-    // Components.Add(CollisionCylinder)
-    // // CollisionType=COLLIDE_BlockAll
 
 }
