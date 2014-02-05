@@ -146,7 +146,7 @@ heavyRightString1			=
 heavyForwardString1			=   ember_heavy_forward
 heavyForwardLeftString1 	=   ember_heavy_left
 heavyForwardRightString1 	= 	
-heavyBackString1			=
+heavyBackString1			=	ember_heavy_forward
 heavyBackLeftString1 		=   
 heavyBackRightString1 		= 	
 
@@ -176,21 +176,21 @@ lightBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
 lightBackLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
 lightBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
 
-mediumLeftString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4) 
-mediumRightString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
-mediumForwardString1Mods 		=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
-mediumForwardLeftString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
-mediumForwardRightString1Mods 	=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
-mediumBackString1Mods 			=(1.3, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
-mediumBackLeftString1Mods 		=(1.3, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
-mediumBackRightString1Mods	 	=(1.3, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
+mediumLeftString1Mods 			=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.4) 
+mediumRightString1Mods 			=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
+mediumForwardString1Mods 		=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
+mediumForwardLeftString1Mods 	=(1.4, 0.45, 0.7, 0.3, 0.5, 9500, 0.4)
+mediumForwardRightString1Mods 	=(1.4, 0.45, 0.7, 0.3, 0.5, 9500, 0.4)
+mediumBackString1Mods 			=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
+mediumBackLeftString1Mods 		=(1.4, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
+mediumBackRightString1Mods	 	=(1.4, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
 
-heavyLeftString1Mods 			=(2.0, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
+heavyLeftString1Mods 			=(1.7, 0.65, 0.85, 0.3, 0.5, 20000, 0.6)
 heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
-heavyForwardString1Mods 		=(1.5, 1.0, 2.0, 0.2, 0.28, 20000, 0.8)
-heavyForwardLeftString1Mods 	=(2.0, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
+heavyForwardString1Mods 		=(1.4, 0.8, 0, 0.2, 0.28, 20000, 0.8)
+heavyForwardLeftString1Mods 	=(1.7, 0.65, 0.85, 0.3, 0.5, 20000, 0.6)
 heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
-heavyBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
+heavyBackString1Mods 			=(1.4, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
 heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
 heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
 
