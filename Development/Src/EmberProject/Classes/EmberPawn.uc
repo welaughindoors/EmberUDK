@@ -1424,7 +1424,7 @@ simulated function leftAttack()
 simulated function AttackLock()
 {
 	disableMoveInput(true);
-	disableLookInput(true);
+	// disableLookInput(true);
 }
 /*
 AttackEnd
@@ -1445,7 +1445,7 @@ simulated function AttackEnd()
     Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
 	disableMoveInput(false);
-	disableLookInput(false);
+	// disableLookInput(false);
 
     // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
     // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
