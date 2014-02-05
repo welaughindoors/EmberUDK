@@ -20,6 +20,7 @@ var array<float> ParryMods;
 
 function initialize()
 {
+	
 /* Version 1:
 | AddParryAndMods(name, mods);
 |

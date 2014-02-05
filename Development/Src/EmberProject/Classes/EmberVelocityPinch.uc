@@ -26,8 +26,6 @@ simulated function ApplyVelocityPinch(float DeltaTime = -1, float TargetStartTim
 		accumulatedTime = 0;
 		//This tells the owner class to run this function per tick
 		bApplyVelocityPinch = true;
-
-		EmberPawn(Owner).DebugPrint("start");
 	}
 
 	//This section of the code is run per tick in the owner's classes
@@ -49,7 +47,6 @@ simulated function ApplyVelocityPinch(float DeltaTime = -1, float TargetStartTim
 		{
 			//Tell the tick functions in owner class to stop calling this function
 				bApplyVelocityPinch = false;
-				EmberPawn(Owner).DebugPrint("stop");
 		}
 	}
 }

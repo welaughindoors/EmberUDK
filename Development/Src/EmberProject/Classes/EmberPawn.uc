@@ -21,6 +21,7 @@ var EmberVelocityPinch VelocityPinch;
 var EmberChamberFlags ChamberFlags;
 var EmberCosmetic_ItemList Cosmetic_ItemList;
 
+
 var bool ParryEnabled;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
@@ -295,12 +296,22 @@ simulated function bool DoDodge(array<byte> inputA)
 simulated function SetUpCosmetics()
 {
 	local EmberCosmetic Cosmetic;
-	local int i;
-	for(i = 0; i < Cosmetic_ItemList.CosmeticItemList.length; i++)
+	local int i, x;
+	for(i = 0; i < Cosmetic_ItemList.CosmeticStruct.CosmeticItemList.length; i++)
 	{
     Cosmetic = Spawn(class'EmberCosmetic', self);
-    Cosmetic.Mesh.SetSkeletalMesh(Cosmetic_ItemList.CosmeticItemList[i]);
-    Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.SocketLocationList[i]);
+    Cosmetic.Mesh.SetSkeletalMesh(Cosmetic_ItemList.CosmeticStruct.CosmeticItemList[i]);
+    Cosmetic.Mesh.SetScale(Cosmetic_ItemList.CosmeticStruct.CosmeticItemScaleList[i]);
+    Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
+	}
+	for(x = 0; x < Cosmetic_ItemList.CosmeticStruct.CapeItemList.length; x++)
+	{
+    Cosmetic = Spawn(class'EmberCosmetic', self);
+    Cosmetic.Mesh.SetSkeletalMesh(Cosmetic_ItemList.CosmeticStruct.CapeItemList[x]);
+    Cosmetic.Mesh.SetScale(Cosmetic_ItemList.CosmeticStruct.CosmeticItemScaleList[i]);
+    Cosmetic_ItemList.SetCapeAttributes(Cosmetic.Mesh);
+    Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
+    i++;
 	}
 }
 /*
@@ -316,7 +327,7 @@ simulated function WeaponAttach()
     // local UTPlayerController PC;
   	// PC = UTPlayerController(Instigator.Controller);
 	// EmberPlayerController(PC).resetMesh();
-	
+		
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
 		tSword.setDamage(aFramework.lightDamagePerTracer);
