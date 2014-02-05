@@ -297,6 +297,7 @@ simulated function SetUpCosmetics()
 {
 	local EmberCosmetic Cosmetic;
 	local int i, x;
+	DebugPrint("SetUpCosmetics");
 	for(i = 0; i < Cosmetic_ItemList.CosmeticStruct.CosmeticItemList.length; i++)
 	{
     Cosmetic = Spawn(class'EmberCosmetic', self);
@@ -312,7 +313,16 @@ simulated function SetUpCosmetics()
     Cosmetic_ItemList.SetCapeAttributes(Cosmetic.Mesh);
     Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
     i++;
+
+	DebugPrint("SetUpCosmetics_Capes");
 	}
+	   Mesh.SetRBChannel(RBCC_Pawn);
+   Mesh.SetRBCollidesWithChannel(RBCC_Default,TRUE);
+   Mesh.SetRBCollidesWithChannel(RBCC_Cloth,TRUE);
+   Mesh.SetRBCollidesWithChannel(RBCC_Pawn,TRUE);
+   Mesh.SetRBCollidesWithChannel(RBCC_Vehicle,TRUE);
+   Mesh.SetRBCollidesWithChannel(RBCC_Untitled3,FALSE);
+   Mesh.SetRBCollidesWithChannel(RBCC_BlockingVolume,TRUE);
 }
 /*
 WeaponAttach
