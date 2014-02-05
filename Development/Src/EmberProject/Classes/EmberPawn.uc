@@ -22,6 +22,8 @@ var EmberChamberFlags ChamberFlags;
 var EmberCosmetic_ItemList Cosmetic_ItemList;
 
 
+var byte SetUpCosmeticsStartupCheck;
+
 var bool ParryEnabled;
 
 // var SkeletalMeshComponent PlayerMeshComponent;
@@ -297,6 +299,9 @@ simulated function SetUpCosmetics()
 {
 	local EmberCosmetic Cosmetic;
 	local int i, x;
+	if(SetUpCosmeticsStartupCheck == 1)
+		return;
+	SetUpCosmeticsStartupCheck = 1;
 	DebugPrint("SetUpCosmetics");
 	for(i = 0; i < Cosmetic_ItemList.CosmeticStruct.CosmeticItemList.length; i++)
 	{
