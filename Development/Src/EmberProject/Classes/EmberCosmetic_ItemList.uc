@@ -23,19 +23,19 @@ function InitiateCosmetics()
 
 	/*
 		Usage:
-		 	AddCosmeticToSocket(SkeletalMesh, Socket, Scale)
+		 	AddStaticToSocket(SkeletalMesh, Socket, Scale)
 		 		Add's a cosmetic with the specified mesh to the socket. Scale is optional (by default 1);
 
-		 	AddCapeToSocket(SkeletalMesh, Socket, Scale)
+		 	AddClothToSocket(SkeletalMesh, Socket, Scale)
 				Add's a cape with the specified mesh to the socket. Scale is optional (by default 1);
 
 	*/
 
 	//Item 1
-	AddCosmeticToSocket(SkeletalMesh'Cosmetic.Headband', 'Helmet');
+	AddStaticToSocket(SkeletalMesh'Cosmetic.Headband', 'Helmet');
 
 	//Item 2 (cape example), 10x Scale
-	AddCapeToSocket(SkeletalMesh'Cosmetic.TestCloth', 'CapeAttach', 10);
+	AddClothToSocket(SkeletalMesh'Cosmetic.TestCloth', 'CapeAttach', 10);
 }
 
 //==================================================
@@ -53,14 +53,14 @@ function InitiateCosmetics()
 //==========================================================
 // Ignore This Function. Makes Adding Shit More Compact
 //==========================================================
-function AddCosmeticToSocket(SkeletalMesh sMesh, name sSock, float Scaler = 1)
+function AddStaticToSocket(SkeletalMesh sMesh, name sSock, float Scaler = 1)
 {
 	CosmeticStruct.CosmeticItemList.AddItem(sMesh);
 	CosmeticStruct.SocketLocationList.AddItem(sSock);
 	CosmeticStruct.CosmeticItemScaleList.AddItem(Scaler);
 }
 
-function AddCapeToSocket(SkeletalMesh sMesh, name sSock, float Scaler = 1)
+function AddClothToSocket(SkeletalMesh sMesh, name sSock, float Scaler = 1)
 {
 	CosmeticStruct.CapeItemList.AddItem(sMesh);
 	CosmeticStruct.SocketLocationList.AddItem(sSock);
