@@ -4,6 +4,14 @@ var Pawn thePlayer; //variable to hold the target pawn
 var float startTheClock;
 var bool noPlayerSeen;
 var array<name> attackList;
+var AttackFramework aFramework;
+
+
+var struct AttackPacketStruct
+{
+  var name AnimName;
+  var array<float> Mods;
+} AttackPacket;
 
 simulated private function DebugPrint(string sMessage)
 {
@@ -22,6 +30,54 @@ simulated event PostBeginPlay()
     attackList.AddItem('ember_medium_diagonal_left_reverse');
      attackList.AddItem('ember_medium_diagonal_right_reverse');
 
+
+    aFramework = new class'EmberProject.AttackFramework';
+
+    aFramework.InitFramework();
+}
+
+
+simulated function copyToAttackStruct(name animName, array<float> mods)
+{
+  TestPawn(pawn).doAttack (animName, mods) ;
+  // local int i;
+  // AttackPacket.AnimName = animName;
+  // for(i = 0; i < mods.length; i++)
+  //   AttackPacket.Mods[i] = mods[i];
+}
+
+simulated function randomizeAttack()
+{
+  local int i;
+  i = Rand(8);
+  switch(i)
+  {
+    case 0:
+  copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+    break;
+    case 1:
+  copyToAttackStruct(aFramework.mediumBackString1, aFramework.mediumBackString1Mods);
+    break;
+    case 2:
+  copyToAttackStruct(aFramework.mediumbackLeftString1, aFramework.mediumbackLeftString1Mods);
+    break;
+    case 3:
+  copyToAttackStruct(aFramework.mediumbackRightString1, aFramework.mediumbackRightString1Mods);
+    break;
+    case 4:
+  copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
+    break;
+    case 5:
+  copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
+    break;
+    case 6:
+  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+    break;
+    case 7:
+  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+    break;
+    
+  }
 }
 
  event SeePlayer(Pawn SeenPlayer) //bot sees player
@@ -52,7 +108,7 @@ Begin:
     {
       if(VSize(pawn.location - thePlayer.location) > 200)
       MoveTo(thePlayer.Location); // Move directly to the players location
-      GoToState('Looking'); //when we get there
+      GoToState('Looking'); //when we get NetherEngine
     }
 
 }
@@ -84,8 +140,9 @@ function prepareTheAttack()
     if( TestPawn(pawn).GetTimeLeftOnAttack() == 0 && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
     {
       startTheClock = 0;
+      randomizeAttack();
 //Rand(attackList.length)
-      TestPawn(pawn).doAttack (attackList[Rand(attackList.length)], 1.0, 0.4, 1.5) ;
+      // TestPawn(pawn).doAttack (AttackPacket) ;
     }
 }
 //================================

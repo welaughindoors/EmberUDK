@@ -19,6 +19,9 @@ var float heavyCameraShake;
 
 var array<name>TestLockAnim;
 
+var byte MaxAttacksThatCanBeStringed;
+var byte CurrentAttackString;
+
 var name lightLeftString1;
 var array<float>lightLeftString1Mods;
 var name lightRightString1;
@@ -227,5 +230,13 @@ heavySwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy2'
 lightCameraShake = 0.1
 mediumCameraShake = 0.21
 heavyCameraShake = 0.47
+
+/* Strings till idle
+/ -- Currently:
+/ -- the number below signifies how many attacks can be 'stringed' before last one needs to force idle
+/ -- example, if the number is 3. then you can string 1, 2, 3 attacks but third attack will return to idle before you can do any other attacks
+*/
+
+MaxAttacksThatCanBeStringed = 3
 
 }

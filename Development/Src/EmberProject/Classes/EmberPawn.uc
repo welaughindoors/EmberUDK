@@ -588,10 +588,13 @@ debugCone();
 } 
 function CheckIfEnableParry()
 {
-	if(VSize(velocity) <= 230)
+	if(Sword[currentStance-1].aParry.EnableParryWhenStationary)
+	{
+	if(VSize(velocity) <= 20)
 		ParryEnabled = true;
 		else
 		ParryEnabled = false;
+	}
 }
 /*
 HitBlue
@@ -890,14 +893,20 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 simulated function doAttackQueue()
 {
 	local UTPlayerController PC;
+	local byte currentStringCounter;
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
 	iChamberingCounter = 0;
+	aFramework.CurrentAttackString++;
+	if(aFramework.CurrentAttackString > aFramework.MaxAttacksThatCanBeStringed)
+		return;
+
+	currentStringCounter = aFramework.CurrentAttackString;
 
 	ClearTimer('AttackEnd');
 	AttackEnd();
-
+	aFramework.CurrentAttackString = currentStringCounter;
 	ChamberFlags.resetLeftChamberFlags();
 	ChamberFlags.setLeftChamberFlag(0);
 	ChamberFlags.setLeftChamberFlag(2);
@@ -1451,6 +1460,7 @@ simulated function AttackEnd()
     // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 
     animationControl();
+    aFramework.CurrentAttackString = 0;
 
     if(savedByteDirection[4] == 1)
     {

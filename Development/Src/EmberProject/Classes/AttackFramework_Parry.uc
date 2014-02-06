@@ -14,6 +14,8 @@ var actor owner;
 var array<name> ParryNames;
 var array<float> ParryMods;
 
+var bool EnableParryWhenStationary;
+
 //==================================================
 // API Part. Modify This
 //==================================================
@@ -122,4 +124,5 @@ function AddParryAndMods(name pName, float Duration)
 DefaultProperties
 {
 	//defaults
+	EnableParryWhenStationary = true
 }
