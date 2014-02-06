@@ -19,6 +19,7 @@ var int   tracerAmount;
 var float   tracerTempColourCounter;
 var bool attackIsActive;
 var array<SoundCue> SwordSounds;
+var bool tempSoundBool;
 
 //=============================================
 // Each tracer to trace only once per attack
@@ -244,6 +245,9 @@ SwordEmitter.SetTemplate(ParticleSystem'WP_ShockRifle.Particles.P_WP_ShockRifle_
  
 //Never End
 SwordEmitter.LifeSpan = 0.3;
+if(tempSoundBool)
+PlaySound(SwordSounds[3]);
+else
 PlaySound(SwordSounds[1]);
 }
 function parryEffect(vector HitLocation, rotator roter = rot(0,0,0)){
@@ -727,6 +731,7 @@ aParry.initialize();
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordSwings');
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitFlesh');
 SwordSounds.AddItem(SoundCue'EmberSounds.SwordHitSword');
+SwordSounds.AddItem(SoundCue'A_Gameplay.Gameplay.A_Gameplay_ArmorHitCue');
 }
 
 /*

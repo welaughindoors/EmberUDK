@@ -26,6 +26,7 @@ var byte SetUpCosmeticsStartupCheck;
 
 var bool ParryEnabled;
 
+var bool tempToggleForEffects;
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
 var decoSword MediumDecoSword;
@@ -410,19 +411,22 @@ local vector Loc;
 local rotator Roter;    
  
 //Lets Get the Intial Location Rotation
-Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', Loc, Roter);
+Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Loc, Roter);
  
 //Spawn The Emitter In to The Pool
 SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
  
 //Set it to the Socket
-SwordEmitter.SetBase(self,, Sword[currentStance-1].Mesh, 'EndControl'); 
+SwordEmitter.SetBase(self,, Sword[currentStance-1].Mesh, 'StartControl'); 
  
 //Set the template
-SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+// SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_Blue', false); 
+
  
 //Never End
 SwordEmitter.LifeSpan = 0;
+
 }
 
 simulated function setDodgeEffect()
@@ -2246,6 +2250,15 @@ simulated function BalanceStance()
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
+    Sword[currentStance-1].tempSoundBool=true;
+    if(!tempToggleForEffects)
+    {
+    		setTrailEffects();
+    		setTrailEffects();
+    		setTrailEffects();
+tempToggleForEffects = true;
+
+    	}
 	overrideStanceChange();
 	
 }
