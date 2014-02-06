@@ -71,7 +71,7 @@ Recently Completed:
 ==========
 
 ####Inathero
-- Better Queuing of attacks on left click (hold)
+- ~~Better Queuing of attacks on left click (hold)~~
 - Chamber Attacks and feints on right click (hold/tap)
 - Basic Velocity Pinching on attacks
 - Basic Jump Velocity Pinching on landing
@@ -82,7 +82,12 @@ Recently Completed:
 - Directional Parries
 - Some basic temporary sound assets
 - API's for Grapple
-- API's for Cosmetic items
+- API's for Static Cosmetic items
+- API's for Cape/Cloth Cosmetic Items
+- TestPawn uses medium AttackFramework
+- Made collision between pawn and cape
+- Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)
+- Attack Locks (on heavies)
 
 ####Biddybam
 - Grapple 'sticks' around edges, like a rope
@@ -90,9 +95,15 @@ Recently Completed:
 
 ####Admin + Coldhands Anim Team
 - Animations
+- Updated medium side's
+- Updated medium left/right diagonals
+- Updated medium forward
+- light thrust
 
 ####Hydra
 - Headband cosmetic
+- Capes
+- and more capes!
 
 Issues:
 ==========
