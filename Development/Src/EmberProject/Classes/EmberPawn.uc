@@ -1090,6 +1090,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			// 	doAttack(EmberPlayerController(PC).verticalShift);
 			// 	return;
 			// }
+			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
             AttackBlend.setBlendTarget(1, 0.5);
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
 			if(!ChamberFlags.CheckRightFlag(0))
@@ -1103,6 +1104,8 @@ simulated function forcedAnimEnd()
 	DebugPrint("forcedAnimEnd");
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
+			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
+
 			if(!ChamberFlags.CheckRightFlag(0))
 			{
 			Sword[currentStance-1].GoToState('Attacking');
@@ -1246,8 +1249,12 @@ simulated function copyToAttackStruct(name animName, array<float> mods)
 {
 	local int i;
 	AttackPacket.AnimName = animName;
+	EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName = animName;
 	for(i = 0; i < mods.length; i++)
+	{
 		AttackPacket.Mods[i] = mods[i];
+		EmberGameInfo(WorldInfo.Game).AttackPacket.Mods[i] = mods[i];
+	}
 }
 
 simulated function EndPreAttack()
@@ -1447,7 +1454,7 @@ AttackEnd
 simulated function AttackEnd()
 {
 	DebugPrint("dun -");
-
+EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
 	// VelocityPinch.ApplyVelocityPinch(,,true);
 //when you jump, now shows jump anim
 

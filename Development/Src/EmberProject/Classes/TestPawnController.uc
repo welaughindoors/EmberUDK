@@ -2,8 +2,9 @@ class TestPawnController extends GameAIController;
 
 var Pawn thePlayer; //variable to hold the target pawn
 var float startTheClock;
+var float timeTillSync;
 var bool noPlayerSeen;
-var array<name> attackList;
+// var array<name> attackList;
 var AttackFramework aFramework;
 
 
@@ -13,6 +14,17 @@ var struct AttackPacketStruct
   var array<float> Mods;
 } AttackPacket;
 
+simulated event Tick(float DeltaTime)
+{
+  super.Tick(DeltaTime);
+  timeTillSync+= DeltaTime;
+  if(timeTillSync >= 0.7)
+  {
+    timeTillSync = 0;
+  if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
+    randomizeAttack();
+  }
+}
 simulated private function DebugPrint(string sMessage)
 {
     GetALocalPlayerController().ClientMessage(sMessage);
@@ -21,14 +33,14 @@ simulated private function DebugPrint(string sMessage)
 simulated event PostBeginPlay()
 {
   super.PostBeginPlay();
-       attackList.AddItem('ember_medium_left');
-      attackList.AddItem('ember_medium_right');
-    attackList.AddItem('ember_medium_forward');
-  attackList.AddItem('ember_medium_diagonal_left');
-   attackList.AddItem('ember_medium_diagonal_right');
-       attackList.AddItem('ember_medium_forward');
-    attackList.AddItem('ember_medium_diagonal_left_reverse');
-     attackList.AddItem('ember_medium_diagonal_right_reverse');
+  //      attackList.AddItem('ember_medium_left');
+  //     attackList.AddItem('ember_medium_right');
+  //   attackList.AddItem('ember_medium_forward');
+  // attackList.AddItem('ember_medium_diagonal_left');
+  //  attackList.AddItem('ember_medium_diagonal_right');
+  //      attackList.AddItem('ember_medium_forward');
+  //   attackList.AddItem('ember_medium_diagonal_left_reverse');
+  //    attackList.AddItem('ember_medium_diagonal_right_reverse');
 
 
     aFramework = new class'EmberProject.AttackFramework';
@@ -46,9 +58,39 @@ simulated function copyToAttackStruct(name animName, array<float> mods)
   //   AttackPacket.Mods[i] = mods[i];
 }
 
+simulated function DoCounterAttack()
+{
+  EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
+  if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardString1)
+    copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumbackLeftString1)
+  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumbackRightString1)
+  copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
+  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardLeftString1)
+  copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
+  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardRightString1)
+  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumRightString1)
+  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumLeftString1)
+  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+  else
+  {
+    EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
+    randomizeAttack();
+  }
+  
+}
+
 simulated function randomizeAttack()
 {
   local int i;
+  if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
+    {
+      DoCounterAttack();
+      return;
+    }
   i = Rand(8);
   switch(i)
   {
