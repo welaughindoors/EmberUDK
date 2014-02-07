@@ -2250,7 +2250,7 @@ simulated function BalanceStance()
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
-    Sword[currentStance-1].tempSoundBool=true;
+    // Sword[currentStance-1].tempSoundBool=true;
     if(!tempToggleForEffects)
     {
     		setTrailEffects();

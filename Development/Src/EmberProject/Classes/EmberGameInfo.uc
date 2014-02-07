@@ -6,6 +6,13 @@ class EmberGameInfo extends UTGame;
 var EmberPlayerController playerControllerWORLD;
 var EmberPawn playerpawnWORLD;
 
+var struct AttackPacketStruct
+{
+	var name AnimName;
+	var array<float> Mods;
+	var float tDur;
+	var bool isActive;
+} AttackPacket;
 
 /*
 AddDefaultInventory
