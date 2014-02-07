@@ -17,6 +17,7 @@ var struct AttackPacketStruct
 simulated event Tick(float DeltaTime)
 {
   super.Tick(DeltaTime);
+  if(thePlayer != None)
   timeTillSync+= DeltaTime;
   if(timeTillSync >= 0.7)
   {
@@ -121,17 +122,23 @@ simulated function randomizeAttack()
     
   }
 }
+simulated function TalkToPlayer(string message)
+{
+  thePlayer.Instigator.Controller.ConsoleCommand("say"@message);
+}
 
  event SeePlayer(Pawn SeenPlayer) //bot sees player
 {
           if (thePlayer ==none && TestPawn(pawn).followPlayer == 1) //if we didnt already see a player
           {
     thePlayer = SeenPlayer; //make the pawn the target
+    TalkToPlayer("I see you. I'm coming to kill you.");
+    TestPawn(pawn).talkCounterChooser = Rand(19);
     Focus = SeenPlayer;
     startTheClock = 0;
     GoToState('Follow'); // trigger the movement code
                 // TestPawn(pawn).doAttack ('ember_attack_forward', 1.0, 0.65, 0) ;
-                    GetALocalPlayerController().ClientMessage("sMessage");
+                    // GetALocalPlayerController().ClientMessage("sMessage");
           }
 
 }

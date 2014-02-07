@@ -24,6 +24,9 @@ var vector 		grappleSocketLocation;
 
 var byte isParryActive;
 var pawn P;
+var bool tParry,tHit,tDamage;
+var float talkCounter;
+var int talkCounterChooser;
 //=============================================
 // Weapon
 //=============================================
@@ -75,7 +78,7 @@ var struct AttackPacketStruct
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
 	local int OldHealth;
-
+local int i;
 	if(Momentum.Z < 50) Momentum.Z = 50;
 	// Velocity.Z *= 1.20;
 
@@ -104,6 +107,94 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
 
 	WorldInfo.Game.Broadcast(self,Name$": Health:"@Health);
 
+	tDamage = true;
+	if(Health <= 0)
+	{
+		i = -1;
+	TestPawnController(Instigator.Controller).TalkToPlayer("I'll be baaaAAAaaaaaaaAAAAck");	
+	}
+	
+}
+
+simulated function talkEverySecond()
+{
+	talkCounter = 0;
+
+	if(tDamage || tParry || tHit)
+	{
+		// tDamage = false;
+	talkCounterChooser ++;
+	if(talkCounterChooser == 19)
+	talkCounterChooser = 0;
+
+	// i = 0;
+switch(talkCounterChooser)
+{
+	case 0:
+	TestPawnController(Instigator.Controller).TalkToPlayer("You're so fake that Barbie is more real than you");
+	break;
+	case 1:
+TestPawnController(Instigator.Controller).TalkToPlayer("Your momma's so ugly she turned Medusa to stone");
+	break;
+	case 2:
+TestPawnController(Instigator.Controller).TalkToPlayer("I called your boyfriend gay and he hit me with his purse");
+	break;
+	case 3:
+TestPawnController(Instigator.Controller).TalkToPlayer("You couldn't hit water if you fell out of a boat");
+	break;
+
+	case 4:
+TestPawnController(Instigator.Controller).TalkToPlayer("You are proof that God has a sense of humor.");
+	break;
+
+	case 5:
+TestPawnController(Instigator.Controller).TalkToPlayer("You look like a before picture.");
+	break;
+
+	case 6:
+TestPawnController(Instigator.Controller).TalkToPlayer("Shock me, say something intelligent.");
+	break;
+	case 7:
+TestPawnController(Instigator.Controller).TalkToPlayer("If you were twice as smart, you'd still be stupid");
+	break;
+	case 8:
+TestPawnController(Instigator.Controller).TalkToPlayer("I would ask how old you are, but I know you can't count that high.");
+	break;
+	case 9:
+	TestPawnController(Instigator.Controller).TalkToPlayer(". Everyone who ever loved you was wrong.");
+	break;
+	case 10:
+TestPawnController(Instigator.Controller).TalkToPlayer("Don't you need a license to be that ugly?");
+	break;
+	case 11:
+TestPawnController(Instigator.Controller).TalkToPlayer("Who gave you permission to exist");
+	break;
+	case 12:
+TestPawnController(Instigator.Controller).TalkToPlayer("Do everyone a favor and die");
+	break;
+	case 13:
+TestPawnController(Instigator.Controller).TalkToPlayer("you'll never be the man your mother is");
+	break;
+	case 14:
+TestPawnController(Instigator.Controller).TalkToPlayer("You're so ugly Hello Kitty said goodbye to you.");
+	break;
+
+	case 15:
+	TestPawnController(Instigator.Controller).TalkToPlayer("If you had another brain, it would be lonely.");
+	break;
+	case 16:
+TestPawnController(Instigator.Controller).TalkToPlayer("Are your parents siblings?");
+	break;
+	case 17:
+TestPawnController(Instigator.Controller).TalkToPlayer("People like you are the reason I work out.");
+	break;
+	case 18:
+TestPawnController(Instigator.Controller).TalkToPlayer("You're so fat you need cheat codes to play Wii Fit");
+	break;
+
+}
+}
+
 }
 /*
 Tick
@@ -118,7 +209,9 @@ Simulated Event Tick(float DeltaTime)
 	local rotator r;
 	
 	Super.Tick(DeltaTime);
-
+talkCounter += DeltaTime;
+if(talkCounter > 3)
+	talkEverySecond();
    		if(gHook)
    		{
 	   		dTime = DeltaTime;
@@ -436,13 +529,15 @@ function SwordGotHit()
 	if(isParryActive == 0)
 	{
 		isParryActive = 1;
+
     GetALocalPlayerController().ClientMessage("TestPawn - Sword Hit");
     Sword.SetInitialState();
     Sword.attackIsActive = false;
     AttackSlot[0].StopCustomAnim(0.01);
     ClearTimer('attackStop');
     AttackBlend.setBlendTarget(1, 0); 
-
+    tParry = true;
+ 	
 	i = Rand(Sword.aParry.ParryNames.length);
 
 	SetTimer(Sword.aParry.ParryMods[i], false, 'attackStop');
@@ -451,6 +546,9 @@ function SwordGotHit()
 }
 function damageDone(float tDamage)
 {
+	local int i;
+tHit = true;
+// SeePlayer
 	// if(Health < 150)
 		// Health += tDamage / 2;
 }

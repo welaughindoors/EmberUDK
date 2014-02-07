@@ -574,7 +574,7 @@ PostBeginCharacterInformation.Cosmetic_ItemList.InitiateCosmetics();
 
 simulated function resetMesh()
 {
-  DebugPrint("Mesh Reset");
+  DebugPrint("Mesh Reset "@PostBeginCharacterInformation.defaultMesh);
 self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
 self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
 self.Pawn.Mesh.SetMaterial(1,PostBeginCharacterInformation.defaultMaterial1); 

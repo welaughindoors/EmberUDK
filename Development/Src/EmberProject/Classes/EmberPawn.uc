@@ -34,7 +34,7 @@ var decoSword HeavyDecoSword;
 var decoSword Helmet;
 var AnimNodeSlot AnimSlot;
 var bool SwordState;
-var PlayerController customPlayerController;
+var EmberPlayerController ePC;
 // var() SkeletalMeshComponent SwordMesh;
 var SkeletalMesh swordMesh;
 var vector cameraOutLoc;
@@ -272,7 +272,6 @@ simulated event PostBeginPlay()
     Cosmetic_ItemList.InitiateCosmetics();
     Dodge.SetOwner(self);
     VelocityPinch.SetOwner(self);
-    GG.setInfo(Self, EmberGameInfo(WorldInfo.Game).playerControllerWORLD);
     aFramework.InitFramework();
 
    	//1 second attach skele mesh
@@ -286,11 +285,11 @@ simulated event PostBeginPlay()
 }
 function disableMoveInput(bool yn)
 {
-	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.IgnoreMoveInput(yn);
+	ePC.IgnoreMoveInput(yn);
 }
 function disableLookInput(bool yn)
 {
-	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.IgnoreLookInput(yn);
+	ePC.IgnoreLookInput(yn);
 }
 simulated function bool DoDodge(array<byte> inputA)
 {
@@ -400,8 +399,14 @@ overrideStanceChange();
 		// jumpEffects.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue');
 		// jumpEffects.ActivateSystem(true);
 //TODO:readd
-
+	
 		// setTrailEffects();
+		SetupPlayerControllerReference();
+}
+simulated function SetupPlayerControllerReference()
+{
+		ePC = EmberPlayerController(Instigator.Controller);
+	    GG.setInfo(Self,  ePC);
 }
 simulated function setTrailEffects()
 { 
@@ -475,7 +480,7 @@ Simulated Event Tick(float DeltaTime)
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
 	//=== TETHER ====
-	if (EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering) 
+	if (ePC.isTethering) 
 		{
 			GG.tetherVelocity = velocity;
 			GG.tetherCalcs();		//run calcs every tick tether is active
@@ -607,10 +612,8 @@ HitBlue
 simulated function HitBlue()
 {
 	Local CameraAnim ShakeDatBooty;
-	local UTPlayerController PC;
 	local float shakeAmount;
 
-  	PC = UTPlayerController(Instigator.Controller);
   	ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
   	switch(currentStance)
   	{
@@ -621,7 +624,7 @@ simulated function HitBlue()
   		case 3: shakeAmount = aFramework.heavyCameraShake;
   		break;
   	}
-  	PC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
 }
 /*
 HitRed
@@ -630,10 +633,8 @@ HitRed
 simulated function HitRed()
 {
 	Local CameraAnim ShakeDatBooty;
-	local UTPlayerController PC;
 	local float shakeAmount;
 
-  	PC = UTPlayerController(Instigator.Controller);
   	ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
   	switch(currentStance)
   	{
@@ -644,7 +645,7 @@ simulated function HitRed()
   		case 3: shakeAmount = aFramework.heavyCameraShake;
   		break;
   	}
-  	PC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
 }
 /*
 HitGreen
@@ -653,10 +654,8 @@ HitGreen
 simulated function HitGreen()
 {
 	Local CameraAnim ShakeDatBooty;
-	local UTPlayerController PC;
 	local float shakeAmount;
 
-  	PC = UTPlayerController(Instigator.Controller);
   	ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
   	switch(currentStance)
   	{
@@ -667,7 +666,7 @@ simulated function HitGreen()
   		case 3: shakeAmount = aFramework.heavyCameraShake;
   		break;
   	}
-  	PC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
   }
 /*
 PostInitAnimTree
@@ -855,7 +854,7 @@ RecordTracers - Debug Function
 */
 exec function RecordTracers(name animation, float duration, float t1, float t2)
 {
-	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.RecordTracers(animation, duration, duration*t1, duration*t2);
+	ePC.RecordTracers(animation, duration, duration*t1, duration*t2);
 }
 
 /*
@@ -896,7 +895,6 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 
 simulated function doAttackQueue()
 {
-	local UTPlayerController PC;
 	local byte currentStringCounter;
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
@@ -916,8 +914,7 @@ simulated function doAttackQueue()
 	ChamberFlags.setLeftChamberFlag(2);
 // if(GetTimeLeftOnAttack() == 0)
 // {
-	PC = UTPlayerController(Instigator.Controller);
-	doAttack(EmberPlayerController(PC).verticalShift);
+	doAttack(ePC.verticalShift);
 // }
 
 }
@@ -948,7 +945,6 @@ DebugPrint("LChamber End");
 }
 simulated function doChamber()
 {
-	local UTPlayerController PC;
 	bRightChambering = true;
 	iChamberingCounter = 0;
 	ChamberFlags.resetRightChamberFlags();
@@ -957,8 +953,7 @@ simulated function doChamber()
 	AttackEnd();
 	// if(GetTimeLeftOnAttack() < 0.5)
 	// {
-	PC = UTPlayerController(Instigator.Controller);
-	doAttack(EmberPlayerController(PC).verticalShift);
+	doAttack(ePC.verticalShift);
 	// }
 }
 simulated function stopChamber()
@@ -1079,7 +1074,6 @@ doAttack
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
-	local UTPlayerController PC;
 			DebugPrint("OnAnimEnd");
 			// VelocityPinch.ApplyVelocityPinch(,,true);
    			ClearTimer('AttackEnd');
@@ -1560,7 +1554,7 @@ simulated function tetherBeamProjectile()
 	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
 	P = Spawn(class'EmberProjectile',self,,newLoc);
-	newLoc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
+	newLoc = normal(Vector( ePC.Rotation)) * 50;
 	EmberProjectile(p).setProjectileOwner(self);
 	p.Init(newLoc);
 }

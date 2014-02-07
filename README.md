@@ -60,6 +60,9 @@ TODO:
 ####Hydras's doing this
 - Testing out cosmetics
 
+####Jinx's doing this
+- Working on ember_dowtown
+
 ####Misc:
 - Sheathe animation?
 - Better Camera
@@ -89,6 +92,12 @@ Recently Completed:
 - Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)
 - Attack Locks (on heavies)
 
+####AI by Inathero
+- Will follow player on sight and attack on sight (can enable/disable this w/ console commands)
+- Uses entire medium attack framework for attacks currently
+- Is able to read the player's moves and setup parries to counter player
+- Is able to undergo feints in heated combat to trick and damage player in accordance to player's attacks (very basic. am working).
+
 ####Biddybam
 - Grapple 'sticks' around edges, like a rope
 - Grapple 'unsticks' around edges when going back around
@@ -104,6 +113,9 @@ Recently Completed:
 - Headband cosmetic
 - Capes
 - and more capes!
+
+####Jinx
+- Basic structuring of Ember_Downtown map
 
 Issues:
 ==========

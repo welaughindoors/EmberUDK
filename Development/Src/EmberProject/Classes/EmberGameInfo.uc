@@ -45,11 +45,10 @@ function AddDefaultInventory( pawn PlayerPawn )
 RestartPlayer
   Not sure if needed
 */
-function RestartPlayer(Controller aPlayer)
+ simulated function RestartPlayer(Controller aPlayer)
 {
 super.RestartPlayer(aPlayer);
-playerControllerWORLD = EmberPlayerController(aPlayer);
-playerControllerWORLD.resetMesh();
+EmberPlayerController(aPlayer).SaveMeshValues();
 }
 
  static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
