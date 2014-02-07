@@ -1090,6 +1090,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			// 	doAttack(EmberPlayerController(PC).verticalShift);
 			// 	return;
 			// }
+			if(aFramework.CurrentAttackString <= 2)
 			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
             AttackBlend.setBlendTarget(1, 0.5);
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
@@ -1104,6 +1105,7 @@ simulated function forcedAnimEnd()
 	DebugPrint("forcedAnimEnd");
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
+			if(aFramework.CurrentAttackString <= 2)
 			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
 
 			if(!ChamberFlags.CheckRightFlag(0))

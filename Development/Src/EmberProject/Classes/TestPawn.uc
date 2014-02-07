@@ -451,8 +451,8 @@ function SwordGotHit()
 }
 function damageDone(float tDamage)
 {
-	if(Health < 150)
-		Health += tDamage / 2;
+	// if(Health < 150)
+		// Health += tDamage / 2;
 }
 
 function forcedAnimEnd()
