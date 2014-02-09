@@ -150,7 +150,7 @@ TestPawnController(Instigator.Controller).TalkToPlayer("You are proof that God h
 	case 5:
 TestPawnController(Instigator.Controller).TalkToPlayer("You look like a before picture.");
 	break;
-
+	
 	case 6:
 TestPawnController(Instigator.Controller).TalkToPlayer("Shock me, say something intelligent.");
 	break;
@@ -209,9 +209,9 @@ Simulated Event Tick(float DeltaTime)
 	local rotator r;
 	
 	Super.Tick(DeltaTime);
-talkCounter += DeltaTime;
-if(talkCounter > 3)
-	talkEverySecond();
+// talkCounter += DeltaTime;
+// if(talkCounter > 3)
+	// talkEverySecond();
    		if(gHook)
    		{
 	   		dTime = DeltaTime;

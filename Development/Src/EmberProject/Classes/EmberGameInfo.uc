@@ -64,6 +64,7 @@ EmberPlayerController(aPlayer).SaveMeshValues();
   PlayerReplicationInfoClass=class'EmberProject.EmberReplicationInfo'
    HUDType=class'EmberProject.EmberHUD'
    MapPrefixes[0]="UDN"
+   bDelayedStart = false
    // DefaultInventory(0)=none
 	// bUseClassicHUD=true
     // bUseClassicHUD=true

@@ -7,7 +7,9 @@
 //TODO:
 // -- Shit TODO
 
-class EmberPawn extends UTPawn;
+class EmberPawn extends UTPawn
+placeable;
+
 
 //=============================================
 // Combo / Attack System Vars
@@ -744,20 +746,22 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    CamStart = Location;
    CurrentCamOffset = CamOffset;
 
+   
+
    //Change multipliers here
-   DesiredCameraZOffset = (Health > 0) ? 1.25 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
+   DesiredCameraZOffset = (Health > 0) ? 1 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
    CameraZOffset = (fDeltaTime < 0.2) ? DesiredCameraZOffset * 5 * fDeltaTime + (1 - 5*fDeltaTime) * CameraZOffset : DesiredCameraZOffset;
    
-   if ( Health <= 0 )
-   {
-      CurrentCamOffset = vect(0,0,0);
-      CurrentCamOffset.X = GetCollisionRadius();
-   }
+   // if ( Health <= 0 )
+   // {
+   //    CurrentCamOffset = vect(0,0,0);
+   //    CurrentCamOffset.X = GetCollisionRadius();
+   // }
 
    CamStart.Z += CameraZOffset;
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
-   CamDirX *= CurrentCameraScale * 2.8;
+   CamDirX *= CurrentCameraScale * 2.2;
 
    if ( (Health <= 0) || bFeigningDeath )
    {
@@ -778,7 +782,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
       CamDirX *= square(cos(out_CamRot.Pitch * 0.0000958738)); // 0.0000958738 = 2*PI/65536
    }
    //Change multipliers here
-   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*2.9 + CurrentCamOffset.Y*CamDirY*0.1 + CurrentCamOffset.Z*CamDirZ;
+   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*3.2 + CurrentCamOffset.Y*CamDirY*0.1 + CurrentCamOffset.Z*CamDirZ;
 
    if (Trace(HitLocation, HitNormal, out_CamLoc, CamStart, false, vect(12,12,12)) != None)
    {
@@ -2414,7 +2418,7 @@ defaultproperties
 	debugConeBool=false;
 	enableInaAudio = 0;
     GroundSpeed=400.0;
-
+//SkeletalMesh'ArtAnimation.Meshes.ember_player'
 //=============================================
 // End Combo / Attack System Vars
 //=============================================
@@ -2429,6 +2433,8 @@ defaultproperties
     bCollideActors=True
     bBlockActors=True
     currentStance = 1;
+
+
 
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=0025.00000
