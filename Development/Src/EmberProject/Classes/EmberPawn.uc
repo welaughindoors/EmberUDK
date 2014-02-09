@@ -51,6 +51,8 @@ var bool 			iLikeToSprint;
 var bool 			tickToggle;
 var float 			originalSpeed;
 
+var float cameraCamZOffsetInterpolation;
+var float cameraCamXOffsetMultiplierInterpolation;
 
 //=============================================
 // Jump/JetPack System
@@ -746,7 +748,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    CamStart = Location;
    CurrentCamOffset = CamOffset;
 
-   
+
 
    //Change multipliers here
    DesiredCameraZOffset = (Health > 0) ? 1 * GetCollisionHeight() + Mesh.Translation.Z : 0.f;
@@ -757,8 +759,18 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    //    CurrentCamOffset = vect(0,0,0);
    //    CurrentCamOffset.X = GetCollisionRadius();
    // }
-
-   CamStart.Z += CameraZOffset;
+//native static final function float FInterpTo (float Current, float Target, float DeltaTime, float InterpSpeed)
+if(EmberGameInfo(WorldInfo.Game).pawnsActiveOnPlayer == 0)
+{
+   cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
+   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.7, 2*fDeltaTime);
+}
+else
+{
+cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 0, 2*fDeltaTime);
+   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
+}
+   CamStart.Z += CameraZOffset + cameraCamZOffsetInterpolation;
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
    CamDirX *= CurrentCameraScale * 2.2;
@@ -782,7 +794,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
       CamDirX *= square(cos(out_CamRot.Pitch * 0.0000958738)); // 0.0000958738 = 2*PI/65536
    }
    //Change multipliers here
-   out_CamLoc = CamStart - CamDirX*CurrentCamOffset.X*3.2 + CurrentCamOffset.Y*CamDirY*0.1 + CurrentCamOffset.Z*CamDirZ;
+   out_CamLoc = CamStart - (CamDirX*CurrentCamOffset.X*cameraCamXOffsetMultiplierInterpolation) + CurrentCamOffset.Y*CamDirY*0.1 + CurrentCamOffset.Z*CamDirZ;
 
    if (Trace(HitLocation, HitNormal, out_CamLoc, CamStart, false, vect(12,12,12)) != None)
    {
@@ -2413,6 +2425,8 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 defaultproperties
 {
+	cameraCamZOffsetInterpolation=30
+	cameraCamXOffsetMultiplierInterpolation=3.7
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;

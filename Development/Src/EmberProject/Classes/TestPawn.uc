@@ -482,6 +482,7 @@ ignores OnAnimEnd, Bump, HitWall, HeadVolumeChange, PhysicsVolumeChange, Falling
 			LifeSpan = 0.0;
 			return;
 		}
+		EmberGameInfo(WorldInfo.Game).pawnsActiveOnPlayer--;
 		//commenting off Destroy so that the bodies will stay
 		//if ( !PlayerCanSeeMe() )
 		//{

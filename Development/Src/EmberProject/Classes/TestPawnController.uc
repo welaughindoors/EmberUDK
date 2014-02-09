@@ -79,6 +79,7 @@ simulated function DoCounterAttack()
   else
   {
     EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
+
     randomizeAttack();
   }
   
@@ -133,6 +134,8 @@ simulated function TalkToPlayer(string message)
           {
     thePlayer = SeenPlayer; //make the pawn the target
     TalkToPlayer("I see you. I'm coming to kill you.");
+    EmberGameInfo(WorldInfo.Game).pawnsActiveOnPlayer++;
+    
     TestPawn(pawn).talkCounterChooser = Rand(19);
     Focus = SeenPlayer;
     startTheClock = 0;

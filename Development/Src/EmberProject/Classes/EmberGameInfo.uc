@@ -5,6 +5,7 @@ class EmberGameInfo extends UTGame;
 //=============================================
 var EmberPlayerController playerControllerWORLD;
 var EmberPawn playerpawnWORLD;
+var int pawnsActiveOnPlayer;
 
 var struct AttackPacketStruct
 {
@@ -59,6 +60,9 @@ EmberPlayerController(aPlayer).SaveMeshValues();
  defaultproperties
 
 {
+
+	pawnsActiveOnPlayer = 0
+	
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
   PlayerReplicationInfoClass=class'EmberProject.EmberReplicationInfo'
