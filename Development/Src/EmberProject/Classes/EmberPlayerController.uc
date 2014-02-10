@@ -575,13 +575,14 @@ PostBeginCharacterInformation.Cosmetic_ItemList.InitiateCosmetics();
 simulated function resetMesh()
 {
   DebugPrint("Mesh Reset "@PostBeginCharacterInformation.defaultMesh);
-self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
-self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
-self.Pawn.Mesh.SetMaterial(1,PostBeginCharacterInformation.defaultMaterial1); 
-self.Pawn.Mesh.SetPhysicsAsset(PostBeginCharacterInformation.defaultPhysicsAsset );
-self.Pawn.Mesh.AnimSets=PostBeginCharacterInformation.defaultAnimSet; 
-self.Pawn.Mesh.SetAnimTreeTemplate(PostBeginCharacterInformation.defaultAnimTree );
-EmberPawn(Pawn).SetUpCosmetics();
+  // EmberPawn(pawn).attachReset();
+// self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
+// self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
+// self.Pawn.Mesh.SetMaterial(1,PostBeginCharacterInformation.defaultMaterial1); 
+// self.Pawn.Mesh.SetPhysicsAsset(PostBeginCharacterInformation.defaultPhysicsAsset );
+// self.Pawn.Mesh.AnimSets=PostBeginCharacterInformation.defaultAnimSet; 
+// self.Pawn.Mesh.SetAnimTreeTemplate(PostBeginCharacterInformation.defaultAnimTree );
+// EmberPawn(Pawn).SetUpCosmetics();
 // RepMesh = defaultMesh;
 }
 

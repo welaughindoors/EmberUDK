@@ -74,7 +74,7 @@ function SetCapeAttributes(SkeletalMeshComponent sMesh)
     sMesh.SetClothSleep(false);
     sMesh.InitRBPhys();
     sMesh.ForceUpdate(false);
-    	sMesh.SetRBChannel(RBCC_Default);
+    	sMesh.SetRBChannel(RBCC_Cloth);
 		sMesh.SetRBCollidesWithChannel(RBCC_Default,TRUE);
 		sMesh.SetRBCollidesWithChannel(RBCC_Pawn,TRUE);
 		sMesh.SetRBCollidesWithChannel(RBCC_Vehicle,TRUE);

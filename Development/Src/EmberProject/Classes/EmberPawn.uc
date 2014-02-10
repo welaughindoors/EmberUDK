@@ -10,7 +10,6 @@
 class EmberPawn extends UTPawn
 placeable;
 
-
 //=============================================
 // Combo / Attack System Vars
 //=============================================
@@ -22,6 +21,7 @@ var GrappleRopeBlock testBlock;
 var EmberVelocityPinch VelocityPinch;
 var EmberChamberFlags ChamberFlags;
 var EmberCosmetic_ItemList Cosmetic_ItemList;
+var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
 
 
 var byte SetUpCosmeticsStartupCheck;
@@ -273,6 +273,8 @@ simulated event PostBeginPlay()
     VelocityPinch = new class'EmberProject.EmberVelocityPinch';
     ChamberFlags = new class 'EmberProject.EmberChamberFlags';
     Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
+    ModularPawn_Cosmetics = new class'EmberProject.EmberModularPawn_Cosmetics';
+    ModularPawn_Cosmetics.Initialize(self);
     Cosmetic_ItemList.InitiateCosmetics();
     Dodge.SetOwner(self);
     VelocityPinch.SetOwner(self);
@@ -312,7 +314,7 @@ simulated function SetUpCosmetics()
     Cosmetic = Spawn(class'EmberCosmetic', self);
     Cosmetic.Mesh.SetSkeletalMesh(Cosmetic_ItemList.CosmeticStruct.CosmeticItemList[i]);
     Cosmetic.Mesh.SetScale(Cosmetic_ItemList.CosmeticStruct.CosmeticItemScaleList[i]);
-    Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
 	}
 	for(x = 0; x < Cosmetic_ItemList.CosmeticStruct.CapeItemList.length; x++)
 	{
@@ -320,19 +322,34 @@ simulated function SetUpCosmetics()
     Cosmetic.Mesh.SetSkeletalMesh(Cosmetic_ItemList.CosmeticStruct.CapeItemList[x]);
     Cosmetic.Mesh.SetScale(Cosmetic_ItemList.CosmeticStruct.CosmeticItemScaleList[i]);
     Cosmetic_ItemList.SetCapeAttributes(Cosmetic.Mesh);
-    Mesh.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Cosmetic.Mesh, Cosmetic_ItemList.CosmeticStruct.SocketLocationList[i]);
     i++;
 
 	DebugPrint("SetUpCosmetics_Capes");
 	}
-	   Mesh.SetRBChannel(RBCC_Pawn);
-   Mesh.SetRBCollidesWithChannel(RBCC_Default,TRUE);
-   Mesh.SetRBCollidesWithChannel(RBCC_Cloth,TRUE);
-   Mesh.SetRBCollidesWithChannel(RBCC_Pawn,TRUE);
-   Mesh.SetRBCollidesWithChannel(RBCC_Vehicle,TRUE);
-   Mesh.SetRBCollidesWithChannel(RBCC_Untitled3,FALSE);
-   Mesh.SetRBCollidesWithChannel(RBCC_BlockingVolume,TRUE);
+// var(ModularPawn) const SkeletalMeshComponent HeadSkeletalMesh;
+// // Skeletal mesh which represents the torso. Child to the head skeletal mesh component.
+// var(ModularPawn) const SkeletalMeshComponent TorsoSkeletalMesh;
+// // Skeletal mesh which represents the arms. Child to the head skeletal mesh component.
+// var(ModularPawn) const SkeletalMeshComponent ArmsSkeletalMesh;
+// // Skeletal mesh which represents the thighs. Child to the head skeletal mesh component.
+// var(ModularPawn) const SkeletalMeshComponent ThighsSkeletalMesh;
+// // Skeletal mesh which represents the boots. Child to the head skeletal mesh component.
+// var(ModularPawn) const SkeletalMeshComponent BootsSkeletalMesh;
+// var(ModularPawn) const SkeletalMeshComponent HandsSkeletalMesh;
+// var(ModularPawn) const SkeletalMeshComponent FeetSkeletalMesh;
+
+
+	ModularPawn_Cosmetics.ParentModularItem.SetRBChannel(RBCC_Pawn);
+   ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_Default,TRUE);
+   ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_Cloth,TRUE);
+   ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_Pawn,TRUE);
+   ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_Vehicle,TRUE);
+   // Mesh.SetRBCollidesWithChannel(RBCC_Untitled3,FALSE);
+   ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_BlockingVolume,TRUE);
+	// ModularPawn_Cosmetics.ParentModularItem.SetPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics');
 }
+
 /*
 WeaponAttach
 	Attaches a skeleton mesh of the weapon in same place as weapon
@@ -375,20 +392,20 @@ simulated function WeaponAttach()
     // Mesh.AttachComponentToSocket(Helmet.Mesh, 'Helmet');
         // HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
     //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
-    Mesh.AttachComponentToSocket(Sword[0].Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword[0].CollisionComponent, 'WeaponPoint');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[0].Mesh, 'WeaponPoint');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[0].CollisionComponent, 'WeaponPoint');
      // LightAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
  // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
  // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
  
 	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
     MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].CollisionComponent, 'KattanaSocket');
-    Mesh.AttachComponentToSocket(Sword[2].Mesh, 'HeavyAttach');
-    Mesh.AttachComponentToSocket(Sword[2].CollisionComponent, 'HeavyAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[2].Mesh, 'HeavyAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[2].CollisionComponent, 'HeavyAttach');
 
  //TODO:Add these back in
     // Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
-    Mesh.AttachComponentToSocket(MediumDecoSword.Mesh, 'BalanceAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(MediumDecoSword.Mesh, 'BalanceAttach');
     // Mesh.AttachComponentToSocket(HeavyDecoSword.Mesh, 'HeavyAttach');
     LightDecoSword.Mesh.SetHidden(true);
     MediumDecoSword.Mesh.SetHidden(false);
@@ -406,6 +423,7 @@ overrideStanceChange();
 	
 		// setTrailEffects();
 		SetupPlayerControllerReference();
+		PostInitAnimTree(ModularPawn_Cosmetics.ParentModularItem);
 }
 simulated function SetupPlayerControllerReference()
 {
@@ -445,7 +463,7 @@ local vector Loc;
 local rotator Roter;    
  
 //Lets Get the Intial Location Rotation
-Mesh.GetSocketWorldLocationAndRotation('Dodge1', Loc, Roter);
+ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('Dodge1', Loc, Roter);
  
 //Spawn The Emitter In to The Pool
 SwordEmitter = Spawn(class'UTEmitter', self,, Loc, rotator(vector(roter) << rot(0,-8192,0)));
@@ -682,25 +700,25 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	// flam = SkeletalMeshComponent'ArtAnimation.Meshes.ember_weapon_heavy';
     //Setting up a reference to our animtree to play custom stuff.
     super.PostInitAnimTree(SkelComp);
-    if ( SkelComp == Mesh)
+    if ( SkelComp == ModularPawn_Cosmetics.ParentModularItem)
     {
-        AnimSlot = AnimNodeSlot(Mesh.FindAnimNode('TopHalfSlot'));
-  		IdleAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('IdleAnimNodeBlendList'));
-  		RunAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RunAnimNodeBlendList'));
-  		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('LeftStrafeAnimNodeBlendList'));
-  		RightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('RightStrafeAnimNodeBlendList'));  		
-		WalkAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('WalkAnimNodeBlendList'));  		
-		wLeftStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wLeftStrafeAnimNodeBlendList'));  		
-		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(Mesh.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
-		FullBodyBlendList = AnimNodeBlendList(Mesh.FindAnimNode('FullBodyBlendList'));  		
-		JumpAttackSwitch = AnimNodeBlendList(Mesh.FindAnimNode('JumpAttackSwitch'));  
-		DashOverrideSwitch  = AnimNodeBlendList(Mesh.FindAnimNode('DashOverrideSwitch'));  
-  		EmberDash = AnimNodePlayCustomAnim(Mesh.FindAnimNode('EmberDash'));
-  		AttackSlot[0] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot'));
-  		AttackSlot[1] = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
-  		// AttackSlot2 = AnimNodeSlot(Mesh.FindAnimNode('AttackSlot2'));
-  		AttackBlend = AnimNodeBlend(Mesh.FindAnimNode('AttackBlend'));
-  		SpineRotator = UDKSkelControl_Rotate( mesh.FindSkelControl('SpineRotator') );
+        AnimSlot = AnimNodeSlot(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('TopHalfSlot'));
+  		IdleAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('IdleAnimNodeBlendList'));
+  		RunAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('RunAnimNodeBlendList'));
+  		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('LeftStrafeAnimNodeBlendList'));
+  		RightStrafeAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('RightStrafeAnimNodeBlendList'));  		
+		WalkAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('WalkAnimNodeBlendList'));  		
+		wLeftStrafeAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('wLeftStrafeAnimNodeBlendList'));  		
+		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
+		FullBodyBlendList = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('FullBodyBlendList'));  		
+		JumpAttackSwitch = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('JumpAttackSwitch'));  
+		DashOverrideSwitch  = AnimNodeBlendList(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('DashOverrideSwitch'));  
+  		EmberDash = AnimNodePlayCustomAnim(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('EmberDash'));
+  		AttackSlot[0] = AnimNodeSlot(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('AttackSlot'));
+  		AttackSlot[1] = AnimNodeSlot(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('AttackSlot2'));
+  		// AttackSlot2 = AnimNodeSlot(HeadSkeletalMesh.FindAnimNode('AttackSlot2'));
+  		AttackBlend = AnimNodeBlend(ModularPawn_Cosmetics.ParentModularItem.FindAnimNode('AttackBlend'));
+  		SpineRotator = UDKSkelControl_Rotate( ModularPawn_Cosmetics.ParentModularItem.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
   		// AimNode = AnimNodeAimOffset(SkelComp.FindAnimNode('AimNode'));
 
@@ -1568,7 +1586,7 @@ simulated function tetherBeamProjectile()
 	local rotator rotat;
 	// newLoc = Location;
 	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
-	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
+	ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
 	P = Spawn(class'EmberProjectile',self,,newLoc);
 	newLoc = normal(Vector( ePC.Rotation)) * 50;
 	EmberProjectile(p).setProjectileOwner(self);
@@ -2191,8 +2209,8 @@ simulated function DoKick()
 	if(kickCounter < 20)
 		SetTimer(0.1, false, 'DoKick');
 
-		mesh.GetSocketWorldLocationAndRotation('L_JB', botFoot); 
-		mesh.GetSocketWorldLocationAndRotation('L_Knee', botLeg); 
+		ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('L_JB', botFoot); 
+		ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('L_Knee', botLeg); 
 
 			// if(oldBotLeg == vect(0,0,0))
 	  //       	DrawDebugLine(botFoot, oldBotFoot, -1, 0, -1, true);
@@ -2222,14 +2240,14 @@ switch(currentStance)
 	break;
 
 	case 3:
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
 	break;
 }
 	currentStance = 1;
 
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
@@ -2254,18 +2272,18 @@ simulated function BalanceStance()
  switch(currentStance)
 {
 	case 1:
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
 	break;
 
 	case 3:
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
 	break;
 }
 	currentStance = 2;
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
@@ -2301,8 +2319,8 @@ simulated function HeavyStance()
  switch(currentStance)
 {
 	case 1:
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
 	break;
 
 	case 2:
@@ -2312,8 +2330,8 @@ simulated function HeavyStance()
 }
 	currentStance = 3;
 
-	Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+	ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
+    ModularPawn_Cosmetics.ParentModularItem.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
@@ -2322,8 +2340,8 @@ simulated function HeavyStance()
 }
 simulated function SheatheWeapon()
 {
-	Mesh.DetachComponent(Sword[currentStance-1].mesh);
-    Mesh.DetachComponent(Sword[currentStance-1].CollisionComponent);
+	ModularPawn_Cosmetics.ParentModularItem.DetachComponent(Sword[currentStance-1].mesh);
+    ModularPawn_Cosmetics.ParentModularItem.DetachComponent(Sword[currentStance-1].CollisionComponent);
 } 
 simulated function overrideStanceChange()
 {
@@ -2423,6 +2441,14 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 	DebugPrint(sMessage @ string(variable));
 	return variable;
 }
+function attachReset()
+{
+	  local SkeletalMeshComponent ToBeAttachedItem;
+ToBeAttachedItem = new class'SkeletalMeshComponent';
+ToBeAttachedItem.SetSkeletalMesh(SkeletalMesh'ModularPawn.Meshes.ember_head_01');
+ToBeAttachedItem.SetParentAnimComponent(Mesh);
+AttachComponent(ToBeAttachedItem);
+}
 defaultproperties
 {
 	cameraCamZOffsetInterpolation=30
@@ -2448,6 +2474,8 @@ defaultproperties
     bBlockActors=True
     currentStance = 1;
 
+ // Remove normal defined skeletal mesh
+  Components.Remove(WPawnSkeletalMeshComponent)
 
 
 	Begin Object Name=CollisionCylinder
