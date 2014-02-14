@@ -42,7 +42,7 @@ TODO:
 ==========
 
 ####Inathero's doing this
-- NETWORKING WTF
+- NETWORKING WTF -- Will probably hold off on this until more of ember is created
 - Change timer from anim preset duration to actual anim duration
 - Sword Trail implementation
 - Shuffle 'dodge' booster thingy
@@ -50,6 +50,8 @@ TODO:
 - Velocity pinching on jumps
 - Advanced parry system
 - Walking blending tweaking
+- Modular Pawns
+- IK Nodes control and creation
 
 ####Biddybam's doing this
 - Better Grapple
@@ -87,10 +89,12 @@ Recently Completed:
 - API's for Grapple
 - API's for Static Cosmetic items
 - API's for Cape/Cloth Cosmetic Items
+- API's for modular items.
 - TestPawn uses medium AttackFramework
 - Made collision between pawn and cape
 - Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)
 - Attack Locks (on heavies)
+- Remade pawn rendering code to use modular method rather than static
 
 ####AI by Inathero
 - Will follow player on sight and attack on sight (can enable/disable this w/ console commands)
@@ -108,6 +112,7 @@ Recently Completed:
 - Updated medium left/right diagonals
 - Updated medium forward
 - light thrust
+- Parts of modular pawns created
 
 ####Hydra
 - Headband cosmetic
