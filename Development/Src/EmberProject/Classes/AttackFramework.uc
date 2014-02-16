@@ -207,7 +207,7 @@ heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
 */
 
 lightDamagePerTracer = 2.5
-mediumDamagePerTracer = 7.5
+// mediumDamagePerTracer = 7.5
 heavyDamagePerTracer = 13
 
 /* Swords:

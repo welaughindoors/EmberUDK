@@ -24,6 +24,9 @@ var EmberChamberFlags ChamberFlags;
 var EmberCosmetic_ItemList Cosmetic_ItemList;
 var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
 
+
+var AnimNodeAimOffset AimOffsetNode;
+
 var array<SkeletalMeshComponent> AllMeshs;
 
 
@@ -101,6 +104,15 @@ var int  				currentStance;
 var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
 
+//=============================================
+// Skeleton Controls
+//=============================================
+var float IKRightHand_Strength;
+var float IKUpperBodyIncrement;
+var bool IKUpperBody_AnimateToggle;
+var SkelControl_CCD_IK IKRightHand;
+var SkelControl_CCD_IK IKLeftHand;
+var SkelControl_CCD_IK IKUpperBody;
 //=============================================
 // Attack 
 //=============================================
@@ -547,7 +559,9 @@ if(bAttackQueueing)
 CheckIfEnableParry();
 
 if(debugConeBool)
-debugCone();
+debugCone(DeltaTime);
+
+
 // Sword[1].findActors();
 	// TODO: Move all this to a function
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -634,6 +648,39 @@ debugCone();
 	animationControl();
 
 } 
+
+function BodyHitMovement(int hitDirection)
+{
+	local vector eVect;
+	eVect = IKUpperBody.EffectorLocation;
+	IKUpperBodyIncrement = 0;
+	DebugPrint(""@IKUpperBody.EffectorLocation);
+	// switch(hitDirection)
+	// {
+	// 	//If Top/Bottom
+	// 	case 0:
+	// 	case 1:
+	// 	eVect.Y = 0;
+	// 	break;
+
+	// 	//Left attacks
+	// 	case 2:
+	// 	case 4:
+	// 	case 6:
+	// 	eVect.Y = -5;
+	// 	break;
+
+	// 	//Right attacks
+	// 	case 3:
+	// 	case 5:
+	// 	case 7:
+	// 	eVect.Y = 5;
+	// 	break;
+
+	// }
+	// 	IKUpperBody.EffectorLocation = eVect;
+	IKUpperBody_AnimateToggle = true;
+}
 function CheckIfEnableParry()
 {
 	if(Sword[currentStance-1].aParry.EnableParryWhenStationary)
@@ -737,12 +784,28 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		AttackBlend = AnimNodeBlend(ParentModularComponent.FindAnimNode('AttackBlend'));
   		SpineRotator = UDKSkelControl_Rotate( ParentModularComponent.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
-  		// AimNode = AnimNodeAimOffset(SkelComp.FindAnimNode('AimNode'));
+
+  		IKRightHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKRightHand') );
+  		IKLeftHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKLeftHand') );
+  		IKUpperBody = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKUpperBody') );
+
+  		// AimOffsetNode
+  		AimNode = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('AimNode'));
 
   		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
   		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
+}
+
+simulated function MoveSwordOutOfCollision(float DeltaTime)
+{
+	// if(IKRightHand_Strength == 0 && DeltaTime > 0)
+	IKRightHand_Strength+=(2*DeltaTime);
+	if(IKRightHand_Strength > 1) IKRightHand_Strength=1;
+	if(IKRightHand_Strength < 0) IKRightHand_Strength=0;
+	IKRightHand.SetSkelControlStrength(IKRightHand_Strength, abs(DeltaTime));
+	IKLeftHand.SetSkelControlStrength(IKRightHand_Strength, abs(DeltaTime));
 }
 
 //=============================================
@@ -1622,7 +1685,7 @@ simulated function tetherLocationHit(vector hit, vector lol, actor Other)
 	// enemyPawnToggle = (enemyPawn != none) ? true : false;
 	// createTether();
 }
-simulated function debugCone()
+simulated function debugCone(float deltatime)
 {   local Vector HitLocation, HitNormal;
    local Vector Start, End, Block;
    local rotator bRotate;
@@ -1640,19 +1703,22 @@ simulated function debugCone()
 	// v2 = normal(vector(swordRot)) << rot(0,8192,0);
 	// DrawDebugLine(swordLoc, (v1 * 50)+swordLoc, 0, 0, -1, true);
 	// DrawDebugLine(swordLoc, (v2 * 50)+swordLoc, -1, 0, -1, true);
-	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
-	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
-	    hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
-        DrawDebugLine( Start, End, -1,125,-1, true);
-        DebugPrint("bHits -"@hitInfo.Material);
-        DebugPrint("bHits -"@hitInfo.PhysMaterial );
-        DebugPrint("bHits -"@hitInfo.Item);
-        DebugPrint("bHits -"@hitInfo.LevelIndex );
-        // if(hitInfo.BoneName == 'sword_blade')
-        DebugPrint("bHits -"@hitInfo.BoneName );
-        DebugPrint("bHits -"@hitInfo.HitComponent );
-        DebugPrint("bHits -"@hitActor);
-        DebugPrint("----");
+
+
+
+	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
+	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
+	//     hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
+ //        if(hitInfo.HitComponent != none)
+ //        	MoveSwordOutOfCollision(DeltaTime);
+ //        else
+ //        	MoveSwordOutOfCollision(-DeltaTime);
+
+
+}
+function sword GetSword()
+{
+	return Sword[currentStance-1];
 }
 /*
 increaseTether

@@ -431,6 +431,10 @@ VelocityPinch.SetOwner(self);
 
 }
 
+function sword GetSword()
+{
+	return Sword;
+}
 /*
 WeaponAttach
 	Attachs Sword.uc to pawn
@@ -439,7 +443,7 @@ function WeaponAttach()
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-		Sword.setDamage(10);
+		Sword.setDamage(0);
 		AttackPacket.Mods.AddItem(0);
 		AttackPacket.Mods.AddItem(0);
 		AttackPacket.Mods.AddItem(0);

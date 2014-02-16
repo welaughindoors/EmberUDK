@@ -22,8 +22,8 @@ simulated event Tick(float DeltaTime)
   if(timeTillSync >= 0.7)
   {
     timeTillSync = 0;
-  if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
-    randomizeAttack();
+  // if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
+    // randomizeAttack();
   }
 }
 simulated private function DebugPrint(string sMessage)
@@ -87,41 +87,42 @@ simulated function DoCounterAttack()
 
 simulated function randomizeAttack()
 {
-  local int i;
-  if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
-    {
-      DoCounterAttack();
-      return;
-    }
-  i = Rand(8);
-  switch(i)
-  {
-    case 0:
-  copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
-    break;
-    case 1:
-  copyToAttackStruct(aFramework.mediumBackString1, aFramework.mediumBackString1Mods);
-    break;
-    case 2:
-  copyToAttackStruct(aFramework.mediumbackLeftString1, aFramework.mediumbackLeftString1Mods);
-    break;
-    case 3:
-  copyToAttackStruct(aFramework.mediumbackRightString1, aFramework.mediumbackRightString1Mods);
-    break;
-    case 4:
-  copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
-    break;
-    case 5:
-  copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
-    break;
-    case 6:
-  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
-    break;
-    case 7:
-  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
-    break;
+  // local int i;
+  // if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
+  //   {
+  //     DoCounterAttack();
+  //     return;
+  //   }
+  // i = Rand(8);
+  // switch(i)
+  // {
+  //   case 0:
+  // copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+  //   break;
+  //   case 1:
+  // copyToAttackStruct(aFramework.mediumBackString1, aFramework.mediumBackString1Mods);
+  //   break;
+  //   case 2:
+  // copyToAttackStruct(aFramework.mediumbackLeftString1, aFramework.mediumbackLeftString1Mods);
+  //   break;
+  //   case 3:
+  // copyToAttackStruct(aFramework.mediumbackRightString1, aFramework.mediumbackRightString1Mods);
+  //   break;
+  //   case 4:
+  // copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
+  //   break;
+  //   case 5:
+  // copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
+  //   break;
+  //   case 6:
+  // copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+  //   break;
+  //   case 7:
+  // copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+  //   break;
     
-  }
+  // }
+copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
 }
 simulated function TalkToPlayer(string message)
 {

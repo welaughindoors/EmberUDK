@@ -2,6 +2,7 @@ class Sword extends Actor;
 var SkeletalMeshComponent Mesh;
 var AnimTree defaultAnimTree;
 var AttackFramework_Parry aParry;
+var vector lastRecordedSwordDirectionVector;
 
 //=============================================
 // Previous Socket Saved Positions
@@ -19,6 +20,7 @@ var int   tracerAmount;
 var float   tracerTempColourCounter;
 var bool attackIsActive;
 var array<SoundCue> SwordSounds;
+var int tickCounterTillDirectionVector;
 
 
 //=============================================
@@ -104,6 +106,7 @@ simulated state Attacking
       //ex. want 40ms lag? then change above to inducedLag >= 0.02
       //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
       {
+        tickCounterTillDirectionVector++;
         attackIsActive = true;
         inducedLag = 0;
         TraceAttack();
@@ -117,6 +120,7 @@ simulated state Attacking
       //ex. want 40ms lag? then change above to inducedLag >= 0.02
       //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
       {
+        tickCounterTillDirectionVector++;
         attackIsActive = true;
         inducedLag = 0;
         TraceAttack();
@@ -287,6 +291,7 @@ simulated function TraceAttack()
         local vector lVect;
         local int i;
           local float tCount;
+          local float lastVectorDot;
   bFuckTheAttack = false;
 
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
@@ -318,11 +323,17 @@ if(!bTracers)
 {
   oldInterpolatedPoints.length = 0;
   bTracers = true;
-  for (i = 0; i < interpolatedPoints.Length; ++i) 
+  for (i = 0; i < interpolatedPoints.Length; i++) 
   {
     oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
     interpolatedPoints_DidWeHitActor.AddItem(false);
   }
+}
+
+if(tickCounterTillDirectionVector > 5)
+{
+lastRecordedSwordDirectionVector = Normal(oldInterpolatedPoints[oldInterpolatedPoints.length-1] - End);
+tickCounterTillDirectionVector=0;
 }
 
 
@@ -341,11 +352,32 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         // DrawDebugLine( VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), -1,125,-1, true);
         // DebugPrint("bHits -"@hitInfo.Material);
         // DebugPrint("bHits -"@hitInfo.PhysMaterial );
-        // DebugPrint("bHits -"@hitInfo.Item);
+        // DebugPrint("bHits -"@hitInfo.Item); dfa
         // DebugPrint("bHits -"@hitInfo.LevelIndex );
         if(hitInfo.BoneName == 'sword_blade')
         {
         // if(TestPawn(hitActor).doin)
+
+    lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
+
+  // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
+  // DebugPrint("pTestTarget"@TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
+  // if(lastVectorDot != 0.00)
+    DebugPrint("parryTest"@lastVectorDot);
+
+    //90 degree slice i.e. vertical attack hits horizontal attack
+    // if(lastVectorDot < 0.2)
+    // {
+    //   DebugPrint("90 degree slice");
+    // }
+     if(lastVectorDot <= 1.0 && lastVectorDot >= 0.5)
+      DebugPrint("Opposite Direction Parry");
+
+     if(lastVectorDot > 0 && lastVectorDot <= 0.4)
+      DebugPrint("90 degree Parry");
+
+    if(lastVectorDot < 0)
+    DebugPrint("Swords Same Direction");
 
   if(EmberPawn(hitActor).ParryEnabled == true)
   {
@@ -353,6 +385,12 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
     swordParried(hitActor);
     swordParried(Owner);
     parryEffect(parryEffectLocation);     
+
+    lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
+
+  // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
+  // DebugPrint("pTestTarget"@EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
+  //   DebugPrint("parryTest"@lastVectorDot);
 
     EmberPawn(Owner).HitGreen();
     EmberPawn(hitActor).HitGreen();
@@ -489,6 +527,9 @@ oldInterpolatedPoints.length = 0;
    DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*Knockback, -1, 0, 0, true);
 
   hitEffect(interpolatedPoints[i], rot(0,0,0));
+
+  
+  // EmberPawn(interpolatedPoints_TemporaryHitArray[i]).BodyHitMovement(EmberPawn(Owner).AttackPacket.Mods[7]);
   if( reduceDamage )
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
   else
