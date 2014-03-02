@@ -431,6 +431,29 @@ VelocityPinch.SetOwner(self);
 
 }
 
+function HitRed()
+{
+  	CustomTimeDilation = 0.02f;
+  	SetTimer(0.002, false, 'enableAnimations');
+}
+
+function HitBlue()
+{
+  	CustomTimeDilation = 0.02f;
+  	SetTimer(0.002, false, 'enableAnimations');
+}
+
+function HitGreen()
+{
+  	// CustomTimeDilation = 0.02f;
+  	// SetTimer(0.002, false, 'enableAnimations');
+}
+
+simulated function enableAnimations()
+{
+  	CustomTimeDilation = 1.0f;
+}
+
 function sword GetSword()
 {
 	return Sword;
@@ -443,7 +466,7 @@ function WeaponAttach()
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-		Sword.setDamage(0);
+		Sword.setDamage(15);
 		AttackPacket.Mods.AddItem(0);
 		AttackPacket.Mods.AddItem(0);
 		AttackPacket.Mods.AddItem(0);
@@ -576,7 +599,7 @@ function doAttack (name animName, array<float> mods)
   for(i = 0; i < mods.length; i++)
     AttackPacket.Mods[i] = mods[i];
 
-	FlushPersistentDebugLines();
+	// FlushPersistentDebugLines();
 
             AttackBlend.setBlendTarget(1, 0.5);
             Sword.setKnockback(AttackPacket.Mods[5]); 

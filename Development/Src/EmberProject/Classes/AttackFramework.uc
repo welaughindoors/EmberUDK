@@ -207,7 +207,7 @@ heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
 */
 
 lightDamagePerTracer = 2.5
-// mediumDamagePerTracer = 7.5
+mediumDamagePerTracer = 7.5
 heavyDamagePerTracer = 13
 
 /* Swords:
@@ -237,6 +237,6 @@ heavyCameraShake = 0.47
 / -- example, if the number is 3. then you can string 1, 2, 3 attacks but third attack will return to idle before you can do any other attacks
 */
 
-MaxAttacksThatCanBeStringed = 3
+MaxAttacksThatCanBeStringed = 300
 
 }

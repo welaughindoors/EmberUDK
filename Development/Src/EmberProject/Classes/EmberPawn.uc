@@ -48,7 +48,7 @@ var SkeletalMesh swordMesh;
 var vector cameraOutLoc;
 var array<ParticleSystemComponent> tetherBeam;
 var array<GrappleRopeBlock> ropeBlockArray;
-
+var vector savedVelocity;
 var array<SoundCue> huahs;
 //=============================================
 // Sprint System
@@ -100,6 +100,9 @@ var AnimNodeBlendList 	wRightStrafeAnimNodeBlendList;
 var AnimNodeBlendList 	FullBodyBlendList;
 var AnimNodeBlendList 	JumpAttackSwitch;
 var AnimNodeBlendList 	DashOverrideSwitch;
+
+var AnimNodeAimOffset HipRotation;
+
 var int  				currentStance;
 var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
@@ -691,6 +694,11 @@ function CheckIfEnableParry()
 		ParryEnabled = false;
 	}
 }
+simulated function RotateHip()
+{
+	HipRotation.Aim.X = -1;
+	HipRotation.Aim.Y = -1;
+}
 /*
 HitBlue
 	Shakes camera with slight blue tint
@@ -711,6 +719,19 @@ simulated function HitBlue()
   		break;
   	}
   	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	savedVelocity = Velocity;
+  	CustomTimeDilation = 0.02f;
+  	SetTimer(0.002, false, 'enableAnimations');
+
+}
+/*
+enableAnimations
+	Unfreezes pawn
+*/
+simulated function enableAnimations()
+{
+	CustomTimeDilation = 1.0f;
+	Velocity = savedVelocity;
 }
 /*
 HitRed
@@ -732,6 +753,9 @@ simulated function HitRed()
   		break;
   	}
   	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	savedVelocity = Velocity;
+  	CustomTimeDilation = 0.02f;
+  	SetTimer(0.002, false, 'enableAnimations');
 }
 /*
 HitGreen
@@ -791,6 +815,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
   		// AimOffsetNode
   		AimNode = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('AimNode'));
+  		HipRotation = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('HipRotation'));
 
   		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));

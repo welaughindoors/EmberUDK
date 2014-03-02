@@ -423,6 +423,10 @@ exec function hookW()
 exec function hookA()
 {
     verticalShift[1] = verticalShift[1] ^ 1;
+    if(verticalShift[0] == 1)
+    {
+      EmberPawn(pawn).RotateHip();
+    }
 }
 exec function hookS()
 {

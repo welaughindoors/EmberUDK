@@ -11,6 +11,7 @@ var vector oldStart, oldStart2, oldStart3, oldEnd, oldEnd2, oldEnd3, oldMid;
 var vector oldBlock;
 
 var array<vector> interpolatedPoints, oldInterpolatedPoints;
+var vector savedEnd;
 var array<bool> interpolatedPoints_DidWeHitActor;
 //=============================================
 // Utility Booleans for Tracers
@@ -96,8 +97,9 @@ simulated state Attacking
       tracerCounter+= DeltaTime;
       tracerTempColourCounter+= DeltaTime;
       inducedLag += DeltaTime;
+        tickCounterTillDirectionVector++;
           // DebugPrint("line drawn");
-
+      // TraceSwordVec();
   // WorldInfo.Game.Broadcast(self,": Health:");
       if(tracerEndDelay == 0)
       {
@@ -106,7 +108,6 @@ simulated state Attacking
       //ex. want 40ms lag? then change above to inducedLag >= 0.02
       //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
       {
-        tickCounterTillDirectionVector++;
         attackIsActive = true;
         inducedLag = 0;
         TraceAttack();
@@ -120,7 +121,6 @@ simulated state Attacking
       //ex. want 40ms lag? then change above to inducedLag >= 0.02
       //number right of inducedLag is in seconds, so need to convert ms to seconds (0.02s = 20ms)
       {
-        tickCounterTillDirectionVector++;
         attackIsActive = true;
         inducedLag = 0;
         TraceAttack();
@@ -279,12 +279,39 @@ SwordEmitter.LifeSpan = 0.25;
 PlaySound(SwordSounds[2]);
 }
 
+/*
+TraceSwordVec
+  While sword state is active, trace the 'general vector' of where the sword is going
+*/
+
+// simulated function TraceSwordVec()
+// {
+//   local vector End;
+//      Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
+
+//      if(VSize(savedEnd) == 0)
+//       savedEnd = End;
+
+// if(tickCounterTillDirectionVector > 5)
+// {
+// lastRecordedSwordDirectionVector = savedEnd - End;
+//  DrawDebugLine(End,savedEnd, 128, 0, 128, true);
+// tickCounterTillDirectionVector=0;
+// }
+// savedEnd = End;
+// }
+/*
+TraceAttack
+  Trace the actual attack
+  This is the main portion of the file
+*/
 simulated function TraceAttack()
 {
    local Vector HitLocation, HitNormal, sVelocity;
    local Vector Start, End, Block, parryEffectLocation;
    local rotator bRotate;
    local traceHitInfo hitInfo;
+   local vector lastTracedVector;
    local Actor hitActor;
         // local float tVel;
         local float fDistance;
@@ -330,12 +357,6 @@ if(!bTracers)
   }
 }
 
-if(tickCounterTillDirectionVector > 5)
-{
-lastRecordedSwordDirectionVector = Normal(oldInterpolatedPoints[oldInterpolatedPoints.length-1] - End);
-tickCounterTillDirectionVector=0;
-}
-
 
   //TODO: BlockOne
         
@@ -356,49 +377,51 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         // DebugPrint("bHits -"@hitInfo.LevelIndex );
         if(hitInfo.BoneName == 'sword_blade')
         {
-        // if(TestPawn(hitActor).doin)
+//         // if(TestPawn(hitActor).doin)
+// lastTracedVector = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector - TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
 
-    lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
+// DrawDebugLine(lastTracedVector, lastTracedVector*5, -1, -1, 0, true);
+//     lastVectorDot = vector(EmberPawn(Owner).rotation) dot lastTracedVector;
 
-  // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
-  // DebugPrint("pTestTarget"@TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
-  // if(lastVectorDot != 0.00)
-    DebugPrint("parryTest"@lastVectorDot);
+//   // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
+//   // DebugPrint("pTestTarget"@TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
+//   // if(lastVectorDot != 0.00)
+//     DebugPrint("parryTest2-"@lastVectorDot);
 
-    //90 degree slice i.e. vertical attack hits horizontal attack
-    // if(lastVectorDot < 0.2)
-    // {
-    //   DebugPrint("90 degree slice");
-    // }
-     if(lastVectorDot <= 1.0 && lastVectorDot >= 0.5)
-      DebugPrint("Opposite Direction Parry");
+//     //90 degree slice i.e. vertical attack hits horizontal attack
+//     // if(lastVectorDot < 0.2)
+//     // {
+//     //   DebugPrint("90 degree slice");
+//     // }
+//      if(lastVectorDot <= 1.0 && lastVectorDot >= 0.5)
+//       DebugPrint("Opposite Direction Parry");
 
-     if(lastVectorDot > 0 && lastVectorDot <= 0.4)
-      DebugPrint("90 degree Parry");
+//      if(lastVectorDot > 0 && lastVectorDot <= 0.4)
+//       DebugPrint("90 degree Parry");
 
-    if(lastVectorDot < 0)
-    DebugPrint("Swords Same Direction");
+//     if(lastVectorDot < 0)
+//     DebugPrint("Swords Same Direction");
 
-  if(EmberPawn(hitActor).ParryEnabled == true)
-  {
+  // if(EmberPawn(hitActor).ParryEnabled == true)
+  // {
 
-    swordParried(hitActor);
-    swordParried(Owner);
-    parryEffect(parryEffectLocation);     
+  //   swordParried(hitActor);
+  //   swordParried(Owner);
+  //   parryEffect(parryEffectLocation);     
 
-    lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
+  //   // lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
 
-  // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
-  // DebugPrint("pTestTarget"@EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
-  //   DebugPrint("parryTest"@lastVectorDot);
+  // // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
+  // // DebugPrint("pTestTarget"@EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
+  // //   DebugPrint("parryTest"@lastVectorDot);
 
-    EmberPawn(Owner).HitGreen();
-    EmberPawn(hitActor).HitGreen();
-   sVelocity = Normal(Vector(Owner.Rotation));
-   DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
-    hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');  
-    return;
-  }
+  //   EmberPawn(Owner).HitGreen();
+  //   EmberPawn(hitActor).HitGreen();
+  //  sVelocity = Normal(Vector(Owner.Rotation));
+  //  DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
+  //   hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');  
+  //   return;
+  // }
 
   if(TestPawn(hitActor).GetTimeLeftOnAttack() > 0)
   {
@@ -413,6 +436,10 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
 
     EmberPawn(Owner).HitGreen();
     EmberPawn(hitActor).HitGreen();
+
+    // //Bot Only. Remove in final
+    // TestPawn(Owner).HitGreen();
+    // TestPawn(hitActor).HitGreen();
    // sVelocity = Normal(End - Start);
    sVelocity = Normal(Vector(Owner.Rotation));
    DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
@@ -537,6 +564,9 @@ oldInterpolatedPoints.length = 0;
     DamageAmount+=DamagePerTracer;
     EmberPawn(Owner).HitBlue();
     EmberPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
+    //Bot Only. Remove in final
+    TestPawn(Owner).HitBlue();
+    TestPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
 //   break;
 //   case 2:
 //     interpolatedPoints_TemporaryHitArray[i].TakeDamage(mediumDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');
@@ -792,6 +822,7 @@ interpolatedPoints_HitArray.length = 0;
 DamageAmount = 0;
 tracerTempColourCounter = 0;
 oldBlock = vect(0,0,0);
+savedEnd = vect(0,0,0);
 }
 
 /*
