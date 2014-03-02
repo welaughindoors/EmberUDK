@@ -136,6 +136,14 @@ var struct AttackPacketStruct
 	var float tDur;
 } AttackPacket;
 
+var struct ForcedAnimLoopPacketStruct
+{
+	var name AnimName;
+	var float blendIn;
+	var float blendOut;
+	var float tDur;
+} ForcedAnimLoopPacket;
+
 
 var UDKSkelControl_Rotate 	SpineRotator;
 
@@ -1082,6 +1090,34 @@ DebugPrint("LChamber End");
 }
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
+simulated function doBlock()
+{
+	//can't copy structs, how lame
+ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
+ForcedAnimLoopPacket.blendIn=aFramework.ForcedAnimLoopPacket.blendIn;
+ForcedAnimLoopPacket.blendOut=aFramework.ForcedAnimLoopPacket.blendOut;
+ForcedAnimLoopPacket.tDur=aFramework.ForcedAnimLoopPacket.tDur;
+forcedAnimLoop(true);
+}
+simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
+{
+		if(!freeze)
+		{
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+		}
+		else
+		{
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;	
+			AttackSlot[0].StopCustomAnim(blendOut);
+			AttackSlot[1].StopCustomAnim(blendOut);
+		}
+}
+simulated function stopBlock()
+{
+freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
+}
 simulated function doChamber()
 {
 	bRightChambering = true;
@@ -1252,6 +1288,22 @@ simulated function forcedAnimEnd()
 			}
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
+}
+simulated function forcedAnimLoop(bool freezeLastFrame = false)
+{
+			// ClearTimer('AttackEnd');
+			ClearTimer('AttackEnd');
+			AttackEnd();
+			AttackBlend.setBlendTarget(0, 0.2);
+            if(!freezeLastFrame)
+            {
+            AttackSlot[0].PlayCustomAnimByDuration(ForcedAnimLoopPacket.AnimName, ForcedAnimLoopPacket.tDur, ForcedAnimLoopPacket.blendIn, ForcedAnimLoopPacket.blendOut, true);
+        	}
+            else
+            {
+            	AttackSlot[0].PlayCustomAnimByDuration(ForcedAnimLoopPacket.AnimName, ForcedAnimLoopPacket.tDur, ForcedAnimLoopPacket.blendIn, 0);
+				SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');	            	
+            }
 }
 simulated function  forcedAnimEndByParry()
 {

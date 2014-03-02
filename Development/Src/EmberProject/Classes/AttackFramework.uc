@@ -85,10 +85,31 @@ var SkeletalMesh lightSwordMesh;
 var SkeletalMesh mediumSwordMesh;
 var SkeletalMesh heavySwordMesh;
 
-function InitFramework()
+var struct ForcedAnimLoopPacketStruct
 {
-	SetUpDirectionals();
+    var name AnimName;
+    var float blendIn;
+    var float blendOut;
+    var float tDur;
+} ForcedAnimLoopPacket;
+
+//==================================================================
+//==================================================================
+
+function SetUpBlockPacket()
+{
+    //Animation Name for block
+ForcedAnimLoopPacket.AnimName = 'ember_medium_block';
+    //Duration to blend in (from whatever action into block)
+ForcedAnimLoopPacket.blendIn = 0.2;
+    //Duration to blend out (from block out to idle/attack)
+ForcedAnimLoopPacket.blendOut = 0.2;
+    //Duration of anim in s. lower = faster block
+ForcedAnimLoopPacket.tDur = 0.3;
 }
+
+//==================================================================
+//==================================================================
 
 function SetUpDirectionals()
 {
@@ -118,6 +139,18 @@ function SetUpDirectionals()
 
     TestLockAnim.AddItem('ember_heavy_forward');
 }
+
+//==================================================================
+//==================================================================
+
+function InitFramework()
+{
+    SetUpDirectionals();
+    SetUpBlockPacket();
+}
+
+//==================================================================
+//==================================================================
 
 DefaultProperties
 {	
@@ -238,5 +271,8 @@ heavyCameraShake = 0.47
 */
 
 MaxAttacksThatCanBeStringed = 300
+
+//BLOCK
+// Is not here, it's up in the functions because its a packet structure
 
 }
