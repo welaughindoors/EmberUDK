@@ -36,6 +36,11 @@ function InitiateCosmetics()
 
 	//Item 2 (cape example), 10x Scale
 	AddClothToSocket(SkeletalMesh'Cosmetic.Cape', 'CapeAttach', 0.33);
+
+	//Item 3
+	// AddStaticToSocket(SkeletalMesh'ArtAnimation.Meshes.block_box', 'Helmet');
+
+	// CosmeticStruct.CosmeticItemList[1].PhysicsAsset = PhysicsAsset'ArtAnimation.Meshes.block_box_Physics';	
 }
 
 //==================================================

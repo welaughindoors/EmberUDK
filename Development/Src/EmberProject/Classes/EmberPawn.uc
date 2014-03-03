@@ -451,6 +451,7 @@ simulated function WeaponAttach()
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
 
+
 SetUpCosmetics();
 overrideStanceChange();
 
@@ -1090,14 +1091,43 @@ DebugPrint("LChamber End");
 }
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
+simulated function byte isBlock()
+{
+	return Sword[currentStance-1].isBlock;
+}
 simulated function doBlock()
 {
+
 	//can't copy structs, how lame
 ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
 ForcedAnimLoopPacket.blendIn=aFramework.ForcedAnimLoopPacket.blendIn;
 ForcedAnimLoopPacket.blendOut=aFramework.ForcedAnimLoopPacket.blendOut;
 ForcedAnimLoopPacket.tDur=aFramework.ForcedAnimLoopPacket.tDur;
 forcedAnimLoop(true);
+
+ClearTimer('AttackEnd');
+
+//This segment is part of AttackEnd, without the animation reset
+	EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
+	ChamberFlags.removeLeftChamberFlag(2);
+	// JumpAttackSwitch.SetActiveChild(1, 0.3);
+    Sword[currentStance-1].SetInitialState();
+    Sword[currentStance-1].resetTracers();
+	disableMoveInput(false);
+    // animationControl();
+//End modded AttackEnd
+
+swapToBlockPhysics();
+Sword[currentStance-1].isBlock = 1;
+//PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics'
+}
+simulated function swapToBlockPhysics(bool bBlock = true)
+{
+	//TODO: On creation, have two physics sets, easy swap here
+	if(bBlock)
+		Sword[currentStance-1].mesh.setPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+	else
+		Sword[currentStance-1].mesh.setPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
 }
 simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 {
@@ -1117,6 +1147,8 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 simulated function stopBlock()
 {
 freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
+swapToBlockPhysics(false);
+Sword[currentStance-1].isBlock = 0;
 }
 simulated function doChamber()
 {
@@ -1190,9 +1222,12 @@ else if(!ChamberFlags.CheckRightFlag(0) && iChamberingCounter > 0 && !ChamberFla
 		{
 			DebugPrint("Chamber End");
 			iChamberingCounter = 0;
-			AttackEnd();
+			// AttackEnd();
+			if(isBlock() == 0)
+			{
 			AttackSlot[0].StopCustomAnim(0.4);
 			AttackSlot[1].StopCustomAnim(0.4);
+			}
 		}
 }
 }
@@ -1292,8 +1327,7 @@ simulated function forcedAnimEnd()
 simulated function forcedAnimLoop(bool freezeLastFrame = false)
 {
 			// ClearTimer('AttackEnd');
-			ClearTimer('AttackEnd');
-			AttackEnd();
+			// ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);
             if(!freezeLastFrame)
             {
@@ -2529,20 +2563,20 @@ simulated function overrideStanceChange()
 // 	else
 //   		Sword[currentStance-1].blockDistance = distance;
 // }
-exec function ep_sword_block_distance(float distance = -3949212)
-{
-	if(distance == -3949212)
-		DebugPrint("Distance till sword block 'parries' opponent. Current Value -"@Sword[currentStance-1].blockDistance);
-	else
-  		Sword[currentStance-1].blockDistance = distance;
-}
-exec function ep_sword_block_cone(float coneDotProductAngle = -3949212)
-{
-	if(coneDotProductAngle == -3949212)
-		DebugPrint("DotProductAngle for active block. 0.5 is ~45 degrees. 0 is 90 degrees. Current Value -"@Sword[currentStance-1].blockCone);
-	else
-  		Sword[currentStance-1].blockCone = coneDotProductAngle;
-}
+// exec function ep_sword_block_distance(float distance = -3949212)
+// {
+// 	if(distance == -3949212)
+// 		DebugPrint("Distance till sword block 'parries' opponent. Current Value -"@Sword[currentStance-1].blockDistance);
+// 	else
+//   		Sword[currentStance-1].blockDistance = distance;
+// }
+// exec function ep_sword_block_cone(float coneDotProductAngle = -3949212)
+// {
+// 	if(coneDotProductAngle == -3949212)
+// 		DebugPrint("DotProductAngle for active block. 0.5 is ~45 degrees. 0 is 90 degrees. Current Value -"@Sword[currentStance-1].blockCone);
+// 	else
+//   		Sword[currentStance-1].blockCone = coneDotProductAngle;
+// }
 exec function ep_player_anim_run_blend_time(float runBlendTimeMod = -3949212)
 {
 	if(runBlendTimeMod == -3949212)
