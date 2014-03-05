@@ -14,8 +14,9 @@ Controls
 - Left Click (tap + tap): Feints into an attack (have to tap during windup)
 - Left Click (Hold): Chamber's Attack
 
-- Right Click (tap): Feint windup
-- Right Click (hold): Chamber, release into attack (same as holding left click)
+- ~~Right Click (tap): Feint windup~~
+- ~~Right Click (hold): Chamber, release into attack (same as holding left click)~~
+- Right Click (hold) : Block
 
 Console Commands
 ===========
@@ -37,6 +38,7 @@ type command as shown here to see a description of what it does
 - ep_ai_attack_player
 - ep_ai_attack_player_range
 - tethermod 0 0 0
+- setTracers # (default 15)
 
 TODO:
 ==========
@@ -52,6 +54,7 @@ TODO:
 - Walking blending tweaking
 - Modular Pawns
 - IK Nodes control and creation
+- More blocking
 
 ####Biddybam's doing this
 - Better Grapple
@@ -95,6 +98,8 @@ Recently Completed:
 - Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)
 - Attack Locks (on heavies)
 - Remade pawn rendering code to use modular method rather than static
+- Created blocking code to block attacks using a physics asset
+- When getting hit/hitting, temp animation freeze to make the attack feel like it has weight
 
 ####AI by Inathero
 - Will follow player on sight and attack on sight (can enable/disable this w/ console commands)
@@ -102,25 +107,33 @@ Recently Completed:
 - Is able to read the player's moves and setup parries to counter player
 - Is able to undergo feints in heated combat to trick and damage player in accordance to player's attacks (very basic. am working).
 
-####Biddybam
-- Grapple 'sticks' around edges, like a rope
-- Grapple 'unsticks' around edges when going back around
-
-####Admin + Coldhands Anim Team
-- Animations
+####Admininistrator
+- Essentially all the Animations
+- Rig and Model
 - Updated medium side's
 - Updated medium left/right diagonals
 - Updated medium forward
-- light thrust
 - Parts of modular pawns created
+- block animation
 
 ####Hydra
 - Headband cosmetic
 - Capes
 - and more capes!
 
+####Coldhands
+- light thrust
+- a few medium attacks
+
+####Biddybam
+- Grapple 'sticks' around edges, like a rope
+- Grapple 'unsticks' around edges when going back around
+
 ####Jinx
 - Basic structuring of Ember_Downtown map
+
+####Flow3r
+- basic menu done in flash scaleform.
 
 Issues:
 ==========
@@ -133,6 +146,8 @@ Networking Issues:
 - Collision Z axis on test pawns is lower than default
 - Test Pawns damage is one hit killing. Probably due to null sword replication
 - Player does no damage
+
+fuck network for now, we also redid pawn code so networking is basically nonexistant atm
 
 Notes:
 ==========

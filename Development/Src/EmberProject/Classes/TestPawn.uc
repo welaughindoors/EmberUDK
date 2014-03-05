@@ -243,7 +243,7 @@ function grappleHooked(vector target, pawn player)
 		Self.trace(hitLoc, hitNormal, endLoc, location );
 		floaty2 = VSize(location - endLoc);
 
-		if(floaty2 <= 250) return;
+		 if(floaty2 <= 250) return;
 
 		Velocity = target * 800;
 

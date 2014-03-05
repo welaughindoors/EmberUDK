@@ -6,6 +6,9 @@
 // -- Temporary fix until animation is corrected
 //TODO:
 // -- Shit TODO
+//pending deletion
+// -- deletion is pending. Function soon to be deleted
+
 
 class EmberPawn extends UTPawn
 placeable;
@@ -315,18 +318,38 @@ simulated event PostBeginPlay()
 //Temp delete m
 
 }
+/*
+disableMoveInput
+	WASD movement and such
+*/
 function disableMoveInput(bool yn)
 {
 	ePC.IgnoreMoveInput(yn);
 }
+/*
+disableLookInput
+	Mouse movement and such
+*/
 function disableLookInput(bool yn)
 {
 	ePC.IgnoreLookInput(yn);
 }
+
+/*
+DoDodge
+	takes WASD flags to have general idea of where player's heading
+	Can't use velocity vector, because if player is moving left
+	and then shift+right, it'll just either do 0 or go left.
+*/
 simulated function bool DoDodge(array<byte> inputA)
 {
 	return Dodge.DoDodge(inputA);
 }
+
+/*
+SetUpCosmetics
+	Static and Clothed assets are attached and setup here.
+*/
 simulated function SetUpCosmetics()
 {
 	local EmberCosmetic Cosmetic;
@@ -358,19 +381,7 @@ simulated function SetUpCosmetics()
 	for(i = 0; i < ModularPawn_Cosmetics.SkelMeshList.length; i++)
 		AllMeshs.AddItem(ModularPawn_Cosmetics.SkelMeshList[i]);
 
-// var(ModularPawn) const SkeletalMeshComponent HeadSkeletalMesh;
-// // Skeletal mesh which represents the torso. Child to the head skeletal mesh component.
-// var(ModularPawn) const SkeletalMeshComponent TorsoSkeletalMesh;
-// // Skeletal mesh which represents the arms. Child to the head skeletal mesh component.
-// var(ModularPawn) const SkeletalMeshComponent ArmsSkeletalMesh;
-// // Skeletal mesh which represents the thighs. Child to the head skeletal mesh component.
-// var(ModularPawn) const SkeletalMeshComponent ThighsSkeletalMesh;
-// // Skeletal mesh which represents the boots. Child to the head skeletal mesh component.
-// var(ModularPawn) const SkeletalMeshComponent BootsSkeletalMesh;
-// var(ModularPawn) const SkeletalMeshComponent HandsSkeletalMesh;
-// var(ModularPawn) const SkeletalMeshComponent FeetSkeletalMesh;
-
-
+//Might not be necessary
 	ModularPawn_Cosmetics.ParentModularItem.SetRBChannel(RBCC_Pawn);
    ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_Default,TRUE);
    ModularPawn_Cosmetics.ParentModularItem.SetRBCollidesWithChannel(RBCC_Cloth,TRUE);
@@ -381,6 +392,12 @@ simulated function SetUpCosmetics()
 	// ModularPawn_Cosmetics.ParentModularItem.SetPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics');
 	SetupLightEnvironment();
 }
+/*
+SetupLightEnvironment
+	All mesh pieces need to have light environment setup on it
+	Hopefully this isn't resource intensive
+	No light enviro on mesh = black
+*/
 function SetupLightEnvironment()
 {
 	local int i;
@@ -391,11 +408,11 @@ function SetupLightEnvironment()
 WeaponAttach
 	Attaches a skeleton mesh of the weapon in same place as weapon
 	Used to detect collisions. atm WIP.
+	---
+	Class that is runned after startup. Useful for creating misc classes for temp work
 */
 simulated function WeaponAttach() 
 { 
-           // DebugMessagePlayer("SocketName: " $ mesh.GetSocketByName( 'WeaponPoint' ) );
-    // mesh.AttachComponentToSocket(SwordMesh, 'WeaponPoint');
     local Sword tSword;
     // local UTPlayerController PC;
   	// PC = UTPlayerController(Instigator.Controller);
@@ -466,11 +483,21 @@ overrideStanceChange();
 		// setTrailEffects();
 		SetupPlayerControllerReference();
 }
+/*
+SetupPlayerControllerReference
+	We used to derive from GameInfo, but its easier to just take instigator
+	Reason being, for multiplayer
+*/
 simulated function SetupPlayerControllerReference()
 {
 		ePC = EmberPlayerController(Instigator.Controller);
 	    GG.setInfo(Self,  ePC);
 }
+/*
+setTrailEffects
+	Sticks an emitter on current sword
+	TODO: Make it actual trail not light effects
+*/
 simulated function setTrailEffects()
 { 
 //Declare a new Emitter
@@ -496,7 +523,11 @@ SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_
 SwordEmitter.LifeSpan = 0;
 
 }
-
+/*
+setDodgeEffect
+	Temp. WIP
+	Adds an effect when dodging
+*/
 simulated function setDodgeEffect()
 {
 	local UTEmitter SwordEmitter;      
@@ -660,7 +691,11 @@ debugCone(DeltaTime);
 	animationControl();
 
 } 
-
+/*
+BodyHitMovement
+	Not used. as doesn't work. Pending Deletion
+	Initial Purpose: When body gets hit on the right, make body move right as if actually hit
+*/
 function BodyHitMovement(int hitDirection)
 {
 	local vector eVect;
@@ -693,6 +728,12 @@ function BodyHitMovement(int hitDirection)
 	// 	IKUpperBody.EffectorLocation = eVect;
 	IKUpperBody_AnimateToggle = true;
 }
+/*
+CheckIfEnableParry
+	IF player's velocity is <= 20 (essentially stationary)
+		Then player is 'parrying'. Actual parry is done in Sword.uc
+	ATM Not used, pending deletion
+*/
 function CheckIfEnableParry()
 {
 	if(Sword[currentStance-1].aParry.EnableParryWhenStationary)
@@ -703,6 +744,10 @@ function CheckIfEnableParry()
 		ParryEnabled = false;
 	}
 }
+/*
+RotateHip
+	useless. Pending Deletion
+*/
 simulated function RotateHip()
 {
 	HipRotation.Aim.X = -1;
@@ -831,7 +876,14 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
 }
-
+/*
+MoveSwordOutOfCollision
+	Experiment where player's hand would move if sword is colliding
+	Looked bad, atm temporary disabled
+	I believe it can be re-enabled ingame by scrolling up on mouse wheel once, then attempting
+	to clip the sword through a wall
+	pending deletion
+*/
 simulated function MoveSwordOutOfCollision(float DeltaTime)
 {
 	// if(IKRightHand_Strength == 0 && DeltaTime > 0)
@@ -870,6 +922,7 @@ simulated event BecomeViewTarget( PlayerController PC )
 /*
 CalcCamera
 	Required for modified Third Person
+	so much shit here. God I fucking hate this so much, camera's a bitch
  */
 
 simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV )
@@ -936,59 +989,7 @@ cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 0, 2*fDeltaT
 
    return true;
 }   
-// function getScreenWH(float nwidth, float nheight)
-// {
-// 	width = nwidth;
-// 	height = nheight;
-// }
 /*
-DoDoubleJump
-	Jetpack main function
-*/
-// function DoDoubleJump( bool bUpdating )
-// {
-// 	// if ( !bIsCrouched && !bWantsToCrouch )
-// 	// {
-// 		if(jumpActive)
-// 		{
-// 			spaceMarineLanding();
-// 			return;
-// 		}
-// 		if(!bUpdating)
-// 		{
-// 			// disableJetPack();
-// 			disableJumpEffect(true);
-// 			return;
-// 		}
-// 		if(verticalJumpActive)
-// 			return;
-// 		if ( !IsLocallyControlled() || AIController(Controller) != None )
-// 		{
-// 			MultiJumpRemaining -= 1;
-// 		}
-// 		Velocity.Z = JumpZ + (MultiJumpBoost);
-// 		verticalJumpActive = true;
-// 		UTInventoryManager(InvManager).OwnerEvent('MultiJump');
-// 		SetPhysics(PHYS_Falling);
-// 		BaseEyeHeight = DoubleJumpEyeHeight;
-// 		if (!bUpdating)
-// 		{
-// 			SoundGroupClass.Static.PlayDoubleJumpSound(self);
-// 		}
-
-// 	if(!jumpActive)
-// 	{
-
-// 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
-// 	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail', jumpLocation, jumpRotation, self); 
-// 	// 	Mesh.AttachComponentToSocket(jumpEffects, 'BackPack');
-
-// 	jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment (ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketTrail', Mesh, 'BackPack', true,  , jumpRotation);
-// 	SetTimer(0.05, true, 'disableJumpEffect');
-// 	// SetTimer(0.1, true, 'extendJump');
-// 	}
-// 	// }
-// }
 //=============================================
 // Debug Functions
 //=============================================
@@ -999,6 +1000,7 @@ RecordTracers - Debug Function
 	Can change duration that tracers start and end
 	@TODO: Tracers end record
 	@TODO: Auto save to a script file perhaps?
+	pending deletion. Might be used in future
 */
 exec function RecordTracers(name animation, float duration, float t1, float t2)
 {
@@ -1018,6 +1020,7 @@ tethermod - Debug Function
 		'tethermod 0 0 X'
 			Changes goingAwayVelModifier modifier
 	Can change multiple modifiers at the same time
+	pending deletion
 */
 exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 {
@@ -1035,12 +1038,11 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 	GG.tetherlength = (d != 0) ? d : GG.tetherlength;
 }
 
-	// b != 0 ? goingTowardsLowVelModifier = b : ;
-	// c != 0 ? goingAwayVelModifier = c : ;
-//=============================================
-// Custom Functions
-//=============================================
-
+/*
+doAttackQueue
+	Is called everytime left click is pressed
+	Essentially attacks. queues for smooth transitions
+*/
 simulated function doAttackQueue()
 {
 	local byte currentStringCounter;
@@ -1057,6 +1059,9 @@ simulated function doAttackQueue()
 	ClearTimer('AttackEnd');
 	AttackEnd();
 	aFramework.CurrentAttackString = currentStringCounter;
+
+	//ChamberFlags are used for a sort of boolean switch state.
+	//Looks bulky, but it utilizes byte shifts, so its actually rather fast
 	ChamberFlags.resetLeftChamberFlags();
 	ChamberFlags.setLeftChamberFlag(0);
 	ChamberFlags.setLeftChamberFlag(2);
@@ -1066,6 +1071,10 @@ simulated function doAttackQueue()
 // }
 
 }
+/*
+stopAttackQueue
+	called when left click is released
+*/
 simulated function stopAttackQueue()
 {
 	// EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
@@ -1091,20 +1100,36 @@ DebugPrint("LChamber End");
 }
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
+/*
+isBlock
+	simple check to return current sword's status of blocking.
+*/
 simulated function byte isBlock()
 {
 	return Sword[currentStance-1].isBlock;
 }
+/*
+doBlock
+	ATM does this:
+	Moment rightclick is held down, swaps sword's physic asset with the 'block' asset
+	moves player to block stance
+	freezes at block stance
+	when right click is released, swaps sword's physics asset with normal sword asset
+	goes back to idle
+*/
 simulated function doBlock()
 {
 
-	//can't copy structs, how lame
+//can't copy structs in udk, how lame
 ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
 ForcedAnimLoopPacket.blendIn=aFramework.ForcedAnimLoopPacket.blendIn;
 ForcedAnimLoopPacket.blendOut=aFramework.ForcedAnimLoopPacket.blendOut;
 ForcedAnimLoopPacket.tDur=aFramework.ForcedAnimLoopPacket.tDur;
+
+//Insert block anim forcecevilbly. Fuck that word
 forcedAnimLoop(true);
 
+//Cancel timer if active
 ClearTimer('AttackEnd');
 
 //This segment is part of AttackEnd, without the animation reset
@@ -1117,18 +1142,28 @@ ClearTimer('AttackEnd');
     // animationControl();
 //End modded AttackEnd
 
+
 swapToBlockPhysics();
 Sword[currentStance-1].isBlock = 1;
-//PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics'
 }
+/*
+swapToBlockPhysics
+	Hardcoded currently. Needs fix
+	Swaps between normal sword (does damage) and block (no damage, just block) assets
+	TODO: On creation, have two physics sets, easy swap here
+*/
 simulated function swapToBlockPhysics(bool bBlock = true)
 {
-	//TODO: On creation, have two physics sets, easy swap here
 	if(bBlock)
 		Sword[currentStance-1].mesh.setPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
 	else
 		Sword[currentStance-1].mesh.setPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
 }
+/*
+freezeAttackSlots
+	Only used by doBlock currently. Should be adapted for chambers later
+	Freeze's player's upper body animations
+*/
 simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 {
 		if(!freeze)
@@ -1144,12 +1179,21 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 			AttackSlot[1].StopCustomAnim(blendOut);
 		}
 }
+/*
+stopBlock
+	Unfreeze body, switch sword physics, block = false
+*/
 simulated function stopBlock()
 {
 freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
 swapToBlockPhysics(false);
 Sword[currentStance-1].isBlock = 0;
 }
+/*
+doChamber
+	Left click is held long enough by predetermined time
+	Freeze animation, prepare for release
+*/
 simulated function doChamber()
 {
 	bRightChambering = true;
@@ -1163,6 +1207,11 @@ simulated function doChamber()
 	doAttack(ePC.verticalShift);
 	// }
 }
+/*
+stopChamber
+	IIRC Active only when doChamber goes to completion
+	Cancels existing chamber, upper body animation continues
+*/
 simulated function stopChamber()
 
 {
@@ -1181,6 +1230,12 @@ simulated function stopChamber()
 	}
 }
 
+/*
+LeftRightClicksAndChambersManagement
+	Should be renamed to LeftClicksAndChambersManagement cause rightclick = block now
+	All chamber and byte flag logic is done here primary
+	Shit's confusing, i'll comment it out full next time
+*/
 simulated function LeftRightClicksAndChambersManagement(float DeltaTime)
 {
 	
@@ -1281,7 +1336,10 @@ doAttack
 // 	else
 // 		forwardAttack();
 // }
-
+/*
+OnAnimEnd
+	When animation ends normally w/ OnAnimEnd flag
+*/
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
 			DebugPrint("OnAnimEnd");
@@ -1304,6 +1362,10 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
             VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 }
+/*
+forcedAnimEnd
+	Same as OnAnimEnd, but isn't called naturally by UDK. Called forecebiliy by code
+*/
 simulated function forcedAnimEnd()
 {
 	DebugPrint("forcedAnimEnd");
@@ -1324,6 +1386,12 @@ simulated function forcedAnimEnd()
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 }
+/*
+forcedAnimLoop
+	Only being used by lock atm
+	Forces an animation into the animation cycle
+		Can either loop animation for ever, or play once.
+*/
 simulated function forcedAnimLoop(bool freezeLastFrame = false)
 {
 			// ClearTimer('AttackEnd');
@@ -1339,6 +1407,11 @@ simulated function forcedAnimLoop(bool freezeLastFrame = false)
 				SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');	            	
             }
 }
+/*
+forcedAnimEndByParry
+	Most likely need to merge w/ forcedAnimLoop
+	Overrides animation cycle w/ a parry animation upon parry
+*/
 simulated function  forcedAnimEndByParry()
 {
 	local int i;
@@ -1353,7 +1426,11 @@ simulated function  forcedAnimEndByParry()
 
 	AttackSlot[1].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 }
-
+/*
+doAttack
+	Mastermind of attacks
+	gets left click + directional from WASD and determines what attack to use, and executs it
+*/
 simulated function doAttack( array<byte> byteDirection)
 {
 
@@ -1435,11 +1512,6 @@ JumpAttackSwitch.SetActiveChild(0, 0.3);
 				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) backLeftAttack(); //S+A
 				else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) backRightAttack(); //S+D
 
-				// if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //W+A
-				// else if((savedByteDirection[0] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //W+D
-				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[1] ^ 1) == 0 ) leftAttack(); //S+A
-				// else if((savedByteDirection[2] ^ 1) == 0 && (savedByteDirection[3] ^ 1) == 0 ) rightAttack(); //S+D
-
 				//for keys W + S and A + D
 				else forwardAttack();
 
@@ -1453,6 +1525,11 @@ JumpAttackSwitch.SetActiveChild(0, 0.3);
 		}
 
 }
+/*
+setTracers
+	Sets how many tracers to be drawn along sword
+	Very fun to use ingame
+*/
 exec function setTracers(int tracers)
 {
 	Sword[currentStance-1].setTracers(tracers);
@@ -1466,6 +1543,12 @@ exec function setTracers(int tracers)
 //     Sword.resetTracers();
 //     animationControl();
 // }
+/*
+copyToAttackStruct
+	prep'd for replication for later on I think
+	The attack animation, and all the info, in one handy thing
+	set to animation to execute
+*/
 simulated function copyToAttackStruct(name animName, array<float> mods)
 {
 	local int i;
@@ -1478,6 +1561,10 @@ simulated function copyToAttackStruct(name animName, array<float> mods)
 	}
 }
 
+/*
+EndPreAttack
+	Force's animation end w/ new animation that was copied in copyToAttackStruct
+*/
 simulated function EndPreAttack()
 {
 	if(GetTimeLeftOnAttack() <= 0.5)
@@ -1662,6 +1749,10 @@ simulated function leftAttack()
 	}	
 	EndPreAttack();
 }
+/*
+AttackLock
+	Disabled WASD movement
+*/
 simulated function AttackLock()
 {
 	disableMoveInput(true);
@@ -1827,6 +1918,9 @@ simulated function debugCone(float deltatime)
 
 
 }
+/*
+GetSword
+*/
 function sword GetSword()
 {
 	return Sword[currentStance-1];
@@ -1882,178 +1976,9 @@ simulated function detachTether()
 }
 
 /*
-createTether
-	How it works:
-		Starts trace a little infront of character, to target point
-		If the target point is an actor, cancel function //TODO: player grappling
-		else, clear old tethers and prepare for tethering
-		Save wall actor and wall hit location
-		Create tether length
-		Create tether particle
-		Set particle start and end points
+createTetherBeam
+	Makes a new beam at vector location
 */
-// function createTether() 
-// {
-// 	local vector hitLoc;
-// 	local vector tVar;
-// 	local vector hitNormal;
-// 	local actor wall;
-// 	local vector startTraceLoc;
-// 	local vector endLoc;
-// 	// local float floaty;
-// 	local int isPawn;
-// 	//~~~ Trace ~~~
-
-// 	vc = normal(Vector( EmberGameInfo(WorldInfo.Game).playerControllerWORLD.Rotation)) * 50;
-// 	//vc = Owner.Rotation;
-	
-// 	Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', tVar, r);
-// 	//pawn location + 100 in direction of player camera
-
-// 	hitLoc = location;
-// 	hitLoc.z += 10;
-// 	startTraceLoc = tVar + vc ;
-// 	// startTraceLoc = Location + vc ;
-	 
-// 	endLoc =startTraceLoc + tetherMaxLength * vc;
-// 	// endLoc.z += 1500;
-
-// 	//trace only to tether's max length
-// 	wall = Self.trace(hitLoc, hitNormal, 
-// 				endLoc, 
-// 				startTraceLoc
-// 			);
-// 	// DrawDebugLine(endLoc, startTraceLoc, -1, 0, -1, true);
-
-
-// 	// if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
-// 	// Wall.isa('Actor') ? DebugPrint("Actor : " $Wall) : ;
-// 	// InStr(wall, "TestPawn") > 0? DebugPrint("gud") : ;
-// 	isPawn = InStr(wall, "TestPawn");
-// 	// DebugPrint("p = " $isPawn);
-// 	// floaty = VSize(location - wall.location);
-// 	// DebugPrint("distance -"@floaty);
-// 	if(isPawn >= 0)
-// 	{
-// 		endLoc = normal(location - wall.location);
-// 		TestPawn(wall).grappleHooked(endLoc, self);
-// 		// endLoc *= 500;
-// 		// wall.velocity = endLoc;
-// 	}
-// 	//~~~~~~~~~~~~~~~
-// 	// Tether Success
-// 	//~~~~~~~~~~~~~~~
-// 	//Clear any old tether
-// 	detachTether();
-	
-
-// 	enemyPawnToggle = enemyPawnToggle ? false : false;
-// 	//state
-// 	 EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering = true;
-	
-// 	curTargetWall = Wall;
-// 	//wallHitLoc = hitLoc;
-// 	wallhitloc = projectileHitVector;
-	
-// 	//get length of tether from starting
-// 	//position of object and wall
-// 	// tetherlength = vsize(hitLoc - Location) * 0.75;
-// 	// if (tetherlength > 1000) 
-// 		// tetherlength = 1000;
-
-// 	tetherlength = vsize(hitLoc - Location) * 0.75;
-// 	// if (tetherlength > 500) 
-// 		// tetherlength = 500;
-// 	//~~~
-	
-// 	//~~~ Beam UPK Asset Download ~~~ 
-// 	//I provide you with the beam resource to use here:
-// 	//requires Nov 2012 UDK
-// 	//Rama Tether Beam Package [Download] For You
-// 	tetherBeam = WorldInfo.MyEmitterPool.SpawnEmitter(
-
-// 		//change name to match your imported version 
-// 		//of my package download above
-// 		//In UDK: select asset and right click “copy full path”
-// 		//paste below
-// 		ParticleSystem'RamaTetherBeam.tetherBeam2', //Visual System
-// 		Location + vect(0, 0, 32) + vc * 48, 
-// 		// Location,
-// 		rotator(HitNormal));
-
-// 	tetherBeam2 = WorldInfo.MyEmitterPool.SpawnEmitter(
-
-// 		//change name to match your imported version 
-// 		//of my package download above
-// 		//In UDK: select asset and right click “copy full path”
-// 		//paste below
-// 		ParticleSystem'RamaTetherBeam.tetherBeam2', //Visual System
-// 		Location + vect(0, 0, 32) + vc * 48, 
-// 		// Location,
-// 		rotator(HitNormal));
-
-// 	tetherBeam.SetHidden(false);
-// 	tetherBeam.ActivateSystem(true);
-	
-// 	//Beam Source Point
-// 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', tVar, r);
-// 	tetherBeam.SetVectorParameter('TetherSource', tVar);
-	
-// 	//Beam End
-// 	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
-// 	if(enemyPawn != none)
-// 	tetherBeam.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
-// 	else
-// 	tetherBeam.SetVectorParameter('TetherEnd', projectileHitLocation);	
-	
-
-
-// 	tetherBeam2.SetHidden(false);
-// 	tetherBeam2.ActivateSystem(true);
-	
-// 	//Beam Source Point
-// 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', tVar, r);
-// 	// tetherBeam2.SetVectorParameter('TetherSource', tVar);
-// 	tetherBeam2.SetVectorParameter('TetherSource', tVar);
-	
-	
-// 	//Beam End
-// 	if(enemyPawn != none)
-// 	tetherBeam2.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
-// 	else
-// 	tetherBeam2.SetVectorParameter('TetherEnd', projectileHitLocation);	
-// }
-
-/*
-startSprint
-	Saves original ground speed, and modifies it
-	Also modifies current velocity to do instant transition
-*/
-// function startSprint()
-// {
-// 	iLikeToSprint = true;
-// 	tickToggle = true;
-// 	originalSpeed = GroundSpeed;
-// 	//Sprint Speed
-// 	//GroundSpeed *= 2.0;
-// 	GroundSpeed *= 0.3;
-
-// 	//Does instant transition to max sprint speed
-// 	if(Physics != PHYS_Falling)
-// 		// velocity *= 2.0;
-// 		velocity *= 0.3;
-// }
-
-// /*
-// endSprint
-// */
-// function endSprint()
-// {
-// 	iLikeToSprint = false;
-// 	// GroundSpeed /= 2.0;
-// 	GroundSpeed = originalSpeed;
-// }
-
 simulated function createTetherBeam(vector v1, rotator r1)
 {
 	local ParticleSystemComponent newBeam;
@@ -2062,32 +1987,50 @@ simulated function createTetherBeam(vector v1, rotator r1)
 	newBeam.ActivateSystem(true);
 	tetherBeam.AddItem(newBeam);
 }
+/*
+updateBeamEnd
+*/
 simulated function updateBeamEnd(vector projectileHitLocation, int index)
 {
 	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation);
 }
+/*
+updateBeamSource
+*/
 simulated function updateBeamSource(vector tVar, int index)
 {
 	tetherBeam[index].SetVectorParameter('TetherSource', tVar);
 }
+/*
+getBeamEnd
+*/
 simulated function vector getBeamEnd(int index)
 {
 	local vector projectileHitLocation;
 	tetherBeam[index].GetVectorParameter('TetherEnd', projectileHitLocation);
 	return projectileHitLocation;
 }
+/*
+getBeamSource
+*/
 simulated function vector getBeamSource(int index)
 {
 	local vector tVar;
 	tetherBeam[index].GetVectorParameter('TetherSource', tVar);
 	return tVar;
 }
-
+/*
+getTetherBeams
+	returns array of all active tether beams
+*/
 simulated function array<ParticleSystemComponent> getTetherBeams()
 {
 	return tetherBeam;
 }
-
+/*
+deactivateAllTetherBeams
+	deletes all tetherbeams
+*/
 simulated function deactivateAllTetherBeams()
 {
 	local int i;
@@ -2103,7 +2046,10 @@ simulated function deactivateAllTetherBeams()
 	}
 tetherBeam.length = 0;
 }
-
+/*
+deactivateTetherBeam
+	deletes a tetherbeam at specified location
+*/
 simulated function deactivateTetherBeam(int index)
 {
 	if(index >= tetherBeam.length)
@@ -2117,17 +2063,28 @@ simulated function deactivateTetherBeam(int index)
 			}
 			tetherBeam.remove(index,1);
 }
- 
+/*
+createRopeBlock
+	Not used. Preped for Biddybam and never used
+*/
 simulated function GrappleRopeBlock createRopeBlock()
 {
   	ropeBlockArray.AddItem(Spawn(class'GrappleRopeBlock', self));	
   	return ropeBlockArray[ropeBlockArray.length-1];
 }
 
+/*
+getRopeBlocks
+	Not used. Preped for Biddybam and never used
+*/
 simulated function array<GrappleRopeBlock> getRopeBlocks()
 {
 	return RopeBlockArray;
 }
+/*
+deleteBlock
+	Not used. Preped for Biddybam and never used
+*/
 simulated function deleteBlock(GrappleRopeBlock block)
 {
 	local GrappleRopeBlock g;
@@ -2151,188 +2108,11 @@ simulated function deleteBlock(GrappleRopeBlock block)
 //in other tether functions
 //and their values should NOT be recalculated every tick
 
+//Is controlled in GloriousGrapple.uc
 simulated function tetherCalcs() {
 	GG.tetherCalcs();
-// 	local int idunnowhatimdoing;
-// 	//~~~~~~~~~~~~~~~~~
-// 	//Beam Source Point
-// 	//~~~~~~~~~~~~~~~~~
-// 	//get position of source point on skeletal mesh
-
-// 	//set this to be any socket you want or create your own socket
-// 	//using skeletal mesh editor in UDK
-
-// 	//dual weapon point is left hand 
-// 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
-	
-//     	    	// DrawDebugLine(vc, curTargetWall.Location, -1, 0, -1, true);
-// 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 	//adjust for Skeletal Mesh Socket Rendered/Actual Location tick delay
-
-// 	//there is a tick delay between the actual socket position
-// 	//and the rendered socket position
-// 	//I encountered this issue when working skeletal controllers
-// 	//my solution is to just manually adjust the actual socket position
-// 	//to match the screen rendered position
-// 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 	//if falling, lower tether source faster
-// 	if (vc.z - prevTetherSourcePos.z < 0) {
-// 		vc.z -= 8 * deltaTimeBoostMultiplier;
-// 	}
-	
-// 	//raising up, raise tether beam faster
-// 	else {
-// 		vc.z += 8 * deltaTimeBoostMultiplier;
-// 	}
-	
-// 	//deltaTimeBoostMultipler neutralizes effects of 
-// 	//fluctuating frame rate / time dilation
-
-// 	//update beam based on on skeletal mesh socket
-// 	tetherBeam.SetVectorParameter('TetherSource', vc);
-// 	Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
-// 	tetherBeam2.SetVectorParameter('TetherSource', vc);
-	
-// 	//save prev tick pos to see change in position
-// 	prevTetherSourcePos = vc;
-	
-
-// 	if(enemyPawn != none)
-// 	{
-// 		DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
-// 	tetherBeam.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
-// 		tetherBeam2.SetVectorParameter('TetherEnd', TestPawn(enemyPawn).grappleSocketLocation);	
-// }
-	
-// 	//~~~~~~~~~~~~~~~~~~~
-// 	//Actual Tether Constraint
-
-// 	//I dont use a RB_Constraint
-// 	//I control the allowed position
-// 	//of the pawn through code
-// 	//and use velocity adjustments every tick
-// 	//to make it look fluid
-
-// 	//setting PHYS_Falling + velocity adjustments every tick 
-// 	//is what makes this work
-// 	//and look really good with in-game physics
-// 	//~~~~~~~~~~~~~~~~~~~
-	
-// 	//vector between player and tether loc
-// 	//curTargetWall was given its value in createTether()
-// 	vc = Location - projectileHitLocation;
-	
-// 	//dist between pawn and tether location
-// 	//see Vsize(vc) below (got rid of unnecessary var)
-	
-// 	idunnowhatimdoing = tetherlength * 0.4;
-//         //is the pawn moving beyond allowed current tether length?
-//         //if so apply corrective force to push pawn back within range
-
-// 	if (Vsize(vc) > tetherlength - idunnowhatimdoing) {
-		
-//                 //determine whether to remove all standard pawn
-// 	        //animations and just use the Victory animation
-// 	        //I use this to make animations look smooth while my Tether System
-//                 //is applying changes to pawn velocity (otherwise strange anims play)
-
-//                 //this also results in pawn looking like it is actively initiating the
-//                 //change in velocity through some Willful Action
-//                // TetheringAnimOnly = true;
-		
-//                 SetPhysics(PHYS_Falling);
-		
-// 		//direction of tether = normal of distance between
-// 		//pawn and tether attach point
-// 		vc2 = normal(vc);
-		
-// 		//moving in same direction as tether?
-
-// 		//absolute value of size difference between
-// 		//normalized velocity and tether direction
-// 		//if > 1 it means pawn is moving in same direction as tether
-// 		if(abs(vsize(Normal(velocity) - vc2)) > 1){
-		
-// 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 		//limit max velocity applied to pawn in direction of tether
-// 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// 		//50 controls how much the pawn moves around while attached to tether
-// 		//could turn into a variable and control for greater refinement of
-// 		//this game mechanic
-
-// 		//1200 is the max velocity the tether system is allowed to force the
-// 		//pawn to move at, adjust to your preferences
-// 		//could also be made into a variable
-// 		// DebugPrint("v - " $velocity.z);
-// 		// if(vsize(velocity) < 2500){
-// 			// velocity -= vc2 * 300;
-// 		// }
-// 		if(Vsize(vc) > 1500)
-// 		{
-// 			velocity -= vc2 * (Vsize(vc) * goingTowardsHighVelModifier);
-// 		}
-// 		else
-// 		{
-// 			velocity -= vc2 * goingTowardsLowVelModifier;	
-// 		}
-
-// 		// DebugPrint("length"@Vsize(vc));
-// 		}
-		
-// 		//not moving in direction of pawn
-// 		//apply as much velocity as needed to prevent falling
-// 		//allows sudden direction changes
-// 		// else {
-// 			// if(velocity.z > 1200) //Usually caused by gravity boost from jetpack
-// 				// velocity -= vc2 * (95 * (Velocity.z * 0.4)) ;
-// 			else
-// 			{
-// 				// DebugPrint("going away");
-// 				velocity -= vc2 * goingAwayVelModifier;
-// 			}
-// 		// }
-// 		// if(tetherlength > 1000)
-// 			// velocity -= vc2 * (tetherlength * 0.15);
-// 		// if(location.z <= 75){
-// 		// 	ll = location;
-// 		// 	ll.z = 76;
-// 		// 	EmberGameInfo(WorldInfo.Game).playerControllerWORLD.SetLocation(ll);
-// 		// 	// setLocation
-// 		// 	// Velocity.z *= -2;
-// 		// }
-// 	}
-// 	else {
-// 		//allow all regular ut pawn animations
-//                 //since player velocity is not being actively changed 
-//                 //by Rama Tether System
-//                 //TetheringAnimOnly = false;
-
-
-
-
-// 	}
-// 	/*
-// 	//if the target point of tether is attached to moving object
-
-// 	if (tetheredToMovingWall) {
-// 		//beam end point
-// 		tetherBeam.SetVectorParameter('TetherEnd', 					
-// 		curTargetWall.Location);
-// 	}
-// 	*/
 }
 
-/*
-AddDefaultInventory
-	Queued for Deletion
-*/
-function AddDefaultInventory()
-{
-    //Add the sword as default
-    // InvManager.DiscardInventory();
-    // InvManager.CreateInventory(class'Custom_Sword'); //InvManager is the pawn's InventoryManager
-}
 /*
 SetSwordState
 	true = hand, false = nowhere
@@ -2361,7 +2141,10 @@ exec function PlayAttack(name AnimationName, float AnimationSpeed)
     AnimSlot.PlayCustomAnim( AnimationName, AnimationSpeed, 0.00, 0.00, false, true);
 }
 
-
+/*
+JumpVelocityPinch
+	pinch's players velocity upon landing
+*/
 simulated function JumpVelocityPinch(float fDeltaTime)
 {
 
@@ -2417,15 +2200,15 @@ simulated function DoKick()
 //===============================
 // Stances Functions
 //===============================
+/*
+LightStance
+	switch's stances
+*/
 simulated function LightStance()
 {
 	if(GetTimeLeftOnAttack() > 0)
 		return;
 
-	// swordMesh=SkeletalMesh'ArtAnimation.Meshes.gladius';
-	// Mesh.DetachComponent(Sword[currentStance-1].mesh);
-    // Mesh.DetachComponent(Sword[currentStance-1].CollisionComponent);
-	// Sword.Mesh.SetSkeletalMesh(swordMesh);
 switch(currentStance)
 {
 	case 2:
@@ -2452,17 +2235,6 @@ simulated function BalanceStance()
 	if(GetTimeLeftOnAttack() > 0)
 		return;
 
-	// currentStance = 2;
-	// swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana';
-	// Mesh.DetachComponent(Sword.mesh);
- //    Mesh.DetachComponent(Sword.CollisionComponent);
-	// Sword.Mesh.SetSkeletalMesh(swordMesh);
-	//     Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
- //    Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
- //    // LightDecoSword.Mesh.SetHidden(false);
- //    // HeavyDecoSword.Mesh.SetHidden(false);
- //    // MediumDecoSword.Mesh.SetHidden(true);
-
  switch(currentStance)
 {
 	case 1:
@@ -2472,7 +2244,7 @@ simulated function BalanceStance()
 
 	case 3:
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+    	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
 	break;
 }
 	currentStance = 2;
@@ -2532,11 +2304,20 @@ simulated function HeavyStance()
 	overrideStanceChange();
 
 }
+/*
+SheatheWeapon
+	removes weapon
+	really old function, needs wip
+*/
 simulated function SheatheWeapon()
 {
 	ModularPawn_Cosmetics.ParentModularItem.DetachComponent(Sword[currentStance-1].mesh);
     ModularPawn_Cosmetics.ParentModularItem.DetachComponent(Sword[currentStance-1].CollisionComponent);
 } 
+/*
+overrideStanceChange
+	forces animation change
+*/
 simulated function overrideStanceChange()
 {
 	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
