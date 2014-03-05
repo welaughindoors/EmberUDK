@@ -989,7 +989,7 @@ cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 0, 2*fDeltaT
 
    return true;
 }   
-/*
+
 //=============================================
 // Debug Functions
 //=============================================
@@ -1342,7 +1342,6 @@ OnAnimEnd
 */
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
-			DebugPrint("OnAnimEnd");
 			// VelocityPinch.ApplyVelocityPinch(,,true);
    			ClearTimer('AttackEnd');
             Sword[currentStance-1].resetTracers();
@@ -1353,14 +1352,17 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 			// 	return;
 			// }
 			if(aFramework.CurrentAttackString <= 2)
-			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
+				EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
+
             AttackBlend.setBlendTarget(1, 0.5);
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
+
 			if(!ChamberFlags.CheckRightFlag(0))
-            Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
+            	Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+
             AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
             VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
+
 }
 /*
 forcedAnimEnd
@@ -1368,23 +1370,24 @@ forcedAnimEnd
 */
 simulated function forcedAnimEnd()
 {
-	DebugPrint("forcedAnimEnd");
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
 			if(aFramework.CurrentAttackString <= 2)
 			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
 
-			if(!ChamberFlags.CheckRightFlag(0))
-			{
-			Sword[currentStance-1].GoToState('Attacking');
-            Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-			SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
-			if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
-			SetTimer(AttackPacket.Mods[1], false, 'AttackLock');	
-			VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
-			}
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
             AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
+
+			if(!ChamberFlags.CheckRightFlag(0))
+			{
+				Sword[currentStance-1].GoToState('Attacking');
+            	Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+
+				if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
+					SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
+
+				VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
+			}
 }
 /*
 forcedAnimLoop
@@ -1394,8 +1397,6 @@ forcedAnimLoop
 */
 simulated function forcedAnimLoop(bool freezeLastFrame = false)
 {
-			// ClearTimer('AttackEnd');
-			// ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);
             if(!freezeLastFrame)
             {
@@ -1404,6 +1405,7 @@ simulated function forcedAnimLoop(bool freezeLastFrame = false)
             else
             {
             	AttackSlot[0].PlayCustomAnimByDuration(ForcedAnimLoopPacket.AnimName, ForcedAnimLoopPacket.tDur, ForcedAnimLoopPacket.blendIn, 0);
+            	//Can't use GetTimeLeftOnAttack because we are not using a tracer timer
 				SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');	            	
             }
 }
@@ -1908,13 +1910,20 @@ simulated function debugCone(float deltatime)
 
 
 
-	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
-	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
-	//     hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
- //        if(hitInfo.HitComponent != none)
- //        	MoveSwordOutOfCollision(DeltaTime);
- //        else
- //        	MoveSwordOutOfCollision(-DeltaTime);
+	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
+	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
+	    hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
+        	DebugPrint("hitc~"@hitInfo.HitComponent);
+        	DebugPrint("hitphy~"@hitInfo.PhysMaterial);
+        	DebugPrint("hiti~"@hitInfo.Item );
+        	DebugPrint("hitbone~"@hitInfo.BoneName  );
+        	 
+        if(hitInfo.HitComponent != none)
+        {
+        	MoveSwordOutOfCollision(DeltaTime);
+        }
+        else
+        	MoveSwordOutOfCollision(-DeltaTime);
 
 
 }

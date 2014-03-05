@@ -365,6 +365,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         // DebugPrint("bHits -"@hitInfo.PhysMaterial );
         // DebugPrint("bHits -"@hitInfo.Item); dfa
         // DebugPrint("bHits -"@hitInfo.LevelIndex );
+        // DebugPrint("bHits -"@hitInfo.BoneName);
+        
         if(hitInfo.BoneName == 'sword_blade')
         {
           if(EmberPawn(hitActor).isBlock() == 1)
@@ -374,53 +376,31 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
 
     EmberPawn(Owner).HitGreen();
     EmberPawn(hitActor).HitGreen();
+        SetInitialState();
         return;
           }
-//         // if(TestPawn(hitActor).doin)
-// lastTracedVector = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector - TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
 
-// DrawDebugLine(lastTracedVector, lastTracedVector*5, -1, -1, 0, true);
-//     lastVectorDot = vector(EmberPawn(Owner).rotation) dot lastTracedVector;
+  if(EmberPawn(hitActor).ParryEnabled == true)
+  {
 
-//   // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
-//   // DebugPrint("pTestTarget"@TestPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
-//   // if(lastVectorDot != 0.00)
-//     DebugPrint("parryTest2-"@lastVectorDot);
+    swordParried(hitActor);
+    swordParried(Owner);
+    parryEffect(parryEffectLocation);     
 
-//     //90 degree slice i.e. vertical attack hits horizontal attack
-//     // if(lastVectorDot < 0.2)
-//     // {
-//     //   DebugPrint("90 degree slice");
-//     // }
-//      if(lastVectorDot <= 1.0 && lastVectorDot >= 0.5)
-//       DebugPrint("Opposite Direction Parry");
+    // lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
 
-//      if(lastVectorDot > 0 && lastVectorDot <= 0.4)
-//       DebugPrint("90 degree Parry");
+  // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
+  // DebugPrint("pTestTarget"@EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
+  //   DebugPrint("parryTest"@lastVectorDot);
 
-//     if(lastVectorDot < 0)
-//     DebugPrint("Swords Same Direction");
-
-  // if(EmberPawn(hitActor).ParryEnabled == true)
-  // {
-
-  //   swordParried(hitActor);
-  //   swordParried(Owner);
-  //   parryEffect(parryEffectLocation);     
-
-  //   // lastVectorDot = EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector dot EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector;
-
-  // // DebugPrint("pTestOwner"@EmberPawn(Owner).GetSword().lastRecordedSwordDirectionVector);
-  // // DebugPrint("pTestTarget"@EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
-  // //   DebugPrint("parryTest"@lastVectorDot);
-
-  //   EmberPawn(Owner).HitGreen();
-  //   EmberPawn(hitActor).HitGreen();
-  //  sVelocity = Normal(Vector(Owner.Rotation));
-  //  DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
-  //   hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');  
-  //   return;
-  // }
+    EmberPawn(Owner).HitGreen();
+    EmberPawn(hitActor).HitGreen();
+   sVelocity = Normal(Vector(Owner.Rotation));
+   DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
+    hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');  
+    SetInitialState();
+    return;
+  }
 
   if(TestPawn(hitActor).GetTimeLeftOnAttack() > 0)
   {
@@ -430,7 +410,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
             if(aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[7], TestPawn(hitActor).AttackPacket.Mods[7]))
             {
             swordParried(hitActor);
-    swordParried(Owner);
+      swordParried(Owner);
             parryEffect(parryEffectLocation);      
 
     EmberPawn(Owner).HitGreen();
@@ -443,18 +423,20 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
    sVelocity = Normal(Vector(Owner.Rotation));
    DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
     hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');     
+    SetInitialState();
             return ;
+
           }
   }
   else
   {
     reduceDamage = true;
   }
-          }
+  }
         // DebugPrint("bHits -"@hitInfo.HitComponent );
         // DebugPrint("bHits -"@hitActor);
         // DebugPrint("----");
-      }
+}
          // DrawDebugLine( Block , 10* normal(vector(bRotate)),-1,125,-1, true);
          // DrawDebugLine( Block , (Block + vect(-10,0,0))* normal(vector(bRotate)),-1,125,-1, true);
          // DrawDebugLine( Block , (Block + vect(0,10,0)) *normal(vector(bRotate)),-1,125,-1, true);
@@ -464,7 +446,6 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
       
         
            oldBlock = Block;
-
         // DrawDebugLine(Start, End, -1, 0, 0, true);
 // DebugPrint("block end, hit start");
 // for each point, do a trace and get hit info
@@ -513,7 +494,15 @@ oldInterpolatedPoints.length = 0;
     {
       //If we hit the sword of the opponent, execute sword parried function
         if(interpolatedPoints_TemporaryHitInfo[i].item == 0)
+        {
             swordParried(interpolatedPoints_TemporaryHitArray[i]);
+            parryEffect(parryEffectLocation);      
+
+    EmberPawn(Owner).HitGreen();
+    EmberPawn(hitActor).HitGreen();
+            SetInitialState();
+            return;
+        }
 
       //Else we check if we hit actor 
       if(interpolatedPoints_TemporaryHitArray[i] != none)
@@ -557,9 +546,15 @@ oldInterpolatedPoints.length = 0;
   
   // EmberPawn(interpolatedPoints_TemporaryHitArray[i]).BodyHitMovement(EmberPawn(Owner).AttackPacket.Mods[7]);
   if( reduceDamage )
+  {
+    DebugPrint("rdam");
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+  }
   else
+  {
+    DebugPrint("fdam");
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+  }
     DamageAmount+=DamagePerTracer;
     EmberPawn(Owner).HitBlue();
     EmberPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
@@ -692,15 +687,14 @@ function rotate(int nPitch, int nYaw, int nRoll)
 // }
 defaultproperties
 {
-      bCollideActors=True
-      bBlockActors=True
+      // bCollideActors=True
+      // bBlockActors=True
       reduceDamage = false
       // blockDistance=55.0
       // blockCone=0.5;
       isBlock = 0;
       attackIsActive = false
       // defaultAnimTree=AnimTree'ArtAnimation.flammard_tree'
-    // CollisionType=COLLIDE_BlockAll
 // ember_flammard_tracer
     Begin Object class=SkeletalMeshComponent Name=SwordMesh
         // SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
@@ -712,13 +706,13 @@ defaultproperties
        AlwaysLoadOnClient=true
        AlwaysLoadOnServer=true
        CastShadow=true
-       BlockRigidBody=true 
+       // BlockRigidBody=true 
        bUpdateSkelWhenNotRendered=false
        bIgnoreControllersWhenNotRendered=true
        bUpdateKinematicBonesFromAnimation=true
        bCastDynamicShadow=true
-       RBChannel=RBCC_Untitled3
-       RBCollideWithChannels=(Untitled3=true)
+       // RBChannel=RBCC_Untitled3
+       // RBCollideWithChannels=(Untitled3=true)
        //LightEnvironment=MyLightEnvironment
        bOverrideAttachmentOwnerVisibility=true
        bAcceptsDynamicDecals=false
@@ -727,13 +721,12 @@ defaultproperties
        MinDistFactorForKinematicUpdate=0.2f
        bChartDistanceFactor=true
        RBDominanceGroup=20
-    // CollisionType=COLLIDE_BlockAll
        Scale=1
        bAllowAmbientOcclusion=false 
        bUseOnePassLightingOnTranslucency=true
        bPerBoneMotionBlur=true
        bOwnerNoSee=false
-       BlockActors=true
+       // BlockActors=true
        BlockZeroExtent=true 
        BlockNonZeroExtent=true
        CollideActors=true
@@ -748,6 +741,7 @@ Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
     // Components.Add(SwordMesh)
 
     // CollisionType=COLLIDE_BlockAll
+       CollisionType =COLLIDE_TouchAll 
     // Begin Object class=CylinderComponent Name=CollisionCylinder
     //     CollisionRadius=+0160.000000
     //     CollisionHeight=+0165.000000
