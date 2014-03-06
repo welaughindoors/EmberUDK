@@ -83,6 +83,9 @@ var float 						JumpVelocityPinch_LandedTimer;
 
 var bool debugConeBool;
 
+//For replication identifications
+var int PawnID;
+
 //=============================================
 // Foot/Kick System
 //=============================================
@@ -132,12 +135,16 @@ var bool 					bAttackQueueing;
 var bool 					bRightChambering;
 var float 					iChamberingCounter;
 
-var struct AttackPacketStruct
+var repnotify struct AttackPacketStruct
 {
 	var name AnimName;
 	var array<float> Mods;
 	var float tDur;
-} AttackPacket;
+}AttackPacket ;
+
+var repnotify int testRep;
+
+// var repnotify AttackPacketStruct ATtackPacket;
 
 var struct ForcedAnimLoopPacketStruct
 {
@@ -173,28 +180,23 @@ End Variables
 */
 
 
-// simulated event ReplicatedEvent(name VarName)
-// {
-//   DebugPrint("Rep Event Received - "@VarName);
-//      if(VarName == 'RepMesh')
-//      {
-//       DebugPrint("RepMesh");
-//           if(self.Pawn.Mesh.SkeletalMesh != RepMesh)
-//           {
-//             DebugPrint("Rep Mesh Change");
-//                self.Pawn.Mesh.SetSkeletalMesh(RepMesh);
-//           }
-//      }
-//      else
-//      {
-//           super.ReplicatedEvent(VarName);
-//      }
-// }
-// replication
-// {
-//     if (bNetDirty)
-//             RepMesh;
-// }
+simulated event ReplicatedEvent(name VarName)
+{
+  DebugPrint("Rep Event Received - "@VarName);
+     if(VarName == 'AttackPacket')
+     {
+         // forcedAnimEndReplication(AttackPacket);
+     }
+     else
+     {
+          super.ReplicatedEvent(VarName);
+     }
+}
+replication
+{
+    if (bNetDirty)
+            AttackPacket, testRep;
+}
 //=============================================
 // Utility Functions
 //=============================================
@@ -294,7 +296,7 @@ simulated event PostBeginPlay()
 	super.PostBeginPlay();
 
     //Add pawn to world info to be accessed from anywhere
-   	EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
+   	// EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
 
     aFramework = new class'EmberProject.AttackFramework';
     Dodge = new class'EmberProject.EmberDodge';
@@ -302,21 +304,37 @@ simulated event PostBeginPlay()
     VelocityPinch = new class'EmberProject.EmberVelocityPinch';
     ChamberFlags = new class 'EmberProject.EmberChamberFlags';
     Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
-    ModularPawn_Cosmetics = new class'EmberProject.EmberModularPawn_Cosmetics';
-    ModularPawn_Cosmetics.Initialize(self, ParentModularComponent);
     Cosmetic_ItemList.InitiateCosmetics();
     Dodge.SetOwner(self);
     VelocityPinch.SetOwner(self);
     aFramework.InitFramework();
 
-   	//1 second attach skele mesh
-    SetTimer(0.2, false, 'WeaponAttach'); 
-    // SetTimer(0.1, false, 'SetUpCosmetics');
+    SetTimer(0.1, false, 'SetUpCharacterMesh');
+   	SetTimer(0.2, false, 'WeaponAttach'); 
 
 
 // AttackFramework aFramework = new AttackFramework ();
 //Temp delete m
 
+}
+/*
+SetUpCharacterMesh
+	Sets up player's mesh
+*/
+simulated function SetUpCharacterMesh()
+{
+    ModularPawn_Cosmetics = new class'EmberProject.EmberModularPawn_Cosmetics';
+    ModularPawn_Cosmetics.Initialize(self, ParentModularComponent);
+    SetPawnID();
+}
+/*
+SetPawnID
+	sets pawn ID for all clients
+*/
+simulated function SetPawnID()
+{
+	PawnID = EmberGameInfo(WorldInfo.game).counterForPawns;
+	EmberGameInfo(WorldInfo.game).counterForPawns++;
 }
 /*
 disableMoveInput
@@ -488,9 +506,13 @@ SetupPlayerControllerReference
 	We used to derive from GameInfo, but its easier to just take instigator
 	Reason being, for multiplayer
 */
-simulated function SetupPlayerControllerReference()
+simulated function SetupPlayerControllerReference(EmberPlayerController aPlayer = none)
 {
+	if(aPlayer == none)
 		ePC = EmberPlayerController(Instigator.Controller);
+		else
+			ePC = aPlayer;
+			DebugPrint("epc"@ePC);
 	    GG.setInfo(Self,  ePC);
 }
 /*
@@ -574,11 +596,11 @@ Simulated Event Tick(float DeltaTime)
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
 	//=== TETHER ====
-	if (ePC.isTethering) 
-		{
-			GG.tetherVelocity = velocity;
-			GG.tetherCalcs();		//run calcs every tick tether is active
-		}
+	// if (ePC.isTethering) 
+	// 	{
+	// 		GG.tetherVelocity = velocity;
+	// 		GG.tetherCalcs();		//run calcs every tick tether is active
+	// 	}
 
 	if(GG.tetherStatusForVel)
 		{
@@ -944,17 +966,17 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    //    CurrentCamOffset = vect(0,0,0);
    //    CurrentCamOffset.X = GetCollisionRadius();
    // }
-//native static final function float FInterpTo (float Current, float Target, float DeltaTime, float InterpSpeed)
-if(EmberGameInfo(WorldInfo.Game).pawnsActiveOnPlayer == 0)
-{
-   cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
-   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.7, 2*fDeltaTime);
-}
-else
-{
-cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 0, 2*fDeltaTime);
-   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
-}
+
+// if(EmberGameInfo(WorldInfo.Game).pawnsActiveOnPlayer == 0)
+// {
+//    cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
+//    cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.7, 2*fDeltaTime);
+// }
+// else
+// {
+// cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 0, 2*fDeltaTime);
+//    cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
+// }
    CamStart.Z += CameraZOffset + cameraCamZOffsetInterpolation;
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
@@ -1365,11 +1387,38 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 
 }
 /*
+forcedAnimEndReplication
+	AnimEnd from Replication
+*/
+simulated function forcedAnimEndReplication(name AnimName,  array<float> Mods)
+{
+		ClearTimer('AttackEnd');
+			AttackBlend.setBlendTarget(0, 0.2);    
+			// if(aFramework.CurrentAttackString <= 2)
+			// EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
+
+            Sword[currentStance-1].setKnockback(Mods[5]);
+            AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
+
+			if(!ChamberFlags.CheckRightFlag(0))
+			{
+				Sword[currentStance-1].GoToState('Attacking');
+            	Sword[currentStance-1].setTracerDelay(Mods[1],Mods[2]);
+
+				if(aFramework.TestLockAnim[0] == AnimName)
+					SetTimer(Mods[0], false, 'AttackLock');
+
+				VelocityPinch.ApplyVelocityPinch(,Mods[1],Mods[2] * 1.1);
+			}
+}
+/*
 forcedAnimEnd
 	Same as OnAnimEnd, but isn't called naturally by UDK. Called forecebiliy by code
 */
 simulated function forcedAnimEnd()
 {
+	EmberReplicationInfo(playerreplicationinfo).AnimName = AttackPacket.AnimName; 
+	EmberReplicationInfo(playerreplicationinfo).AttackPacket.Mods = AttackPacket.Mods; 
 		ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
 			if(aFramework.CurrentAttackString <= 2)
@@ -1414,7 +1463,7 @@ forcedAnimEndByParry
 	Most likely need to merge w/ forcedAnimLoop
 	Overrides animation cycle w/ a parry animation upon parry
 */
-simulated function  forcedAnimEndByParry()
+simulated function forcedAnimEndByParry()
 {
 	local int i;
 
@@ -1439,6 +1488,8 @@ simulated function doAttack( array<byte> byteDirection)
 	local float timerCounter;
 	local float queueCounter;
 	local int totalKeyFlag;
+	DebugPrint("Pawn ID"@PawnID);
+testRep++;
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
 	// PlaySound(Sword[currentStance-1].SwordSounds[0]);
@@ -1459,6 +1510,7 @@ simulated function doAttack( array<byte> byteDirection)
 	FlushPersistentDebugLines();
 	timerCounter = GetTimeLeftOnAttack();
 	DebugPrint("attack Requested"@GetTimeLeftOnAttack());
+	DebugPrint("animane"@EmberReplicationInfo(playerreplicationinfo).AnimName);
 	// if(timerCounter > queueCounter)
 		// {
 		// DebugPrint("attack Denied");

@@ -3,8 +3,6 @@ class EmberGameInfo extends UTGame;
 //=============================================
 // Global Vars
 //=============================================
-var EmberPlayerController playerControllerWORLD;
-var EmberPawn playerpawnWORLD;
 var int pawnsActiveOnPlayer;
 
 var struct AttackPacketStruct
@@ -14,34 +12,41 @@ var struct AttackPacketStruct
 	var float tDur;
 	var bool isActive;
 } AttackPacket;
-
+var int counterForPawns;
 /*
 AddDefaultInventory
   Reenable if we need to create inventories
 */
 function AddDefaultInventory( pawn PlayerPawn )
 {
-	// local int i;
-	//-may give the physics gun to non-bots
-	// if(PlayerPawn.IsHumanControlled() )
-	// {
-		// PlayerPawn.CreateInventory(class'Custom_Sword',true);
-	// }
-
-	// for (i=0; i<DefaultInventory.Length; i++)
-	// {
-	// 	//-Ensure we don't give duplicate items
-	// 	if (PlayerPawn.FindInventoryType( DefaultInventory[i] ) == None)
-	// 	{
-	// 		//-Only activate the first weapon
-	// 		PlayerPawn.CreateInventory(DefaultInventory[i], (i > 0));
-	// 	}
-	// }
-	// `Log("Adding inventory");
 	PlayerPawn.AddDefaultInventory();
 
 }
+event InitGame( string Options, out string ErrorMessage )
+{
+    local string InOpt;
+    super.InitGame(Options, ErrorMessage);
+	// `log("INITGAME");
+ //    InOpt = ParseOption(Options, "MyTeam");
+ //    if(InOpt != "")
+ //        MyTeam = int(InOpt);
+	// `log("MyTeamINIT" @MyTeam);
+}
+// function PlayerStart ChoosePlayerStart( Controller Player, optional byte InTeam )
+// {
+// 	local PlayerStart P, BestStart;
+// 	foreach WorldInfo.AllNavigationPoints(class'PlayerStart', P)
+// 		{
+// 			PlayerStartPointsUsed.AddItem(P);
+// 		}
+// 		if(MyTeam == 1)
+// 			BestStart = PlayerStartPointsUsed[0];
+		
+// 		else
+// 			BestStart = PlayerStartPointsUsed[1];
 
+// 		return BestStart;
+// }
 /*
 RestartPlayer
   Not sure if needed
@@ -49,7 +54,15 @@ RestartPlayer
  simulated function RestartPlayer(Controller aPlayer)
 {
 super.RestartPlayer(aPlayer);
-EmberPlayerController(aPlayer).SaveMeshValues();
+if(aPlayer.bIsPlayer)
+Broadcast(self, "player spawn"@aPlayer);
+if(aPlayer.pawn ==none)
+{
+	Broadcast(self, "no pawn");
+return;
+}
+
+// EmberPlayerController(aPlayer).SaveMeshValues();
 }
 
  static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
@@ -60,9 +73,10 @@ EmberPlayerController(aPlayer).SaveMeshValues();
  defaultproperties
 
 {
-
+// bRestartLevel =false;
 	pawnsActiveOnPlayer = 0
-	
+	counterForPawns = 0;
+	// bNoCollisionFail=true
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
   PlayerReplicationInfoClass=class'EmberProject.EmberReplicationInfo'

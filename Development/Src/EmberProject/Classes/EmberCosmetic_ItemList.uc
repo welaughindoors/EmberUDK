@@ -32,10 +32,10 @@ function InitiateCosmetics()
 	*/
 
 	//Item 1
-	AddStaticToSocket(SkeletalMesh'Cosmetic.Headband', 'Helmet');
+	// AddStaticToSocket(SkeletalMesh'Cosmetic.Headband', 'Helmet');
 
 	//Item 2 (cape example), 10x Scale
-	AddClothToSocket(SkeletalMesh'Cosmetic.Cape', 'CapeAttach', 0.33);
+	// AddClothToSocket(SkeletalMesh'Cosmetic.Cape', 'CapeAttach', 0.33);
 
 	//Item 3
 	// AddStaticToSocket(SkeletalMesh'ArtAnimation.Meshes.block_box', 'Helmet');

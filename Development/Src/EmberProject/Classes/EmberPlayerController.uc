@@ -6,6 +6,7 @@ class EmberPlayerController extends UTPlayerController;
 struct RepMeshAnimsAssets
 {
 var SkeletalMesh defaultMesh;
+var SkeletalMeshComponent ParentModularComponent;
 var MaterialInterface defaultMaterial0;
 var MaterialInterface defaultMaterial1;
 var AnimTree defaultAnimTree;
@@ -59,45 +60,49 @@ var float ai_attackPlayerRange;
 // Overrided Functions
 //=============================================
 
-simulated event ReplicatedEvent(name VarName)
+state Dead
 {
-  local PlayerController PC;
-  DebugPrint("Rep Event Received - "@VarName);
-     if(VarName == 'PostBeginCharacterInformation' )
-     {
-        // ForEach LocalPlayerControllers(class'EmberPlayerController', PC)
-            // EmberPlayerController(PC).resetMesh();
-         // foreach Worldinfo.AllActors( class'EmberPlayerController', PC ) 
-    resetMesh();         
-    // ForEach LocalPlayerControllers(class'PlayerController', PC)
-    // {
-    //   DebugPrint("PostBeginCharacterInformation");
-    //   // if ( PC.PlayerReplicationInfo == self )
-    //   // {
-    //     EmberPlayerController(PC).SaveMeshValues();
-    //   // }
-    // }
-     }
-  
-     if(VarName == 'Pawn')
-     {
-        ForEach LocalPlayerControllers(class'PlayerController', PC)
-        {
-          DebugPrint("pawn reset "@PC); 
-        // foreach Worldinfo.AllActors( class'PlayerController', PC ) 
-                   EmberPlayerController(PC).resetMesh();
-                 }
-     }
-     else
-     {
-          super.ReplicatedEvent(VarName);
-     }
+  event Timer()
+  {
+    super.Timer();
+    StartFire();
+  }
 }
-replication
-{
-    if (bNetDirty || bNetInitial)
-      PostBeginCharacterInformation;
-}
+
+
+
+// simulated event ReplicatedEvent(name VarName)
+// {
+//   local PlayerController PC;
+//   DebugPrint("Rep Event Received - "@VarName);
+//   // if(VarName == 'PlayerReplicationInfo' )
+//           // EmberPawn(pawn).SetUpCharacterMesh();
+//      if(VarName == 'PostBeginCharacterInformation' )
+//      {
+//         // ForEach LocalPlayerControllers(class'EmberPlayerController', PC)
+//             // EmberPlayerController(PC).resetMesh();
+//          // foreach Worldinfo.AllActors( class'EmberPlayerController', PC ) 
+//          EmberPawn(pawn).SetUpCharacterMesh();
+//     // resetMesh();         
+//     // ForEach LocalPlayerControllers(class'PlayerController', PC)
+//     // {
+//     //   DebugPrint("PostBeginCharacterInformation");
+//     //   // if ( PC.PlayerReplicationInfo == self )
+//     //   // {
+//     //     EmberPlayerController(PC).SaveMeshValues();
+//     //   // }
+//     // }
+//      }
+//      else
+//      {
+//           super.ReplicatedEvent(VarName);
+//      }
+// }
+// replication
+// {
+//     if (bNetDirty || bNetInitial)
+//       PostBeginCharacterInformation;
+// }
 /*
 PlayerWalking
 	Used for dodge. Queued for removal
@@ -251,8 +256,10 @@ PostBeginPlay
 Simulated Event PostBeginPlay() {
    super.postbeginplay();
 DebugPrint("post begin");
+
+  EmberPawn(pawn).SetupPlayerControllerReference(self);
    //set Self's worldinfo var
-   EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
+   // EmberGameInfo(WorldInfo.Game).playerControllerWORLD = Self;
 
   SaveMeshValues();
   
@@ -565,22 +572,23 @@ resetMesh
 */
 simulated function SaveMeshValues()
 {
-PostBeginCharacterInformation.defaultMesh = defaultMesh;
-PostBeginCharacterInformation.defaultMaterial0 = defaultMaterial0;
-PostBeginCharacterInformation.defaultMaterial1 = defaultMaterial1;
-PostBeginCharacterInformation.defaultAnimTree = defaultAnimTree;
-PostBeginCharacterInformation.defaultAnimSet = defaultAnimSet;
-PostBeginCharacterInformation.defaultPhysicsAsset = defaultPhysicsAsset;
+// PostBeginCharacterInformation.defaultMesh = defaultMesh;
+ PostBeginCharacterInformation.ParentModularComponent = EmberPawn(pawn).ParentModularComponent;
+// PostBeginCharacterInformation.defaultMaterial0 = defaultMaterial0;
+// PostBeginCharacterInformation.defaultMaterial1 = defaultMaterial1;
+// PostBeginCharacterInformation.defaultAnimTree = defaultAnimTree;
+// PostBeginCharacterInformation.defaultAnimSet = defaultAnimSet;
+// PostBeginCharacterInformation.defaultPhysicsAsset = defaultPhysicsAsset;
 
-PostBeginCharacterInformation.Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
-PostBeginCharacterInformation.Cosmetic_ItemList.InitiateCosmetics();
+// PostBeginCharacterInformation.Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
+// PostBeginCharacterInformation.Cosmetic_ItemList.InitiateCosmetics();
 // RepMesh = defaultMesh;
- SetTimer(0.1, false, 'resetMesh');
+ // SetTimer(0.1, false, 'resetMesh');
 }
 
 simulated function resetMesh()
 {
-  DebugPrint("Mesh Reset "@PostBeginCharacterInformation.defaultMesh);
+  // DebugPrint("Mesh Reset "@PostBeginCharacterInformation.defaultMesh);
   // EmberPawn(pawn).attachReset();
 // self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
 // self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
@@ -594,6 +602,7 @@ simulated function resetMesh()
 
 defaultproperties
 {
+  MinRespawnDelay=0.1
    verticalShift=(0,0,0,0);
    interpMovementAttack = 60000f
    interpMovement = 120000f
