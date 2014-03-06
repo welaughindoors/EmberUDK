@@ -109,7 +109,7 @@ var AnimNodeBlendList 	DashOverrideSwitch;
 
 var AnimNodeAimOffset HipRotation;
 
-var int  				currentStance;
+
 var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
 
@@ -135,14 +135,21 @@ var bool 					bAttackQueueing;
 var bool 					bRightChambering;
 var float 					iChamberingCounter;
 
-var repnotify struct AttackPacketStruct
+var struct AttackPacketStruct
 {
 	var name AnimName;
 	var array<float> Mods;
 	var float tDur;
 }AttackPacket ;
 
-var repnotify int testRep;
+var repnotify struct ServerAttackPacketStruct
+{
+	var name AnimName;
+	var array<float> Mods;
+	var pawn targetPawn;
+	// var float tDur;
+} ServerAttackPacket ;
+
 
 // var repnotify AttackPacketStruct ATtackPacket;
 
@@ -153,6 +160,8 @@ var struct ForcedAnimLoopPacketStruct
 	var float blendOut;
 	var float tDur;
 } ForcedAnimLoopPacket;
+
+var repnotify int currentStance;
 
 
 var UDKSkelControl_Rotate 	SpineRotator;
@@ -183,19 +192,18 @@ End Variables
 simulated event ReplicatedEvent(name VarName)
 {
   DebugPrint("Rep Event Received - "@VarName);
-     if(VarName == 'AttackPacket')
+     if(VarName == 'ServerAttackPacket')
      {
          // forcedAnimEndReplication(AttackPacket);
+         ClientAttackAnimReplication(ServerAttackPacket.AnimName, ServerAttackPacket.Mods, ServerAttackPacket.targetPawn);
      }
-     else
-     {
+// currentStance
           super.ReplicatedEvent(VarName);
-     }
 }
 replication
 {
     if (bNetDirty)
-            AttackPacket, testRep;
+            ServerAttackPacket, currentStance;
 }
 //=============================================
 // Utility Functions
@@ -207,7 +215,14 @@ DebugPrint
 */
 function DebugPrint(string sMessage)
 {
-    GetALocalPlayerController().ClientMessage(sMessage);
+    ePC.ClientMessage(sMessage);
+}/*
+WorldBroadcast
+	same as debug print, but everyone gets it
+*/
+simulated exec function WorldBroadcast(string sMessage)
+{
+    	WorldInfo.Game.Broadcast(self,Name$" -- "@sMessage);
 }
 // Not Needed, found out that there's an official code that does the same, even has same name >.<
 // function bool isTimerActive(name tName)
@@ -897,7 +912,14 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
   		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
+if(Role < ROLE_Authority)
+		ServerInitializeAnimationFor(ParentModularComponent);
 }
+reliable server function ServerInitializeAnimationFor(SkeletalMeshComponent pmesh)
+{ 
+	PostInitAnimTree(pmesh); 
+}
+
 /*
 MoveSwordOutOfCollision
 	Experiment where player's hand would move if sword is colliding
@@ -1386,30 +1408,22 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
             VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 
 }
+
 /*
 forcedAnimEndReplication
 	AnimEnd from Replication
 */
-simulated function forcedAnimEndReplication(name AnimName,  array<float> Mods)
+reliable server function ServerAttackAnimReplication(name AnimName,  array<float> Mods)
 {
-		ClearTimer('AttackEnd');
-			AttackBlend.setBlendTarget(0, 0.2);    
-			// if(aFramework.CurrentAttackString <= 2)
-			// EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
-
-            Sword[currentStance-1].setKnockback(Mods[5]);
-            AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
-
-			if(!ChamberFlags.CheckRightFlag(0))
-			{
-				Sword[currentStance-1].GoToState('Attacking');
-            	Sword[currentStance-1].setTracerDelay(Mods[1],Mods[2]);
-
-				if(aFramework.TestLockAnim[0] == AnimName)
-					SetTimer(Mods[0], false, 'AttackLock');
-
-				VelocityPinch.ApplyVelocityPinch(,Mods[1],Mods[2] * 1.1);
-			}
+        AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
+        // forcedAnimEnd();
+}
+reliable client function ClientAttackAnimReplication(name AnimName,  array<float> Mods, optional pawn PlayerPawn)
+{
+		// ServerAttackPacket.AnimName = AnimName;
+		// ServerAttackPacket.Mods = Mods;
+        EmberPawn(PlayerPawn).AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
+        // forcedAnimEnd();
 }
 /*
 forcedAnimEnd
@@ -1417,9 +1431,13 @@ forcedAnimEnd
 */
 simulated function forcedAnimEnd()
 {
-	EmberReplicationInfo(playerreplicationinfo).AnimName = AttackPacket.AnimName; 
-	EmberReplicationInfo(playerreplicationinfo).AttackPacket.Mods = AttackPacket.Mods; 
-		ClearTimer('AttackEnd');
+	local ServerAttackPacketStruct tempServerPacket;
+
+	tempServerPacket.animName = AttackPacket.AnimName;
+	tempServerPacket.Mods = AttackPacket.Mods;
+	tempServerPacket.targetPawn = self;
+
+			ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
 			if(aFramework.CurrentAttackString <= 2)
 			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
@@ -1436,8 +1454,16 @@ simulated function forcedAnimEnd()
 					SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
 
 				VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
-			}
+		}
+
+		ServerAttackPacket = tempServerPacket;
+
+	if(Role < Role_Authority)
+	{
+		ServerAttackAnimReplication(AttackPacket.AnimName, AttackPacket.Mods);
+	}
 }
+
 /*
 forcedAnimLoop
 	Only being used by lock atm
@@ -1477,6 +1503,25 @@ simulated function forcedAnimEndByParry()
 
 	AttackSlot[1].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 }
+
+// reliable client function ListPlayerReplicationInfo()
+// {
+//     local EmberPlayerController PC;
+//     local EmberPawn P;
+//     local EmberReplicationInfo PRI;
+//     foreach WorldInfo.AllPawns(class'EmberPawn', P)
+// 	{
+// 		// if (PC!=none)
+// 	    // {
+// 	    	PC = P.ePC;
+//             PRI=EmberReplicationInfo(PC.PlayerReplicationInfo);
+//             DebugPrint("Player-"@P@"_AnimName:"@PRI.AnimName);
+//             DebugPrint("players!"@P);
+//             // break;
+// 	    // }
+// 	}
+// 	// return PRI;
+// }
 /*
 doAttack
 	Mastermind of attacks
@@ -1488,8 +1533,10 @@ simulated function doAttack( array<byte> byteDirection)
 	local float timerCounter;
 	local float queueCounter;
 	local int totalKeyFlag;
-	DebugPrint("Pawn ID"@PawnID);
-testRep++;
+	// DebugPrint("Pawn ID"@PawnID);
+// testRep++;
+// ListPlayerReplicationInfo();
+
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
 	// PlaySound(Sword[currentStance-1].SwordSounds[0]);
@@ -2274,18 +2321,18 @@ switch(currentStance)
 {
 	case 2:
 	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'KattanaSocket');
-    MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
+    // MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
 	break;
 
 	case 3:
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
 	break;
 }
 	currentStance = 1;
 
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
@@ -2300,17 +2347,17 @@ simulated function BalanceStance()
 {
 	case 1:
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
 	break;
 
 	case 3:
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
+    	// ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
 	break;
 }
 	currentStance = 2;
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
@@ -2347,18 +2394,18 @@ simulated function HeavyStance()
 {
 	case 1:
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
 	break;
 
 	case 2:
 	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'KattanaSocket');
-    MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
+    // MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
 	break;
 }
 	currentStance = 3;
 
 	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
+    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
     // LightDecoSword.Mesh.SetHidden(true);
     // HeavyDecoSword.Mesh.SetHidden(false);
     // MediumDecoSword.Mesh.SetHidden(false);
@@ -2494,6 +2541,7 @@ defaultproperties
 	debugConeBool=false;
 	enableInaAudio = 0;
     GroundSpeed=400.0;
+    bAlwaysRelevant=true
 //SkeletalMesh'ArtAnimation.Meshes.ember_player'
 //=============================================
 // End Combo / Attack System Vars

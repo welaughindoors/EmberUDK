@@ -60,6 +60,7 @@ var float ai_attackPlayerRange;
 // Overrided Functions
 //=============================================
 
+//Insta-Respawn
 state Dead
 {
   event Timer()
@@ -68,7 +69,6 @@ state Dead
     StartFire();
   }
 }
-
 
 
 // simulated event ReplicatedEvent(name VarName)

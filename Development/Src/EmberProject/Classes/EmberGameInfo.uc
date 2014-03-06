@@ -22,6 +22,14 @@ function AddDefaultInventory( pawn PlayerPawn )
 	PlayerPawn.AddDefaultInventory();
 
 }
+// function PostBeginPlay()
+// {
+//   Super.PostBeginPlay();
+
+//   // Set the timer which broad casts a random message to all players
+//   SetTimer(1.f, true, 'RandomBroadcast');
+// }
+
 event InitGame( string Options, out string ErrorMessage )
 {
     local string InOpt;
@@ -64,6 +72,30 @@ return;
 
 // EmberPlayerController(aPlayer).SaveMeshValues();
 }
+
+
+// function RandomBroadcast()
+// {
+//   local EmberPlayerController PlayerController;
+//   local EmberPawn pawn;
+//   local string BroadcastMessage;
+
+//   if (WorldInfo != None)
+//   {
+//     // Constuct a random text message
+//     for (i = 0; i < 32; ++i)
+//     {
+//       BroadcastMessage $= Chr(Rand(255));
+//     }
+
+//     ForEach WorldInfo.AllControllers(class'EmberPlayerController', PlayerController)
+//     {
+//       pawn = EmberPawn(PlayerController.pawn);
+//       pawn.ClientAttackAnimReplication(BroadcastMessage);
+//     }
+//   }
+// }
+
 
  static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
 {

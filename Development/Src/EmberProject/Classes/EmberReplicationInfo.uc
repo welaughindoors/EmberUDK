@@ -13,26 +13,32 @@ var repnotify struct AttackPacketStruct
 replication
 {
 
-	if (bNetDirty && Role == Role_Authority)
-		AttackPacket;
+	// if (bNetDirty && Role == Role_Authority)
+		// AttackPacket;
 	if(bNetDirty)
-		AnimName;
+		AnimName, AttackPacket;
 }
 
 simulated event ReplicatedEvent(name VarName)
 {
 	local PlayerController PC;
 	local pawn ePawn;
+	local EmberPawn eppawn;
 	WorldInfo.Game.Broadcast(self, "Packet Received~"@varname);
 	if (varname == 'AttackPacket') {
-		ForEach LocalPlayerControllers(class'PlayerController', PC)
+		// ForEach WorldInfo.LocalPlayerControllers(class'PlayerController', PC)
+		ForEach WorldInfo.AllPawns(class'EmberPawn', eppawn)
 		{
-			if ( PC.PlayerReplicationInfo == self )
-			{
-				ePawn = PC.pawn;
-				WorldInfo.Game.Broadcast(self, "pawn"@ePawn);
+			// if ( PC.PlayerReplicationInfo == self )
+			// {
+				// ePawn = PC.pawn;
+				// EmberPawn(ePawn).DebugPrint("REPLICATION_AttackPacket");
+				// WorldInfo.Game.Broadcast(self, "pawn"@ePawn);
+				
+				eppawn.DebugPrint("REPLICATION_AttackPacket");
+
 				// EmberPawn(ePawn).forcedAnimEndReplication(AttackPacket.AnimName, AttackPacket.Mods);
-			}
+			// }
 		}
 	}
 
@@ -42,7 +48,7 @@ simulated event ReplicatedEvent(name VarName)
 			if ( PC.PlayerReplicationInfo == self )
 			{
 				ePawn = PC.pawn;
-				EmberPawn(ePawn).DEbugPrint("replication called");
+				EmberPawn(ePawn).DebugPrint("REPLICATION_AnimName");
 				WorldInfo.Game.Broadcast(self, "pawn"@ePawn);
 				// EmberPawn(ePawn).forcedAnimEndReplication(AttackPacket.AnimName, AttackPacket.Mods);
 			}
