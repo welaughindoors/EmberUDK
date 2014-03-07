@@ -195,6 +195,7 @@ simulated event ReplicatedEvent(name VarName)
      if(VarName == 'ServerAttackPacket')
      {
          // forcedAnimEndReplication(AttackPacket);
+         DebugPrint("REPPAWN-"@ ServerAttackPacket.targetPawn@"anim-"@ServerAttackPacket.AnimName);
          ClientAttackAnimReplication(ServerAttackPacket.AnimName, ServerAttackPacket.Mods, ServerAttackPacket.targetPawn);
      }
 // currentStance
@@ -203,7 +204,7 @@ simulated event ReplicatedEvent(name VarName)
 replication
 {
     if (bNetDirty)
-            ServerAttackPacket, currentStance;
+            ServerAttackPacket;
 }
 //=============================================
 // Utility Functions
@@ -1409,19 +1410,54 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 
 }
 
+function ePlayAnim(Name AnimName, array<float> Mods)
+{
+
+		local ServerAttackPacketStruct tempServerPacket;
+
+	tempServerPacket.animName = AnimName;
+	tempServerPacket.Mods = Mods;
+	tempServerPacket.targetPawn = self;
+
+AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
+// changing this var will make it get caught and replicated by ReplicatedEvent. remember repnotify on the declaration?
+ServerAttackPacket = tempServerPacket;
+
+if(Role < ROLE_Authority)
+
+ServerPlayAnim(AnimName,Mods);
+
+}
+
+ 
+
+// tell the server to play them too
+reliable server function ServerPlayAnim(Name AnimName, array<float> Mods)
+{
+
+ePlayAnim(AnimName,Mods);
+
+}
 /*
 forcedAnimEndReplication
 	AnimEnd from Replication
 */
-reliable server function ServerAttackAnimReplication(name AnimName,  array<float> Mods)
-{
-        AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
-        // forcedAnimEnd();
-}
+// reliable server function ServerAttackAnimReplication(name AnimName,  array<float> Mods)
+// {
+// 		local ServerAttackPacketStruct tempServerPacket;
+
+// 	ServerAttackPacket.animName = 'this_test';
+// 	ServerAttackPacket.Mods = AttackPacket.Mods;
+// 	ServerAttackPacket.targetPawn = self;
+// 		// ServerAttackPacket = tempServerPacket;
+//         AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
+//         // forcedAnimEnd();
+// }
 reliable client function ClientAttackAnimReplication(name AnimName,  array<float> Mods, optional pawn PlayerPawn)
 {
 		// ServerAttackPacket.AnimName = AnimName;
 		// ServerAttackPacket.Mods = Mods;
+		EmberPawn(PlayerPawn).DebugPrint("ClientAttackAnimReplication"@PlayerPawn);
         EmberPawn(PlayerPawn).AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
         // forcedAnimEnd();
 }
@@ -1431,19 +1467,20 @@ forcedAnimEnd
 */
 simulated function forcedAnimEnd()
 {
-	local ServerAttackPacketStruct tempServerPacket;
+	// local ServerAttackPacketStruct tempServerPacket;
 
-	tempServerPacket.animName = AttackPacket.AnimName;
-	tempServerPacket.Mods = AttackPacket.Mods;
-	tempServerPacket.targetPawn = self;
-
+	// tempServerPacket.animName = AttackPacket.AnimName;
+	// tempServerPacket.Mods = AttackPacket.Mods;
+	// tempServerPacket.targetPawn = self;
+DebugPrint("forcedAnimEnd");
 			ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
 			if(aFramework.CurrentAttackString <= 2)
 			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
 
             Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
-            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
+            
+            // AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 
 			if(!ChamberFlags.CheckRightFlag(0))
 			{
@@ -1456,12 +1493,7 @@ simulated function forcedAnimEnd()
 				VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
 		}
 
-		ServerAttackPacket = tempServerPacket;
-
-	if(Role < Role_Authority)
-	{
-		ServerAttackAnimReplication(AttackPacket.AnimName, AttackPacket.Mods);
-	}
+	ePlayAnim(AttackPacket.AnimName, AttackPacket.Mods);
 }
 
 /*
@@ -1557,7 +1589,7 @@ simulated function doAttack( array<byte> byteDirection)
 	FlushPersistentDebugLines();
 	timerCounter = GetTimeLeftOnAttack();
 	DebugPrint("attack Requested"@GetTimeLeftOnAttack());
-	DebugPrint("animane"@EmberReplicationInfo(playerreplicationinfo).AnimName);
+	// DebugPrint("animane"@EmberReplicationInfo(playerreplicationinfo).AnimName);
 	// if(timerCounter > queueCounter)
 		// {
 		// DebugPrint("attack Denied");
@@ -1623,8 +1655,8 @@ JumpAttackSwitch.SetActiveChild(0, 0.3);
 			case 4:
 				forwardAttack();
 			break;
-		}
-
+		
+}
 }
 /*
 setTracers
@@ -1654,11 +1686,11 @@ simulated function copyToAttackStruct(name animName, array<float> mods)
 {
 	local int i;
 	AttackPacket.AnimName = animName;
-	EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName = animName;
+	// EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName = animName;
 	for(i = 0; i < mods.length; i++)
 	{
 		AttackPacket.Mods[i] = mods[i];
-		EmberGameInfo(WorldInfo.Game).AttackPacket.Mods[i] = mods[i];
+		// EmberGameInfo(WorldInfo.Game).AttackPacket.Mods[i] = mods[i];
 	}
 }
 
