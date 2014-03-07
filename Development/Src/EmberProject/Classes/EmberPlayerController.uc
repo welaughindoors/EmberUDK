@@ -602,6 +602,7 @@ simulated function resetMesh()
 
 defaultproperties
 {
+  bReplicateAllPawns=true
   MinRespawnDelay=0.1
    verticalShift=(0,0,0,0);
    interpMovementAttack = 60000f

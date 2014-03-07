@@ -1,14 +1,13 @@
 class EmberReplicationInfo extends UTPlayerReplicationInfo;
 
-var RepNotify int YourUniqueID;
-var repnotify struct AttackPacketStruct
+var repnotify struct ServerAttackPacketStruct
 {
-	var RepNotify array<float> Mods;
-	var float tDur;
-} AttackPacket;
+	var name AnimName;
+	var array<float> Mods;
+	var int targetPawn;
+	// var float tDur;
+} ServerAttackPacket ;
 
-	var RepNotify name AnimName;
-// var RepNotify name AnimName;
 // Replication block
 replication
 {
@@ -16,43 +15,38 @@ replication
 	// if (bNetDirty && Role == Role_Authority)
 		// AttackPacket;
 	if(bNetDirty)
-		AnimName, AttackPacket;
+		ServerAttackPacket;
 }
-
+simulated function copyToServerAttackStruct(name AnimName, float tDur, float fIn, float fOut, int targetPawn)
+{
+	local ServerAttackPacketStruct tStruct;
+	tStruct.AnimName = AnimName;
+	tStruct.Mods.AddItem(tDur);
+	tStruct.Mods.AddItem(fIn);
+	tStruct.Mods.AddItem(fOut);
+	tStruct.targetPawn = targetPawn;
+ServerAttackPacket = tStruct;
+}
 simulated event ReplicatedEvent(name VarName)
 {
-	local PlayerController PC;
-	local pawn ePawn;
-	local EmberPawn eppawn;
-	WorldInfo.Game.Broadcast(self, "Packet Received~"@varname);
-	if (varname == 'AttackPacket') {
-		// ForEach WorldInfo.LocalPlayerControllers(class'PlayerController', PC)
-		ForEach WorldInfo.AllPawns(class'EmberPawn', eppawn)
-		{
-			// if ( PC.PlayerReplicationInfo == self )
-			// {
-				// ePawn = PC.pawn;
-				// EmberPawn(ePawn).DebugPrint("REPLICATION_AttackPacket");
-				// WorldInfo.Game.Broadcast(self, "pawn"@ePawn);
-				
-				eppawn.DebugPrint("REPLICATION_AttackPacket");
+	local EmberPlayerController PC;
+	local pawn P;
+	// local EmberPawn eppawn;
 
-				// EmberPawn(ePawn).forcedAnimEndReplication(AttackPacket.AnimName, AttackPacket.Mods);
+	if (varname == 'ServerAttackPacket') {
+		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+		{
+			// find my pawn and tell it
+			// if ( P.PlayerReplicationInfo == self )
+			// {
+				P = PC.pawn;
+				EmberPawn(P).DebugPrint("REPLICATION_ServerAttackPacket"@ServerAttackPacket.Mods[0]);
+				EmberPawn(P).ClientAttackAnimReplication(ServerAttackPacket.AnimName, ServerAttackPacket.Mods, ServerAttackPacket.targetPawn);
+				// break;
 			// }
 		}
-	}
 
-	if (varname == 'AnimName') {
-		ForEach LocalPlayerControllers(class'PlayerController', PC)
-		{
-			if ( PC.PlayerReplicationInfo == self )
-			{
-				ePawn = PC.pawn;
-				EmberPawn(ePawn).DebugPrint("REPLICATION_AnimName");
-				WorldInfo.Game.Broadcast(self, "pawn"@ePawn);
-				// EmberPawn(ePawn).forcedAnimEndReplication(AttackPacket.AnimName, AttackPacket.Mods);
-			}
-		}
+		
 	}
 	
 	super.ReplicatedEvent(VarName);
@@ -83,3 +77,4 @@ defaultproperties
 NetUpdateFrequency 		= 3
 	CharClassInfo=class'EmberProject.EmberFamilyInfo'
 }
+
