@@ -4,6 +4,8 @@ class AttackFramework extends Object;
 // struct DirectionAttackStruct
 // {}
 // const LLeft=3;
+
+//Might be depreciated
 const dTop 			= 0;
 const dBottom 		= 1;
 const dLeft 		= 2;
@@ -22,6 +24,41 @@ var array<name>TestLockAnim;
 var byte MaxAttacksThatCanBeStringed;
 var byte CurrentAttackString;
 
+//=================================================
+// Used for replication
+//=================================================
+
+const REP_lightLeftString1          = 8;
+const REP_lightRightString1         = 9;
+const REP_lightForwardString1       = 10;
+const REP_lightForwardLeftString1   = 11;
+const REP_lightForwardRightString1  = 12;
+const REP_lightBackString1          = 13;
+const REP_lightBackLeftString1      = 14;
+const REP_lightBackRightString1     = 15;
+
+const REP_mediumLeftString1         = 16;
+const REP_mediumRightString1        = 17;
+const REP_mediumForwardString1      = 18;
+const REP_mediumForwardLeftString1  = 19;
+const REP_mediumForwardRightString1 = 20;
+const REP_mediumBackString1         = 21;
+const REP_mediumBackRightString1    = 22;
+const REP_mediumBackLeftString1     = 23;
+
+const REP_heavyLeftString1          = 24;
+const REP_heavyRightString1         = 25;
+const REP_heavyForwardString1       = 26;
+const REP_heavyForwardLeftString1   = 27;
+const REP_heavyForwardRightString1  = 28;
+const REP_heavyBackString1          = 29;
+const REP_heavyBackLeftString1      = 30;
+const REP_heavyBackRightString1     = 31;
+
+
+//=================================================
+// We should simpify this later imo
+//=================================================
 var name lightLeftString1;
 var array<float>lightLeftString1Mods;
 var name lightRightString1;
@@ -93,6 +130,11 @@ var struct ForcedAnimLoopPacketStruct
     var float tDur;
 } ForcedAnimLoopPacket;
 
+
+var name ServerAnimationNames[32];
+var float ServerAnimationDuration[32];
+var float ServerAnimationFadeIn[32];
+var float ServerAnimationFadeOut[32];
 //==================================================================
 //==================================================================
 
@@ -100,11 +142,11 @@ function SetUpBlockPacket()
 {
     //Animation Name for block
 ForcedAnimLoopPacket.AnimName = 'ember_medium_block';
-    //Duration to blend in (from whatever action into block)
+    //FadeOut to blend in (from whatever action into block)
 ForcedAnimLoopPacket.blendIn = 0.2;
-    //Duration to blend out (from block out to idle/attack)
+    //FadeOut to blend out (from block out to idle/attack)
 ForcedAnimLoopPacket.blendOut = 0.2;
-    //Duration of anim in s. lower = faster block
+    //FadeOut of anim in s. lower = faster block
 ForcedAnimLoopPacket.tDur = 0.3;
 }
 
@@ -154,7 +196,96 @@ function InitFramework()
 
 DefaultProperties
 {	
-	//=============================================
+// AttackSlot[0].PlayCustomAnimByFadeOut(AnimName, Mods[0], Mods[1], Mods[2]);
+//                                                 aFramework.ServerAnimationNames     [AnimAttack],
+//                                                 aFramework.ServerAnimationFadeOut  [AnimAttack], 
+//                                                 aFramework.ServerAnimationFadeIn    [AnimAttack], 
+//                                                 aFramework.ServerAnimationFadeOut   [AnimAttack]);
+//==========================================================
+//Networking, Highly likely to convert normal client to this
+//Copying Nether's way of doing this
+//==========================================================
+ServerAnimationNames[8] = ember_temp_left_attack;
+ServerAnimationNames[9] = ember_temp_right_attack;
+ServerAnimationNames[10] = ember_attack_forward;
+ServerAnimationNames[11] = ember_temp_left_attack;
+ServerAnimationNames[12] = ember_temp_right_attack;
+
+ServerAnimationNames[16] = ember_medium_left;
+ServerAnimationNames[17] = ember_medium_right;
+ServerAnimationNames[18] = ember_medium_forward;
+ServerAnimationNames[19] = ember_medium_diagonal_left;
+ServerAnimationNames[20] = ember_medium_diagonal_right;
+ServerAnimationNames[21] = ember_medium_forward;
+ServerAnimationNames[22] = ember_medium_diagonal_left_reverse;
+ServerAnimationNames[23] = ember_medium_diagonal_right_reverse;
+
+ServerAnimationNames[24] = ember_heavy_left;
+ServerAnimationNames[26] = ember_heavy_forward;
+ServerAnimationNames[27] = ember_heavy_left;
+ServerAnimationNames[29] = ember_heavy_forward;
+
+ServerAnimationDuration[8]  = 1;
+ServerAnimationDuration[9]  = 1;
+ServerAnimationDuration[10] = 1;
+ServerAnimationDuration[11] = 1;
+ServerAnimationDuration[12] = 1;
+
+ServerAnimationDuration[16] = 1.4;
+ServerAnimationDuration[17] = 1.4;
+ServerAnimationDuration[18] = 1.4;
+ServerAnimationDuration[19] = 1.4;
+ServerAnimationDuration[20] = 1.4;
+ServerAnimationDuration[21] = 1.4;
+ServerAnimationDuration[22] = 1.4;
+ServerAnimationDuration[23] = 1.4;
+
+ServerAnimationDuration[24] = 1.7;
+ServerAnimationDuration[26] = 1.4;
+ServerAnimationDuration[27] = 1.7;
+ServerAnimationDuration[29] = 1.4;
+
+ServerAnimationFadeIn[8]  = 0.3;
+ServerAnimationFadeIn[9]  = 0.3;
+ServerAnimationFadeIn[10] = 0.3;
+ServerAnimationFadeIn[11] = 0.3;
+ServerAnimationFadeIn[12] = 0.3;
+
+ServerAnimationFadeIn[16] = 0.3;
+ServerAnimationFadeIn[17] = 0.3;
+ServerAnimationFadeIn[18] = 0.3;
+ServerAnimationFadeIn[19] = 0.3;
+ServerAnimationFadeIn[20] = 0.3;
+ServerAnimationFadeIn[21] = 0.3;
+ServerAnimationFadeIn[22] = 0.3;
+ServerAnimationFadeIn[23] = 0.3;
+
+ServerAnimationFadeIn[24] = 0.3;
+ServerAnimationFadeIn[26] = 0.2;
+ServerAnimationFadeIn[27] = 0.3;
+ServerAnimationFadeIn[29] = 0.2;
+
+ServerAnimationFadeOut[8]  = 0.5;
+ServerAnimationFadeOut[9]  = 0.5;
+ServerAnimationFadeOut[10] = 0.5;
+ServerAnimationFadeOut[11] = 0.5;
+ServerAnimationFadeOut[12] = 0.5;
+
+ServerAnimationFadeOut[16] = 0.5;
+ServerAnimationFadeOut[17] = 0.5;
+ServerAnimationFadeOut[18] = 0.5;
+ServerAnimationFadeOut[19] = 0.5;
+ServerAnimationFadeOut[20] = 0.5;
+ServerAnimationFadeOut[21] = 0.5;
+ServerAnimationFadeOut[22] = 0.5;
+ServerAnimationFadeOut[23] = 0.5;
+
+ServerAnimationFadeOut[24] = 0.5;
+ServerAnimationFadeOut[26] = 0.1;
+ServerAnimationFadeOut[27] = 0.5;
+ServerAnimationFadeOut[29] = 0.1;
+
+//=============================================
 // Combo / Attack System Vars
 //=============================================
 /* Note:
@@ -192,19 +323,19 @@ heavyBackRightString1 		=
 
 
 /* Mods:
-/ -- Duration
+/ -- FadeOut
 / -- Time till Tracer is Active (s)
 / -- Time till Tracer gets Deactivated (s),  if 0 = active for all attack
-/ -- Blend in duration (s)
-/ -- Blend out duration (s)
+/ -- Blend in FadeOut (s)
+/ -- Blend out FadeOut (s)
 / -- Knockback
 / -- Time Till Chamber (s)
-/ ex: (1, 0.5, 0, 0.3, 0.5, 7500, 0.48): duration = 1s,  tracers start after 0.5s,  last till animation finishes, 
+/ ex: (1, 0.5, 0, 0.3, 0.5, 7500, 0.48): FadeOut = 1s,  tracers start after 0.5s,  last till animation finishes, 
 / the first 0.3s of animation is blended with previous animation, the last 0.5s will blend with next animation
 / will do ~ 7500 knockback
 / 0.48s after attack starts, attack will pause if chambered
 / Condensed:
-/ (Duration, Time Till Tracer Active, Time Till Tracer Ends, Blend In, Blend Out, Knockback, Time Till Chamber)
+/ (FadeOut, Time Till Tracer Active, Time Till Tracer Ends, Blend In, Blend Out, Knockback, Time Till Chamber)
 */
 
 lightLeftString1Mods 			=(1, 0.5, 0, 0.3, 0.5, 7500, 0.4)

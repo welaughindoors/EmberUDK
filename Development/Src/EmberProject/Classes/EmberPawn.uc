@@ -1413,19 +1413,28 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 function ePlayAnim(Name AnimName, array<float> Mods)
 {
 
-		local ServerAttackPacketStruct tempServerPacket;
+		// local ServerAttackPacketStruct tempServerPacket;
 
-	tempServerPacket.animName = AnimName;
-	tempServerPacket.Mods = Mods;
-	tempServerPacket.targetPawn = PlayerReplicationInfo.PlayerID;
+	// tempServerPacket.animName = AnimName;
+	// tempServerPacket.Mods = Mods;
+	// tempServerPacket.targetPawn = PlayerReplicationInfo.PlayerID;
 
-AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-// changing this var will make it get caught and replicated by ReplicatedEvent. remember repnotify on the declaration?
-ServerAttackPacket = tempServerPacket;
-EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(ServerAttackPacket.AnimName, ServerAttackPacket.Mods[0], ServerAttackPacket.Mods[3],ServerAttackPacket.Mods[4], PlayerReplicationInfo.PlayerID);
-// EmberReplicationInfo(PlayerReplicationInfo).ServerAttackPacket.AnimName = ServerAttackPacket.AnimName;
-// EmberReplicationInfo(PlayerReplicationInfo).ServerAttackPacket.Mods = ServerAttackPacket.Mods;
-// EmberReplicationInfo(PlayerReplicationInfo).ServerAttackPacket.targetPawn = PlayerReplicationInfo.PlayerID;
+//This is temporary, will be much better in final. Only replicates mediums
+local int AnimID;
+
+if(AnimName == aFramework.mediumLeftString1) AnimID = 16;
+if(AnimName == aFramework.mediumRightString1) AnimID = 17;
+if(AnimName == aFramework.mediumForwardString1) AnimID = 18;
+if(AnimName == aFramework.mediumForwardLeftString1) AnimID = 19;
+if(AnimName == aFramework.mediumForwardRightString1) AnimID = 20;
+if(AnimName == aFramework.mediumBackString1) AnimID = 21;
+if(AnimName == aFramework.mediumBackRightString1) AnimID = 22;
+if(AnimName == aFramework.mediumBackLeftString1) AnimID = 23;
+DebugPrint(""@PlayerReplicationInfo.PlayerName);
+
+AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
+EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(AnimID, PlayerReplicationInfo.PlayerID);
+
 if(Role < ROLE_Authority)
 
 ServerPlayAnim(AnimName,Mods);
@@ -1437,35 +1446,28 @@ ServerPlayAnim(AnimName,Mods);
 // tell the server to play them too
 reliable server function ServerPlayAnim(Name AnimName, array<float> Mods)
 {
-
-ePlayAnim(AnimName,Mods);
-
+	ePlayAnim(AnimName,Mods);
 }
-/*
-forcedAnimEndReplication
-	AnimEnd from Replication
-*/
-// reliable server function ServerAttackAnimReplication(name AnimName,  array<float> Mods)
-// {
-// 		local ServerAttackPacketStruct tempServerPacket;
 
-// 	ServerAttackPacket.animName = 'this_test';
-// 	ServerAttackPacket.Mods = AttackPacket.Mods;
-// 	ServerAttackPacket.targetPawn = self;
-// 		// ServerAttackPacket = tempServerPacket;
-//         AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
-//         // forcedAnimEnd();
-// }
-reliable client function ClientAttackAnimReplication(name AnimName,  array<float> Mods, int PlayerID)
+reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerID)
 {
-		// ServerAttackPacket.AnimName = AnimName;
-		// ServerAttackPacket.Mods = Mods;
-		if(PlayerReplicationInfo.PlayerID == PlayerID)
+	local EmberPawn pawner;
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', pawner) 
+	{
+		//If one of the pawns has the same ID as the player who did the attack
+		if(pawner.PlayerReplicationInfo.PlayerID == PlayerID)
 		{
-		// DebugPrint(PlayerReplicationInfo.PlayerName@"ClientAttackAnimReplication"@PlayerPawn);
-        AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[1], Mods[2]);
+			//Debug Print, Perhaps remove
+			DebugPrint(PlayerReplicationInfo.PlayerName@"ClientAttackAnimReplication"@PlayerID);
+			//Tell that pawn to do an attack. 
+			//TODO: Change this into a local function
+        	pawner.AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AnimAttack],
+        													aFramework.ServerAnimationDuration	[AnimAttack], 
+        													aFramework.ServerAnimationFadeIn	[AnimAttack], 
+        													aFramework.ServerAnimationFadeOut	[AnimAttack]);
     }
-        // forcedAnimEnd();
+    }
 }
 /*
 forcedAnimEnd
