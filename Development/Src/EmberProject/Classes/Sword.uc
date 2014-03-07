@@ -407,8 +407,9 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
     // DebugPrint("p1"@aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[5], TestPawn(hitActor).AttackPacket.Mods[5]));
     // DebugPrint("p2_own"@EmberPawn(Owner).AttackPacket.Mods[5]);
     // DebugPrint("p3_targ"@TestPawn(hitActor).AttackPacket.Mods[5]);
-            if(aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[7], TestPawn(hitActor).AttackPacket.Mods[7]))
-            {
+    //TODO: Upgrade to current system
+            // if(aParry.CanAttackParry(EmberPawn(Owner).AttackPacket.Mods[7], TestPawn(hitActor).AttackPacket.Mods[7]))
+            // {
             swordParried(hitActor);
       swordParried(Owner);
             parryEffect(parryEffectLocation);      
@@ -426,7 +427,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
     SetInitialState();
             return ;
 
-          }
+          // }
   }
   else
   {

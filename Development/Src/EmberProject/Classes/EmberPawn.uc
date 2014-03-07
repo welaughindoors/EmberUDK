@@ -135,12 +135,8 @@ var bool 					bAttackQueueing;
 var bool 					bRightChambering;
 var float 					iChamberingCounter;
 
-var struct AttackPacketStruct
-{
-	var name AnimName;
-	var array<float> Mods;
-	var float tDur;
-}AttackPacket ;
+//ID to the attack animation
+var repnotify int AttackAnimationID;
 
 var repnotify struct ServerAttackPacketStruct
 {
@@ -204,7 +200,7 @@ simulated event ReplicatedEvent(name VarName)
 replication
 {
     if (bNetDirty )
-            ServerAttackPacket;
+            AttackAnimationID;
 }
 //=============================================
 // Utility Functions
@@ -1137,9 +1133,9 @@ if(ChamberFlags.CheckLeftFlag(1))
 DebugPrint("LChamber End");
 			iChamberingCounter = 0;
 			Sword[currentStance-1].GoToState('Attacking');
-            Sword[currentStance-1].setTracerDelay(0,(AttackPacket.Mods[2] - AttackPacket.Mods[6]));
-			SetTimer((AttackPacket.Mods[0] - AttackPacket.Mods[6]), false, 'AttackEnd');	
-			VelocityPinch.ApplyVelocityPinch(,0,(AttackPacket.Mods[2] - AttackPacket.Mods[6])  * 1.1);
+            Sword[currentStance-1].setTracerDelay(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]));
+			SetTimer((aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'AttackEnd');	
+			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
 			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
 }
@@ -1265,9 +1261,9 @@ simulated function stopChamber()
 	if(ChamberFlags.CheckRightFlag(1))
 	{
 			Sword[currentStance-1].GoToState('Attacking');
-            Sword[currentStance-1].setTracerDelay(0,AttackPacket.Mods[2] - AttackPacket.Mods[6]);
-			SetTimer(AttackPacket.Mods[0] - AttackPacket.Mods[6], false, 'AttackEnd');	
-			VelocityPinch.ApplyVelocityPinch(,0,(AttackPacket.Mods[2] - AttackPacket.Mods[6])  * 1.1);
+            Sword[currentStance-1].setTracerDelay(0,aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]);
+			SetTimer(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID], false, 'AttackEnd');	
+			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
 	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
 	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
 		AttackSlot[0].SetActorAnimEndNotification(false);
@@ -1287,7 +1283,7 @@ simulated function LeftRightClicksAndChambersManagement(float DeltaTime)
 if(ChamberFlags.CheckLeftFlag(0))
 {
 	iChamberingCounter += DeltaTime;
-	if(iChamberingCounter >= AttackPacket.Mods[6])
+	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID])
 		{
 			if(!ChamberFlags.CheckLeftFlag(1))
 			{
@@ -1305,7 +1301,7 @@ if(ChamberFlags.CheckLeftFlag(0))
 if(ChamberFlags.CheckRightFlag(0))
 {
 	iChamberingCounter += DeltaTime;
-	if(iChamberingCounter >= AttackPacket.Mods[6])
+	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID])
 		{
 		ChamberFlags.setRightChamberFlag(1);
 			 
@@ -1318,7 +1314,7 @@ else if(!ChamberFlags.CheckRightFlag(0) && iChamberingCounter > 0 && !ChamberFla
 
 	iChamberingCounter += DeltaTime;
 	//If rightclick was released before windup... procede to windup time and then blend to idle
-	if(iChamberingCounter >= AttackPacket.Mods[6] && !ChamberFlags.CheckRightFlag(1))
+	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID] && !ChamberFlags.CheckRightFlag(1))
 		{
 			DebugPrint("Chamber End");
 			iChamberingCounter = 0;
@@ -1384,69 +1380,56 @@ doAttack
 /*
 OnAnimEnd
 	When animation ends normally w/ OnAnimEnd flag
+	pending deletion
 */
-simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
+// simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
+// {
+// 			// VelocityPinch.ApplyVelocityPinch(,,true);
+// 			DebugPrint("OnAnimEnd");
+//    			ClearTimer('AttackEnd');
+//             Sword[currentStance-1].resetTracers();
+// 			// if(ChamberFlags.CheckLeftFlag(0))
+// 			// {
+// 			// 	PC = UTPlayerController(Instigator.Controller);
+// 			// 	doAttack(EmberPlayerController(PC).verticalShift);
+// 			// 	return;
+// 			// }
+// 			// if(aFramework.CurrentAttackString <= 2)
+// 			// 	EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
+
+//    //          AttackBlend.setBlendTarget(1, 0.5);
+//    //          Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
+
+// 			// if(!ChamberFlags.CheckRightFlag(0))
+//    //          	Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+
+//    //          AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
+//    //          VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
+
+// }
+
+function ePlayAnim(int ServerAttackAnimationID = -1)
 {
-			// VelocityPinch.ApplyVelocityPinch(,,true);
-   			ClearTimer('AttackEnd');
-            Sword[currentStance-1].resetTracers();
-			// if(ChamberFlags.CheckLeftFlag(0))
-			// {
-			// 	PC = UTPlayerController(Instigator.Controller);
-			// 	doAttack(EmberPlayerController(PC).verticalShift);
-			// 	return;
-			// }
-			if(aFramework.CurrentAttackString <= 2)
-				EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
 
-            AttackBlend.setBlendTarget(1, 0.5);
-            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
+AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[ServerAttackAnimationID],
+        								aFramework.ServerAnimationDuration	[ServerAttackAnimationID], 
+        								aFramework.ServerAnimationFadeIn	[ServerAttackAnimationID], 
+        								aFramework.ServerAnimationFadeOut	[ServerAttackAnimationID]);
+`Log(Self$":: ePlayAnim:: Updating int with "$ServerAttackAnimationID$".");
+//Server's running the function
+// if(ServerAttackAnimationID != -1)
+	EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(ServerAttackAnimationID, PlayerReplicationInfo.PlayerID);
 
-			if(!ChamberFlags.CheckRightFlag(0))
-            	Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-
-            AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-            VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
-
-}
-
-function ePlayAnim(Name AnimName, array<float> Mods)
-{
-
-		// local ServerAttackPacketStruct tempServerPacket;
-
-	// tempServerPacket.animName = AnimName;
-	// tempServerPacket.Mods = Mods;
-	// tempServerPacket.targetPawn = PlayerReplicationInfo.PlayerID;
-
-//This is temporary, will be much better in final. Only replicates mediums
-local int AnimID;
-
-if(AnimName == aFramework.mediumLeftString1) AnimID = 16;
-if(AnimName == aFramework.mediumRightString1) AnimID = 17;
-if(AnimName == aFramework.mediumForwardString1) AnimID = 18;
-if(AnimName == aFramework.mediumForwardLeftString1) AnimID = 19;
-if(AnimName == aFramework.mediumForwardRightString1) AnimID = 20;
-if(AnimName == aFramework.mediumBackString1) AnimID = 21;
-if(AnimName == aFramework.mediumBackRightString1) AnimID = 22;
-if(AnimName == aFramework.mediumBackLeftString1) AnimID = 23;
-DebugPrint(""@PlayerReplicationInfo.PlayerName);
-
-AttackSlot[0].PlayCustomAnimByDuration(AnimName, Mods[0], Mods[3], Mods[4]);
-EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(AnimID, PlayerReplicationInfo.PlayerID);
-
+//Client's running the function
 if(Role < ROLE_Authority)
-
-ServerPlayAnim(AnimName,Mods);
+	ServerPlayAnim(AttackAnimationID);
 
 }
-
- 
 
 // tell the server to play them too
-reliable server function ServerPlayAnim(Name AnimName, array<float> Mods)
+reliable server function ServerPlayAnim(int ServerAttackAnimationID)
 {
-	ePlayAnim(AnimName,Mods);
+	ePlayAnim(ServerAttackAnimationID);
 }
 
 reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerID)
@@ -1481,28 +1464,29 @@ simulated function forcedAnimEnd()
 	// tempServerPacket.animName = AttackPacket.AnimName;
 	// tempServerPacket.Mods = AttackPacket.Mods;
 	// tempServerPacket.targetPawn = self;
-DebugPrint("forcedAnimEnd");
+			DebugPrint("forcedAnimEnd");
 			ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
-			if(aFramework.CurrentAttackString <= 2)
-			EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
+			// if(aFramework.CurrentAttackString <= 2)
+			// EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
 
-            Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]);
+            Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
             
             // AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 
 			if(!ChamberFlags.CheckRightFlag(0))
 			{
 				Sword[currentStance-1].GoToState('Attacking');
-            	Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+            	Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
 
-				if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
-					SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
+            	//TODO: Animation Lock
+				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
+					// SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
 
-				VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
+				VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
 		}
 
-	ePlayAnim(AttackPacket.AnimName, AttackPacket.Mods);
+	ePlayAnim(AttackAnimationID);
 }
 
 /*
@@ -1691,17 +1675,17 @@ copyToAttackStruct
 	The attack animation, and all the info, in one handy thing
 	set to animation to execute
 */
-simulated function copyToAttackStruct(name animName, array<float> mods)
-{
-	local int i;
-	AttackPacket.AnimName = animName;
-	// EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName = animName;
-	for(i = 0; i < mods.length; i++)
-	{
-		AttackPacket.Mods[i] = mods[i];
-		// EmberGameInfo(WorldInfo.Game).AttackPacket.Mods[i] = mods[i];
-	}
-}
+// simulated function copyToAttackStruct(name animName, array<float> mods)
+// {
+// 	local int i;
+// 	AttackPacket.AnimName = animName;
+// 	// EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName = animName;
+// 	for(i = 0; i < mods.length; i++)
+// 	{
+// 		AttackPacket.Mods[i] = mods[i];
+// 		// EmberGameInfo(WorldInfo.Game).AttackPacket.Mods[i] = mods[i];
+// 	}
+// }
 
 /*
 EndPreAttack
@@ -1727,17 +1711,18 @@ simulated function forwardAttack()
 	switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightForwardString1,aFramework.lightForwardString1Mods);
+		AttackAnimationID = aFramework.lightForwardString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+		AttackAnimationID = aFramework.mediumForwardString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavyForwardString1, aFramework.heavyForwardString1Mods);
+		AttackAnimationID = aFramework.heavyForwardString1;
 		break;
 	}
+
 	EndPreAttack();
 }
 simulated function BackAttack()
@@ -1747,15 +1732,15 @@ simulated function BackAttack()
 	switch(currentStance) 
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightBackString1, aFramework.lightBackString1Mods);
+		AttackAnimationID = aFramework.lightBackString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumBackString1, aFramework.mediumBackString1Mods);
+		AttackAnimationID = aFramework.mediumBackString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavyBackString1, aFramework.heavyBackString1Mods);
+		AttackAnimationID = aFramework.heavyBackString1;
 		break;
 	}
 	EndPreAttack();
@@ -1765,15 +1750,15 @@ simulated function backLeftAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightbackLeftString1, aFramework.lightbackLeftString1Mods);
+		AttackAnimationID = aFramework.lightbackLeftString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumbackLeftString1, aFramework.mediumbackLeftString1Mods);
+		AttackAnimationID = aFramework.mediumbackLeftString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavybackLeftString1, aFramework.heavybackLeftString1Mods);
+		AttackAnimationID = aFramework.heavybackLeftString1;
 		break;
 	}
 	EndPreAttack();
@@ -1784,15 +1769,15 @@ simulated function backRightAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightBackRightString1, aFramework.lightbackRightString1Mods);
+		AttackAnimationID = aFramework.lightBackRightString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumbackRightString1, aFramework.mediumbackRightString1Mods);
+		AttackAnimationID = aFramework.mediumbackRightString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavybackRightString1, aFramework.heavybackRightString1Mods);
+		AttackAnimationID = aFramework.heavybackRightString1;
 		break;
 	}
 	EndPreAttack();
@@ -1802,15 +1787,15 @@ simulated function forwardLeftAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightForwardLeftString1, aFramework.lightForwardLeftString1Mods);
+		AttackAnimationID = aFramework.lightForwardLeftString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
+		AttackAnimationID = aFramework.mediumForwardLeftString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavyForwardLeftString1, aFramework.heavyForwardLeftString1Mods);
+		AttackAnimationID = aFramework.heavyForwardLeftString1;
 		break;
 	}
 	EndPreAttack();
@@ -1821,15 +1806,15 @@ simulated function forwardRightAttack()
 		switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightForwardRightString1, aFramework.lightForwardRightString1Mods);
+		AttackAnimationID = aFramework.lightForwardRightString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
+		AttackAnimationID = aFramework.mediumForwardRightString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavyForwardRightString1, aFramework.heavyForwardRightString1Mods);
+		AttackAnimationID = aFramework.heavyForwardRightString1;
 		break;
 	}
 	EndPreAttack();
@@ -1847,15 +1832,15 @@ simulated function rightAttack()
 	switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightRightString1, aFramework.lightRightString1Mods);
+		AttackAnimationID = aFramework.lightRightString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+		AttackAnimationID = aFramework.mediumRightString1;
 		break;
 
 		case 3:
-			copyToAttackStruct(aFramework.heavyRightString1, aFramework.heavyRightString1Mods);
+		AttackAnimationID = aFramework.heavyRightString1;
 		break;
 	}
 	EndPreAttack();
@@ -1877,16 +1862,15 @@ simulated function leftAttack()
 	switch(currentStance)
 	{
 		case 1:
-			copyToAttackStruct(aFramework.lightLeftString1, aFramework.lightLeftString1Mods);
+		AttackAnimationID = aFramework.lightLeftString1;
 		break;
 
 		case 2:
-			copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+		AttackAnimationID = aFramework.mediumLeftString1;
 		break;
 
 		case 3:
-		// Sword.Attack2.PlayCustomAnimByDuration('ember_flammard_tracer', 2, 0.3, 0, true);
-			copyToAttackStruct(aFramework.heavyLeftString1, aFramework.heavyLeftString1Mods);
+		AttackAnimationID = aFramework.heavyLeftString1;
 		break;
 	}	
 	EndPreAttack();
@@ -2536,10 +2520,10 @@ exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
 { 
 	enableInaAudio = (enableAudio_One_or_Zero == -3949212) ? ModifiedDebugPrint("Inathero's op audio. 1 = on, 0 = off. Current - ", enableInaAudio) : enableAudio_One_or_Zero;
 }
-exec function ep_chamber(float t)
-{
-	AttackPacket.tDur = t;
-}
+// exec function ep_chamber(float t)
+// {
+// 	AttackPacket.tDur = t;
+// }
 
 // exec function ep_player_decoSword_light(int Var1 = -3949212, int Var2 = -3949212, int Var3 = -3949212)
 // { 

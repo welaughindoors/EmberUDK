@@ -28,91 +28,32 @@ var byte CurrentAttackString;
 // Used for replication
 //=================================================
 
-const REP_lightLeftString1          = 8;
-const REP_lightRightString1         = 9;
-const REP_lightForwardString1       = 10;
-const REP_lightForwardLeftString1   = 11;
-const REP_lightForwardRightString1  = 12;
-const REP_lightBackString1          = 13;
-const REP_lightBackLeftString1      = 14;
-const REP_lightBackRightString1     = 15;
+const lightLeftString1          = 8;
+const lightRightString1         = 9;
+const lightForwardString1       = 10;
+const lightForwardLeftString1   = 11;
+const lightForwardRightString1  = 12;
+const lightBackString1          = 13;
+const lightBackLeftString1      = 14;
+const lightBackRightString1     = 15;
 
-const REP_mediumLeftString1         = 16;
-const REP_mediumRightString1        = 17;
-const REP_mediumForwardString1      = 18;
-const REP_mediumForwardLeftString1  = 19;
-const REP_mediumForwardRightString1 = 20;
-const REP_mediumBackString1         = 21;
-const REP_mediumBackRightString1    = 22;
-const REP_mediumBackLeftString1     = 23;
+const mediumLeftString1         = 16;
+const mediumRightString1        = 17;
+const mediumForwardString1      = 18;
+const mediumForwardLeftString1  = 19;
+const mediumForwardRightString1 = 20;
+const mediumBackString1         = 21;
+const mediumBackRightString1    = 22;
+const mediumBackLeftString1     = 23;
 
-const REP_heavyLeftString1          = 24;
-const REP_heavyRightString1         = 25;
-const REP_heavyForwardString1       = 26;
-const REP_heavyForwardLeftString1   = 27;
-const REP_heavyForwardRightString1  = 28;
-const REP_heavyBackString1          = 29;
-const REP_heavyBackLeftString1      = 30;
-const REP_heavyBackRightString1     = 31;
-
-
-//=================================================
-// We should simpify this later imo
-//=================================================
-var name lightLeftString1;
-var array<float>lightLeftString1Mods;
-var name lightRightString1;
-var array<float>lightRightString1Mods;
-var name lightForwardString1;
-var array<float>lightForwardString1Mods;
-var name lightForwardLeftString1;
-var array<float>lightForwardLeftString1Mods;
-var name lightForwardRightString1;
-var array<float>lightForwardRightString1Mods;
-
-var name lightBackString1;
-var array<float>lightBackString1Mods;
-var name lightBackLeftString1;
-var array<float>lightBackLeftString1Mods;
-var name lightBackRightString1;
-var array<float>lightBackRightString1Mods;
-
-var name mediumLeftString1;
-var array<float>mediumLeftString1Mods;
-var name mediumRightString1;
-var array<float>mediumRightString1Mods;
-var name mediumForwardString1; 
-var array<float>mediumForwardString1Mods;
-var name mediumForwardLeftString1;
-var array<float>mediumForwardLeftString1Mods;
-var name mediumForwardRightString1;
-var array<float>mediumForwardRightString1Mods;
-
-var name mediumBackString1;
-var array<float>mediumBackString1Mods;
-var name mediumBackLeftString1;
-var array<float>mediumBackLeftString1Mods;
-var name mediumBackRightString1;
-var array<float>mediumBackRightString1Mods;
-
-var name heavyLeftString1;
-var array<float>heavyLeftString1Mods;
-var name heavyRightString1;
-var array<float>heavyRightString1Mods;
-var name heavyForwardString1;
-var array<float>heavyForwardString1Mods;
-var name heavyForwardLeftString1;
-var array<float>heavyForwardLeftString1Mods;
-var name heavyForwardRightString1;
-var array<float>heavyForwardRightString1Mods;
-
-var name heavyBackString1;
-var array<float>heavyBackString1Mods;
-var name heavyBackLeftString1;
-var array<float>heavyBackLeftString1Mods;
-var name heavyBackRightString1;
-var array<float>heavyBackRightString1Mods;
-
+const heavyLeftString1          = 24;
+const heavyRightString1         = 25;
+const heavyForwardString1       = 26;
+const heavyForwardLeftString1   = 27;
+const heavyForwardRightString1  = 28;
+const heavyBackString1          = 29;
+const heavyBackLeftString1      = 30;
+const heavyBackRightString1     = 31;
 
 var float lightDamagePerTracer;
 var float mediumDamagePerTracer;
@@ -135,6 +76,10 @@ var name ServerAnimationNames[32];
 var float ServerAnimationDuration[32];
 var float ServerAnimationFadeIn[32];
 var float ServerAnimationFadeOut[32];
+var float ServerAnimationTracerStart[32];
+var float ServerAnimationTracerEnd[32];
+var float ServerAnimationKnockback[32];
+var float ServerAnimationChamberStart[32];
 //==================================================================
 //==================================================================
 
@@ -153,41 +98,41 @@ ForcedAnimLoopPacket.tDur = 0.3;
 //==================================================================
 //==================================================================
 
-function SetUpDirectionals()
-{
-	lightLeftString1Mods.AddItem(dLeft);	
-	lightRightString1Mods.AddItem(dRight);
-	lightForwardString1Mods.AddItem(dTop);
-    lightForwardLeftString1Mods.AddItem(dTopLeft);
-    lightForwardRightString1Mods.AddItem(dTopRight);
-    lightBackLeftString1Mods.AddItem(dBottomLeft);
-    lightBackRightString1Mods.AddItem(dBottomRight);
+// function SetUpDirectionals()
+// {
+// 	lightLeftString1Mods.AddItem(dLeft);	
+// 	lightRightString1Mods.AddItem(dRight);
+// 	lightForwardString1Mods.AddItem(dTop);
+//     lightForwardLeftString1Mods.AddItem(dTopLeft);
+//     lightForwardRightString1Mods.AddItem(dTopRight);
+//     lightBackLeftString1Mods.AddItem(dBottomLeft);
+//     lightBackRightString1Mods.AddItem(dBottomRight);
 
-    mediumLeftString1Mods.AddItem(dLeft);	
-	mediumRightString1Mods.AddItem(dRight);
-	mediumForwardString1Mods.AddItem(dTop);
-    mediumForwardLeftString1Mods.AddItem(dTopLeft);
-    mediumForwardRightString1Mods.AddItem(dTopRight);
-    mediumBackLeftString1Mods.AddItem(dBottomLeft);
-    mediumBackRightString1Mods.AddItem(dBottomRight);
+//     mediumLeftString1Mods.AddItem(dLeft);	
+// 	mediumRightString1Mods.AddItem(dRight);
+// 	mediumForwardString1Mods.AddItem(dTop);
+//     mediumForwardLeftString1Mods.AddItem(dTopLeft);
+//     mediumForwardRightString1Mods.AddItem(dTopRight);
+//     mediumBackLeftString1Mods.AddItem(dBottomLeft);
+//     mediumBackRightString1Mods.AddItem(dBottomRight);
 
-    heavyLeftString1Mods.AddItem(dLeft);	
-	heavyRightString1Mods.AddItem(dRight);
-	heavyForwardString1Mods.AddItem(dTop);
-    heavyForwardLeftString1Mods.AddItem(dTopLeft);
-    heavyForwardRightString1Mods.AddItem(dTopRight);
-    heavyBackLeftString1Mods.AddItem(dBottomLeft);
-    heavyBackRightString1Mods.AddItem(dBottomRight);
+//     heavyLeftString1Mods.AddItem(dLeft);	
+// 	heavyRightString1Mods.AddItem(dRight);
+// 	heavyForwardString1Mods.AddItem(dTop);
+//     heavyForwardLeftString1Mods.AddItem(dTopLeft);
+//     heavyForwardRightString1Mods.AddItem(dTopRight);
+//     heavyBackLeftString1Mods.AddItem(dBottomLeft);
+//     heavyBackRightString1Mods.AddItem(dBottomRight);
 
-    TestLockAnim.AddItem('ember_heavy_forward');
-}
+//     TestLockAnim.AddItem('ember_heavy_forward');
+// }
 
 //==================================================================
 //==================================================================
 
 function InitFramework()
 {
-    SetUpDirectionals();
+    // SetUpDirectionals();
     SetUpBlockPacket();
 }
 
@@ -225,6 +170,10 @@ ServerAnimationNames[26] = ember_heavy_forward;
 ServerAnimationNames[27] = ember_heavy_left;
 ServerAnimationNames[29] = ember_heavy_forward;
 
+//==================================================================================
+//==================================================================================
+//==================================================================================
+
 ServerAnimationDuration[8]  = 1;
 ServerAnimationDuration[9]  = 1;
 ServerAnimationDuration[10] = 1;
@@ -244,6 +193,10 @@ ServerAnimationDuration[24] = 1.7;
 ServerAnimationDuration[26] = 1.4;
 ServerAnimationDuration[27] = 1.7;
 ServerAnimationDuration[29] = 1.4;
+
+//==================================================================================
+//==================================================================================
+//==================================================================================
 
 ServerAnimationFadeIn[8]  = 0.3;
 ServerAnimationFadeIn[9]  = 0.3;
@@ -265,6 +218,10 @@ ServerAnimationFadeIn[26] = 0.2;
 ServerAnimationFadeIn[27] = 0.3;
 ServerAnimationFadeIn[29] = 0.2;
 
+//==================================================================================
+//==================================================================================
+//==================================================================================
+
 ServerAnimationFadeOut[8]  = 0.5;
 ServerAnimationFadeOut[9]  = 0.5;
 ServerAnimationFadeOut[10] = 0.5;
@@ -285,86 +242,101 @@ ServerAnimationFadeOut[26] = 0.1;
 ServerAnimationFadeOut[27] = 0.5;
 ServerAnimationFadeOut[29] = 0.1;
 
-//=============================================
-// Combo / Attack System Vars
-//=============================================
-/* Note:
-/- Placement in EmberPawn is temporary
-/- Light/Medium/Heavy stances will be set in their 
-/- Respective Sword.uc files when Ready.
-*/
+//==================================================================================
+//==================================================================================
+//==================================================================================
 
-lightLeftString1			=	ember_temp_left_attack
-lightRightString1			=	ember_temp_right_attack
-lightForwardString1			=	ember_attack_forward
-lightForwardLeftString1 	=	ember_temp_left_attack
-lightForwardRightString1 	= 	ember_temp_right_attack
-lightBackString1			=	
-lightBackLeftString1 		=	
-lightBackRightString1 		= 	
+ServerAnimationTracerStart[8]  = 0.5;
+ServerAnimationTracerStart[9]  = 0;
+ServerAnimationTracerStart[10] = 0.65;
+ServerAnimationTracerStart[11] = 0;
+ServerAnimationTracerStart[12] = 0;
 
-mediumLeftString1			=   ember_medium_left
-mediumRightString1			=   ember_medium_right
-mediumForwardString1 		=	ember_medium_forward
-mediumForwardLeftString1 	=   ember_medium_diagonal_left
-mediumForwardRightString1 	=   ember_medium_diagonal_right
-mediumBackString1 			=	ember_medium_forward
-mediumBackRightString1 		=   ember_medium_diagonal_left_reverse
-mediumBackLeftString1 		=   ember_medium_diagonal_right_reverse
+ServerAnimationTracerStart[16] = 0.5;
+ServerAnimationTracerStart[17] = 0.5;
+ServerAnimationTracerStart[18] = 0.5;
+ServerAnimationTracerStart[19] = 0.45;
+ServerAnimationTracerStart[20] = 0.45;
+ServerAnimationTracerStart[21] = 0.5;
+ServerAnimationTracerStart[22] = 0.43;
+ServerAnimationTracerStart[23] = 0.43;
 
-heavyLeftString1			=   ember_heavy_left
-heavyRightString1			=	
-heavyForwardString1			=   ember_heavy_forward
-heavyForwardLeftString1 	=   ember_heavy_left
-heavyForwardRightString1 	= 	
-heavyBackString1			=	ember_heavy_forward
-heavyBackLeftString1 		=   
-heavyBackRightString1 		= 	
+ServerAnimationTracerStart[24] = 0.65;
+ServerAnimationTracerStart[26] = 0.8;
+ServerAnimationTracerStart[27] = 0.65;
+ServerAnimationTracerStart[29] = 0.70;
 
+//==================================================================================
+//==================================================================================
+//==================================================================================
 
-/* Mods:
-/ -- FadeOut
-/ -- Time till Tracer is Active (s)
-/ -- Time till Tracer gets Deactivated (s),  if 0 = active for all attack
-/ -- Blend in FadeOut (s)
-/ -- Blend out FadeOut (s)
-/ -- Knockback
-/ -- Time Till Chamber (s)
-/ ex: (1, 0.5, 0, 0.3, 0.5, 7500, 0.48): FadeOut = 1s,  tracers start after 0.5s,  last till animation finishes, 
-/ the first 0.3s of animation is blended with previous animation, the last 0.5s will blend with next animation
-/ will do ~ 7500 knockback
-/ 0.48s after attack starts, attack will pause if chambered
-/ Condensed:
-/ (FadeOut, Time Till Tracer Active, Time Till Tracer Ends, Blend In, Blend Out, Knockback, Time Till Chamber)
-*/
+ServerAnimationTracerEnd[8]  = 0;
+ServerAnimationTracerEnd[9]  = 0;
+ServerAnimationTracerEnd[10] = 0;
+ServerAnimationTracerEnd[11] = 0;
+ServerAnimationTracerEnd[12] = 0;
 
-lightLeftString1Mods 			=(1, 0.5, 0, 0.3, 0.5, 7500, 0.4)
-lightRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
-lightForwardString1Mods 		=(1, 0.65, 0, 0.3, 0.5, 7500, 0.4)
-lightForwardLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
-lightForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
-lightBackString1Mods 			=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
-lightBackLeftString1Mods		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
-lightBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 7500, 0.4)
+ServerAnimationTracerEnd[16] = 0.7;
+ServerAnimationTracerEnd[17] = 0.7;
+ServerAnimationTracerEnd[18] = 0.7;
+ServerAnimationTracerEnd[19] = 0.7;
+ServerAnimationTracerEnd[20] = 0.7;
+ServerAnimationTracerEnd[21] = 0.7;
+ServerAnimationTracerEnd[22] = 0.65;
+ServerAnimationTracerEnd[23] = 0.65;
 
-mediumLeftString1Mods 			=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.4) 
-mediumRightString1Mods 			=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.4)
-mediumForwardString1Mods 		=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
-mediumForwardLeftString1Mods 	=(1.4, 0.45, 0.7, 0.3, 0.5, 9500, 0.4)
-mediumForwardRightString1Mods 	=(1.4, 0.45, 0.7, 0.3, 0.5, 9500, 0.4)
-mediumBackString1Mods 			=(1.4, 0.5, 0.7, 0.3, 0.5, 9500, 0.48)
-mediumBackLeftString1Mods 		=(1.4, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
-mediumBackRightString1Mods	 	=(1.4, 0.43, 0.65, 0.3, 0.5, 9500, 0.4)
+ServerAnimationTracerEnd[24] = 0.85;
+ServerAnimationTracerEnd[26] = 1.4;
+ServerAnimationTracerEnd[27] = 0.85;
+ServerAnimationTracerEnd[29] = 1.05;
 
-heavyLeftString1Mods 			=(1.7, 0.65, 0.85, 0.3, 0.5, 20000, 0.6)
-heavyRightString1Mods 			=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
-heavyForwardString1Mods 		=(1.4, 0.8, 1.4, 0.2, 0.1, 20000, 0.8)
-heavyForwardLeftString1Mods 	=(1.7, 0.65, 0.85, 0.3, 0.5, 20000, 0.6)
-heavyForwardRightString1Mods 	=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
-heavyBackString1Mods 			=(1.4, 0.70, 1.05, 0.3, 0.5, 20000, 0.6)
-heavyBackLeftString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
-heavyBackRightString1Mods 		=(1, 0, 0, 0.3, 0.5, 20000, 0.6)
+//==================================================================================
+//==================================================================================
+//==================================================================================
 
+ServerAnimationKnockback[8]  = 7500;
+ServerAnimationKnockback[9]  = 7500;
+ServerAnimationKnockback[10] = 7500;
+ServerAnimationKnockback[11] = 7500;
+ServerAnimationKnockback[12] = 7500;
+
+ServerAnimationKnockback[16] = 9500;
+ServerAnimationKnockback[17] = 9500;
+ServerAnimationKnockback[18] = 9500;
+ServerAnimationKnockback[19] = 9500;
+ServerAnimationKnockback[20] = 9500;
+ServerAnimationKnockback[21] = 9500;
+ServerAnimationKnockback[22] = 9500;
+ServerAnimationKnockback[23] = 9500;
+
+ServerAnimationKnockback[24] = 20000;
+ServerAnimationKnockback[26] = 20000;
+ServerAnimationKnockback[27] = 20000;
+ServerAnimationKnockback[29] = 20000;
+
+//==================================================================================
+//==================================================================================
+//==================================================================================
+
+ServerAnimationChamberStart[8]  = 0.4;
+ServerAnimationChamberStart[9]  = 0.4;
+ServerAnimationChamberStart[10] = 0.4;
+ServerAnimationChamberStart[11] = 0.4;
+ServerAnimationChamberStart[12] = 0.4;
+
+ServerAnimationChamberStart[16] = 0.4;
+ServerAnimationChamberStart[17] = 0.4;
+ServerAnimationChamberStart[18] = 0.48;
+ServerAnimationChamberStart[19] = 0.4;
+ServerAnimationChamberStart[20] = 0.4;
+ServerAnimationChamberStart[21] = 0.48;
+ServerAnimationChamberStart[22] = 0.4;
+ServerAnimationChamberStart[23] = 0.4;
+
+ServerAnimationChamberStart[24] = 0.6;
+ServerAnimationChamberStart[26] = 0.8;
+ServerAnimationChamberStart[27] = 0.6;
+ServerAnimationChamberStart[29] = 0.6;
 
 /* Damage:
 / -- Set damage per tracer

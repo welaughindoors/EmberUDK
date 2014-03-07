@@ -12,6 +12,7 @@ var array<AnimSet> defaultAnimSet;
 var AnimNodeSequence defaultAnimSeq;
 var PhysicsAsset defaultPhysicsAsset;
 var(NPC) class<AIController> NPCController;
+var AttackFramework aFramework;
 //=================================
 // Grappled Hooked
 //=================================
@@ -429,6 +430,11 @@ simulated function PostBeginPlay()
 VelocityPinch = new class 'EmberProject.EmberVelocityPinch';
 VelocityPinch.SetOwner(self);
 
+  
+    aFramework = new class'EmberProject.AttackFramework';
+
+    aFramework.InitFramework();
+
 }
 
 function HitRed()
@@ -589,24 +595,16 @@ function forcedAnimEnd()
 doAttack
 	Used for attack tests
 */
-function doAttack (name animName, array<float> mods)
+function doAttack (int AttackAnimationID)
 {
-	 // Sword = Spawn(class'Sword', self);
-	 // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-
-  local int i;
-  AttackPacket.AnimName = animName;
-  for(i = 0; i < mods.length; i++)
-    AttackPacket.Mods[i] = mods[i];
-
 	// FlushPersistentDebugLines();
 
             AttackBlend.setBlendTarget(1, 0.5);
-            Sword.setKnockback(AttackPacket.Mods[5]); 
-            Sword.setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
+            Sword.setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]); 
+            Sword.setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID],aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
 			// SetTimer(AttackPacket.Mods[0], false, 'AttackEnd');	
-            AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-            VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
+            AttackSlot[0].PlayCustomAnimByDuration(aFramework.ServerAnimationNames[AttackAnimationID], aFramework.ServerAnimationDuration[AttackAnimationID], aFramework.ServerAnimationFadeIn[AttackAnimationID], aFramework.ServerAnimationFadeOut[AttackAnimationID]);
+            VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]  * 1.1);
 
 			// AttackBlend.setBlendTarget(0, 0.2);    
             // Sword.setTracerDelay(t1,t2);
@@ -615,7 +613,7 @@ function doAttack (name animName, array<float> mods)
             // AttackSlot[0].PlayCustomAnimByDuration(animation, duration,0.3,0.5);
     // Sword.GoToState('AttackingNoTracers');
     Sword.GoToState('Attacking');
-	SetTimer(AttackPacket.Mods[0], false, 'attackStop');
+	SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'attackStop');
 }
 /*
 GetTimeLeftOnAttack

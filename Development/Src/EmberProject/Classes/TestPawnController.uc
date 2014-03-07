@@ -5,7 +5,6 @@ var float startTheClock;
 var float timeTillSync;
 var bool noPlayerSeen;
 // var array<name> attackList;
-var AttackFramework aFramework;
 
 
 var struct AttackPacketStruct
@@ -34,54 +33,41 @@ simulated private function DebugPrint(string sMessage)
 simulated event PostBeginPlay()
 {
   super.PostBeginPlay();
-  //      attackList.AddItem('ember_medium_left');
-  //     attackList.AddItem('ember_medium_right');
-  //   attackList.AddItem('ember_medium_forward');
-  // attackList.AddItem('ember_medium_diagonal_left');
-  //  attackList.AddItem('ember_medium_diagonal_right');
-  //      attackList.AddItem('ember_medium_forward');
-  //   attackList.AddItem('ember_medium_diagonal_left_reverse');
-  //    attackList.AddItem('ember_medium_diagonal_right_reverse');
-
-
-    aFramework = new class'EmberProject.AttackFramework';
-
-    aFramework.InitFramework();
 }
 
 
-simulated function copyToAttackStruct(name animName, array<float> mods)
-{
-  TestPawn(pawn).doAttack (animName, mods) ;
-  // local int i;
-  // AttackPacket.AnimName = animName;
-  // for(i = 0; i < mods.length; i++)
-  //   AttackPacket.Mods[i] = mods[i];
-}
+// simulated function copyToAttackStruct(name animName, array<float> mods)
+// {
+//   TestPawn(pawn).doAttack () ;
+//   // local int i;
+//   // AttackPacket.AnimName = animName;
+//   // for(i = 0; i < mods.length; i++)
+//   //   AttackPacket.Mods[i] = mods[i];
+// }
 
 simulated function DoCounterAttack()
 {
-  EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
-  if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardString1)
-    copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
-  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumbackLeftString1)
-  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
-  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumbackRightString1)
-  copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
-  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardLeftString1)
-  copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
-  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardRightString1)
-  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
-  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumRightString1)
-  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
-  else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumLeftString1)
-  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
-  else
-  {
-    EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
+  // EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
+  // if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardString1)
+  //   copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+  // else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumbackLeftString1)
+  // copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+  // else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumbackRightString1)
+  // copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
+  // else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardLeftString1)
+  // copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
+  // else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumForwardRightString1)
+  // copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+  // else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumRightString1)
+  // copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
+  // else if(EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName == aFramework.mediumLeftString1)
+  // copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
+  // else
+  // {
+  //   EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
 
     randomizeAttack();
-  }
+  // }
   
 }
 
@@ -93,36 +79,8 @@ simulated function randomizeAttack()
       DoCounterAttack();
       return;
     }
-  i = Rand(8);
-  switch(i)
-  {
-    case 0:
-  copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
-    break;
-    case 1:
-  copyToAttackStruct(aFramework.mediumBackString1, aFramework.mediumBackString1Mods);
-    break;
-    case 2:
-  copyToAttackStruct(aFramework.mediumbackLeftString1, aFramework.mediumbackLeftString1Mods);
-    break;
-    case 3:
-  copyToAttackStruct(aFramework.mediumbackRightString1, aFramework.mediumbackRightString1Mods);
-    break;
-    case 4:
-  copyToAttackStruct(aFramework.mediumForwardLeftString1, aFramework.mediumForwardLeftString1Mods);
-    break;
-    case 5:
-  copyToAttackStruct(aFramework.mediumForwardRightString1, aFramework.mediumForwardRightString1Mods);
-    break;
-    case 6:
-  copyToAttackStruct(aFramework.mediumRightString1, aFramework.mediumRightString1Mods);
-    break;
-    case 7:
-  copyToAttackStruct(aFramework.mediumLeftString1, aFramework.mediumLeftString1Mods);
-    break;
-    
-  }
-// copyToAttackStruct(aFramework.mediumForwardString1, aFramework.mediumForwardString1Mods);
+  i = Rand(7) + 16;
+  TestPawn(pawn).doAttack (i) ;
 }
 simulated function TalkToPlayer(string message)
 {
