@@ -16,6 +16,12 @@ var repnotify struct ServerAttackPacketStruct
 	// var float tDur;
 } ServerAttackPacket ;
 
+var repnotify struct ServerStancePacketStruct
+{
+	var int ServerStance;
+	var int ServerTargetPawn;
+} ServerStancePacket;
+
 // Replication block
 replication
 {
@@ -23,9 +29,24 @@ replication
 	// if (bNetDirty && Role == Role_Authority)
 		// AttackPacket;
 	if(bNetDirty)
-		ServerAttackPacket;
+		ServerAttackPacket, ServerStancePacket;
 }
 
+/*
+copyToServerAttackStruct
+	When a player does an attack, copy the data needed
+	Create a new temporary structure, load the data
+	Swap the real packet with temp packet. The changed data will update immediately for all clients
+*/
+simulated function Replicate_ServerStance(int CurrentStance, int TargetPawn)
+{
+	local ServerStancePacketStruct tStruct;
+
+	tStruct.ServerStance 		= CurrentStance;
+	tStruct.ServerTargetPawn 	= TargetPawn;
+	
+	ServerStancePacket = tStruct;
+}
 /*
 copyToServerAttackStruct
 	When a player does an attack, copy the data needed
@@ -50,7 +71,8 @@ simulated event ReplicatedEvent(name VarName)
 	local pawn P;
 	// local EmberPawn eppawn;
 
-	if (varname == 'ServerAttackPacket') {
+	if (varname == 'ServerAttackPacket') 
+	{
 		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
 		{
 			if(PC.pawn.PlayerReplicationInfo != self)
@@ -60,10 +82,20 @@ simulated event ReplicatedEvent(name VarName)
 				EmberPawn(P).ClientAttackAnimReplication(ServerAttackPacket.ServerAnimAttack, ServerAttackPacket.ServerTargetPawn);
 			}
 		}
-
-		
 	}
-	
+
+	if (varname == 'ServerStancePacket') 
+	{
+		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+		{
+			// if(PC.pawn.PlayerReplicationInfo != self)
+			// {
+				P = PC.pawn;
+				EmberPawn(P).DebugPrint("REPLICATION_ServerStancePacket");
+				EmberPawn(P).ClientStanceReplication(ServerStancePacket.ServerStance, ServerStancePacket.ServerTargetPawn);
+			// }
+		}
+	}
 	super.ReplicatedEvent(VarName);
 }
 

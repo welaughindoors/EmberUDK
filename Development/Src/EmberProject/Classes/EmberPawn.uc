@@ -136,18 +136,7 @@ var bool 					bRightChambering;
 var float 					iChamberingCounter;
 
 //ID to the attack animation
-var repnotify int AttackAnimationID;
-
-var repnotify struct ServerAttackPacketStruct
-{
-	var name AnimName;
-	var array<float> Mods;
-	var int targetPawn;
-	// var float tDur;
-} ServerAttackPacket ;
-
-
-// var repnotify AttackPacketStruct ATtackPacket;
+var int AttackAnimationID;
 
 var struct ForcedAnimLoopPacketStruct
 {
@@ -157,8 +146,7 @@ var struct ForcedAnimLoopPacketStruct
 	var float tDur;
 } ForcedAnimLoopPacket;
 
-var repnotify int currentStance;
-
+var int currentStance;
 
 var UDKSkelControl_Rotate 	SpineRotator;
 
@@ -184,24 +172,6 @@ End Variables
 ===============================================
 */
 
-
-simulated event ReplicatedEvent(name VarName)
-{
-  DebugPrint("Rep Event Received - "@VarName);
-     if(VarName == 'ServerAttackPacket')
-     {
-         // forcedAnimEndReplication(AttackPacket);
-         DebugPrint("REPPAWN-"@ ServerAttackPacket.targetPawn@"anim-"@ServerAttackPacket.AnimName);
-         // ClientAttackAnimReplication(ServerAttackPacket.AnimName, ServerAttackPacket.Mods, ServerAttackPacket.targetPawn);
-     }
-// currentStance
-          super.ReplicatedEvent(VarName);
-}
-replication
-{
-    if (bNetDirty )
-            AttackAnimationID;
-}
 //=============================================
 // Utility Functions
 //=============================================
@@ -213,13 +183,6 @@ DebugPrint
 function DebugPrint(string sMessage)
 {
     ePC.ClientMessage(sMessage);
-}/*
-WorldBroadcast
-	same as debug print, but everyone gets it
-*/
-simulated exec function WorldBroadcast(string sMessage)
-{
-    	WorldInfo.Game.Broadcast(self,Name$" -- "@sMessage);
 }
 // Not Needed, found out that there's an official code that does the same, even has same name >.<
 // function bool isTimerActive(name tName)
@@ -1411,13 +1374,12 @@ OnAnimEnd
 function ePlayAnim(int ServerAttackAnimationID = -1)
 {
 
-AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[ServerAttackAnimationID],
-        								aFramework.ServerAnimationDuration	[ServerAttackAnimationID], 
-        								aFramework.ServerAnimationFadeIn	[ServerAttackAnimationID], 
-        								aFramework.ServerAnimationFadeOut	[ServerAttackAnimationID]);
-`Log(Self$":: ePlayAnim:: Updating int with "$ServerAttackAnimationID$".");
+AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AttackAnimationID],
+        								aFramework.ServerAnimationDuration	[AttackAnimationID], 
+        								aFramework.ServerAnimationFadeIn	[AttackAnimationID], 
+        								aFramework.ServerAnimationFadeOut	[AttackAnimationID]);
 //Server's running the function
-// if(ServerAttackAnimationID != -1)
+if(ServerAttackAnimationID != -1)
 	EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(ServerAttackAnimationID, PlayerReplicationInfo.PlayerID);
 
 //Client's running the function
@@ -1450,6 +1412,21 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
         													aFramework.ServerAnimationFadeIn	[AnimAttack], 
         													aFramework.ServerAnimationFadeOut	[AnimAttack]);
     }
+    }
+}
+
+reliable client function ClientStanceReplication(int ServerStance, int PlayerID)
+{
+	local EmberPawn pawner;
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', pawner) 
+	{
+		//If one of the pawns has the same ID as the player who did the attack
+		if(pawner.PlayerReplicationInfo.PlayerID == PlayerID)
+		{
+			//Tell that pawn to switch stances
+			pawner.ChangeStance(ServerStance);
+    	}
     }
 }
 /*
@@ -1486,7 +1463,7 @@ simulated function forcedAnimEnd()
 				VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
 		}
 
-	ePlayAnim(AttackAnimationID);
+	ePlayAnim();
 }
 
 /*
@@ -2333,109 +2310,40 @@ simulated function DoKick()
 //===============================
 // Stances Functions
 //===============================
-/*
-LightStance
-	switch's stances
-*/
-simulated function LightStance()
+simulated function ChangeStance(int newStance, int oldStance = -1)
 {
-	if(GetTimeLeftOnAttack() > 0)
-		return;
+	if(oldStance == -1) oldStance = currentStance;
 
-switch(currentStance)
-{
-	case 2:
-	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'KattanaSocket');
-    // MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
-	break;
-
-	case 3:
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
-	break;
-}
-	currentStance = 1;
-
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
-    // LightDecoSword.Mesh.SetHidden(true);
-    // HeavyDecoSword.Mesh.SetHidden(false);
-    // MediumDecoSword.Mesh.SetHidden(false);
-	overrideStanceChange();
-}
-simulated function BalanceStance()
-{
-	if(GetTimeLeftOnAttack() > 0)
-		return;
-
- switch(currentStance)
+	switch(oldStance)
 {
 	case 1:
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
-    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
-	break;
-
-	case 3:
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'HeavyAttach');
-    	// ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'HeavyAttach');
-	break;
-}
-	currentStance = 2;
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
-    // LightDecoSword.Mesh.SetHidden(true);
-    // HeavyDecoSword.Mesh.SetHidden(false);
-    // MediumDecoSword.Mesh.SetHidden(false);
-    // Sword[currentStance-1].tempSoundBool=true;
-    if(!tempToggleForEffects)
-    {
-    		setTrailEffects();
-    		setTrailEffects();
-    		setTrailEffects();
-tempToggleForEffects = true;
-
-    	}
-	overrideStanceChange();
-	
-}
-simulated function HeavyStance()
-{
-	if(GetTimeLeftOnAttack() > 0)
-		return;
-
-//  	currentStance = 3;
-// 	swordMesh=SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy';  
-// 	Mesh.DetachComponent(Sword.mesh);  
-//     Mesh.DetachComponent(Sword.CollisionComponent);
-// 	Sword.Mesh.SetSkeletalMesh(swordMesh);
-// 	Sword.getAnim();
-// 	    Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint'); 
-//     Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint'); 
-//     LightDecoSword.Mesh.SetHidden(false);
-//     HeavyDecoSword.Mesh.SetHidden(true);
-//     MediumDecoSword.Mesh.SetHidden(false);
-// overrideStanceChange();
- switch(currentStance)
-{
-	case 1:
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'LightAttach');
-    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'LightAttach');
+	ParentModularComponent.AttachComponentToSocket(Sword[oldStance-1].Mesh, 'LightAttach');
 	break;
 
 	case 2:
-	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'KattanaSocket');
-    // MediumDecoSword.Mesh.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'KattanaSocket');
+	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[oldStance-1].Mesh, 'KattanaSocket');
+	break;
+
+	case 3:
+	ParentModularComponent.AttachComponentToSocket(Sword[oldStance-1].Mesh, 'HeavyAttach');
 	break;
 }
-	currentStance = 3;
 
-	ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].Mesh, 'WeaponPoint');
-    // ParentModularComponent.AttachComponentToSocket(Sword[currentStance-1].CollisionComponent, 'WeaponPoint');
-    // LightDecoSword.Mesh.SetHidden(true);
-    // HeavyDecoSword.Mesh.SetHidden(false);
-    // MediumDecoSword.Mesh.SetHidden(false);
-	overrideStanceChange();
+ParentModularComponent.AttachComponentToSocket(Sword[newStance-1].Mesh, 'WeaponPoint');
 
+currentStance = newStance;
+
+EmberReplicationInfo(playerreplicationinfo).Replicate_ServerStance(currentStance, playerreplicationinfo.PlayerID);
+
+overrideStanceChange();
+
+if(Role < ROLE_Authority)
+	ServerChangeStance(currentStance, oldStance);
+
+}
+reliable server function ServerChangeStance(int currentStance, int oldStance)
+{
+	ChangeStance(currentStance);
 }
 /*
 SheatheWeapon

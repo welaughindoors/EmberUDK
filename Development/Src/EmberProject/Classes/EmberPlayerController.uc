@@ -365,7 +365,7 @@ LightStance
 */
 exec function LightStance()
 {
-EmberPawn(pawn).LightStance();
+EmberPawn(pawn).ChangeStance(1);
 }
 /*
 BalanceStance
@@ -373,7 +373,7 @@ BalanceStance
 */
 exec function BalanceStance()
 {
-EmberPawn(pawn).BalanceStance();
+EmberPawn(pawn).ChangeStance(2);
 }
 /*
 HeavyStance
@@ -381,7 +381,7 @@ HeavyStance
 */ 
 exec function HeavyStance()
 {
-EmberPawn(pawn).HeavyStance();
+EmberPawn(pawn).ChangeStance(3);
 }
 /*
 SheatheWeapon
