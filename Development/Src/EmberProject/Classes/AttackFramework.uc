@@ -342,9 +342,9 @@ ServerAnimationChamberStart[29] = 0.6;
 / -- Set damage per tracer
 */
 
-lightDamagePerTracer = 2.5
-mediumDamagePerTracer = 7.5
-heavyDamagePerTracer = 13
+lightDamagePerTracer = 2
+mediumDamagePerTracer = 3
+heavyDamagePerTracer = 5
 
 /* Swords:
 / -- The Sword Meshes

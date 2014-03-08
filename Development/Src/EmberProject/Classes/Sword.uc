@@ -548,15 +548,21 @@ oldInterpolatedPoints.length = 0;
   // EmberPawn(interpolatedPoints_TemporaryHitArray[i]).BodyHitMovement(EmberPawn(Owner).AttackPacket.Mods[7]);
   if( reduceDamage )
   {
-    DebugPrint("rdam");
+    //Client only, Actually has 0 use in network
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    //Server only. has 0 use in local
+    EmberPawn(Owner).ReplicateDamage(DamagePerTracer/2, Pawn(Owner).Controller,HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
   }
   else
   {
-    DebugPrint("fdam");
+    //Client only, Actually has 0 use in network
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    //Server only. has 0 use in local
+    EmberPawn(Owner).ReplicateDamage(DamagePerTracer,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
   }
     DamageAmount+=DamagePerTracer;
+
+
     EmberPawn(Owner).HitBlue();
     EmberPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
     //Bot Only. Remove in final

@@ -1123,7 +1123,8 @@ doBlock
 */
 simulated function doBlock()
 {
-
+	bForceNetUpdate=true;
+EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(EmberReplicationInfo(playerreplicationinfo).PlayerID);
 //can't copy structs in udk, how lame
 ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
 ForcedAnimLoopPacket.blendIn=aFramework.ForcedAnimLoopPacket.blendIn;
@@ -1149,7 +1150,24 @@ ClearTimer('AttackEnd');
 
 swapToBlockPhysics();
 Sword[currentStance-1].isBlock = 1;
+
+if(role < ROLE_Authority)
+	ServerDoBlock();
 }
+/*
+stopBlock
+	Unfreeze body, switch sword physics, block = false
+*/
+simulated function stopBlock()
+{
+EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(EmberReplicationInfo(playerreplicationinfo).PlayerID);
+freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
+swapToBlockPhysics(false);
+Sword[currentStance-1].isBlock = 0;
+if(role < ROLE_Authority)
+	ServerDoBlock();
+}
+
 /*
 swapToBlockPhysics
 	Hardcoded currently. Needs fix
@@ -1182,16 +1200,6 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 			AttackSlot[0].StopCustomAnim(blendOut);
 			AttackSlot[1].StopCustomAnim(blendOut);
 		}
-}
-/*
-stopBlock
-	Unfreeze body, switch sword physics, block = false
-*/
-simulated function stopBlock()
-{
-freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
-swapToBlockPhysics(false);
-Sword[currentStance-1].isBlock = 0;
 }
 /*
 doChamber
@@ -1300,78 +1308,10 @@ simulated function float GetTimeLeftOnAttack()
 	 return (GetTimerRate('AttackEnd') - GetTimerCount('AttackEnd'));
 }
 /*
-doAttack
-	Detects if player is moving left or right from playercontroler (PlayerInput)
-	Determines which attack to use.
-	Queues Attacks
+ePlayAnim
+	Formally ForcedAnimEnd, this just plays the animations and replicates it
 */
-// function doAttack( float strafeDirection)
-// {
-// 	local float timerCounter;
-// 	local float queueCounter;
-// // 	local vector jumpLocation;
-// // 	local rotator jumpRotation;
-
-// // 	Mesh.GetSocketWorldLocationAndRotation('BackPack', jumpLocation, jumpRotation);
-
-// // 	DebugPrint("l - "@Rotation - jumpRotation);
-// // 	DebugPrint("l - "@jumpRotation - Rotation);
-// // return;
-// 	queueCounter = 0.25;
-
-// 	timerCounter = GetTimeLeftOnAttack();
-// 	DebugPrint("attack Requested");
-// 	if(timerCounter > queueCounter)
-// 	{
-// 	DebugPrint("attack Denied");
-// 	return;
-// 	}
-// 	if(timerCounter < queueCounter && timerCounter > 0)
-// 	{
-// 	DebugPrint("attack Queued");
-// 	animationQueueAndDirection = (strafeDirection == 0) ? 1337.0 : strafeDirection;
-// 	// animationQueueAndDirection = strafeDirection;
-// 	return;
-// 	}
-// 	if(strafeDirection > 0)
-// 		rightAttack();
-// 	else if(strafeDirection < 0)
-// 		leftAttack();
-// 	else
-// 		forwardAttack();
-// }
-/*
-OnAnimEnd
-	When animation ends normally w/ OnAnimEnd flag
-	pending deletion
-*/
-// simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
-// {
-// 			// VelocityPinch.ApplyVelocityPinch(,,true);
-// 			DebugPrint("OnAnimEnd");
-//    			ClearTimer('AttackEnd');
-//             Sword[currentStance-1].resetTracers();
-// 			// if(ChamberFlags.CheckLeftFlag(0))
-// 			// {
-// 			// 	PC = UTPlayerController(Instigator.Controller);
-// 			// 	doAttack(EmberPlayerController(PC).verticalShift);
-// 			// 	return;
-// 			// }
-// 			// if(aFramework.CurrentAttackString <= 2)
-// 			// 	EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
-
-//    //          AttackBlend.setBlendTarget(1, 0.5);
-//    //          Sword[currentStance-1].setKnockback(AttackPacket.Mods[5]); 
-
-// 			// if(!ChamberFlags.CheckRightFlag(0))
-//    //          	Sword[currentStance-1].setTracerDelay(AttackPacket.Mods[1],AttackPacket.Mods[2]);
-
-//    //          AttackSlot[1].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-//    //          VelocityPinch.ApplyVelocityPinch(,AttackPacket.Mods[1],AttackPacket.Mods[2] * 1.1);
-
-// }
-
-function ePlayAnim(int ServerAttackAnimationID = -1)
+simulated function ePlayAnim(int ServerAttackAnimationID = -1)
 {
 
 AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AttackAnimationID],
@@ -1388,46 +1328,125 @@ if(Role < ROLE_Authority)
 
 }
 
+simulated function ReplicateDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
+{
+	local EmberPawn Receiver;
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player who did the attack
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+		{
+			Receiver.TakeDamage(DamagePerTracer, DamageInstigator, HitLocation, TotalKnockback,  class'UTDmgType_LinkBeam');
+		}
+	}
+
+if(role < ROLE_Authority)
+	ServerReplicateDamage( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
+
+}
+
 // tell the server to play them too
 reliable server function ServerPlayAnim(int ServerAttackAnimationID)
 {
 	ePlayAnim(ServerAttackAnimationID);
 }
-
+reliable server function ServerReplicateDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
+{
+	ReplicateDamage( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
+}
+// Replicate_Damage(DamagePerTracer, HitLocation, sVelocity * Knockback);
+/*
+ClientAttackAnimReplication
+	Client recieves animation and plays it
+*/
 reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerID)
 {
-	local EmberPawn pawner;
+	local EmberPawn Receiver;
 	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', pawner) 
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
 	{
 		//If one of the pawns has the same ID as the player who did the attack
-		if(pawner.PlayerReplicationInfo.PlayerID == PlayerID)
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
 		{
 			//Debug Print, Perhaps remove
 			DebugPrint(PlayerReplicationInfo.PlayerName@"ClientAttackAnimReplication"@PlayerID);
 			//Tell that pawn to do an attack. 
 			//TODO: Change this into a local function
-        	pawner.AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AnimAttack],
+			FlushPersistentDebugLines();
+			Receiver.AttackEnd();
+  			Receiver.Sword[Receiver.currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
+  			if(!Receiver.ChamberFlags.CheckRightFlag(0))
+			{
+				Receiver.Sword[Receiver.currentStance-1].GoToState('Attacking');
+            	Receiver.Sword[Receiver.currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack]);
+
+            	//TODO: Animation Lock
+				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
+					// SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
+
+				Receiver.VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack] * 1.1);
+			}
+
+        	Receiver.AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AnimAttack],
         													aFramework.ServerAnimationDuration	[AnimAttack], 
         													aFramework.ServerAnimationFadeIn	[AnimAttack], 
         													aFramework.ServerAnimationFadeOut	[AnimAttack]);
     }
     }
 }
-
-reliable client function ClientStanceReplication(int ServerStance, int PlayerID)
+reliable client function ClientBlockReplication(int PlayerID)
 {
-	local EmberPawn pawner;
+	local EmberPawn Receiver;
 	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', pawner) 
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
 	{
 		//If one of the pawns has the same ID as the player who did the attack
-		if(pawner.PlayerReplicationInfo.PlayerID == PlayerID)
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
 		{
 			//Tell that pawn to switch stances
-			pawner.ChangeStance(ServerStance);
+			if(Receiver.Sword[Receiver.currentStance-1].isBlock == 0)
+				Receiver.doBlock();
+			else
+				Receiver.stopBlock();
     	}
     }
+}
+reliable server function ServerDoBlock()
+{
+	doBlock();
+}
+/*
+ClientStanceReplication
+	Replicates Changestance to clients
+*/
+reliable client function ClientStanceReplication(int ServerStance, int PlayerID)
+{
+	local EmberPawn Receiver;
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player who did the attack
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+		{
+			//Tell that pawn to switch stances
+			Receiver.ChangeStance(ServerStance);
+    	}
+    }
+}
+/*
+ClientTakeDamage
+	ClientTakes damage
+*/
+reliable client function ClientTakeDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback,  class<DamageType> DamageType)
+{
+	DebugPrint("Takes Damage");
+
+	self.TakeDamage(DamagePerTracer, DamageInstigator, HitLocation, TotalKnockback, DamageType);
+	//We know its this pawn who's taking damage, we're not replicated other pawns, just dealing damage to ourselves (received from other pawns)
+	// self.Health -= DamagePerTracer;
+	// Velocity *= TotalKnockback;
+	//Not sure what to use the rest for
 }
 /*
 forcedAnimEnd
@@ -1436,16 +1455,9 @@ forcedAnimEnd
 simulated function forcedAnimEnd()
 {
 
-	// local ServerAttackPacketStruct tempServerPacket;
-
-	// tempServerPacket.animName = AttackPacket.AnimName;
-	// tempServerPacket.Mods = AttackPacket.Mods;
-	// tempServerPacket.targetPawn = self;
 			DebugPrint("forcedAnimEnd");
 			ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
-			// if(aFramework.CurrentAttackString <= 2)
-			// EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = true;
 
             Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
             
@@ -1538,6 +1550,8 @@ simulated function doAttack( array<byte> byteDirection)
 	// DebugPrint("Pawn ID"@PawnID);
 // testRep++;
 // ListPlayerReplicationInfo();
+// self.TakeDamage(10, self.Controller, vect(0,0,0),vect(0,0,0), class'UTDmgType_LinkBeam');
+
 
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
@@ -1672,8 +1686,8 @@ simulated function EndPreAttack()
 {
 	if(GetTimeLeftOnAttack() <= 0.5)
 		forcedAnimEnd();
-}
 
+}
 /*
 forwardAttack
 	Flushes existing debug lines
@@ -2467,8 +2481,11 @@ AttachComponent(ToBeAttachedItem);
 }
 defaultproperties
 {
+	//TODO: find correct values
+	NetUpdateFrequency = 400
+	NetPriority=3.2
 	Role = ROLE_Authority
-	RemoteRole = ROLE_SimulatedProxy
+	RemoteRole = ROLE_Authority
 	cameraCamZOffsetInterpolation=30
 	cameraCamXOffsetMultiplierInterpolation=3.7
 	blendAttackCounter=0;

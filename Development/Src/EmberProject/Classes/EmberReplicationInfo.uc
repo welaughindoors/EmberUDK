@@ -22,14 +22,33 @@ var repnotify struct ServerStancePacketStruct
 	var int ServerTargetPawn;
 } ServerStancePacket;
 
+var repnotify struct ServerBlockPacketStruct
+{
+	var bool DirtyBit;
+	var int ServerTargetPawn;
+}ServerBlockPacket;
+
+
+
 // Replication block
 replication
 {
-
-	// if (bNetDirty && Role == Role_Authority)
-		// AttackPacket;
 	if(bNetDirty)
-		ServerAttackPacket, ServerStancePacket;
+		ServerAttackPacket, ServerStancePacket, ServerBlockPacket;
+}
+/*
+Replicate_Damage
+	Gets information from sword.uc and transmits
+	We use playerID here because that particular player will take the damage
+*/
+simulated function Replicate_DoBlock(int PlayerID)
+{
+	local ServerBlockPacketStruct tStruct;
+
+	tStruct.ServerTargetPawn = PlayerID;
+	tStruct.DirtyBit = !ServerBlockPacket.DirtyBit;
+
+	ServerBlockPacket = tStruct;
 }
 
 /*
@@ -68,7 +87,8 @@ simulated function copyToServerAttackStruct(int AnimAttack, int TargetPawn)
 simulated event ReplicatedEvent(name VarName)
 {
 	local EmberPlayerController PC;
-	local pawn P;
+	local pawn Sender;
+	local pawn Receiver;
 	// local EmberPawn eppawn;
 
 	if (varname == 'ServerAttackPacket') 
@@ -77,9 +97,9 @@ simulated event ReplicatedEvent(name VarName)
 		{
 			if(PC.pawn.PlayerReplicationInfo != self)
 			{
-				P = PC.pawn;
-				EmberPawn(P).DebugPrint("REPLICATION_ServerAttackPacket"@ServerAttackPacket.ServerAnimAttack);
-				EmberPawn(P).ClientAttackAnimReplication(ServerAttackPacket.ServerAnimAttack, ServerAttackPacket.ServerTargetPawn);
+				Receiver = PC.pawn;
+				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerAttackPacket"@ServerAttackPacket.ServerAnimAttack);
+				EmberPawn(Receiver).ClientAttackAnimReplication(ServerAttackPacket.ServerAnimAttack, ServerAttackPacket.ServerTargetPawn);
 			}
 		}
 	}
@@ -88,14 +108,28 @@ simulated event ReplicatedEvent(name VarName)
 	{
 		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
 		{
-			// if(PC.pawn.PlayerReplicationInfo != self)
-			// {
-				P = PC.pawn;
-				EmberPawn(P).DebugPrint("REPLICATION_ServerStancePacket");
-				EmberPawn(P).ClientStanceReplication(ServerStancePacket.ServerStance, ServerStancePacket.ServerTargetPawn);
-			// }
+			if(PC.pawn.PlayerReplicationInfo != self)
+			{
+				Receiver = PC.pawn;
+				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerStancePacket");
+				EmberPawn(Receiver).ClientStanceReplication(ServerStancePacket.ServerStance, ServerStancePacket.ServerTargetPawn);
+			}
 		}
 	}
+
+	if (varname == 'ServerBlockPacket') 
+	{
+		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+		{
+			if(PC.pawn.PlayerReplicationInfo != self)
+			{
+				Receiver = PC.pawn;
+				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerBlockPacket");
+				EmberPawn(Receiver).ClientBlockReplication(ServerBlockPacket.ServerTargetPawn);
+			}
+		}
+	}
+
 	super.ReplicatedEvent(VarName);
 }
 
@@ -121,7 +155,7 @@ defaultproperties
 	DefaultHudColor=(R=64,G=255,B=255,A=255)
 	VoiceClass=class'UTGame.UTVoice_Robot'
 	CharPortrait=Texture2D'CH_IronGuard_Headshot.HUD_Portrait_Liandri'
-	NetUpdateFrequency 		= 100
+	NetUpdateFrequency 		= 400
 	CharClassInfo=class'EmberProject.EmberFamilyInfo'
 }
 
