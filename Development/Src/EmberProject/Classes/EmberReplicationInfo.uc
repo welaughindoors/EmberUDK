@@ -26,15 +26,31 @@ var repnotify struct ServerBlockPacketStruct
 {
 	var bool DirtyBit;
 	var int ServerTargetPawn;
-}ServerBlockPacket;
+} ServerBlockPacket;
 
+var repnotify struct ServerChamberPacketStruct
+{
+	var int ServerTargetPawn;
+	var bool ChamberActive;
+} ServerChamberPacket;
 
 
 // Replication block
 replication
 {
 	if(bNetDirty)
-		ServerAttackPacket, ServerStancePacket, ServerBlockPacket;
+		ServerAttackPacket, ServerStancePacket, ServerBlockPacket,
+		ServerChamberPacket;
+}
+simulated function Replicate_Chamber(bool Active,int PlayerID)
+{
+	local ServerChamberPacketStruct tStruct;
+
+	tStruct.ServerTargetPawn = PlayerID;
+	// tStruct.DirtyBit = !ServerChamberPacket.DirtyBit;
+	tStruct.ChamberActive = Active;
+
+	ServerChamberPacket = tStruct;
 }
 /*
 Replicate_Damage
@@ -129,6 +145,20 @@ simulated event ReplicatedEvent(name VarName)
 			}
 		}
 	}
+
+	if (varname == 'ServerChamberPacket') 
+	{
+		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+		{
+			if(PC.pawn.PlayerReplicationInfo != self)
+			{
+				Receiver = PC.pawn;
+				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerChamberPacket");
+				EmberPawn(Receiver).ClientChamberReplication(ServerChamberPacket.ChamberActive, ServerChamberPacket.ServerTargetPawn);
+			}
+		}
+	}
+	
 
 	super.ReplicatedEvent(VarName);
 }

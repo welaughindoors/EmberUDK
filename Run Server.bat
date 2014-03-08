@@ -1,0 +1,1 @@
+%CD%\Binaries\Win32\UDK.exe server Level1.udk?game=EmberProject.EmberGameInfo?listen=true?bIsLanMatch=true?dedicated=true

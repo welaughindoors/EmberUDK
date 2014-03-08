@@ -44,7 +44,7 @@ TODO:
 ==========
 
 ####Inathero's doing this
-- NETWORKING WTF -- Will probably hold off on this until more of ember is created
+- Everything Networking. What a monster
 - Change timer from anim preset duration to actual anim duration
 - Sword Trail implementation
 - Shuffle 'dodge' booster thingy
@@ -106,6 +106,14 @@ Recently Completed:
 - Uses entire medium attack framework for attacks currently
 - Is able to read the player's moves and setup parries to counter player
 - Is able to undergo feints in heated combat to trick and damage player in accordance to player's attacks (very basic. am working).
+
+####Networking by Inathero
+- Modular Pawns (lighting not being replicated to clients)
+- ALL attack animations (in a super bandwidth saving way)
+- Stance changes
+- Damage to/from EmberPawns (can't damage TestPawns)
+- Blocking
+- Chambering (needs testing)
 
 ####Admininistrator
 - Essentially all the Animations

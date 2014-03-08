@@ -1087,20 +1087,13 @@ simulated function stopAttackQueue()
 	// Sword.rotate(0,0,16384); //temp_fix_for_animation
 DebugPrint("stopAttackQueue");
 bAttackQueueing = false;
-	ChamberFlags.removeLeftChamberFlag(0);
+ChamberFlags.removeLeftChamberFlag(0);
 
-		AttackSlot[0].SetActorAnimEndNotification(false);
-		AttackSlot[1].SetActorAnimEndNotification(false);
 if(ChamberFlags.CheckLeftFlag(1))
 {
-DebugPrint("LChamber End");
-			iChamberingCounter = 0;
-			Sword[currentStance-1].GoToState('Attacking');
-            Sword[currentStance-1].setTracerDelay(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]));
-			SetTimer((aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'AttackEnd');	
-			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
-			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
-			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+	if(role < ROLE_Authority)
+	ServerChamber(false);
+	ChamberGate(false);
 }
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
@@ -1123,8 +1116,7 @@ doBlock
 */
 simulated function doBlock()
 {
-	bForceNetUpdate=true;
-EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(EmberReplicationInfo(playerreplicationinfo).PlayerID);
+EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
 //can't copy structs in udk, how lame
 ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
 ForcedAnimLoopPacket.blendIn=aFramework.ForcedAnimLoopPacket.blendIn;
@@ -1224,22 +1216,46 @@ stopChamber
 	IIRC Active only when doChamber goes to completion
 	Cancels existing chamber, upper body animation continues
 */
-simulated function stopChamber()
+// simulated function stopChamber()
 
+// {
+// 	ChamberFlags.removeRightChamberFlag(0);
+// 	// if(iChamberingCounter >= AttackPacket.Mods[6])
+// 	if(ChamberFlags.CheckRightFlag(1))
+// 	{
+// 			Sword[currentStance-1].GoToState('Attacking');
+//             Sword[currentStance-1].setTracerDelay(0,aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]);
+// 			SetTimer(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID], false, 'AttackEnd');	
+// 			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
+// 	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+// 	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+// 		AttackSlot[0].SetActorAnimEndNotification(false);
+// 		AttackSlot[1].SetActorAnimEndNotification(false);
+// 	}
+// }
+simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 {
-	ChamberFlags.removeRightChamberFlag(0);
-	// if(iChamberingCounter >= AttackPacket.Mods[6])
-	if(ChamberFlags.CheckRightFlag(1))
-	{
+		if(Active)
+		{
+			ChamberFlags.setLeftChamberFlag(1);
+			ClearTimer('AttackEnd');
+            Sword[currentStance-1].setTracerDelay(0,0);
+			Sword[currentStance-1].SetInitialState();
+			VelocityPinch.ApplyVelocityPinch(,0,0);
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+		}
+		else
+		{
+			if(ServerAttackAnimationID != -1) AttackAnimationID = ServerAttackAnimationID;
+			iChamberingCounter = 0;
 			Sword[currentStance-1].GoToState('Attacking');
-            Sword[currentStance-1].setTracerDelay(0,aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]);
-			SetTimer(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID], false, 'AttackEnd');	
+            Sword[currentStance-1].setTracerDelay(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]));
+			SetTimer((aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'AttackEnd');	
 			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
-	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
-	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
-		AttackSlot[0].SetActorAnimEndNotification(false);
-		AttackSlot[1].SetActorAnimEndNotification(false);
-	}
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+		}
 }
 
 /*
@@ -1249,52 +1265,16 @@ LeftRightClicksAndChambersManagement
 	Shit's confusing, i'll comment it out full next time
 */
 simulated function LeftRightClicksAndChambersManagement(float DeltaTime)
-{
-	
+{	
 if(ChamberFlags.CheckLeftFlag(0))
 {
 	iChamberingCounter += DeltaTime;
-	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID])
+	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID] - playerreplicationinfo.ExactPing)
+		if(!ChamberFlags.CheckLeftFlag(1))
 		{
-			if(!ChamberFlags.CheckLeftFlag(1))
-			{
-			ChamberFlags.setLeftChamberFlag(1);
-			ClearTimer('AttackEnd');
-            Sword[currentStance-1].setTracerDelay(0,0);
-			Sword[currentStance-1].SetInitialState();
-			VelocityPinch.ApplyVelocityPinch(,0,0);
-			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
-			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
-			}
-		}
-}
-
-if(ChamberFlags.CheckRightFlag(0))
-{
-	iChamberingCounter += DeltaTime;
-	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID])
-		{
-		ChamberFlags.setRightChamberFlag(1);
-			 
-	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
-	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
-		}
-}
-else if(!ChamberFlags.CheckRightFlag(0) && iChamberingCounter > 0 && !ChamberFlags.CheckLeftFlag(2))
-{
-
-	iChamberingCounter += DeltaTime;
-	//If rightclick was released before windup... procede to windup time and then blend to idle
-	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID] && !ChamberFlags.CheckRightFlag(1))
-		{
-			DebugPrint("Chamber End");
-			iChamberingCounter = 0;
-			// AttackEnd();
-			if(isBlock() == 0)
-			{
-			AttackSlot[0].StopCustomAnim(0.4);
-			AttackSlot[1].StopCustomAnim(0.4);
-			}
+		if(role < ROLE_Authority)
+			ServerChamber(true);
+			ChamberGate(true);
 		}
 }
 }
@@ -1355,7 +1335,28 @@ reliable server function ServerReplicateDamage(int DamagePerTracer, Controller D
 {
 	ReplicateDamage( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
 }
+reliable server function ServerChamber(bool Active)
+{
+	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Chamber(Active, PlayerReplicationInfo.PlayerID);
+	ChamberGate(active);
+}
 // Replicate_Damage(DamagePerTracer, HitLocation, sVelocity * Knockback);
+reliable client function ClientChamberReplication(bool Active, int PlayerID)
+{
+	local EmberPawn Receiver;
+	local playerreplicationinfo PRI;
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player who sent the packet
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+		{
+			PRI = Receiver.playerreplicationinfo;
+			Receiver.ChamberGate(Active, EmberReplicationInfo(PRI).ServerAttackPacket.ServerAnimAttack);
+		}
+		
+    }
+}
 /*
 ClientAttackAnimReplication
 	Client recieves animation and plays it
@@ -1388,7 +1389,7 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
 				Receiver.VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack] * 1.1);
 			}
 
-        	Receiver.AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AnimAttack],
+        	Receiver.AttackSlot[0].PlayCustomAnimByDuration(aFramework.ServerAnimationNames		[AnimAttack],
         													aFramework.ServerAnimationDuration	[AnimAttack], 
         													aFramework.ServerAnimationFadeIn	[AnimAttack], 
         													aFramework.ServerAnimationFadeOut	[AnimAttack]);
@@ -1405,7 +1406,7 @@ reliable client function ClientBlockReplication(int PlayerID)
 		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
 		{
 			//Tell that pawn to switch stances
-			if(Receiver.Sword[Receiver.currentStance-1].isBlock == 0)
+			if(Receiver.isBlock() == 0)
 				Receiver.doBlock();
 			else
 				Receiver.stopBlock();
