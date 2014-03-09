@@ -42,11 +42,11 @@ replication
 		ServerAttackPacket, ServerStancePacket, ServerBlockPacket,
 		ServerChamberPacket;
 }
-simulated function Replicate_Chamber(bool Active,int PlayerID)
+simulated function Replicate_Chamber(bool Active, int cPlayerID)
 {
 	local ServerChamberPacketStruct tStruct;
 
-	tStruct.ServerTargetPawn = PlayerID;
+	tStruct.ServerTargetPawn = cPlayerID;
 	// tStruct.DirtyBit = !ServerChamberPacket.DirtyBit;
 	tStruct.ChamberActive = Active;
 
@@ -57,11 +57,11 @@ Replicate_Damage
 	Gets information from sword.uc and transmits
 	We use playerID here because that particular player will take the damage
 */
-simulated function Replicate_DoBlock(int PlayerID)
+simulated function Replicate_DoBlock(int cPlayerID)
 {
 	local ServerBlockPacketStruct tStruct;
 
-	tStruct.ServerTargetPawn = PlayerID;
+	tStruct.ServerTargetPawn = cPlayerID;
 	tStruct.DirtyBit = !ServerBlockPacket.DirtyBit;
 
 	ServerBlockPacket = tStruct;
@@ -103,7 +103,7 @@ simulated function copyToServerAttackStruct(int AnimAttack, int TargetPawn)
 simulated event ReplicatedEvent(name VarName)
 {
 	local EmberPlayerController PC;
-	local pawn Sender;
+	// local pawn Sender;
 	local pawn Receiver;
 	// local EmberPawn eppawn;
 

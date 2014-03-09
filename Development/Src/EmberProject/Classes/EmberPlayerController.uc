@@ -70,6 +70,149 @@ state Dead
   }
 }
 
+function ReplicateMove
+(
+  float DeltaTime,
+  vector NewAccel,
+  eDoubleClickDir DoubleClickMove,
+  rotator DeltaRot
+)
+{
+  local SavedMove NewMove, OldMove, AlmostLastMove, LastMove;
+  local byte ClientRoll;
+  local float NetMoveDelta;
+
+  // do nothing if we are no longer connected
+  if (Player == None)
+  {
+    return;
+  }
+
+  MaxResponseTime = Default.MaxResponseTime * WorldInfo.TimeDilation;
+  DeltaTime = ((Pawn != None) ? Pawn.CustomTimeDilation : CustomTimeDilation) * FMin(DeltaTime, MaxResponseTime);
+
+  // find the most recent move (LastMove), and the oldest (unacknowledged) important move (OldMove)
+  // a SavedMove is interesting if it differs significantly from the last acknowledged move
+  if ( SavedMoves != None )
+  {
+    LastMove = SavedMoves;
+    AlmostLastMove = LastMove;
+    OldMove = None;
+    while ( LastMove.NextMove != None )
+    {
+      // find first important unacknowledged move
+      if ( (OldMove == None) && (Pawn != None) && LastMove.IsImportantMove(LastAckedAccel) )
+      {
+        OldMove = LastMove;
+      }
+      AlmostLastMove = LastMove;
+      LastMove = LastMove.NextMove;
+    }
+  }
+
+  // Get a SavedMove object to store the movement in.
+  NewMove = GetFreeMove();
+  if ( NewMove == None )
+  {
+    return;
+  }
+  NewMove.SetMoveFor(self, DeltaTime, NewAccel, DoubleClickMove);
+
+  // Simulate the movement locally.
+  bDoubleJump = false;
+  ProcessMove(NewMove.Delta, NewMove.Acceleration, NewMove.DoubleClickMove, DeltaRot);
+
+  // see if the two moves could be combined
+  if ( (PendingMove != None) && PendingMove.CanCombineWith(NewMove, Pawn, MaxResponseTime) )
+  {
+    // to combine move, first revert pawn position to PendingMove start position, before playing combined move on client
+    Pawn.SetLocation(PendingMove.GetStartLocation());
+    Pawn.Velocity = PendingMove.StartVelocity;
+    if( PendingMove.StartBase != Pawn.Base )
+    {
+      Pawn.SetBase(PendingMove.StartBase);
+    }
+    Pawn.Floor = PendingMove.StartFloor;
+    NewMove.Delta += PendingMove.Delta;
+    NewMove.SetInitialPosition(Pawn);
+
+    // remove pending move from move list
+    if ( LastMove == PendingMove )
+    {
+      if ( SavedMoves == PendingMove )
+      {
+        SavedMoves.NextMove = FreeMoves;
+        FreeMoves = SavedMoves;
+        SavedMoves = None;
+      }
+      else
+      {
+        PendingMove.NextMove = FreeMoves;
+        FreeMoves = PendingMove;
+        if ( AlmostLastMove != None )
+        {
+          AlmostLastMove.NextMove = None;
+          LastMove = AlmostLastMove;
+        }
+      }
+      FreeMoves.Clear();
+    }
+    PendingMove = None;
+  }
+
+  if( Pawn != None )
+  {
+    Pawn.AutonomousPhysics(NewMove.Delta);
+  }
+  else
+  {
+    AutonomousPhysics(DeltaTime);
+  }
+  NewMove.PostUpdate(self);
+
+  if( SavedMoves == None )
+  {
+    SavedMoves = NewMove;
+  }
+  else
+  {
+    LastMove.NextMove = NewMove;
+  }
+
+  if ( PendingMove == None )
+  {
+    // Decide whether to hold off on move
+    // send moves more frequently in small games where server isn't likely to be saturated
+    if( (Player.CurrentNetSpeed > 10000) && (WorldInfo.GRI != None) && (WorldInfo.GRI.PRIArray.Length <= 10) )
+    {
+      NetMoveDelta = 0.011;
+    }
+    else
+    {
+      NetMoveDelta = FMax(0.0222,2 * WorldInfo.MoveRepSize/Player.CurrentNetSpeed);
+    }
+
+    if( (WorldInfo.TimeSeconds - ClientUpdateTime) * WorldInfo.TimeDilation < NetMoveDelta )
+    {
+      PendingMove = NewMove;
+      return;
+    }
+  }
+
+  ClientUpdateTime = WorldInfo.TimeSeconds;
+
+  // Send to the server
+  ClientRoll = (Rotation.Roll >> 8) & 255;
+
+  CallServerMove( NewMove,
+      ((Pawn == None) ? Location : Pawn.Location),
+      ClientRoll,
+      ((Pawn.Rotation.Yaw & 65535) << 16) + (Pawn.Rotation.Pitch & 65535),
+      OldMove );
+
+  PendingMove = None;
+}
+
 
 // simulated event ReplicatedEvent(name VarName)
 // {
@@ -77,21 +220,9 @@ state Dead
 //   DebugPrint("Rep Event Received - "@VarName);
 //   // if(VarName == 'PlayerReplicationInfo' )
 //           // EmberPawn(pawn).SetUpCharacterMesh();
-//      if(VarName == 'PostBeginCharacterInformation' )
+//      if(VarName == 'TargetViewRotation' )
 //      {
-//         // ForEach LocalPlayerControllers(class'EmberPlayerController', PC)
-//             // EmberPlayerController(PC).resetMesh();
-//          // foreach Worldinfo.AllActors( class'EmberPlayerController', PC ) 
-//          EmberPawn(pawn).SetUpCharacterMesh();
-//     // resetMesh();         
-//     // ForEach LocalPlayerControllers(class'PlayerController', PC)
-//     // {
-//     //   DebugPrint("PostBeginCharacterInformation");
-//     //   // if ( PC.PlayerReplicationInfo == self )
-//     //   // {
-//     //     EmberPlayerController(PC).SaveMeshValues();
-//     //   // }
-//     // }
+//       DebugPrint("ffs");
 //      }
 //      else
 //      {
@@ -169,7 +300,7 @@ exec function StopFire(optional byte FireModeNum )
 /*
 UpdateRotation
 */
-simulated function UpdateRotation( float DeltaTime )
+function UpdateRotation( float DeltaTime )
 {
    local Rotator   DeltaRot, newRotation, ViewRotation;
    local vector v1, v2;
@@ -193,29 +324,7 @@ simulated function UpdateRotation( float DeltaTime )
    if(allowPawnRotationWhenStationary == 1)
    {
       // Pawn.FaceRotation(NewRotation, deltatime);
-       v1 = normal(vector(Rotation));
-         v2 = normal(vector(pawn.Rotation));
-         dott = v1 dot v2; 
-         if(dott < pawnRotationDotAngle)
-            interpolateForCameraIsActive = true;
-
-         else if(dott >= 0.95) 
-            interpolateForCameraIsActive = false; 
-
-            if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
-               {
-                  if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
-                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true),DeltaTime); 
-               }
-            if(pitchcc!=NewRotation.pitch)
-               pitchcc = NewRotation.pitch;
-
-               if(EmberPawn(pawn).GetTimeLeftOnAttack() == 0)
-                  Pawn.FaceRotation(NewRotation, deltatime);
-   }
-   else
-   {
-      if(VSize(pawn.Velocity) != 0) 
+            if(VSize(pawn.Velocity) != 0) 
       {
          // Pawn.FaceRotation(NewRotation, deltatime);
           v1 = normal(vector(Rotation));
@@ -237,6 +346,31 @@ simulated function UpdateRotation( float DeltaTime )
             if(pitchcc!=NewRotation.pitch)
                pitchcc = NewRotation.pitch;
       }
+      else
+      {
+        
+      
+       v1 = normal(vector(Rotation));
+         v2 = normal(vector(pawn.Rotation));
+         dott = v1 dot v2; 
+         if(dott < pawnRotationDotAngle)
+            interpolateForCameraIsActive = true;
+
+         else if(dott >= 0.95) 
+            interpolateForCameraIsActive = false; 
+
+            if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
+               {
+                  // if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
+                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true),DeltaTime); 
+                     TargetViewRotation = RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true);
+                     // SetRotation(RInterpTo(ViewRotation, DeltaRot, DeltaTime, 100, true));
+               }
+            if(pitchcc!=NewRotation.pitch)
+               pitchcc = NewRotation.pitch;
+}
+               // if(EmberPawn(pawn).GetTimeLeftOnAttack() == 0)
+               //    Pawn.FaceRotation(NewRotation, deltatime);
    }
 
 //================================
@@ -248,8 +382,14 @@ simulated function UpdateRotation( float DeltaTime )
 
       //    }
 ViewShake( DeltaTime );
+if(role < ROLE_Authority)
+  ServerUpdateRotation(DeltaTime);
 }   
 
+unreliable Server function ServerUpdateRotation(float DeltaTime)
+{
+  UpdateRotation(DeltaTime);
+}
 /* 
 PostBeginPlay
 */
@@ -394,8 +534,8 @@ EmberPawn(pawn).SheatheWeapon();
 
 exec function TempTaunt()
 {
-  local EmberPawn pawner;
-  local EmberPlayerController PC;
+  // local EmberPawn pawner;
+  // local EmberPlayerController PC;
   // local SoundCue taunt;
   // taunt = SoundCue'EmberSounds.Taunts';
   // PlaySound(taunt);
@@ -411,9 +551,9 @@ exec function TempTaunt()
 // Trace(vecty, nub, TraceStart, TraceEnd);
 // DebugPrint(""@vecty);
 // AI = Spawn(class'TestPawn', , ,vecty);
-updatePlayerMeshes++;
+// updatePlayerMeshes++;
 // EmberReplicationInfo(playerreplicationinfo).updateMesh = updatePlayerMeshes; 
-DebugPrint("pp -"@updatePlayerMeshes);
+// DebugPrint("pp -"@updatePlayerMeshes);
   // foreach Worldinfo.AllActors( class'EmberPawn', pawner ) 
   // {
   //   DebugPrint("pawner"@pawner);

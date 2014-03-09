@@ -79,7 +79,7 @@ var struct AttackPacketStruct
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
 	local int OldHealth;
-local int i;
+// local int i;
 	if(Momentum.Z < 50) Momentum.Z = 50;
 	// Velocity.Z *= 1.20;
 
@@ -111,7 +111,7 @@ local int i;
 	tDamage = true;
 	if(Health <= 0)
 	{
-		i = -1;
+		// i = -1;
 	TestPawnController(Instigator.Controller).TalkToPlayer("I'll be baaaAAAaaaaaaaAAAAck");	
 	}
 	
@@ -578,10 +578,10 @@ function SwordGotHit()
 	AttackSlot[0].PlayCustomAnimByDuration(Sword.aParry.ParryNames[i],Sword.aParry.ParryMods[i], 0, 0, false);
 	}
 }
-function damageDone(float tDamage)
+function damageDone(float tDotamage)
 {
-	local int i;
-tHit = true;
+	// local int i;
+// tHit = true;
 // SeePlayer
 	// if(Health < 150)
 		// Health += tDamage / 2;

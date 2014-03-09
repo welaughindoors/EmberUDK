@@ -32,7 +32,6 @@ function AddDefaultInventory( pawn PlayerPawn )
 
 event InitGame( string Options, out string ErrorMessage )
 {
-    local string InOpt;
     super.InitGame(Options, ErrorMessage);
 	// `log("INITGAME");
  //    InOpt = ParseOption(Options, "MyTeam");

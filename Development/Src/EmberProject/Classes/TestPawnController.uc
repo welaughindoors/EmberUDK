@@ -143,7 +143,7 @@ Begin:
  
 function prepareTheAttack()
 {
-  local float timeToAttack;
+  // local float timeToAttack;
       // timeToAttack = 0.3;
       Focus = thePlayer;
       // DebugPrint("prep");

@@ -301,14 +301,14 @@ simulated function TraceAttack()
    local Vector Start, End, Block, parryEffectLocation;
    local rotator bRotate;
    local traceHitInfo hitInfo;
-   local vector lastTracedVector;
+   // local vector lastTracedVector;
    local Actor hitActor;
         // local float tVel;
         local float fDistance;
         local vector lVect;
         local int i;
           local float tCount;
-          local float lastVectorDot;
+          // local float lastVectorDot;
   bFuckTheAttack = false;
 
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);

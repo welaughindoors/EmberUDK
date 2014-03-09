@@ -106,8 +106,8 @@ function bool CheckRightFlag(int Flag)
 
 DefaultProperties
 {
-	LargestLeftFlag = 0;
-	LargestRightFlag = 0;
+	// LargestLeftFlag = 0;
+	// LargestRightFlag = 0;
 
 	FlagContainer=(0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80);
 

@@ -135,8 +135,12 @@ var bool 					bAttackQueueing;
 var bool 					bRightChambering;
 var float 					iChamberingCounter;
 
+//Used for automated block, to prohibit spamming
+var byte BlockChamberFlag;
 //ID to the attack animation
 var int AttackAnimationID;
+//If player hit something, allow him to immediately do another attack
+var bool AttackAnimationHitTarget;
 
 var struct ForcedAnimLoopPacketStruct
 {
@@ -693,38 +697,38 @@ BodyHitMovement
 	Not used. as doesn't work. Pending Deletion
 	Initial Purpose: When body gets hit on the right, make body move right as if actually hit
 */
-function BodyHitMovement(int hitDirection)
-{
-	local vector eVect;
-	eVect = IKUpperBody.EffectorLocation;
-	IKUpperBodyIncrement = 0;
-	DebugPrint(""@IKUpperBody.EffectorLocation);
-	// switch(hitDirection)
-	// {
-	// 	//If Top/Bottom
-	// 	case 0:
-	// 	case 1:
-	// 	eVect.Y = 0;
-	// 	break;
+// function BodyHitMovement(int hitDirection)
+// {
+// 	local vector eVect;
+// 	eVect = IKUpperBody.EffectorLocation;
+// 	IKUpperBodyIncrement = 0;
+// 	DebugPrint(""@IKUpperBody.EffectorLocation);
+// 	switch(hitDirection)
+// 	{
+// 		//If Top/Bottom
+// 		case 0:
+// 		case 1:
+// 		eVect.Y = 0;
+// 		break;
 
-	// 	//Left attacks
-	// 	case 2:
-	// 	case 4:
-	// 	case 6:
-	// 	eVect.Y = -5;
-	// 	break;
+// 		//Left attacks
+// 		case 2:
+// 		case 4:
+// 		case 6:
+// 		eVect.Y = -5;
+// 		break;
 
-	// 	//Right attacks
-	// 	case 3:
-	// 	case 5:
-	// 	case 7:
-	// 	eVect.Y = 5;
-	// 	break;
+// 		//Right attacks
+// 		case 3:
+// 		case 5:
+// 		case 7:
+// 		eVect.Y = 5;
+// 		break;
 
-	// }
-	// 	IKUpperBody.EffectorLocation = eVect;
-	IKUpperBody_AnimateToggle = true;
-}
+// 	}
+// 		IKUpperBody.EffectorLocation = eVect;
+// 	IKUpperBody_AnimateToggle = true;
+// }
 /*
 CheckIfEnableParry
 	IF player's velocity is <= 20 (essentially stationary)
@@ -758,6 +762,8 @@ simulated function HitBlue()
 {
 	Local CameraAnim ShakeDatBooty;
 	local float shakeAmount;
+
+	AttackAnimationHitTarget = true;
 
   	ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
   	switch(currentStance)
@@ -872,13 +878,13 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
   		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
-if(Role < ROLE_Authority)
-		ServerInitializeAnimationFor(ParentModularComponent);
+// if(Role < ROLE_Authority)
+		// ServerInitializeAnimationFor(ParentModularComponent);
 }
-reliable server function ServerInitializeAnimationFor(SkeletalMeshComponent pmesh)
-{ 
-	PostInitAnimTree(pmesh); 
-}
+// reliable server function ServerInitializeAnimationFor(SkeletalMeshComponent pmesh)
+// { 
+// 	PostInitAnimTree(pmesh); 
+// }
 
 /*
 MoveSwordOutOfCollision
@@ -1053,6 +1059,8 @@ simulated function doAttackQueue()
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
+	if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
+			return;
 	iChamberingCounter = 0;
 	aFramework.CurrentAttackString++;
 	if(aFramework.CurrentAttackString > aFramework.MaxAttacksThatCanBeStringed)
@@ -1125,13 +1133,22 @@ ForcedAnimLoopPacket.blendOut=aFramework.ForcedAnimLoopPacket.blendOut;
 ForcedAnimLoopPacket.tDur=aFramework.ForcedAnimLoopPacket.tDur;
 
 //Insert block anim forcecevilbly. Fuck that word
-forcedAnimLoop(true);
+//forcedAnimLoop(true);
+//=====================================================================
+//Placed it here, cause networking
+AttackSlot[0].PlayCustomAnimByDuration(ForcedAnimLoopPacket.AnimName, ForcedAnimLoopPacket.tDur, ForcedAnimLoopPacket.blendIn, 0);
+//Can't use GetTimeLeftOnAttack because we are not using a tracer timer
+SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');
+//=====================================================================
+
+//Setup a chamber flag
+BlockChamberFlag = BlockChamberFlag | 0x01;
 
 //Cancel timer if active
 ClearTimer('AttackEnd');
 
+//=====================================================================
 //This segment is part of AttackEnd, without the animation reset
-	EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
 	ChamberFlags.removeLeftChamberFlag(2);
 	// JumpAttackSwitch.SetActiveChild(1, 0.3);
     Sword[currentStance-1].SetInitialState();
@@ -1139,7 +1156,7 @@ ClearTimer('AttackEnd');
 	disableMoveInput(false);
     // animationControl();
 //End modded AttackEnd
-
+//=====================================================================
 
 swapToBlockPhysics();
 Sword[currentStance-1].isBlock = 1;
@@ -1153,7 +1170,15 @@ stopBlock
 */
 simulated function stopBlock()
 {
-EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(EmberReplicationInfo(playerreplicationinfo).PlayerID);
+	//IF chamber is active... i.e. letgo before block was done..
+	if((BlockChamberFlag & 0x01) == 0x01)
+	{
+		//Reset the flag (so it'll stopBlock when block is done)
+		BlockChamberFlag = 0;
+
+		return;
+	}
+EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
 freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
 swapToBlockPhysics(false);
 Sword[currentStance-1].isBlock = 0;
@@ -1183,6 +1208,12 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 {
 		if(!freeze)
 		{
+			if(BlockChamberFlag == 0)
+			{
+				freezeAttackSlots();
+				return;
+			}
+			BlockChamberFlag = 0;
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
 			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 		}
@@ -1244,7 +1275,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			Sword[currentStance-1].SetInitialState();
 			VelocityPinch.ApplyVelocityPinch(,0,0);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
-			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 		}
 		else
 		{
@@ -1255,7 +1286,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			SetTimer((aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'AttackEnd');	
 			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
-			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
 		}
 }
 
@@ -1561,8 +1592,6 @@ doAttack
 simulated function doAttack( array<byte> byteDirection)
 {
 
-	local float timerCounter;
-	local float queueCounter;
 	local int totalKeyFlag;
 	// DebugPrint("Pawn ID"@PawnID);
 // testRep++;
@@ -1575,14 +1604,18 @@ simulated function doAttack( array<byte> byteDirection)
 	// ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
 	// {
 	// 	//If one of the pawns has the same ID as the player who sent the packet
-	// 	Receiver.SetupLightEnvironment();
+	// 	DebugPrint("role-"@Receiver.role);
 		
  //    }
  // if(role < ROLE_Authority)
  	// ServerSetupLightEnvironment();
+
+
+
+//Joke function, toss it out later
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
-	// PlaySound(Sword[currentStance-1].SwordSounds[0]);
+
 	totalKeyFlag = 0;
 	savedByteDirection[0] = byteDirection[0];
 	savedByteDirection[1] = byteDirection[1];
@@ -1594,43 +1627,11 @@ simulated function doAttack( array<byte> byteDirection)
 	if((savedByteDirection[1] ^ 1) == 0 ) totalKeyFlag++;
 	if((savedByteDirection[2] ^ 1) == 0 ) totalKeyFlag++;
 	if((savedByteDirection[3] ^ 1) == 0 ) totalKeyFlag++;
-	// queueCounter = 0.55;
-	// queueCounter = 5.55;
+
+		
 
 	FlushPersistentDebugLines();
-	timerCounter = GetTimeLeftOnAttack();
-	DebugPrint("attack Requested"@GetTimeLeftOnAttack());
-	// DebugPrint("animane"@EmberReplicationInfo(playerreplicationinfo).AnimName);
-	// if(timerCounter > queueCounter)
-		// {
-		// DebugPrint("attack Denied");
-		// return;
-		// }
-		// ClearTimer('AttackEnd');
-		if(timerCounter > 0.5)
-		{
-			DebugPrint("b Queue");
-		
-		AttackSlot[0].SetActorAnimEndNotification(true);
-		AttackSlot[1].SetActorAnimEndNotification(true);
-		}
-
-	// blendAttackCounter = (blendAttackCounter > 1) ? 0 : blendAttackCounter;
-	// DebugPrint("blendAttackCounter"@blendAttackCounter);
-
-// 	if(tempBalanceString != 1)
-// {
-// 	if(timerCounter < queueCounter && timerCounter > 0)
-// 		{
-// 		DebugPrint("attack Queued");
-// 		savedByteDirection[4] = 1;
-// 		return;
-// 		}
-// }
-// else if (tempBalanceString == 1)
-// {
-// 	tempBalanceString = 0;
-// }
+	
 //If you jump, it'll still do attack as if you were on ground
 JumpAttackSwitch.SetActiveChild(0, 0.3);
 
@@ -1667,7 +1668,7 @@ JumpAttackSwitch.SetActiveChild(0, 0.3);
 				forwardAttack();
 			break;
 		
-}
+		}
 }
 /*
 setTracers
@@ -1909,11 +1910,6 @@ AttackEnd
 */
 simulated function AttackEnd()
 {
-	DebugPrint("dun -");
-EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
-	// VelocityPinch.ApplyVelocityPinch(,,true);
-//when you jump, now shows jump anim
-
 	ChamberFlags.removeLeftChamberFlag(2);
 	JumpAttackSwitch.SetActiveChild(1, 0.3);
 	//forwardEmberDash.StopCustomAnim(0);
@@ -1921,10 +1917,6 @@ EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
     Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
 	disableMoveInput(false);
-	// disableLookInput(false);
-
-    // Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-    // Mesh.AttachComponentToSocket(Sword.CollisionComponent, 'WeaponPoint');
 
     animationControl();
     aFramework.CurrentAttackString = 0;
@@ -1934,8 +1926,7 @@ EmberGameInfo(WorldInfo.Game).AttackPacket.isActive = false;
     	savedByteDirection[4] = 0;
     	doAttack(savedByteDirection);
     }
-
-	// forwardEmberDash.SetActiveChild(0);
+	AttackAnimationHitTarget = false;
 }
 /*
 SwordGotHit
@@ -2032,16 +2023,17 @@ simulated function tetherLocationHit(vector hit, vector lol, actor Other)
 	// createTether();
 }
 simulated function debugCone(float deltatime)
-{   local Vector HitLocation, HitNormal;
-   local Vector Start, End, Block;
-   local rotator bRotate;
-   local traceHitInfo hitInfo;
-   local Actor hitActor;
-        // local float tVel;
-        local float fDistance;
-        local vector lVect;
-        local int i;
-          local float tCount;
+{  
+ // local Vector HitLocation, HitNormal;
+ //   local Vector Start, End, Block;
+ //   local rotator bRotate;
+ //   local traceHitInfo hitInfo;
+ //   local Actor hitActor;
+ //        // local float tVel;
+ //        local float fDistance;
+ //        local vector lVect;
+ //        local int i;
+ //          local float tCount;
 	// local vector v1, v2, swordLoc;
 	// local rotator swordRot;
 	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', swordLoc, swordRot);
@@ -2383,9 +2375,9 @@ if(Role < ROLE_Authority)
 	ServerChangeStance(currentStance, oldStance);
 
 }
-reliable server function ServerChangeStance(int currentStance, int oldStance)
+reliable server function ServerChangeStance(int ClientCurrentStance, int oldStance)
 {
-	ChangeStance(currentStance);
+	ChangeStance(ClientCurrentStance);
 }
 /*
 SheatheWeapon
@@ -2513,14 +2505,14 @@ defaultproperties
 	NetUpdateFrequency = 400
 	NetPriority=3.2
 	Role = ROLE_Authority
-	RemoteRole = ROLE_Authority
+	RemoteRole = ROLE_AutonomousProxy 
 	cameraCamZOffsetInterpolation=30
 	cameraCamXOffsetMultiplierInterpolation=3.7
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
 	enableInaAudio = 0;
-    GroundSpeed=400.0;
+    GroundSpeed=280.0;
     bAlwaysRelevant=true
 //SkeletalMesh'ArtAnimation.Meshes.ember_player'
 //=============================================
@@ -2545,7 +2537,7 @@ defaultproperties
 	SkeletalMesh=SkeletalMesh'ModularPawn.Meshes.ember_head_01'
 	PhysicsAsset=PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics'
 	AnimtreeTemplate=AnimTree'ArtAnimation.Armature_Tree'
-	AnimSets()=AnimSet'ArtAnimation.AnimSets.Armature'
+	AnimSets(0)=AnimSet'ArtAnimation.AnimSets.Armature'
 	Translation=(Z=-49.8)
     bCacheAnimSequenceNodes=false
     AlwaysLoadOnClient=true

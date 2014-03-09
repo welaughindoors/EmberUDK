@@ -16,7 +16,7 @@ DefaultProperties
     bCastDynamicShadow=true
     RBChannel=RBCC_Pawn
     RBCollideWithChannels=(Default=true, Cloth=true, Pawn=true, Vehicle=true, Untitled3=true, BlockingVolume=true)
-    LightEnvironment=MyLightEnvironment
+    // LightEnvironment=MyLightEnvironment
     bOverrideAttachmentOwnerVisibility=true
     bAcceptsDynamicDecals=false
     bHasPhysicsAssetInstance=true
