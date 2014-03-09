@@ -81,6 +81,7 @@ function setChildModularItems()
 		newModule.SetSkeletalMesh(ComponentList[i]);
 		//Set the parent animation component (the head)
 		newModule.SetParentAnimComponent(ParentModularItem);
+		// newModule.SetLightEnvironment(MyLightEnvironment);
 		//Set the parent Shadow component (the head)
 		newModule.SetShadowParent(ParentModularItem);
 		//Adds mesh to a list to be accessed by EmberPawn to apply correct lighting to it

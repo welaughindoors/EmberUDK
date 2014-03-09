@@ -395,7 +395,7 @@ function SetupLightEnvironment()
 {
 	local int i;
 	for(i = 0; i < AllMeshs.length; i++)
-		AllMeshs[i].setLightEnvironment(LightEnvironment);
+		AllMeshs[i].setLightEnvironment(self.LightEnvironment);
 }
 /*
 WeaponAttach
@@ -1116,7 +1116,8 @@ doBlock
 */
 simulated function doBlock()
 {
-EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
+	//Redoing this because I beleive replication ignores it, if not done at time
+	aFramework.SetUpBlockPacket();
 //can't copy structs in udk, how lame
 ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
 ForcedAnimLoopPacket.blendIn=aFramework.ForcedAnimLoopPacket.blendIn;
@@ -1269,7 +1270,8 @@ simulated function LeftRightClicksAndChambersManagement(float DeltaTime)
 if(ChamberFlags.CheckLeftFlag(0))
 {
 	iChamberingCounter += DeltaTime;
-	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID] - playerreplicationinfo.ExactPing)
+	// if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID] - playerreplicationinfo.ExactPing)
+	if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID])
 		if(!ChamberFlags.CheckLeftFlag(1))
 		{
 		if(role < ROLE_Authority)
@@ -1415,6 +1417,7 @@ reliable client function ClientBlockReplication(int PlayerID)
 }
 reliable server function ServerDoBlock()
 {
+	EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
 	doBlock();
 }
 /*
@@ -1537,6 +1540,19 @@ simulated function forcedAnimEndByParry()
 // 	}
 // 	// return PRI;
 // }
+
+// reliable server function ServerSetupLightEnvironment()
+// {
+// 	 	local EmberPawn Receiver;
+// 	local playerreplicationinfo PRI;
+// 	//Find all local pawns
+// 	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+// 	{
+// 		//If one of the pawns has the same ID as the player who sent the packet
+// 		Receiver.SetupLightEnvironment();
+		
+//     }
+// }
 /*
 doAttack
 	Mastermind of attacks
@@ -1553,7 +1569,17 @@ simulated function doAttack( array<byte> byteDirection)
 // ListPlayerReplicationInfo();
 // self.TakeDamage(10, self.Controller, vect(0,0,0),vect(0,0,0), class'UTDmgType_LinkBeam');
 
-
+ // 	local EmberPawn Receiver;
+	// local playerreplicationinfo PRI;
+	// //Find all local pawns
+	// ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	// {
+	// 	//If one of the pawns has the same ID as the player who sent the packet
+	// 	Receiver.SetupLightEnvironment();
+		
+ //    }
+ // if(role < ROLE_Authority)
+ 	// ServerSetupLightEnvironment();
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
 	// PlaySound(Sword[currentStance-1].SwordSounds[0]);
@@ -2026,21 +2052,22 @@ simulated function debugCone(float deltatime)
 
 
 
-	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
-	Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
-	    hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
-        	DebugPrint("hitc~"@hitInfo.HitComponent);
-        	DebugPrint("hitphy~"@hitInfo.PhysMaterial);
-        	DebugPrint("hiti~"@hitInfo.Item );
-        	DebugPrint("hitbone~"@hitInfo.BoneName  );
+	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
+	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
+	//     hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
+ //        	DebugPrint("hitc~"@hitInfo.HitComponent);
+ //        	DebugPrint("hitphy~"@hitInfo.PhysMaterial);
+ //        	DebugPrint("hiti~"@hitInfo.Item );
+ //        	DebugPrint("hitbone~"@hitInfo.BoneName  );
         	 
-        if(hitInfo.HitComponent != none)
-        {
-        	MoveSwordOutOfCollision(DeltaTime);
-        }
-        else
-        	MoveSwordOutOfCollision(-DeltaTime);
+ //        if(hitInfo.HitComponent != none)
+ //        {
+ //        	MoveSwordOutOfCollision(DeltaTime);
+ //        }
+ //        else
+ //        	MoveSwordOutOfCollision(-DeltaTime);
 
+// SetupLightEnvironment
 
 }
 /*

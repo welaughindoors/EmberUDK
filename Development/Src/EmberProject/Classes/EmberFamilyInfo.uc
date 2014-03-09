@@ -13,7 +13,7 @@ defaultproperties
 
 	PhysAsset=PhysicsAsset'ArtAnimation.Meshes.ember_player_Physics'
 	AnimSets(0)=AnimSet'ArtAnimation.AnimSets.Armature'
-
+LightEnvironment=MyLightEnvironment
 	// ArmMeshPackageName="CH_Corrupt_Arms"
 	// ArmMesh=CH_Corrupt_Arms.Mesh.SK_CH_Corrupt_Arms_MaleA_1P
 	// ArmSkinPackageName="CH_Corrupt_Arms"
