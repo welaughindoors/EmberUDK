@@ -54,6 +54,35 @@ event InitGame( string Options, out string ErrorMessage )
 
 // 		return BestStart;
 // }
+event PostLogin(PlayerController NewPlayer)
+{
+		local UTPlayerController PC;
+	local UTGameReplicationInfo GRI;
+
+	Super.PostLogin(NewPlayer);
+
+	PC = UTPlayerController(NewPlayer);
+	if (PC != None)
+	{
+		PC.PlayStartUpMessage(StartupStage);
+		PC.ClientSetSpeechRecognitionObject(SpeechRecognitionData);
+
+		GRI = UTGameReplicationInfo(GameReplicationInfo);
+		if ( bForceMidGameMenuAtStart && !GRI.bStoryMode && !GRI.bMatchHasBegun && (NetWait - PendingMatchElapsedTime > 5) )
+		{
+			UTPlayerReplicationInfo(PC.PlayerReplicationInfo).ShowMidGameMenu(true);
+		}
+	}
+
+	//Custom Ember Function.
+	//Loads a current status of all pawns
+	EmberPlayerController(PC).GetLoadedPawnInformation();
+
+	//@hack: unfortunately the character construction process requires game tick so we can't be paused while
+	// clients are doing it or they will appear to hang on the loading screen
+	Pausers.length = 0;
+	WorldInfo.Pauser = None;
+}
 /*
 RestartPlayer
   Not sure if needed
