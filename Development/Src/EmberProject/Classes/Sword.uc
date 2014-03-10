@@ -22,6 +22,7 @@ var float   tracerTempColourCounter;
 var bool attackIsActive;
 var array<SoundCue> SwordSounds;
 var int tickCounterTillDirectionVector;
+var array<byte> SwordGroupHits;
 
 
 //=============================================
@@ -68,7 +69,7 @@ var byte isBlock;
 var float DamagePerTracer;
 var bool  reduceDamage;
 var float Knockback;
-// var int   currentStance;
+var int   currentStance;
 
 /*
 DebugPrint
@@ -206,14 +207,14 @@ function setDamage(float damage)
 {
   DamagePerTracer = damage;
 }
-// /* 
-//   setStance
-//     sets stance.
-// */
-// function setStance(int s)
-// {
-//   currentStance = s;
-// }
+/* 
+  setStance
+    sets stance.
+*/
+function setStance(int s)
+{
+  currentStance = s;
+}
 function hitEffect(vector HitLocation, rotator roter){
 // local ParticleSystemComponent ProjExplosion;
   
@@ -343,7 +344,7 @@ if(!bTracers)
   for (i = 0; i < interpolatedPoints.Length; i++) 
   {
     oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
-    interpolatedPoints_DidWeHitActor.AddItem(false);
+    // interpolatedPoints_DidWeHitActor.AddItem(false);
   }
 }
 
@@ -450,25 +451,26 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         // DrawDebugLine(Start, End, -1, 0, 0, true);
 // DebugPrint("block end, hit start");
 // for each point, do a trace and get hit info
+//i = 0, starts from hilt
+//interpolated points lenth = tip of blade
   for (i = 0; i < interpolatedPoints.Length; ++i) 
   {
     //if the trace for this particular tracer hasn't hit anything
     // if(interpolatedPoints_DidWeHitActor[i] == false)
     // {
-      if(tracerTempColourCounter < 0.33 && tracerTempColourCounter > 0 )
-      {
+      // if(tracerTempColourCounter < 0.33 && tracerTempColourCounter > 0 )
+      if(i < 5)
         DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], -1, 0, -1, true);
-      }
+      
 
-      else if(tracerTempColourCounter > 0.33 && tracerTempColourCounter < 0.66 )
-      {
-        DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 0, 0, -1, true);
-      }
+      // else if(tracerTempColourCounter > 0.33 && tracerTempColourCounter < 0.66 )
+      else if (i >= 5 && i < 10)
+      DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 0, 0, -1, true);
+    
 
-     else if(tracerTempColourCounter < 1 && tracerTempColourCounter > 0.66)
-     {
+     // else if(tracerTempColourCounter < 1 && tracerTempColourCounter > 0.66)
+     else if (i >= 10 && i < 15)
         DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 34, 139, 34, true);
-    }
 
         interpolatedPoints_TemporaryHitArray.AddItem(Trace(HitLocation, HitNormal, interpolatedPoints[i], oldInterpolatedPoints[i], true, , hitInfo)); 
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
@@ -485,14 +487,12 @@ oldInterpolatedPoints.length = 0;
   for (i = 0; i < interpolatedPoints.Length; ++i) 
     oldInterpolatedPoints.AddItem(interpolatedPoints[i]);
 
-//@Not anymore: We start checking the array backwards. This way we start from tip of sword and head down to the base
-// We check array forwards, don't ask why.
-  for (i = interpolatedPoints.Length - 1; i >= 0; i --) 
-   // for (i = 0; i < interpolatedPoints.Length; ++i) 
+  // for (i = interpolatedPoints.Length - 1; i >= 0; i --) 
+   for (i = 0; i < interpolatedPoints.Length; i++) 
   {
     //if the trace for this particular tracer hasn't hit anything
-    if(interpolatedPoints_DidWeHitActor[i] == false)
-    {
+    // if(interpolatedPoints_DidWeHitActor[i] == false)
+    // {
       //If we hit the sword of the opponent, execute sword parried function
         if(interpolatedPoints_TemporaryHitInfo[i].item == 0)
         {
@@ -511,7 +511,7 @@ oldInterpolatedPoints.length = 0;
           //We hit something, no longer track this trace
           //@TODO: Make it so we can hit multiple actors
           //@TODO: Fix this damage thing to work right
-          interpolatedPoints_DidWeHitActor[i] = true;
+          // interpolatedPoints_DidWeHitActor[i] = true;
           // x = (i > 5) ? 5 : i;
           // x = interpolatedPoints.Length - i;
           // DebugPrint("hit - "$x);
@@ -546,20 +546,43 @@ oldInterpolatedPoints.length = 0;
 
   
   // EmberPawn(interpolatedPoints_TemporaryHitArray[i]).BodyHitMovement(EmberPawn(Owner).AttackPacket.Mods[7]);
-  if( reduceDamage )
-  {
-    //Client only, Actually has 0 use in network
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
-    //Server only. has 0 use in local
-    EmberPawn(Owner).ReplicateDamage(DamagePerTracer/2, Pawn(Owner).Controller,HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
-  }
-  else
-  {
+  //TODO: Keep reduced damage?
+  // if( reduceDamage )
+  // {
+  //   //Client only, Actually has 0 use in network
+  //   interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer/2, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+  //   //Server only. has 0 use in local
+  //   EmberPawn(Owner).ReplicateDamage(DamagePerTracer/2, Pawn(Owner).Controller,HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+  // }
+  // else
+  // {
     //Client only, Actually has 0 use in network
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+
     //Server only. has 0 use in local
-    EmberPawn(Owner).ReplicateDamage(DamagePerTracer,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
-  }
+    //If it's the first group and group hasn't be activated
+    //Hilt group
+    if(i<5 && SwordGroupHits[0] == 0)
+    {
+    SwordGroupHits[0] = 1;
+    // EmberPawn(Owner).ReplicateDamage(DamagePerTracer,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+    EmberPawn(Owner).ReplicateDamage(currentStance, 3,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+    }
+
+    //Middle Group
+    if(i>= 5 && i < 10 && SwordGroupHits[1] == 0)
+    {
+    SwordGroupHits[1] = 1;
+    EmberPawn(Owner).ReplicateDamage(currentStance, 2,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+    }
+
+    //Tip Group
+    if(i>=10 && i < 15 && SwordGroupHits[2] == 0)
+    {
+    SwordGroupHits[2] = 1;
+    EmberPawn(Owner).ReplicateDamage(currentStance, 1,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+    }
+  // }
     DamageAmount+=DamagePerTracer;
 
 
@@ -586,12 +609,12 @@ oldInterpolatedPoints.length = 0;
                 bDidATracerHit = true;
                 
       }
-    }
+    // }
   }
         if(bDidATracerHit)
         {
-        DebugPrint("tDamage -"@DamageAmount);
-        TestPawn(owner).damageDone(DamageAmount);
+        // DebugPrint("tDamage -"@DamageAmount);
+        // TestPawn(owner).damageDone(DamageAmount);
       }
                 bDidATracerHit = false;
 }
@@ -653,6 +676,12 @@ DamageAmount = 0;
 tracerTempColourCounter = 0;
 oldBlock = vect(0,0,0);
 savedEnd = vect(0,0,0);
+
+//Reset array back to 0
+SwordGroupHits.length = 0;
+SwordGroupHits.AddItem(0);
+SwordGroupHits.AddItem(0);
+SwordGroupHits.AddItem(0);
 }
 
 /*

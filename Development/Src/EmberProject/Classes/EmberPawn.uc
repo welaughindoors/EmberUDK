@@ -600,7 +600,7 @@ if(bAttackQueueing)
 		AttackSlot[1].SetActorAnimEndNotification(true);
 }
 
-CheckIfEnableParry();
+// CheckIfEnableParry();
 
 if(debugConeBool)
 debugCone(DeltaTime);
@@ -735,16 +735,16 @@ CheckIfEnableParry
 		Then player is 'parrying'. Actual parry is done in Sword.uc
 	ATM Not used, pending deletion
 */
-function CheckIfEnableParry()
-{
-	if(Sword[currentStance-1].aParry.EnableParryWhenStationary)
-	{
-	if(VSize(velocity) <= 20)
-		ParryEnabled = true;
-		else
-		ParryEnabled = false;
-	}
-}
+// function CheckIfEnableParry()
+// {
+// 	if(Sword[currentStance-1].aParry.EnableParryWhenStationary)
+// 	{
+// 	if(VSize(velocity) <= 20)
+// 		ParryEnabled = true;
+// 		else
+// 		ParryEnabled = false;
+// 	}
+// }
 /*
 RotateHip
 	useless. Pending Deletion
@@ -1341,7 +1341,7 @@ if(Role < ROLE_Authority)
 
 }
 
-simulated function ReplicateDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
+simulated function ReplicateDamage_Calculated(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
 	local EmberPawn Receiver;
 	//Find all local pawns
@@ -1354,8 +1354,47 @@ simulated function ReplicateDamage(int DamagePerTracer, Controller DamageInstiga
 		}
 	}
 
+}
+
+simulated function ReplicateDamage(int Sword_CurrentStance, byte Sword_DamageGroup, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
+{
+	local int TotalGroupDamage;
+
+switch(Sword_CurrentStance)
+{
+	//light
+	case 1:
+		if(Sword_DamageGroup == 1)
+			TotalGroupDamage = 3;
+		if(Sword_DamageGroup == 2)
+			TotalGroupDamage = 4;
+		if(Sword_DamageGroup == 3)
+			TotalGroupDamage = 5;
+	break;
+
+	//Medium
+	case 2:
+		if(Sword_DamageGroup == 1)
+			TotalGroupDamage = 4;
+		if(Sword_DamageGroup == 2)
+			TotalGroupDamage = 5;
+		if(Sword_DamageGroup == 3)
+			TotalGroupDamage = 7;
+	break;
+
+	//Heavy
+	case 3:
+		if(Sword_DamageGroup == 1)
+			TotalGroupDamage = 7;
+		if(Sword_DamageGroup == 2)
+			TotalGroupDamage = 9;
+		if(Sword_DamageGroup == 3)
+			TotalGroupDamage = 11;
+	break;
+}
+
 if(role < ROLE_Authority)
-	ServerReplicateDamage( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
+	ServerReplicateDamage( TotalGroupDamage,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
 
 }
 
@@ -1366,7 +1405,8 @@ reliable server function ServerPlayAnim(int ServerAttackAnimationID)
 }
 reliable server function ServerReplicateDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
-	ReplicateDamage( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
+	`Log(PlayerID$" took Damage - "$DamagePerTracer);
+	ReplicateDamage_Calculated( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
 }
 reliable server function ServerChamber(bool Active)
 {
@@ -2402,7 +2442,7 @@ simulated function overrideStanceChange()
 	WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
 	wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	// Sword[currentStance-1].setStance(currentStance);
+	Sword[currentStance-1].setStance(currentStance);
 }
 //===============================
 // Console Vars
