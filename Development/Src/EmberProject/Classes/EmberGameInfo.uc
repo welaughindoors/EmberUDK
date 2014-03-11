@@ -76,7 +76,7 @@ event PostLogin(PlayerController NewPlayer)
 
 	//Custom Ember Function.
 	//Loads a current status of all pawns
-	EmberPlayerController(PC).GetLoadedPawnInformation();
+	// EmberPlayerController(PC).GetLoadedPawnInformation();
 
 	//@hack: unfortunately the character construction process requires game tick so we can't be paused while
 	// clients are doing it or they will appear to hang on the loading screen

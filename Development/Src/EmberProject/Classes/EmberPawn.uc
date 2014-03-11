@@ -2567,10 +2567,10 @@ AttachComponent(ToBeAttachedItem);
 defaultproperties
 {
 	//TODO: find correct values
-	NetUpdateFrequency = 200
-	NetPriority=3
-	Role = ROLE_Authority
-	RemoteRole = ROLE_AutonomousProxy 
+	// NetUpdateFrequency = 200
+	// NetPriority=3
+	// Role = ROLE_Authority
+	// RemoteRole = ROLE_AutonomousProxy 
 	cameraCamZOffsetInterpolation=30
 	cameraCamXOffsetMultiplierInterpolation=3.7
 	blendAttackCounter=0;

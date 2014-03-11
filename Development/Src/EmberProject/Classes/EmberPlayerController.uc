@@ -70,148 +70,149 @@ state Dead
   }
 }
 
-// function ReplicateMove
-// (
-//   float DeltaTime,
-//   vector NewAccel,
-//   eDoubleClickDir DoubleClickMove,
-//   rotator DeltaRot
-// )
-// {
-//   local SavedMove NewMove, OldMove, AlmostLastMove, LastMove;
-//   local byte ClientRoll;
-//   local float NetMoveDelta;
 
-//   // do nothing if we are no longer connected
-//   if (Player == None)
-//   {
-//     return;
-//   }
+function ReplicateMove
+(
+  float DeltaTime,
+  vector NewAccel,
+  eDoubleClickDir DoubleClickMove,
+  rotator DeltaRot
+)
+{
+  local SavedMove NewMove, OldMove, AlmostLastMove, LastMove;
+  local byte ClientRoll;
+  local float NetMoveDelta;
 
-//   MaxResponseTime = Default.MaxResponseTime * WorldInfo.TimeDilation;
-//   DeltaTime = ((Pawn != None) ? Pawn.CustomTimeDilation : CustomTimeDilation) * FMin(DeltaTime, MaxResponseTime);
+  // do nothing if we are no longer connected
+  if (Player == None)
+  {
+    return;
+  }
 
-//   // find the most recent move (LastMove), and the oldest (unacknowledged) important move (OldMove)
-//   // a SavedMove is interesting if it differs significantly from the last acknowledged move
-//   if ( SavedMoves != None )
-//   {
-//     LastMove = SavedMoves;
-//     AlmostLastMove = LastMove;
-//     OldMove = None;
-//     while ( LastMove.NextMove != None )
-//     {
-//       // find first important unacknowledged move
-//       if ( (OldMove == None) && (Pawn != None) && LastMove.IsImportantMove(LastAckedAccel) )
-//       {
-//         OldMove = LastMove;
-//       }
-//       AlmostLastMove = LastMove;
-//       LastMove = LastMove.NextMove;
-//     }
-//   }
+  MaxResponseTime = Default.MaxResponseTime * WorldInfo.TimeDilation;
+  DeltaTime = ((Pawn != None) ? Pawn.CustomTimeDilation : CustomTimeDilation) * FMin(DeltaTime, MaxResponseTime);
 
-//   // Get a SavedMove object to store the movement in.
-//   NewMove = GetFreeMove();
-//   if ( NewMove == None )
-//   {
-//     return;
-//   }
-//   NewMove.SetMoveFor(self, DeltaTime, NewAccel, DoubleClickMove);
+  // find the most recent move (LastMove), and the oldest (unacknowledged) important move (OldMove)
+  // a SavedMove is interesting if it differs significantly from the last acknowledged move
+  if ( SavedMoves != None )
+  {
+    LastMove = SavedMoves;
+    AlmostLastMove = LastMove;
+    OldMove = None;
+    while ( LastMove.NextMove != None )
+    {
+      // find first important unacknowledged move
+      if ( (OldMove == None) && (Pawn != None) && LastMove.IsImportantMove(LastAckedAccel) )
+      {
+        OldMove = LastMove;
+      }
+      AlmostLastMove = LastMove;
+      LastMove = LastMove.NextMove;
+    }
+  }
 
-//   // Simulate the movement locally.
-//   bDoubleJump = false;
-//   ProcessMove(NewMove.Delta, NewMove.Acceleration, NewMove.DoubleClickMove, DeltaRot);
+  // Get a SavedMove object to store the movement in.
+  NewMove = GetFreeMove();
+  if ( NewMove == None )
+  {
+    return;
+  }
+  NewMove.SetMoveFor(self, DeltaTime, NewAccel, DoubleClickMove);
 
-//   // see if the two moves could be combined
-//   if ( (PendingMove != None) && PendingMove.CanCombineWith(NewMove, Pawn, MaxResponseTime) )
-//   {
-//     // to combine move, first revert pawn position to PendingMove start position, before playing combined move on client
-//     Pawn.SetLocation(PendingMove.GetStartLocation());
-//     Pawn.Velocity = PendingMove.StartVelocity;
-//     if( PendingMove.StartBase != Pawn.Base )
-//     {
-//       Pawn.SetBase(PendingMove.StartBase);
-//     }
-//     Pawn.Floor = PendingMove.StartFloor;
-//     NewMove.Delta += PendingMove.Delta;
-//     NewMove.SetInitialPosition(Pawn);
+  // Simulate the movement locally.
+  bDoubleJump = false;
+  ProcessMove(NewMove.Delta, NewMove.Acceleration, NewMove.DoubleClickMove, DeltaRot);
 
-//     // remove pending move from move list
-//     if ( LastMove == PendingMove )
-//     {
-//       if ( SavedMoves == PendingMove )
-//       {
-//         SavedMoves.NextMove = FreeMoves;
-//         FreeMoves = SavedMoves;
-//         SavedMoves = None;
-//       }
-//       else
-//       {
-//         PendingMove.NextMove = FreeMoves;
-//         FreeMoves = PendingMove;
-//         if ( AlmostLastMove != None )
-//         {
-//           AlmostLastMove.NextMove = None;
-//           LastMove = AlmostLastMove;
-//         }
-//       }
-//       FreeMoves.Clear();
-//     }
-//     PendingMove = None;
-//   }
+  // see if the two moves could be combined
+  if ( (PendingMove != None) && PendingMove.CanCombineWith(NewMove, Pawn, MaxResponseTime) )
+  {
+    // to combine move, first revert pawn position to PendingMove start position, before playing combined move on client
+    Pawn.SetLocation(PendingMove.GetStartLocation());
+    Pawn.Velocity = PendingMove.StartVelocity;
+    if( PendingMove.StartBase != Pawn.Base )
+    {
+      Pawn.SetBase(PendingMove.StartBase);
+    }
+    Pawn.Floor = PendingMove.StartFloor;
+    NewMove.Delta += PendingMove.Delta;
+    NewMove.SetInitialPosition(Pawn);
 
-//   if( Pawn != None )
-//   {
-//     Pawn.AutonomousPhysics(NewMove.Delta);
-//   }
-//   else
-//   {
-//     AutonomousPhysics(DeltaTime);
-//   }
-//   NewMove.PostUpdate(self);
+    // remove pending move from move list
+    if ( LastMove == PendingMove )
+    {
+      if ( SavedMoves == PendingMove )
+      {
+        SavedMoves.NextMove = FreeMoves;
+        FreeMoves = SavedMoves;
+        SavedMoves = None;
+      }
+      else
+      {
+        PendingMove.NextMove = FreeMoves;
+        FreeMoves = PendingMove;
+        if ( AlmostLastMove != None )
+        {
+          AlmostLastMove.NextMove = None;
+          LastMove = AlmostLastMove;
+        }
+      }
+      FreeMoves.Clear();
+    }
+    PendingMove = None;
+  }
 
-//   if( SavedMoves == None )
-//   {
-//     SavedMoves = NewMove;
-//   }
-//   else
-//   {
-//     LastMove.NextMove = NewMove;
-//   }
+  if( Pawn != None )
+  {
+    Pawn.AutonomousPhysics(NewMove.Delta);
+  }
+  else
+  {
+    AutonomousPhysics(DeltaTime);
+  }
+  NewMove.PostUpdate(self);
 
-//   if ( PendingMove == None )
-//   {
-//     // Decide whether to hold off on move
-//     // send moves more frequently in small games where server isn't likely to be saturated
-//     if( (Player.CurrentNetSpeed > 10000) && (WorldInfo.GRI != None) && (WorldInfo.GRI.PRIArray.Length <= 10) )
-//     {
-//       NetMoveDelta = 0.011;
-//     }
-//     else
-//     {
-//       NetMoveDelta = FMax(0.0222,2 * WorldInfo.MoveRepSize/Player.CurrentNetSpeed);
-//     }
+  if( SavedMoves == None )
+  {
+    SavedMoves = NewMove;
+  }
+  else
+  {
+    LastMove.NextMove = NewMove;
+  }
 
-//     if( (WorldInfo.TimeSeconds - ClientUpdateTime) * WorldInfo.TimeDilation < NetMoveDelta )
-//     {
-//       PendingMove = NewMove;
-//       return;
-//     }
-//   }
+  // if ( PendingMove == None )
+  // {
+  //   // Decide whether to hold off on move
+  //   // send moves more frequently in small games where server isn't likely to be saturated
+  //   if( (Player.CurrentNetSpeed > 10000) && (WorldInfo.GRI != None) && (WorldInfo.GRI.PRIArray.Length <= 10) )
+  //   {
+  //     NetMoveDelta = 0.011;
+  //   }
+  //   else
+  //   {
+  //     NetMoveDelta = FMax(0.0222,2 * WorldInfo.MoveRepSize/Player.CurrentNetSpeed);
+  //   }
 
-//   ClientUpdateTime = WorldInfo.TimeSeconds;
+  //   if( (WorldInfo.TimeSeconds - ClientUpdateTime) * WorldInfo.TimeDilation < NetMoveDelta )
+  //   {
+  //     PendingMove = NewMove;
+  //     return;
+  //   }
+  // }
 
-//   // Send to the server
-//   ClientRoll = (Rotation.Roll >> 8) & 255;
+  ClientUpdateTime = WorldInfo.TimeSeconds;
 
-//   CallServerMove( NewMove,
-//       ((Pawn == None) ? Location : Pawn.Location),
-//       ClientRoll,
-//       ((Pawn.Rotation.Yaw & 65535) << 16) + (Pawn.Rotation.Pitch & 65535),
-//       OldMove );
+  // Send to the server
+  ClientRoll = (Rotation.Roll >> 8) & 255;
 
-//   PendingMove = None;
-// }
+  CallServerMove( NewMove,
+      ((Pawn == None) ? Location : Pawn.Location),
+      ClientRoll,
+      ((Rotation.Yaw & 65535) << 16) + (Rotation.Pitch & 65535),
+      OldMove );
+
+  PendingMove = None;
+}
 /*
 GetLoadedPawnInformation
   Gets all the information about pawns (like current stanses)
