@@ -71,6 +71,8 @@ var bool  reduceDamage;
 var float Knockback;
 var int   currentStance;
 
+//TestPawn can't use functional damage, so gotta hardcode it. What a pain
+var bool bOwnerIsTestPawn;
 /*
 DebugPrint
   Easy way to print out debug messages
@@ -291,6 +293,10 @@ TraceSwordVec
 // }
 // savedEnd = End;
 // }
+function OwnerIsTestPawn()
+{
+  bOwnerIsTestPawn=true;
+}
 /*
 TraceAttack
   Trace the actual attack
@@ -556,8 +562,6 @@ oldInterpolatedPoints.length = 0;
   // }
   // else
   // {
-    //Client only, Actually has 0 use in network
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(DamagePerTracer, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
 
     //Server only. has 0 use in local
     //If it's the first group and group hasn't be activated
@@ -567,6 +571,9 @@ oldInterpolatedPoints.length = 0;
     SwordGroupHits[0] = 1;
     // EmberPawn(Owner).ReplicateDamage(DamagePerTracer,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
     EmberPawn(Owner).ReplicateDamage(currentStance, 3,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+
+    //Client only, Actually has 0 use in network
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(14, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     }
 
     //Middle Group
@@ -574,6 +581,12 @@ oldInterpolatedPoints.length = 0;
     {
     SwordGroupHits[1] = 1;
     EmberPawn(Owner).ReplicateDamage(currentStance, 2,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+
+    //Client only, Actually has 0 use in network
+    if(bOwnerIsTestPawn)
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(10, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    else
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(EmberPawn(Owner).SinglePlayer_Damage(currentStance, 2), Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     }
 
     //Tip Group
@@ -581,6 +594,12 @@ oldInterpolatedPoints.length = 0;
     {
     SwordGroupHits[2] = 1;
     EmberPawn(Owner).ReplicateDamage(currentStance, 1,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+
+    //Client only, Actually has 0 use in network
+    if(bOwnerIsTestPawn)
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(8, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    else
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(EmberPawn(Owner).SinglePlayer_Damage(currentStance, 1), Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     }
   // }
     DamageAmount+=DamagePerTracer;

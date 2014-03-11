@@ -465,6 +465,7 @@ simulated function WeaponAttach()
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
 
+    currentStance = 1;
 
 SetUpCosmetics();
 overrideStanceChange();
@@ -1355,6 +1356,37 @@ simulated function ReplicateDamage_Calculated(int DamagePerTracer, Controller Da
 	}
 
 }
+//This is for single player only. Might be removed later / merged with below:
+simulated function int SinglePlayer_Damage(int Sword_CurrentStance, byte Sword_DamageGroup)
+{
+	local int TotalGroupDamage;
+
+	switch(Sword_CurrentStance)
+	{
+		//light
+		case 1:
+			if(Sword_DamageGroup == 1) TotalGroupDamage = 3;
+			if(Sword_DamageGroup == 2) TotalGroupDamage = 4;
+			if(Sword_DamageGroup == 3) TotalGroupDamage = 5;
+		break;
+
+		//Medium
+		case 2:
+			if(Sword_DamageGroup == 1) TotalGroupDamage = 4;
+			if(Sword_DamageGroup == 2) TotalGroupDamage = 5;
+			if(Sword_DamageGroup == 3) TotalGroupDamage = 7;
+		break;
+
+		//Heavy
+		case 3:
+			if(Sword_DamageGroup == 1) TotalGroupDamage = 7;
+			if(Sword_DamageGroup == 2) TotalGroupDamage = 9;
+			if(Sword_DamageGroup == 3) TotalGroupDamage = 11;
+		break;
+	}
+
+	return TotalGroupDamage;
+}
 
 simulated function ReplicateDamage(int Sword_CurrentStance, byte Sword_DamageGroup, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
@@ -1364,32 +1396,23 @@ switch(Sword_CurrentStance)
 {
 	//light
 	case 1:
-		if(Sword_DamageGroup == 1)
-			TotalGroupDamage = 3;
-		if(Sword_DamageGroup == 2)
-			TotalGroupDamage = 4;
-		if(Sword_DamageGroup == 3)
-			TotalGroupDamage = 5;
+		if(Sword_DamageGroup == 1) TotalGroupDamage = 3;
+		if(Sword_DamageGroup == 2) TotalGroupDamage = 4;
+		if(Sword_DamageGroup == 3) TotalGroupDamage = 5;
 	break;
 
 	//Medium
 	case 2:
-		if(Sword_DamageGroup == 1)
-			TotalGroupDamage = 4;
-		if(Sword_DamageGroup == 2)
-			TotalGroupDamage = 5;
-		if(Sword_DamageGroup == 3)
-			TotalGroupDamage = 7;
+		if(Sword_DamageGroup == 1) TotalGroupDamage = 4;
+		if(Sword_DamageGroup == 2) TotalGroupDamage = 5;
+		if(Sword_DamageGroup == 3) TotalGroupDamage = 7;
 	break;
 
 	//Heavy
 	case 3:
-		if(Sword_DamageGroup == 1)
-			TotalGroupDamage = 7;
-		if(Sword_DamageGroup == 2)
-			TotalGroupDamage = 9;
-		if(Sword_DamageGroup == 3)
-			TotalGroupDamage = 11;
+		if(Sword_DamageGroup == 1) TotalGroupDamage = 7;
+		if(Sword_DamageGroup == 2) TotalGroupDamage = 9;
+		if(Sword_DamageGroup == 3) TotalGroupDamage = 11;
 	break;
 }
 
@@ -2388,6 +2411,8 @@ simulated function ChangeStance(int newStance, int oldStance = -1)
 {
 	if(oldStance == -1) oldStance = currentStance;
 
+	DebugPrint("o-"$currentStance$" 0 nSt-"$newStance);
+
 	switch(oldStance)
 {
 	case 1:
@@ -2542,8 +2567,8 @@ AttachComponent(ToBeAttachedItem);
 defaultproperties
 {
 	//TODO: find correct values
-	NetUpdateFrequency = 400
-	NetPriority=3.2
+	NetUpdateFrequency = 200
+	NetPriority=3
 	Role = ROLE_Authority
 	RemoteRole = ROLE_AutonomousProxy 
 	cameraCamZOffsetInterpolation=30

@@ -80,7 +80,7 @@ Recently Completed:
 
 ####Inathero
 - ~~Better Queuing of attacks on left click (hold)~~
-- Chamber Attacks and feints on right click (hold/tap)
+- ~~Chamber Attacks and feints on right click (hold/tap)~~
 - Basic Velocity Pinching on attacks
 - Basic Jump Velocity Pinching on landing
 - Basic Knockback (but per stance)
@@ -95,25 +95,31 @@ Recently Completed:
 - API's for modular items.
 - TestPawn uses medium AttackFramework
 - Made collision between pawn and cape
-- Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)
-- Attack Locks (on heavies)
+- ~~Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)~~
+- Attack Locks (pending usage)
 - Remade pawn rendering code to use modular method rather than static
 - Created blocking code to block attacks using a physics asset
 - When getting hit/hitting, temp animation freeze to make the attack feel like it has weight
+- Unable to cancel animation when 0.5s+ of it remains. However if you hit something, you can attack again regardless of time left
+- 3 Damage groups per sword - Sword tip, middle, and hilt. Damage scales from each group differently
+- Mini-freeze when hitting something. Gives an extra 'oomf' feeling.
+
 
 ####AI by Inathero
 - Will follow player on sight and attack on sight (can enable/disable this w/ console commands)
 - Uses entire medium attack framework for attacks currently
-- Is able to read the player's moves and setup parries to counter player
-- Is able to undergo feints in heated combat to trick and damage player in accordance to player's attacks (very basic. am working).
+- ~~Is able to read the player's moves and setup parries to counter player~~
+- ~~Is able to undergo feints in heated combat to trick and damage player in accordance to player's attacks (very basic. am working~~
+- ^-- Were disabled in favor for multiplayer (functions it relied on were single player exclusive)
 
 ####Networking by Inathero
 - Modular Pawns (lighting not being replicated to clients)
 - ALL attack animations (in a super bandwidth saving way)
 - Stance changes
 - Damage to/from EmberPawns (can't damage TestPawns)
-- Blocking
+- Blocking (needs fixing)
 - Chambering (needs testing)
+- New damage groups
 
 ####Admininistrator
 - Essentially all the Animations

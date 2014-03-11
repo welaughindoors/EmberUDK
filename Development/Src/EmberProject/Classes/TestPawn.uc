@@ -472,7 +472,7 @@ function WeaponAttach()
 {
 	 Sword = Spawn(class'Sword', self);
 	 Mesh.AttachComponentToSocket(Sword.Mesh, 'WeaponPoint');
-		Sword.setDamage(15);
+		Sword.OwnerIsTestPawn();
 		AttackPacket.Mods.AddItem(0);
 		AttackPacket.Mods.AddItem(0);
 		AttackPacket.Mods.AddItem(0);
@@ -481,7 +481,6 @@ function WeaponAttach()
 		AttackPacket.Mods.AddItem(2);
 	 // Sword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.flammard');  
 }
-
 
 /*
 Dying
