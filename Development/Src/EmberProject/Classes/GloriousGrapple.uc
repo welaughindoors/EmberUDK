@@ -143,7 +143,7 @@ function createTether()
 	vc = normal(Vector(ePC.Rotation)) * 50;
 	//vc = Owner.Rotation;
 	
-	ePawn.Mesh.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
+	ePawn.ParentModularComponent.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
 	//pawn location + 100 in direction of player camera
 
 	hitLoc = ePawn.location;
@@ -214,7 +214,7 @@ function createTether()
 
 
 	//Beam Source Point
-	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
+	ePawn.ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
 	ePawn.updateBeamSource(grappleSocket, 0);
 	startLocsArray.AddItem(grappleSocket);
 	
@@ -253,7 +253,7 @@ function tetherCalcs() {
 	//using skeletal mesh editor in UDK
 
 	//dual weapon point is left hand 
-	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
+	ePawn.ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
 	//ePawn.DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
     // wall = ePawn.trace(hitLoc, hitNormal, projectileHitLocation, vc);
     if(extraTether>=1){
@@ -310,7 +310,7 @@ function tetherCalcs() {
 		projectileHitLocation=hitLoc;
 		//work in progress
 	}
-	ePawn.Mesh.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
+	ePawn.ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
 	
 	//save prev tick pos to see change in position
 	prevTetherSourcePos = vc;

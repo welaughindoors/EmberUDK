@@ -584,11 +584,11 @@ Simulated Event Tick(float DeltaTime)
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
 	//=== TETHER ====
-	// if (ePC.isTethering) 
-	// 	{
-	// 		GG.tetherVelocity = velocity;
-	// 		GG.tetherCalcs();		//run calcs every tick tether is active
-	// 	}
+	if (ePC.isTethering) 
+		{
+			GG.tetherVelocity = velocity;
+			GG.tetherCalcs();		//run calcs every tick tether is active
+		}
 
 	if(GG.tetherStatusForVel)
 		{
