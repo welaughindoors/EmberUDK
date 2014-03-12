@@ -81,7 +81,7 @@ function ReplicateMove
 {
   local SavedMove NewMove, OldMove, AlmostLastMove, LastMove;
   local byte ClientRoll;
-  local float NetMoveDelta;
+  // local float NetMoveDelta;
 
   // do nothing if we are no longer connected
   if (Player == None)
@@ -428,6 +428,7 @@ eButtonDown
 */
 exec function eButtonDown()
 {
+  if(EmberPawn(pawn).bAttackGrapple)
    EmberPawn(pawn).tetherBeamProjectile();
 }
 /*

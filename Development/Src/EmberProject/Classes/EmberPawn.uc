@@ -967,16 +967,16 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
 if(!bAttackGrapple)
 {
    cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
-   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.7, 2*fDeltaTime);
+   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3, 2*fDeltaTime);
    cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 2.5*fDeltaTime);
    cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 2.5*fDeltaTime);
 }
 else
 {
-	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -10, 2*fDeltaTime);
+	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -13, 2*fDeltaTime);
    cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
-     cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.85, 2.5*fDeltaTime);
-   cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 2.2, 2.5*fDeltaTime);
+     cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.8, 2.5*fDeltaTime);
+   cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 2.5, 2.5*fDeltaTime);
 }
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
@@ -2593,10 +2593,6 @@ defaultproperties
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
 	bAttackGrapple=false;
-	cameraCamZOffsetInterpolation=30
-	cameraCamXOffsetMultiplierInterpolation=3.7
-	cameraCamYOffsetInterpolation=1
-	cameraCamXOffsetInterpolation=2.2
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
