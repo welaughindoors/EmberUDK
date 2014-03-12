@@ -103,6 +103,7 @@ Recently Completed:
 - Unable to cancel animation when 0.5s+ of it remains. However if you hit something, you can attack again regardless of time left
 - 3 Damage groups per sword - Sword tip, middle, and hilt. Damage scales from each group differently
 - Mini-freeze when hitting something. Gives an extra 'oomf' feeling.
+- Over Shoulder zoom when switching to grapple hook
 
 
 ####AI by Inathero

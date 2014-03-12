@@ -520,6 +520,7 @@ LightStance
 */
 exec function LightStance()
 {
+  EmberPawn(pawn).bAttackGrapple = false;
 EmberPawn(pawn).ChangeStance(1);
 }
 /*
@@ -528,6 +529,7 @@ BalanceStance
 */
 exec function BalanceStance()
 {
+  EmberPawn(pawn).bAttackGrapple = false;
 EmberPawn(pawn).ChangeStance(2);
 }
 /*
@@ -536,6 +538,7 @@ HeavyStance
 */ 
 exec function HeavyStance()
 {
+  EmberPawn(pawn).bAttackGrapple = false;
 EmberPawn(pawn).ChangeStance(3);
 }
 /*
@@ -544,7 +547,9 @@ SheatheWeapon
 */
 exec function SheatheWeapon()
 {
-EmberPawn(pawn).SheatheWeapon(); 
+// EmberPawn(pawn).SheatheWeapon(); 
+EmberPawn(pawn).bAttackGrapple = true;
+
 }
 
 exec function TempTaunt()

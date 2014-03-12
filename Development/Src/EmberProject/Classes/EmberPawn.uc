@@ -63,6 +63,10 @@ var float 			originalSpeed;
 var float cameraCamZOffsetInterpolation;
 var float cameraCamXOffsetMultiplierInterpolation;
 
+var float cameraCamXOffsetInterpolation;
+
+var float cameraCamYOffsetInterpolation;
+
 //=============================================
 // Jump/JetPack System
 //=============================================
@@ -164,6 +168,10 @@ var float enableInaAudio;
 //=============================================
 var array<Sword> Sword;
 var bool  tracerRecordBool;
+
+//Brings camera to shoulder level for grapple aiming
+var bool bAttackGrapple;
+
 // var bool swordBlockIsActive; //temp_fix_for_animation
 //=============================================
 // Camera
@@ -956,20 +964,29 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    //    CurrentCamOffset.X = GetCollisionRadius();
    // }
 
-// if(EmberGameInfo(WorldInfo.Game).pawnsActiveOnPlayer == 0)
-// {
-//    cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
-//    cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.7, 2*fDeltaTime);
-// }
-// else
-// {
-// cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 0, 2*fDeltaTime);
-//    cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
-// }
-   CamStart.Z += CameraZOffset + cameraCamZOffsetInterpolation;
+if(!bAttackGrapple)
+{
+   cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
+   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.7, 2*fDeltaTime);
+   cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 2.5*fDeltaTime);
+   cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 2.5*fDeltaTime);
+}
+else
+{
+	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -10, 2*fDeltaTime);
+   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
+     cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.85, 2.5*fDeltaTime);
+   cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 2.2, 2.5*fDeltaTime);
+}
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
-   CamDirX *= CurrentCameraScale * 2.2;
+   // CamDirX *= CurrentCameraScale * 2.2;
+CamDirX *= CurrentCameraScale * cameraCamXOffsetInterpolation;
+CamDirY *= CurrentCameraScale * cameraCamYOffsetInterpolation;
+   CamStart.Z += CameraZOffset + cameraCamZOffsetInterpolation;
+
+   //Pretty neat affect, but need to work on it
+   //CamStart.X += -50;
 
    if ( (Health <= 0) || bFeigningDeath )
    {
@@ -2444,6 +2461,10 @@ reliable server function ServerChangeStance(int ClientCurrentStance, int oldStan
 {
 	ChangeStance(ClientCurrentStance);
 }
+// simulated function ActivateGrappleHook()
+// {
+// 	bAttackGrapple=true;
+// }
 /*
 SheatheWeapon
 	removes weapon
@@ -2571,8 +2592,11 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+	bAttackGrapple=false;
 	cameraCamZOffsetInterpolation=30
 	cameraCamXOffsetMultiplierInterpolation=3.7
+	cameraCamYOffsetInterpolation=1
+	cameraCamXOffsetInterpolation=2.2
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
 	debugConeBool=false;
