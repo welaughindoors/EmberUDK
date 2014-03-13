@@ -7,7 +7,8 @@ Controls
 - 1    : Fast Stance
 - 2    : Medium Stance
 - 3    : Heavy Stance
-- 4    : Sheathe
+- ~~4    : Sheathe~~
+- 4    : Grapple View
 - Ctrl (hold) : Walk
 - Shift : Dash
 - Left Click (tap): Attack
@@ -21,7 +22,7 @@ Controls
 Console Commands
 ===========
 
-type command as shown here to see a description of what it does
+type command as shown here to see a description of what it does (for most items)
 
 - ep_sword_block_distance
 - ep_sword_block_cone
@@ -40,6 +41,18 @@ type command as shown here to see a description of what it does
 - tethermod 0 0 0
 - setTracers # (default 15)
 
+---
+
+- ep_player_modular Category# Index#
+
+Categories are: Head=1, Torso=2, Arms=3, Hands=4, Legs=5, Feets=6
+Indexs are determined by how many items are in each category. See EmberModularPawn_Cosmetics under SetupComponentList for more details
+
+Be careful when switching head. Switching head can break everything.
+
+---
+
+
 TODO:
 ==========
 
@@ -52,7 +65,7 @@ TODO:
 - Velocity pinching on jumps
 - Advanced parry system
 - Walking blending tweaking
-- Modular Pawns
+- Modular Pawns Advanced
 - IK Nodes control and creation
 - More blocking
 
@@ -104,6 +117,7 @@ Recently Completed:
 - 3 Damage groups per sword - Sword tip, middle, and hilt. Damage scales from each group differently
 - Mini-freeze when hitting something. Gives an extra 'oomf' feeling.
 - Over Shoulder zoom when switching to grapple hook
+- Basic Pawn Modular Component management + Switching on the fly (for customization)
 
 
 ####AI by Inathero

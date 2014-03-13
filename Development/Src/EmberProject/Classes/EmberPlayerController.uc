@@ -582,6 +582,11 @@ exec function TempTaunt()
   //           PC.resetMesh();
   //         }
         // foreach Worldinfo.AllActors( class'EmberPlayerController', PC ) 
+
+}
+exec function ep_player_modular(int Category, int Index)
+{
+          EmberPawn(pawn).ModularPawn_Cosmetics.SwapModularItem(Category, Index);
 }
 //============================================= 
 // Hooks Functions
