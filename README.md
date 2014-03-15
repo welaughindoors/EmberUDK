@@ -3,7 +3,7 @@
 Controls
 ===========
 - WASD : Movement
-- E    : Grapple
+- E    : Grapple (works only in grapple view)
 - 1    : Fast Stance
 - 2    : Medium Stance
 - 3    : Heavy Stance
@@ -118,6 +118,9 @@ Recently Completed:
 - Mini-freeze when hitting something. Gives an extra 'oomf' feeling.
 - Over Shoulder zoom when switching to grapple hook
 - Basic Pawn Modular Component management + Switching on the fly (for customization)
+- Working Crosshair w/ Grapple. Now grapple will go EXACTLY where crosshair is looking
+- Dynamic crosshair, is enabled only during Grapple View.
+- Player's names appear on top of pawns. Not working completely, but 95% of code is done.
 
 
 ####AI by Inathero

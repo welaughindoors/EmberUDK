@@ -937,6 +937,16 @@ simulated event BecomeViewTarget( PlayerController PC )
       }
    }
 }
+function DrawGrappleCrosshairCalcs()
+{
+	local EmberHUD eHUD;
+
+	//Access the hud
+	eHUD=EmberHUD(ePC.myHUD);
+
+	eHud.enableGrappleCrosshair(bAttackGrapple);
+
+}
 
 /*
 CalcCamera
@@ -964,19 +974,22 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    //    CurrentCamOffset.X = GetCollisionRadius();
    // }
 
+
+	DrawGrappleCrosshairCalcs();
+	
 if(!bAttackGrapple)
 {
-   cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
-   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3, 2*fDeltaTime);
-   cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 2.5*fDeltaTime);
-   cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 2.5*fDeltaTime);
+   	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
+   	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3, 2*fDeltaTime);
+   	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 2.5*fDeltaTime);
+   	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 2.5*fDeltaTime);
 }
 else
 {
 	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -13, 2*fDeltaTime);
-   cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
-     cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.8, 2.5*fDeltaTime);
-   cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 2.5, 2.5*fDeltaTime);
+   	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
+   	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.8, 2.5*fDeltaTime);
+   	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 2.5, 2.5*fDeltaTime);
 }
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
@@ -2081,12 +2094,31 @@ simulated function tetherBeamProjectile()
 	local projectile P;
 	local vector newLoc;
 	local rotator rotat;
+	local vector HitLocation, HitNormal;
+	local EmberHUD eHUD;
 	// newLoc = Location;
 	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
+	
+	//Access the hud
+	eHUD=EmberHUD(ePC.myHUD);
+
+	//Do a trace of where the crosshair is facing. Get the HitLocation to tell where the projectile to fire at
+	//TODO: setup different distance than 10000
+	Trace(HitLocation, HitNormal,eHUD.OutStart, eHUD.OutStart + Normal(eHUD.OutRotation)*10000, true); 
+	
+	//If we hit nothing, cancel function
+ 	if(VSize(HitLocation) == 0)
+ 	return;
+
+	//Get Launch Location
 	ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
+	//Spawns projectile at GrappleSocket
 	P = Spawn(class'EmberProjectile',self,,newLoc);
-	newLoc = normal(Vector( ePC.Rotation)) * 50;
+	//We setup vector of where it's going to head
+	newLoc = normal(HitLocation - newLoc) * 20;
+	//We set the owner (custom function) to get OnHit 
 	EmberProjectile(p).setProjectileOwner(self);
+	//We fire projectile along vector
 	p.Init(newLoc);
 }
 /*

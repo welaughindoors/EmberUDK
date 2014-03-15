@@ -136,6 +136,7 @@ return;
 // bRestartLevel =false;
 	pawnsActiveOnPlayer = 0
 	counterForPawns = 0;
+	bUseClassicHUD=true
 	// bNoCollisionFail=true
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
@@ -144,6 +145,4 @@ return;
    MapPrefixes[0]="UDN"
    bDelayedStart = false
    // DefaultInventory(0)=none
-	// bUseClassicHUD=true
-    // bUseClassicHUD=true
 }

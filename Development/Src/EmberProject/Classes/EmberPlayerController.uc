@@ -363,7 +363,10 @@ function UpdateRotation( float DeltaTime )
       }
       else
       {
-        
+        if(EmberPawn(pawn).GetTimeLeftOnAttack() == 0)
+        Pawn.FaceRotation(NewRotation, deltatime);
+        else
+        {
       
        v1 = normal(vector(Rotation));
          v2 = normal(vector(pawn.Rotation));
@@ -376,13 +379,13 @@ function UpdateRotation( float DeltaTime )
 
             if(interpolateForCameraIsActive && allowPawnRotationWhenStationary == 1)
                {
-                  // if(EmberPawn(pawn).GetTimeLeftOnAttack() > 0)
-                     Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true),DeltaTime); 
-                     TargetViewRotation = RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true);
+                Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true),DeltaTime); 
+                TargetViewRotation = RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, interpStationaryAttack, true);
                      // SetRotation(RInterpTo(ViewRotation, DeltaRot, DeltaTime, 100, true));
                }
             if(pitchcc!=NewRotation.pitch)
                pitchcc = NewRotation.pitch;
+             }
 }
                // if(EmberPawn(pawn).GetTimeLeftOnAttack() == 0)
                //    Pawn.FaceRotation(NewRotation, deltatime);
@@ -550,6 +553,7 @@ exec function SheatheWeapon()
 {
 // EmberPawn(pawn).SheatheWeapon(); 
 EmberPawn(pawn).bAttackGrapple = true;
+
 
 }
 
