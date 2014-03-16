@@ -525,8 +525,13 @@ LightStance
 */
 exec function LightStance()
 {
-  EmberPawn(pawn).bAttackGrapple = false;
-EmberPawn(pawn).ChangeStance(1);
+  if(EmberPawn(pawn).bAttackGrapple)
+  {
+    EmberPawn(pawn).bAttackGrapple = false;
+    EmberPawn(pawn).DrawGrappleCrosshairCalcs();
+  }
+
+  EmberPawn(pawn).ChangeStance(1);
 }
 /*
 BalanceStance
@@ -534,8 +539,13 @@ BalanceStance
 */
 exec function BalanceStance()
 {
-  EmberPawn(pawn).bAttackGrapple = false;
-EmberPawn(pawn).ChangeStance(2);
+  if(EmberPawn(pawn).bAttackGrapple)
+  {
+    EmberPawn(pawn).bAttackGrapple = false;
+    EmberPawn(pawn).DrawGrappleCrosshairCalcs();
+  }
+
+  EmberPawn(pawn).ChangeStance(2);
 }
 /*
 HeavyStance
@@ -543,8 +553,13 @@ HeavyStance
 */ 
 exec function HeavyStance()
 {
-  EmberPawn(pawn).bAttackGrapple = false;
-EmberPawn(pawn).ChangeStance(3);
+  if(EmberPawn(pawn).bAttackGrapple)
+  {
+    EmberPawn(pawn).bAttackGrapple = false;
+    EmberPawn(pawn).DrawGrappleCrosshairCalcs();
+  }
+
+  EmberPawn(pawn).ChangeStance(3);
 }
 /*
 SheatheWeapon
@@ -553,9 +568,11 @@ SheatheWeapon
 exec function SheatheWeapon()
 {
 // EmberPawn(pawn).SheatheWeapon(); 
-EmberPawn(pawn).bAttackGrapple = true;
-
-
+  if(!EmberPawn(pawn).bAttackGrapple)
+  {
+    EmberPawn(pawn).bAttackGrapple = true;
+    EmberPawn(pawn).DrawGrappleCrosshairCalcs();
+  }
 }
 
 exec function TempTaunt()
@@ -603,10 +620,6 @@ exec function hookW()
 exec function hookA()
 {
     verticalShift[1] = verticalShift[1] ^ 1;
-    if(verticalShift[0] == 1)
-    {
-      EmberPawn(pawn).RotateHip();
-    }
 }
 exec function hookS()
 {

@@ -73,6 +73,8 @@ var int   currentStance;
 
 //TestPawn can't use functional damage, so gotta hardcode it. What a pain
 var bool bOwnerIsTestPawn;
+
+var array<PhysicsAsset> PhysicsAssetCollection;
 /*
 DebugPrint
   Easy way to print out debug messages
@@ -86,7 +88,15 @@ simulated private function DebugPrint(string sMessage)
 //=============================================
 // Simulated States
 //=============================================
-
+function swapToBlockPhysics(bool bBlock)
+{  
+  if(!bBlock)
+  //normal physics
+    Mesh.setPhysicsAsset(PhysicsAssetCollection[0]);
+  else
+  //block physics
+    Mesh.setPhysicsAsset(PhysicsAssetCollection[1]);
+}
 /*
 Attacking
   Activating this state in EmberPawn when doing attack animation

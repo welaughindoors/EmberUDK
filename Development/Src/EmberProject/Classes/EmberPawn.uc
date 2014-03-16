@@ -154,6 +154,7 @@ var struct ForcedAnimLoopPacketStruct
 	var float tDur;
 } ForcedAnimLoopPacket;
 
+//Current stance (fast/medium/heavy)
 var int currentStance;
 
 var UDKSkelControl_Rotate 	SpineRotator;
@@ -174,17 +175,6 @@ var bool bAttackGrapple;
 //if tether projectile is active, do NOT shoot another
 var bool bTetherProjectileActive;
 
-// var bool swordBlockIsActive; //temp_fix_for_animation
-//=============================================
-// Camera
-//=============================================
-// var float width;
-// var float height;
-/*
-===============================================
-End Variables
-===============================================
-*/
 
 //=============================================
 // Utility Functions
@@ -198,11 +188,6 @@ function DebugPrint(string sMessage)
 {
     ePC.ClientMessage(sMessage);
 }
-// Not Needed, found out that there's an official code that does the same, even has same name >.<
-// function bool isTimerActive(name tName)
-// {
-// 	return GetTimerCount(tName) != -1 ? true : false;
-// }
 
 //=============================================
 // Null Functions
@@ -212,35 +197,7 @@ function DebugPrint(string sMessage)
 event Landed(vector HitNormal, Actor FloorActor);
 simulated function TakeFallingDamage();
 //Disables double directional dodge. Uncomment to renable.
-function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector Cross)
-{
-// 	local float VelocityZ;
-
-// 	if ( Physics == PHYS_Falling )
-// 	{
-// 		TakeFallingDamage();
-// 	}
-
-// 	bDodging = true;
-// 	bReadyToDoubleJump = (JumpBootCharge > 0);
-// 	VelocityZ = Velocity.Z;
-// 	Velocity = DodgeSpeed*Dir + (Velocity Dot Cross)*Cross ;
-
-// 	if ( VelocityZ < -200 )
-// 		Velocity.Z = VelocityZ + DodgeSpeedZ;
-// 	else
-// 		Velocity.Z = DodgeSpeedZ;
-
-// //Edit here to control dodge distance
-// 	Velocity.Z = 75;
-// 	Velocity.X *= 4;
-// 	Velocity.Y *= 4;
-
-// 	CurrentDir = DoubleClickMove;
-// 	SetPhysics(PHYS_Falling);
-// 	SoundGroupClass.Static.PlayDodgeSound(self);
-// 	return true;
-}
+function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector Cross);
 
 //=============================================
 // System Functions
@@ -284,9 +241,6 @@ simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
 
-    //Add pawn to world info to be accessed from anywhere
-   	// EmberGameInfo(WorldInfo.Game).playerPawnWORLD = Self;
-
     aFramework = new class'EmberProject.AttackFramework';
     Dodge = new class'EmberProject.EmberDodge';
     GG = new class'EmberProject.GloriousGrapple';
@@ -299,11 +253,7 @@ simulated event PostBeginPlay()
     aFramework.InitFramework();
 
     SetTimer(0.1, false, 'SetUpCharacterMesh');
-   	SetTimer(0.2, false, 'WeaponAttach'); 
-
-
-// AttackFramework aFramework = new AttackFramework ();
-//Temp delete m
+   	SetTimer(0.11, false, 'WeaponAttach'); 
 
 }
 /*
@@ -404,6 +354,7 @@ SetupLightEnvironment
 	All mesh pieces need to have light environment setup on it
 	Hopefully this isn't resource intensive
 	No light enviro on mesh = black
+	TODO: Find way to make this work in networking
 */
 function SetupLightEnvironment()
 {
@@ -421,73 +372,68 @@ WeaponAttach
 simulated function WeaponAttach() 
 { 
     local Sword tSword;
-    // local UTPlayerController PC;
-  	// PC = UTPlayerController(Instigator.Controller);
-	// EmberPlayerController(PC).resetMesh();
 		
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
 		tSword.setDamage(aFramework.lightDamagePerTracer);
-        Sword.AddItem(tSword);
+		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
         AllMeshs.AddItem(tSword.mesh);
+		Sword.AddItem(tSword);
+
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.mediumSwordMesh);
-		tSword.setDamage(aFramework.mediumDamagePerTracer);
-		// tSword.setPhysicsAsset(2);
+		tSword.setDamage(aFramework.mediumDamagePerTracer);		
+		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
 		AllMeshs.AddItem(tSword.mesh);
         Sword.AddItem(tSword);
+
         tSword = Spawn(class'Sword', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.heavySwordMesh);
 		tSword.setDamage(aFramework.heavyDamagePerTracer);
-        Sword.AddItem(tSword);
+		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
 		AllMeshs.AddItem(tSword.mesh);
+        Sword.AddItem(tSword);
+
         huahs.AddItem(SoundCue'EmberSounds.huahcue1');
-        // huahs.AddItem(SoundNodeWave'EmberSounds.huah2');
-        // huahs.AddItem(SoundNodeWave'EmberSounds.huah3');
-        // huahs.AddItem(SoundNodeWave'EmberSounds.huah4');
+
+        //TODO: Get sheathes for this
         // LightDecoSword = Spawn(class'decoSword', self);
         MediumDecoSword = Spawn(class'decoSword', self);
-        // Helmet = Spawn(class'decoSword', self);
         // HeavyDecoSword = Spawn(class'decoSword', self);
+
         // LightDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
         MediumDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_scabbard_katana');
-        AllMeshs.AddItem(MediumDecoSword.mesh);
-        // Helmet.Mesh.SetSkeletalMesh(SkeletalMesh'Cosmetic.Headband');
-    // Mesh.AttachComponentToSocket(Helmet.Mesh, 'Helmet');
         // HeavyDecoSword.Mesh.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
-    //Sword.SetBase( actor NewBase, optional vector NewFloor, optional SkeletalMeshComponent SkelComp, optional name AttachName );
+        AllMeshs.AddItem(MediumDecoSword.mesh);
+
     ParentModularComponent.AttachComponentToSocket(Sword[0].Mesh, 'WeaponPoint');
     ParentModularComponent.AttachComponentToSocket(Sword[0].CollisionComponent, 'WeaponPoint');
-     // LightAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.gladius');
- // MediumAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana');
- // HeavyAttachComponent.SetSkeletalMesh(SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy');
  
 	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].Mesh, 'KattanaSocket');
     MediumDecoSword.Mesh.AttachComponentToSocket(Sword[1].CollisionComponent, 'KattanaSocket');
+
     ParentModularComponent.AttachComponentToSocket(Sword[2].Mesh, 'HeavyAttach');
     ParentModularComponent.AttachComponentToSocket(Sword[2].CollisionComponent, 'HeavyAttach');
 
- //TODO:Add these back in
+ 	//TODO: Get rest of sheathes to add these back in
     // Mesh.AttachComponentToSocket(LightDecoSword.Mesh, 'LightAttach');
     ParentModularComponent.AttachComponentToSocket(MediumDecoSword.Mesh, 'BalanceAttach');
     // Mesh.AttachComponentToSocket(HeavyDecoSword.Mesh, 'HeavyAttach');
+
     LightDecoSword.Mesh.SetHidden(true);
     MediumDecoSword.Mesh.SetHidden(false);
     HeavyDecoSword.Mesh.SetHidden(false);
 
     currentStance = 1;
 
-SetUpCosmetics();
-overrideStanceChange();
+	SetUpCosmetics();
+	overrideStanceChange();
 
-    	// Sword.Mesh.GetSocketWorldLocationAndRotation('StartControl', jumpLocation, jumpRotation);
-    	// jumpEffects = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', vect(0,0,0), vect(0,0,0), self); 
-    	// WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment( ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue', Sword.Mesh, 'EndControl', true, , );
-		// Sword.Mesh.AttachComponentToSocket(jumpEffects, 'StartControl');
-		// jumpEffects.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Blue');
-		// jumpEffects.ActivateSystem(true);
-//TODO:readd
-	
+
+		//TODO:readd	
 		// setTrailEffects();
 		SetupPlayerControllerReference();
 }
@@ -606,165 +552,24 @@ if(VelocityPinch.bApplyVelocityPinch)
 	VelocityPinch.ApplyVelocityPinch(DeltaTime);
 if(bAttackQueueing)
 {
-	// DebugPrint("chambe active");
+	// DebugPrint("chamber active");
 		AttackSlot[0].SetActorAnimEndNotification(true);
 		AttackSlot[1].SetActorAnimEndNotification(true);
 }
 
-// CheckIfEnableParry();
 
 if(debugConeBool)
 debugCone(DeltaTime);
 
 
-// Sword[1].findActors();
-	// TODO: Move all this to a function
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Prevents Sprint Boost In Air, Remove This Section If Boost Is Required
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	// if(iLikeToSprint)
-	// {
-	// // 	if(Physics == PHYS_Falling)
-	// // 	{
-	// // 		if(tickToggle)
-	// // 		{
-	// // 			// GroundSpeed /= 2.0;
-	// // 			GroundSpeed = originalSpeed;
-	// // 			tickToggle = !tickToggle;	
-	// // 		}
-	// // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// // // Holding shift while in air will lower negative z velocity = Shitty glide
-	// // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// // 	// 	if(velocity.z <= 0)
-	// // 	// 	{
-	// // 	// 		// gravity = WorldInfo.GetGravityZ();
-	// // 	// 		// gravity*= 0.2;
-	// // 	// 	// velocity.z -= (velocity.z * 0.6);
-	// // 	// 	velocity.z = -350;
-	// // 	// 	// DebugPrint("going south" $velocity.z);
-	// // 	// }
-	// // 	}
-	// // 	else
-	// // 	{
-	// // 		if(!tickToggle)
-	// // 		{
-	// // 			originalSpeed = GroundSpeed;
-	// // 			GroundSpeed *= 2.0;
-	// // 			tickToggle = !tickToggle;	
-	// // 		}
-	// // 	}
-
-	// 	if(Physics == PHYS_Falling)
-	// 	{
-	// 		if(tickToggle)
-	// 		{
-	// 			GroundSpeed *= 0.3;
-	// 			// GroundSpeed = originalSpeed;
-	// 			tickToggle = !tickToggle;	
-	// 		}
-	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// // Holding shift while in air will lower negative z velocity = Shitty glide
-	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// 	// 	if(velocity.z <= 0)
-	// 	// 	{
-	// 	// 		// gravity = WorldInfo.GetGravityZ();
-	// 	// 		// gravity*= 0.2;
-	// 	// 	// velocity.z -= (velocity.z * 0.6);
-	// 	// 	velocity.z = -350;
-	// 	// 	// DebugPrint("going south" $velocity.z);
-	// 	// }
-	// 	}
-	// 	else
-	// 	{
-	// 		if(!tickToggle)
-	// 		{
-	// 			// originalSpeed = GroundSpeed;
-	// 			GroundSpeed = originalSpeed;
-	// 			tickToggle = !tickToggle;	
-	// 		}
-	// 	}
-	// }
-
-	// Probably not required
-	// bReadyToDoubleJump = true;
  
 	// if(jumpActive)
 		JumpVelocityPinch(DeltaTime);
 
-
-	// Probably can be removed
-	// if(Physics == PHYS_Walking && jumpActive)
-	// {
-	// 	jumpActive = false;
-	// 	jumpEffects.DeactivateSystem();
-	// }
-
 	animationControl();
 
 } 
-/*
-BodyHitMovement
-	Not used. as doesn't work. Pending Deletion
-	Initial Purpose: When body gets hit on the right, make body move right as if actually hit
-*/
-// function BodyHitMovement(int hitDirection)
-// {
-// 	local vector eVect;
-// 	eVect = IKUpperBody.EffectorLocation;
-// 	IKUpperBodyIncrement = 0;
-// 	DebugPrint(""@IKUpperBody.EffectorLocation);
-// 	switch(hitDirection)
-// 	{
-// 		//If Top/Bottom
-// 		case 0:
-// 		case 1:
-// 		eVect.Y = 0;
-// 		break;
-
-// 		//Left attacks
-// 		case 2:
-// 		case 4:
-// 		case 6:
-// 		eVect.Y = -5;
-// 		break;
-
-// 		//Right attacks
-// 		case 3:
-// 		case 5:
-// 		case 7:
-// 		eVect.Y = 5;
-// 		break;
-
-// 	}
-// 		IKUpperBody.EffectorLocation = eVect;
-// 	IKUpperBody_AnimateToggle = true;
-// }
-/*
-CheckIfEnableParry
-	IF player's velocity is <= 20 (essentially stationary)
-		Then player is 'parrying'. Actual parry is done in Sword.uc
-	ATM Not used, pending deletion
-*/
-// function CheckIfEnableParry()
-// {
-// 	if(Sword[currentStance-1].aParry.EnableParryWhenStationary)
-// 	{
-// 	if(VSize(velocity) <= 20)
-// 		ParryEnabled = true;
-// 		else
-// 		ParryEnabled = false;
-// 	}
-// }
-/*
-RotateHip
-	useless. Pending Deletion
-*/
-simulated function RotateHip()
-{
-	HipRotation.Aim.X = -1;
-	HipRotation.Aim.Y = -1;
-}
 /*
 HitBlue
 	Shakes camera with slight blue tint
@@ -889,13 +694,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
   		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
-// if(Role < ROLE_Authority)
-		// ServerInitializeAnimationFor(ParentModularComponent);
 }
-// reliable server function ServerInitializeAnimationFor(SkeletalMeshComponent pmesh)
-// { 
-// 	PostInitAnimTree(pmesh); 
-// }
 
 /*
 MoveSwordOutOfCollision
@@ -939,6 +738,10 @@ simulated event BecomeViewTarget( PlayerController PC )
       }
    }
 }
+/*
+DrawGrappleCrosshairCalcs
+
+*/
 function DrawGrappleCrosshairCalcs()
 {
 	local EmberHUD eHUD;
@@ -946,6 +749,7 @@ function DrawGrappleCrosshairCalcs()
 	//Access the hud
 	eHUD=EmberHUD(ePC.myHUD);
 
+	//Tell HUD how to draw grapple crosshair (either enable or disable it)
 	eHud.enableGrappleCrosshair(bAttackGrapple);
 
 }
@@ -975,9 +779,6 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    //    CurrentCamOffset = vect(0,0,0);
    //    CurrentCamOffset.X = GetCollisionRadius();
    // }
-
-
-	DrawGrappleCrosshairCalcs();
 	
 if(!bAttackGrapple)
 {
@@ -1169,6 +970,7 @@ ForcedAnimLoopPacket.tDur=aFramework.ForcedAnimLoopPacket.tDur;
 //forcedAnimLoop(true);
 //=====================================================================
 //Placed it here, cause networking
+//TODO: Test it
 AttackSlot[0].PlayCustomAnimByDuration(ForcedAnimLoopPacket.AnimName, ForcedAnimLoopPacket.tDur, ForcedAnimLoopPacket.blendIn, 0);
 //Can't use GetTimeLeftOnAttack because we are not using a tracer timer
 SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');
@@ -1223,14 +1025,10 @@ if(role < ROLE_Authority)
 swapToBlockPhysics
 	Hardcoded currently. Needs fix
 	Swaps between normal sword (does damage) and block (no damage, just block) assets
-	TODO: On creation, have two physics sets, easy swap here
 */
 simulated function swapToBlockPhysics(bool bBlock = true)
 {
-	if(bBlock)
-		Sword[currentStance-1].mesh.setPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
-	else
-		Sword[currentStance-1].mesh.setPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+	Sword[currentStance-1].swapToBlockPhysics(bBlock);
 }
 /*
 freezeAttackSlots
@@ -1277,27 +1075,10 @@ simulated function doChamber()
 	// }
 }
 /*
-stopChamber
-	IIRC Active only when doChamber goes to completion
-	Cancels existing chamber, upper body animation continues
+ChamberGate
+	Used by server as well
+	Gate in determining weather to freeze or play animation, and notify pawn accordingly
 */
-// simulated function stopChamber()
-
-// {
-// 	ChamberFlags.removeRightChamberFlag(0);
-// 	// if(iChamberingCounter >= AttackPacket.Mods[6])
-// 	if(ChamberFlags.CheckRightFlag(1))
-// 	{
-// 			Sword[currentStance-1].GoToState('Attacking');
-//             Sword[currentStance-1].setTracerDelay(0,aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]);
-// 			SetTimer(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID], false, 'AttackEnd');	
-// 			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
-// 	AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
-// 	AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
-// 		AttackSlot[0].SetActorAnimEndNotification(false);
-// 		AttackSlot[1].SetActorAnimEndNotification(false);
-// 	}
-// }
 simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 {
 		if(Active)
@@ -1419,7 +1200,10 @@ simulated function int SinglePlayer_Damage(int Sword_CurrentStance, byte Sword_D
 
 	return TotalGroupDamage;
 }
-
+/*
+ReplicateDamage
+	This is damage that only networking can access
+*/
 simulated function ReplicateDamage(int Sword_CurrentStance, byte Sword_DamageGroup, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
 	local int TotalGroupDamage;
@@ -1458,17 +1242,28 @@ reliable server function ServerPlayAnim(int ServerAttackAnimationID)
 {
 	ePlayAnim(ServerAttackAnimationID);
 }
+/*
+ServerReplicateDamage
+	Server sends out damage to player
+*/
 reliable server function ServerReplicateDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
 	`Log(PlayerID$" took Damage - "$DamagePerTracer);
 	ReplicateDamage_Calculated( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
 }
+/*
+ServerChamber
+	Sends to players if a chamber was activated/deactivated
+*/
 reliable server function ServerChamber(bool Active)
 {
 	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Chamber(Active, PlayerReplicationInfo.PlayerID);
 	ChamberGate(active);
 }
-// Replicate_Damage(DamagePerTracer, HitLocation, sVelocity * Knockback);
+/*
+ClientChamberReplication
+	Client replicates chamber gate
+*/
 reliable client function ClientChamberReplication(bool Active, int PlayerID)
 {
 	local EmberPawn Receiver;
@@ -1523,6 +1318,10 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
     }
     }
 }
+/*
+ClientBlockReplication
+	Client replicates block status
+*/
 reliable client function ClientBlockReplication(int PlayerID)
 {
 	local EmberPawn Receiver;
@@ -1540,6 +1339,10 @@ reliable client function ClientBlockReplication(int PlayerID)
     	}
     }
 }
+/*
+ServerDoBlock
+	Client tells server that it's blocking
+*/
 reliable server function ServerDoBlock()
 {
 	EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
@@ -1647,25 +1450,7 @@ simulated function forcedAnimEndByParry()
 	AttackSlot[1].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 }
 
-// reliable client function ListPlayerReplicationInfo()
-// {
-//     local EmberPlayerController PC;
-//     local EmberPawn P;
-//     local EmberReplicationInfo PRI;
-//     foreach WorldInfo.AllPawns(class'EmberPawn', P)
-// 	{
-// 		// if (PC!=none)
-// 	    // {
-// 	    	PC = P.ePC;
-//             PRI=EmberReplicationInfo(PC.PlayerReplicationInfo);
-//             DebugPrint("Player-"@P@"_AnimName:"@PRI.AnimName);
-//             DebugPrint("players!"@P);
-//             // break;
-// 	    // }
-// 	}
-// 	// return PRI;
-// }
-
+//TODO: Light replication
 // reliable server function ServerSetupLightEnvironment()
 // {
 // 	 	local EmberPawn Receiver;
@@ -1687,26 +1472,8 @@ simulated function doAttack( array<byte> byteDirection)
 {
 
 	local int totalKeyFlag;
-	// DebugPrint("Pawn ID"@PawnID);
-// testRep++;
-// ListPlayerReplicationInfo();
-// self.TakeDamage(10, self.Controller, vect(0,0,0),vect(0,0,0), class'UTDmgType_LinkBeam');
 
- // 	local EmberPawn Receiver;
-	// local playerreplicationinfo PRI;
-	// //Find all local pawns
-	// ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	// {
-	// 	//If one of the pawns has the same ID as the player who sent the packet
-	// 	DebugPrint("role-"@Receiver.role);
-		
- //    }
- // if(role < ROLE_Authority)
- 	// ServerSetupLightEnvironment();
-
-
-
-//Joke function, toss it out later
+	//TODO: Joke function, toss it out later
 	if(enableInaAudio == 1)
 	PlaySound(huahs[0]);
 
@@ -1773,32 +1540,6 @@ exec function setTracers(int tracers)
 {
 	Sword[currentStance-1].setTracers(tracers);
 }
-
-// function rightAttackEnd()
-// {
-// 	DebugPrint("dun -");
-// 	//forwardEmberDash.StopCustomAnim(0);
-//     Sword.SetInitialState();
-//     Sword.resetTracers();
-//     animationControl();
-// }
-/*
-copyToAttackStruct
-	prep'd for replication for later on I think
-	The attack animation, and all the info, in one handy thing
-	set to animation to execute
-*/
-// simulated function copyToAttackStruct(name animName, array<float> mods)
-// {
-// 	local int i;
-// 	AttackPacket.AnimName = animName;
-// 	// EmberGameInfo(WorldInfo.Game).AttackPacket.AnimName = animName;
-// 	for(i = 0; i < mods.length; i++)
-// 	{
-// 		AttackPacket.Mods[i] = mods[i];
-// 		// EmberGameInfo(WorldInfo.Game).AttackPacket.Mods[i] = mods[i];
-// 	}
-// }
 
 /*
 EndPreAttack
@@ -1959,17 +1700,12 @@ simulated function rightAttack()
 }
 /*
 leftAttack
-	Flushes existing debug lines
 	Starts playing left attack animation
 	Sets timer for end attack animation
 	Sets tracer delay
 */
 simulated function leftAttack()
 {
-//ember_temp_left_attack
-	// FlushPersistentDebugLines();
-	DebugPrint("left -");
-
 	switch(currentStance)
 	{
 		case 1:
@@ -2038,49 +1774,33 @@ simulated function animationControl()
 		//Idle
 		if(idleBool == false)
 		{
-		idleBool = true;
-		runBool = false;
-		 if (IdleAnimNodeBlendList.BlendTimeToGo <= 0.f)
-  			{
-  				//Pick a random idle animation
-    			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
-				IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
-    			//Set sword orientation temp_fix_for_animation
-				// Sword.rotate(0,0,16384);
-    			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
-  			}
-  			FullBodyBlendList.SetActiveChild(1,idleBlendTime);//Use Full Body Blending
+			idleBool = true;
+			runBool = false;
+		 	if(IdleAnimNodeBlendList.BlendTimeToGo <= 0.f)
+			 	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
+
+	  		FullBodyBlendList.SetActiveChild(1,idleBlendTime);//Use Full Body Blending
   		}
 	}
 	else
 	{
 		if( runBool == false)
 		{ 
-		idleBool = false;
-		runBool = true;
-		 if (RunAnimNodeBlendList.BlendTimeToGo <= 0.f)
-  			{ 
+			idleBool = false;
+			runBool = true;
+		 	if(RunAnimNodeBlendList.BlendTimeToGo <= 0.f)
+	  			{ 
   				//Pick a random idle animation
-    			// IdleAnimNodeBlendList.SetActiveChild(Rand(IdleAnimNodeBlendList.Children.Length), 0.25f);
-				RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-				RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-				LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-				WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-				wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-				wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-    			//Set sword orientation temp_fix_for_animation
-				// Sword.rotate(0,0,16384);
-    			// Sword.Rotation() Rotation=(Pitch=000 ,Yaw=0, Roll=16384 )
-  			}
+					RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+					RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+					LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+					WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+					wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+					wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+  				}
   			FullBodyBlendList.SetActiveChild(0,idleBlendTime);//Split body blending at spine
   		}
-    	//Set sword orientation, temp_fix_for_animation
-		// Sword.rotate(0,0,49152);
-
 	}
-
-	// if(swordBlockIsActive)//temp_fix_for_animation
-		// Sword.rotate(0,0,49152);
 }
 /*
 tetherBeamProjectile
@@ -2132,11 +1852,6 @@ simulated function tetherLocationHit(vector hit, vector lol, actor Other)
 {
 	GG.tetherLocationHit(hit, lol, Other);
 	bTetherProjectileActive = false;
-	// projectileHitVector=hit;
-	// projectileHitLocation=lol;
-	// enemyPawn = Other;
-	// enemyPawnToggle = (enemyPawn != none) ? true : false;
-	// createTether();
 }
 simulated function debugCone(float deltatime)
 {  
@@ -2210,29 +1925,6 @@ detachTether
 simulated function detachTether() 
 {
 	GG.detachTether();
-	// curTargetWall = none;
-
-	// enemyPawn = enemyPawnToggle ? enemyPawn : none;
-
-	// //beam
-	// if(tetherBeam != none){
-	// 	tetherBeam.SetHidden(true);
-	// 	tetherBeam.DeactivateSystem();
-	// 	tetherBeam = none;
-	// }
-	// 	if(tetherBeam2 != none){
-	// 	tetherBeam2.SetHidden(true);
-	// 	tetherBeam2.DeactivateSystem();
-	// 	tetherBeam2 = none;
-	// }
-	
-	// // SetPhysics(PHYS_Walking);
- //        //state
-	//  EmberGameInfo(WorldInfo.Game).playerControllerWORLD.isTethering = false;
-
-	// //make sure to restore normal pawn animation playing
-	// //see last section of tutorial
-	//TetheringAnimOnly = false;
 }
 
 /*
@@ -2353,22 +2045,11 @@ simulated function deleteBlock(GrappleRopeBlock block)
 	g.Destroy();
 	return;
 }
-// Destroy
-//~~~~~~~~~~~~~~~~~~~~~~~~~~
-//Rama's Tether System Calcs
-//~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//these calcs run every tick while tether is active
-//so the code is optimized to reduce
-//variable memory allocation and deallocation
-//I use global vars vc and vc2 as variables to store different
-//info I need for my tether algorithm
-
-//the other vars are also global since they are assigned values
-//in other tether functions
-//and their values should NOT be recalculated every tick
-
-//Is controlled in GloriousGrapple.uc
+/*
+tetherCalcs
+	calculations for tether
+	runs per tick
+*/
 simulated function tetherCalcs() {
 	GG.tetherCalcs();
 }
@@ -2376,6 +2057,7 @@ simulated function tetherCalcs() {
 /*
 SetSwordState
 	true = hand, false = nowhere
+	pending deletion
 */
 exec function SetSwordState(bool inHand)
 {
@@ -2384,6 +2066,7 @@ exec function SetSwordState(bool inHand)
 }
 /*
 GetSwordState
+pending deletion
 */
 simulated function bool GetSwordState()
 {
