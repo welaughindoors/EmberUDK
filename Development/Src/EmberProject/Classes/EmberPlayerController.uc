@@ -399,6 +399,7 @@ function UpdateRotation( float DeltaTime )
       // { 
 
       //    }
+      bForceNetUpdate=true;
 ViewShake( DeltaTime );
 // if(role < ROLE_Authority)
   // ServerUpdateRotation(DeltaTime);

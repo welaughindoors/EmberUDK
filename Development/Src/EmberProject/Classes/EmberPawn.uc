@@ -171,6 +171,8 @@ var bool  tracerRecordBool;
 
 //Brings camera to shoulder level for grapple aiming
 var bool bAttackGrapple;
+//if tether projectile is active, do NOT shoot another
+var bool bTetherProjectileActive;
 
 // var bool swordBlockIsActive; //temp_fix_for_animation
 //=============================================
@@ -1499,7 +1501,6 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
 			//Debug Print, Perhaps remove
 			DebugPrint(PlayerReplicationInfo.PlayerName@"ClientAttackAnimReplication"@PlayerID);
 			//Tell that pawn to do an attack. 
-			//TODO: Change this into a local function
 			FlushPersistentDebugLines();
 			Receiver.AttackEnd();
   			Receiver.Sword[Receiver.currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
@@ -1937,7 +1938,6 @@ rightAttack
 	Starts playing rightAttack attack animation
 	Sets timer for end attack animation
 	Sets tracer delay
-	@TODO: Detect if timer is active, if so do not do another attack
 */
 simulated function rightAttack()
 {
@@ -1963,7 +1963,6 @@ leftAttack
 	Starts playing left attack animation
 	Sets timer for end attack animation
 	Sets tracer delay
-	@TODO: Detect if timer is active, if so do not do another attack
 */
 simulated function leftAttack()
 {
@@ -1999,7 +1998,6 @@ simulated function AttackLock()
 /*
 AttackEnd
 	Resets sword, tracers, and idle stance at end of forward attack
-	@TODO: Make perhaps only one attack end animation funcion
 */
 simulated function AttackEnd()
 {
@@ -2097,7 +2095,7 @@ simulated function tetherBeamProjectile()
 	local vector HitLocation, HitNormal;
 	local EmberHUD eHUD;
 	// newLoc = Location;
-	//@TODO: if EmberProjectile already exists when launch, delete previous instance and initiate new
+	
 	
 	//Access the hud
 	eHUD=EmberHUD(ePC.myHUD);
@@ -2109,6 +2107,11 @@ simulated function tetherBeamProjectile()
 	//If we hit nothing, cancel function
  	if(VSize(HitLocation) == 0)
  	return;
+
+ 	//If it would've hit something, but we aleady have an active projectile, cancel function
+	if(bTetherProjectileActive)
+		return;
+	bTetherProjectileActive = true;
 
 	//Get Launch Location
 	ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
@@ -2128,6 +2131,7 @@ tetherLocationHit
 simulated function tetherLocationHit(vector hit, vector lol, actor Other)
 {
 	GG.tetherLocationHit(hit, lol, Other);
+	bTetherProjectileActive = false;
 	// projectileHitVector=hit;
 	// projectileHitLocation=lol;
 	// enemyPawn = Other;
