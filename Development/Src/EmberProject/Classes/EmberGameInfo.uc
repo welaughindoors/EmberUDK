@@ -85,18 +85,29 @@ event PostLogin(PlayerController NewPlayer)
 }
 /*
 RestartPlayer
-  Not sure if needed
+
 */
- simulated function RestartPlayer(Controller aPlayer)
+function RestartPlayer(Controller aPlayer)
 {
+	local EmberPlayerController PC;
 super.RestartPlayer(aPlayer);
+	foreach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+	{
+		PC.DebugPrint("yo");
+	}
 if(aPlayer.bIsPlayer)
 Broadcast(self, "player spawn"@aPlayer);
 if(aPlayer.pawn ==none)
 {
-	Broadcast(self, "no pawn");
+Broadcast(self, "no pawn spawn spot for "$aPlayer);
 return;
 }
+	//Find all local pawns
+	// ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	// {
+	// 	//Tell players to fix light enviro for new pawn
+	// 	Receiver.ServerSetupLightEnvironment();
+ //    }
 
 // EmberPlayerController(aPlayer).SaveMeshValues();
 }

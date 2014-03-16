@@ -532,6 +532,7 @@ Simulated Event Tick(float DeltaTime)
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
 	//=== TETHER ====
+	if(ePC != none)
 	if (ePC.isTethering) 
 		{
 			GG.tetherVelocity = velocity;
@@ -568,6 +569,7 @@ debugCone(DeltaTime);
 		JumpVelocityPinch(DeltaTime);
 
 	animationControl();
+	ServerSetupLightEnvironment();
 
 } 
 /*
@@ -893,6 +895,7 @@ simulated function doAttackQueue()
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
+ServerSetupLightEnvironment();
 	if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
 			return;
 	iChamberingCounter = 0;
@@ -1450,19 +1453,25 @@ simulated function forcedAnimEndByParry()
 	AttackSlot[1].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 }
 
-//TODO: Light replication
-// reliable server function ServerSetupLightEnvironment()
-// {
-// 	 	local EmberPawn Receiver;
-// 	local playerreplicationinfo PRI;
-// 	//Find all local pawns
-// 	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-// 	{
-// 		//If one of the pawns has the same ID as the player who sent the packet
-// 		Receiver.SetupLightEnvironment();
-		
-//     }
-// }
+//TODO: call ON SPAWN of new Pawn instead of ticks
+
+function ServerSetupLightEnvironment()
+{
+	local EmberPawn Receiver;
+	local int i;
+	
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{		
+		if(Receiver == self) continue;
+
+		for(i = 0; i < Receiver.AllMeshs.length; i++)
+		{
+			if(Receiver.AllMeshs[i].LightEnvironment == none)
+			Receiver.AllMeshs[i].setLightEnvironment(self.LightEnvironment);
+		}
+    }
+}
 /*
 doAttack
 	Mastermind of attacks
