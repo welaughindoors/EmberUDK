@@ -181,6 +181,26 @@ Networking Issues:
 
 fuck network for now, we also redid pawn code so networking is basically nonexistant atm
 
+How to Multiplayer:
+==========
+
+Because we're in the dev testing phase, got to do some stuff
+
+Go to where you installed UDK, and open UnSetup.Game.xml in Binaries folder, example:
+
+C:\UDK-2013-07\Binaries\UnSetup.Game.xml
+
+Change Game Unique ID to 2cd47243-db5d-4b32-bd0a-34c2a8a9c5ae
+Change Machine Unique ID to b88282d2-0d27-476e-8511-ab84180c688a
+
+Save. You're done!
+
+When you want to create the latest multiplayer ready version, copy all the files from github over to the main UDK install
+
+and run Package Game.bat
+
+it'll create a zip file. That's the multiplayer ready version =)
+
 Notes:
 ==========
 When we're dealing with rotations (degrees) in unrealscript: 
