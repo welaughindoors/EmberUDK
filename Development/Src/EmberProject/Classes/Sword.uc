@@ -391,8 +391,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
              swordParried(Owner);
             parryEffect(parryEffectLocation);      
 
-    EmberPawn(Owner).HitGreen();
-    EmberPawn(hitActor).HitGreen();
+    EmberPawn(Owner).ClientHitEffect(1);
+    EmberPawn(Owner).HitEffectReplicate(EmberPawn(hitActor), 1);
         SetInitialState();
         return;
           }
@@ -410,8 +410,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
   // DebugPrint("pTestTarget"@EmberPawn(hitActor).GetSword().lastRecordedSwordDirectionVector);
   //   DebugPrint("parryTest"@lastVectorDot);
 
-    EmberPawn(Owner).HitGreen();
-    EmberPawn(hitActor).HitGreen();
+    EmberPawn(Owner).ClientHitEffect(1);
+    EmberPawn(Owner).HitEffectReplicate(EmberPawn(hitActor), 1);
    sVelocity = Normal(Vector(Owner.Rotation));
    DrawDebugLine(Start, sVelocity*Knockback, 0, -1, 0, true);
     hitActor.TakeDamage(0, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');  
@@ -431,8 +431,8 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
       swordParried(Owner);
             parryEffect(parryEffectLocation);      
 
-    EmberPawn(Owner).HitGreen();
-    EmberPawn(hitActor).HitGreen();
+    EmberPawn(Owner).ClientHitEffect(1);
+    EmberPawn(Owner).HitEffectReplicate(EmberPawn(hitActor), 1);
 
     // //Bot Only. Remove in final
     // TestPawn(Owner).HitGreen();
@@ -515,8 +515,9 @@ oldInterpolatedPoints.length = 0;
             swordParried(interpolatedPoints_TemporaryHitArray[i]);
             parryEffect(parryEffectLocation);      
 
-    EmberPawn(Owner).HitGreen();
-    EmberPawn(hitActor).HitGreen();
+    EmberPawn(Owner).ClientHitEffect(1);
+    EmberPawn(Owner).HitEffectReplicate(EmberPawn(hitActor), 1);
+    // EmberPawn(hitActor).HitGreen();
             SetInitialState();
             return;
         }
@@ -615,11 +616,14 @@ oldInterpolatedPoints.length = 0;
     DamageAmount+=DamagePerTracer;
 
 
-    EmberPawn(Owner).HitBlue();
-    EmberPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
+    EmberPawn(Owner).ClientHitEffect(2);
+    // EmberPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
+    EmberPawn(Owner).HitEffectReplicate(EmberPawn(hitActor), 0);
     //Bot Only. Remove in final
     TestPawn(Owner).HitBlue();
     TestPawn(interpolatedPoints_TemporaryHitArray[i]).HitRed();
+
+
 //   break;
 //   case 2:
 //     interpolatedPoints_TemporaryHitArray[i].TakeDamage(mediumDamagePerTracer, Pawn(Owner).Controller, HitLocation, Velocity * 100.f, class'UTDmgType_LinkBeam');

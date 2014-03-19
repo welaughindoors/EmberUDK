@@ -19,7 +19,7 @@ var SkeletalMeshComponent ParentModularComponent;
 //=============================================
 
 var AttackFramework aFramework;
-var GloriousGrapple GG;
+// var GloriousGrapple GG;
 var EmberDodge Dodge;
 var GrappleRopeBlock testBlock;
 var EmberVelocityPinch VelocityPinch;
@@ -32,12 +32,14 @@ var AnimNodeAimOffset AimOffsetNode;
 
 var array<SkeletalMeshComponent> AllMeshs;
 
-
 var byte SetUpCosmeticsStartupCheck;
 
 var bool ParryEnabled;
 
 var bool tempToggleForEffects;
+
+var array<bool> bGrappleStopLogicGate;
+var int iGrappleStopCounter;
 // var SkeletalMeshComponent PlayerMeshComponent;
 var decoSword LightDecoSword;
 var decoSword MediumDecoSword;
@@ -177,6 +179,50 @@ var bool bTetherProjectileActive;
 
 
 //=============================================
+// Tether System
+//=============================================
+var actor 					curTargetWall;
+var actor 					enemyPawn;
+var bool 					enemyPawnToggle;
+var vector 					wallHitLoc;
+var ParticleSystemComponent tetherBeam2;
+var float 					tetherMaxLength;
+var float					tetherlength;
+var float 					deltaTimeBoostMultiplier;
+var vector 					prevTetherSourcePos;
+var Vector 					tetherVelocity;
+var bool 					tetherStatusForVel;
+var Projectile				tetherProjectile;
+var vector 					projectileHitVector;
+var vector 					projectileHitLocation;
+
+var float 					goingAwayVelModifier;
+var float 					goingTowardsLowVelModifier;
+var float 					goingTowardsHighVelModifier;
+//these are optimization vars
+//their values should never be relied on
+//used to reduce variable memory allocation/deallocation
+//this improves algorithm speed dramatically in my experience
+var rotator r;
+var vector vc;
+var vector vc2;
+
+
+
+//These are the time related vars
+var int 					ticCount;
+var float 					timeFromStart;
+
+
+
+//tether misc.
+var rotator 				hitNormalRotator;
+var array<vector> 			startLocsArray;
+var array<vector>			endLocsArray;
+var int 					extraTether;
+
+
+//=============================================
 // Utility Functions
 //=============================================
 /*
@@ -243,7 +289,7 @@ simulated event PostBeginPlay()
 
     aFramework = new class'EmberProject.AttackFramework';
     Dodge = new class'EmberProject.EmberDodge';
-    GG = new class'EmberProject.GloriousGrapple';
+    // GG = new class'EmberProject.GloriousGrapple';
     VelocityPinch = new class'EmberProject.EmberVelocityPinch';
     ChamberFlags = new class 'EmberProject.EmberChamberFlags';
     Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
@@ -449,7 +495,7 @@ simulated function SetupPlayerControllerReference(EmberPlayerController aPlayer 
 		else
 			ePC = aPlayer;
 			DebugPrint("epc"@ePC);
-	    GG.setInfo(Self,  ePC);
+	    // setInfo(Self,  ePC);
 }
 /*
 setTrailEffects
@@ -521,12 +567,12 @@ Simulated Event Tick(float DeltaTime)
 {
 	// local UTPlayerController PC;
 	Super.Tick(DeltaTime);
-	GG.runsPerTick(deltatime);
+	// runsPerTick(deltatime);
 	LeftRightClicksAndChambersManagement(DeltaTime);
 	//for fps issues and keeping things properly up to date
 	//specially for skeletal controllers
 
-	GG.deltaTimeBoostMultiplier = deltatime * 40;
+	deltaTimeBoostMultiplier = deltatime * 40;
 	
 	//the value of 40 was acquired through my own hard work and testing,
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
@@ -535,16 +581,16 @@ Simulated Event Tick(float DeltaTime)
 	if(ePC != none)
 	if (ePC.isTethering) 
 		{
-			GG.tetherVelocity = velocity;
-			GG.tetherCalcs();		//run calcs every tick tether is active
+			tetherVelocity = velocity;
+			tetherCalcs();		//run calcs every tick tether is active
 		}
 
-	if(GG.tetherStatusForVel)
+	if(tetherStatusForVel)
 		{
 			if(Physics == PHYS_Falling)
-				velocity = GG.tetherVelocity;
+				velocity = tetherVelocity;
 			if(Physics == PHYS_Walking)
-				GG.tetherStatusForVel = false;
+				tetherStatusForVel = false;
 		}
 		if(Dodge.bDodging)
 			Dodge.Count(DeltaTime);
@@ -573,33 +619,6 @@ debugCone(DeltaTime);
 
 } 
 /*
-HitBlue
-	Shakes camera with slight blue tint
-*/
-simulated function HitBlue()
-{
-	Local CameraAnim ShakeDatBooty;
-	local float shakeAmount;
-
-	AttackAnimationHitTarget = true;
-
-  	ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
-  	switch(currentStance)
-  	{
-  		case 1: shakeAmount = aFramework.lightCameraShake;
-  		break;
-  		case 2: shakeAmount = aFramework.mediumCameraShake;
-  		break;
-  		case 3: shakeAmount = aFramework.heavyCameraShake;
-  		break;
-  	}
-  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
-  	savedVelocity = Velocity;
-  	CustomTimeDilation = 0.02f;
-  	SetTimer(0.002, false, 'enableAnimations');
-
-}
-/*
 enableAnimations
 	Unfreezes pawn
 */
@@ -608,17 +627,48 @@ simulated function enableAnimations()
 	CustomTimeDilation = 1.0f;
 	Velocity = savedVelocity;
 }
-/*
-HitRed
-	Shakes camera with slight blue tint
-*/
-simulated function HitRed()
+reliable server function ServerHitEffectReplicate(int PlayerID, int HitType)
 {
-	Local CameraAnim ShakeDatBooty;
+	local EmberPawn Receiver;
+
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player who did the attack
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+			Receiver.ClientHitEffect(HitType);
+	}
+}
+simulated function HitEffectReplicate(EmberPawn hitPawn, int HitType)
+{
+	//Simulated pawn shit doesn't get replicated
+	if(role < ROLE_Authority)
+		ServerHitEffectReplicate(hitPawn.PlayerReplicationInfo.PlayerID, HitType);
+}
+reliable client function ClientHitEffect(int HitType)
+{
+	local CameraAnim ShakeDatBooty;
 	local float shakeAmount;
 
-  	ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
-  	switch(currentStance)
+	switch(HitType)
+	{
+		//Red
+		case 0:
+			ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
+			break;
+
+		//Green
+		case 1:
+			ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
+			break;
+
+		//Blue
+		case 1:
+			ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
+			break;
+	}
+
+	  	switch(currentStance)
   	{
   		case 1: shakeAmount = aFramework.lightCameraShake;
   		break;
@@ -627,32 +677,15 @@ simulated function HitRed()
   		case 3: shakeAmount = aFramework.heavyCameraShake;
   		break;
   	}
+  	//Play anim
   	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	//Save velocity for after time freeze
   	savedVelocity = Velocity;
+  	//Time freeze
   	CustomTimeDilation = 0.02f;
+  	//Set timer for unfreeze
   	SetTimer(0.002, false, 'enableAnimations');
 }
-/*
-HitGreen
-	Shakes camera with slight green tint
-*/
-simulated function HitGreen()
-{
-	Local CameraAnim ShakeDatBooty;
-	local float shakeAmount;
-
-  	ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
-  	switch(currentStance)
-  	{
-  		case 1: shakeAmount = aFramework.lightCameraShake;
-  		break;
-  		case 2: shakeAmount = aFramework.mediumCameraShake;
-  		break;
-  		case 3: shakeAmount = aFramework.heavyCameraShake;
-  		break;
-  	}
-  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
-  }
 /*
 PostInitAnimTree
 	Allows custom animations.
@@ -872,16 +905,16 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 {
 	if(a == 0 && b == 0 && c == 0 && d == 0)
 	{
-		DebugPrint ("goingTowardsHigh -"@GG.goingTowardsHighVelModifier);
-		DebugPrint("goingTowardsLow -"@GG.goingTowardsLowVelModifier);
-		DebugPrint("goingAway -"@GG.goingAwayVelModifier);
-		DebugPrint("tetherlength -"@GG.tetherlength);
+		DebugPrint ("goingTowardsHigh -"@goingTowardsHighVelModifier);
+		DebugPrint("goingTowardsLow -"@goingTowardsLowVelModifier);
+		DebugPrint("goingAway -"@goingAwayVelModifier);
+		DebugPrint("tetherlength -"@tetherlength);
 		return;
 	}
-	GG.goingTowardsHighVelModifier = (a != 0) ? a : GG.goingTowardsHighVelModifier;
-	GG.goingTowardsLowVelModifier = (b != 0) ? b : GG.goingTowardsLowVelModifier;
-	GG.goingAwayVelModifier = (c != 0) ? c : GG.goingAwayVelModifier;
-	GG.tetherlength = (d != 0) ? d : GG.tetherlength;
+	goingTowardsHighVelModifier = (a != 0) ? a : goingTowardsHighVelModifier;
+	goingTowardsLowVelModifier = (b != 0) ? b : goingTowardsLowVelModifier;
+	goingAwayVelModifier = (c != 0) ? c : goingAwayVelModifier;
+	tetherlength = (d != 0) ? d : tetherlength;
 }
 
 /*
@@ -1170,7 +1203,6 @@ simulated function ReplicateDamage_Calculated(int DamagePerTracer, Controller Da
 			Receiver.TakeDamage(DamagePerTracer, DamageInstigator, HitLocation, TotalKnockback,  class'UTDmgType_LinkBeam');
 		}
 	}
-
 }
 //This is for single player only. Might be removed later / merged with below:
 simulated function int SinglePlayer_Damage(int Sword_CurrentStance, byte Sword_DamageGroup)
@@ -1837,10 +1869,15 @@ simulated function tetherBeamProjectile()
  	if(VSize(HitLocation) == 0)
  	return;
 
+ 	bGrappleStopLogicGate.AddItem(false);
+ 	bGrappleStopLogicGate.AddItem(false);
+ 	bGrappleStopLogicGate.AddItem(false);
+
  	//If it would've hit something, but we aleady have an active projectile, cancel function
-	if(bTetherProjectileActive)
-		return;
-	bTetherProjectileActive = true;
+ 	//TODO: Readd
+	// if(bTetherProjectileActive)
+	// 	return;
+	// bTetherProjectileActive = true;
 
 	//Get Launch Location
 	ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', newLoc, rotat);
@@ -1857,10 +1894,126 @@ simulated function tetherBeamProjectile()
 tetherLocationHit
 	returns hit and location of tetherBeamProjectile
 */
-simulated function tetherLocationHit(vector hit, vector lol, actor Other)
+reliable server function tetherLocationHit(vector hitNormal, vector hitLocation, actor Other)
 {
-	GG.tetherLocationHit(hit, lol, Other);
+	// tetherLocationHit(hit, lol, Other);
+	projectileHitVector=hitNormal;
+	projectileHitLocation=hitLocation;
+	// enemyPawn = Other;
+	// enemyPawnToggle = (enemyPawn != none) ? true : false;
+	`Log("tetherLocationHit");
+	// createTether();
+	ePC.isTethering = true;
 	bTetherProjectileActive = false;
+}
+reliable server function createTether()
+{
+	local vector hitLoc;
+	local vector headSocket;
+	local vector grappleSocket;
+	local vector hitNormal;
+	local actor wall;
+	local vector startTraceLoc;
+	local vector endLoc;
+	// local float floaty;
+	local int isPawn;
+	local ParticleSystemComponent newBeam;
+
+
+	//~~~ Trace ~~~
+
+	vc = normal(Vector(ePC.Rotation)) * 50;
+	//vc = Owner.Rotation;
+	
+	ParentModularComponent.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
+	//pawn location + 100 in direction of player camera
+
+	hitLoc = location;
+	hitLoc.z += 10;
+	startTraceLoc = headSocket + vc ;
+	// startTraceLoc = Location + vc ;
+	 
+	endLoc =startTraceLoc + tetherMaxLength * vc;
+	// endLoc.z += 1500;
+
+	//trace only to tether's max length
+	wall = trace(hitLoc, hitNormal, 
+				endLoc, 
+				startTraceLoc
+			);
+	// DrawDebugLine(endLoc, startTraceLoc, -1, 0, -1, true);
+
+
+	// if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
+	// Wall.isa('Actor') ? DebugPrint("Actor : " $Wall) : ;
+	// InStr(wall, "TestPawn") > 0? DebugPrint("gud") : ;
+	// isPawn = InStr(wall, "TestPawn");
+	// DebugPrint("p = " $isPawn);
+	// floaty = VSize(location - wall.location);
+	// DebugPrint("distance -"@floaty);
+	// if(isPawn >= 0)
+	// {
+	// 	endLoc = normal(location - wall.location);
+	// 	TestPawn(wall).grappleHooked(endLoc, ePawn);
+	// 	// endLoc *= 500;
+	// 	// wall.velocity = endLoc;
+	// }
+	//~~~~~~~~~~~~~~~
+	// Tether Success
+	//~~~~~~~~~~~~~~~
+	//Clear any old tether
+
+	detachTether();
+	extraTether=0;
+	
+
+	enemyPawnToggle = enemyPawnToggle ? false : false;
+	//state
+	 ePC.isTethering = true;
+	
+	curTargetWall = Wall;
+	//wallHitLoc = hitLoc;
+	wallhitloc = projectileHitVector;
+	
+	//get length of tether from starting
+	//position of object and wall
+	// tetherlength = vsize(hitLoc - Location) * 0.75;
+	// if (tetherlength > 1000) 
+		// tetherlength = 1000;
+
+	// tetherlength = vsize(hitLoc - Location) * 0.75;
+	// if (tetherlength > 500) 
+		// tetherlength = 500;
+	//~~~
+	
+	//~~~ Beam UPK Asset Download ~~~ 
+	//I provide you with the beam resource to use here:
+	//requires Nov 2012 UDK
+	//Rama Tether Beam Package [Download] For You
+
+	hitNormalRotator = rotator(HitNormal);
+	// createTetherBeam(, hitNormalRotator);
+	
+	newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', Location + vect(0, 0, 32) + vc * 48,hitNormalRotator);
+	newBeam.SetHidden(false);
+	newBeam.ActivateSystem(true);
+	tetherBeam.AddItem(newBeam);
+
+	//Beam Source Point
+	ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
+	updateBeamSource(grappleSocket, 0);
+	startLocsArray.AddItem(grappleSocket);
+	
+	//Beam End
+	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+	if(enemyPawn != none){
+		updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
+		
+	}
+	else{
+		updateBeamEnd(projectileHitLocation, 0);
+		endLocsArray.AddItem(projectileHitLocation);
+	}
 }
 simulated function debugCone(float deltatime)
 {  
@@ -1931,9 +2084,15 @@ function decreaseTether()
 /*
 detachTether
 */
-simulated function detachTether() 
+reliable server function detachTether() 
 {
-	GG.detachTether();
+	enemyPawn = enemyPawnToggle ? enemyPawn : none;
+	 ePC.isTethering = false;
+	 bTetherProjectileActive = false;
+
+ 	bGrappleStopLogicGate.length = 0;
+ 	Velocity.Z += 100;
+ 	iGrappleStopCounter=0;
 }
 
 /*
@@ -1951,9 +2110,9 @@ simulated function createTetherBeam(vector v1, rotator r1)
 /*
 updateBeamEnd
 */
-simulated function updateBeamEnd(vector projectileHitLocation, int index)
+simulated function updateBeamEnd(vector projectileHitLocation2, int index)
 {
-	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation);
+	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation2);
 }
 /*
 updateBeamSource
@@ -1967,9 +2126,9 @@ getBeamEnd
 */
 simulated function vector getBeamEnd(int index)
 {
-	local vector projectileHitLocation;
-	tetherBeam[index].GetVectorParameter('TetherEnd', projectileHitLocation);
-	return projectileHitLocation;
+	local vector projectileHitLocation2;
+	tetherBeam[index].GetVectorParameter('TetherEnd', projectileHitLocation2);
+	return projectileHitLocation2;
 }
 /*
 getBeamSource
@@ -2059,8 +2218,203 @@ tetherCalcs
 	calculations for tether
 	runs per tick
 */
-simulated function tetherCalcs() {
-	GG.tetherCalcs();
+reliable server function tetherCalcs() {
+	// tetherCalcs();
+	local int idunnowhatimdoing;
+	// local actor wall;
+	local actor testWall;
+	local vector hitLoc;
+	// local vector hitNormal;  //ignore this shit
+	local vector testHitLoc;
+	local vector testHitNormal;
+	// local vector endLoc;
+	// local vector startTraceLoc;
+	local vector defaultCheck;
+
+	tetherlength = 200;
+	extraTether = 0;
+
+// DebugPrint("v1"@ VSize(Velocity));
+	//~~~~~~~~~~~~~~~~~
+	//Beam Source Point
+	//~~~~~~~~~~~~~~~~~
+	//get position of source point on skeletal mesh
+
+	//set this to be any socket you want or create your own socket
+	//using skeletal mesh editor in UDK
+
+	//dual weapon point is left hand 
+	// self.ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', vc, r);
+	//DrawDebugLine(vc, projectileHitLocation, -1, 0, -1, true);
+    // wall = trace(hitLoc, hitNormal, projectileHitLocation, vc);
+    // if(extraTether>=1){
+    // 	testWall = trace(testHitLoc, testHitNormal, getBeamEnd(extraTether-1), vc);
+    // 	if(testWall==none){
+    // 		//updateBeamEnd(getBeamEnd(extraTether-1), extraTether); this is not the way
+    // 		updateBeamSource(vc, extraTether-1);
+    // 		projectileHitLocation=getBeamEnd(extraTether-1);
+    // 		deactivateTetherBeam(extraTether);
+    // 		extraTether--;
+
+    //    	}
+    // }
+    // projectileHitLocation=getBeamEnd(extraTether);
+
+    //DebugPrint("hitlog - "@hitLoc==defaultCheck);
+
+	
+    	    	// DrawDebugLine(vc, curTargetWall.Location, -1, 0, -1, true);
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//adjust for Skeletal Mesh Socket Rendered/Actual Location tick delay
+
+	//there is a tick delay between the actual socket position
+	//and the rendered socket position
+	//I encountered this issue when working skeletal controllers
+	//my solution is to just manually adjust the actual socket position
+	//to match the screen rendered position
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// if falling, lower tether source faster
+	// if (vc.z - prevTetherSourcePos.z < 0) {
+	// 	vc.z -= 8 * deltaTimeBoostMultiplier;
+	// }
+	
+	// //raising up, raise tether beam faster
+	// else {
+	// 	vc.z += 8 * deltaTimeBoostMultiplier;
+	// }
+	
+	// //deltaTimeBoostMultipler neutralizes effects of 
+	// //fluctuating frame rate / time dilation
+
+	// //update beam based on on skeletal mesh socket
+	// if(hitLoc==defaultCheck)
+	// {
+	// 	updateBeamSource(vc, extraTether);
+	// }
+	// else
+	// {
+	// 	updateBeamSource(hitLoc, extraTether);
+	// 	createTetherBeam(Location + vect(0, 0, 32) + vc * 48, hitNormalRotator);
+	// 	extraTether++;
+		
+	// 	updateBeamSource(vc, extraTether);
+	// 	updateBeamEnd(hitLoc, extraTether);
+	// 	projectileHitLocation=hitLoc;
+	// 	//work in progress
+	// }
+	// ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket2', vc2, r);
+	
+	// //save prev tick pos to see change in position
+	// prevTetherSourcePos = vc;
+	
+
+	// if(enemyPawn != none)
+	// {
+	// 	//DebugPrint("tcalc - "@TestPawn(enemyPawn).grappleSocketLocation);
+	// 	updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
+	// 	//seriously fuck this
+	// 	//will deal with this fucking shit later, too complicated for my pleb mind, John
+	// }
+	
+	//~~~~~~~~~~~~~~~~~~~
+	//Actual Tether Constraint
+
+	//I dont use a RB_Constraint
+	//I control the allowed position
+	//of the pawn through code
+	//and use velocity adjustments every tick
+	//to make it look fluid
+
+	//setting PHYS_Falling + velocity adjustments every tick 
+	//is what makes this work
+	//and look really good with in-game physics
+	//~~~~~~~~~~~~~~~~~~~
+	
+	//vector between player and tether loc
+	//curTargetWall was given its value in createTether()
+	vc = Location - projectileHitLocation;
+	
+	//dist between pawn and tether location
+	//see Vsize(vc) below (got rid of unnecessary var)
+	
+	idunnowhatimdoing = tetherlength * 0.4;
+        //is the pawn moving beyond allowed current tether length?
+        //if so apply corrective force to push pawn back within range
+
+	if (Vsize(vc) > tetherlength - idunnowhatimdoing) {
+		
+                //determine whether to remove all standard pawn
+	        //animations and just use the Victory animation
+	        //I use this to make animations look smooth while my Tether System
+                //is applying changes to pawn velocity (otherwise strange anims play)
+
+                //this also results in pawn looking like it is actively initiating the
+                //change in velocity through some Willful Action
+               // TetheringAnimOnly = true;
+		
+                SetPhysics(PHYS_Falling);
+		
+		//direction of tether = normal of distance between
+		//pawn and tether attach point
+		vc2 = normal(vc);
+		
+		//moving in same direction as tether?
+
+		//absolute value of size difference between
+		//normalized velocity and tether direction
+		//if > 1 it means pawn is moving in same direction as tether
+		if(abs(vsize(Normal(velocity) - vc2)) > 1){
+		//limit max velocity applied to pawn in direction of tether
+		if(vsize(velocity) < 3000 * deltaTimeBoostMultiplier)
+		{
+			// `Log("1");
+			iGrappleStopCounter+=1;
+			// if(bGrappleStopLogicGate[1] && iGrappleStopCounter > 5)
+				// detachTether();
+
+			bGrappleStopLogicGate[0] = true;
+
+			velocity -= vc2 * (Vsize(vc) * goingTowardsHighVelModifier) * 2;
+		}
+		}
+
+		//General sequence is 2111111111111111111111111111222222222222111111
+
+		else {
+			// `Log("2");
+			iGrappleStopCounter++;
+			// if(bGrappleStopLogicGate[2]) bGrappleStopLogicGate[1] = true;
+			// else bGrappleStopLogicGate[2] = true;
+			// if(iGrappleStopCounter > 5)  bGrappleStopLogicGate[1] = true;
+
+			velocity -= vc2 * goingTowardsLowVelModifier * 5;
+		}
+		// }
+		// if(tetherlength > 1000)
+			// velocity -= vc2 * (tetherlength * 0.15);
+		// if(location.z <= 75){
+		// 	ll = location;
+		// 	ll.z = 76;
+		// 	ePC.SetLocation(ll);
+		// 	// setLocation
+		// 	// Velocity.z *= -2;
+		// }
+	}
+	else {
+		//allow all regular ut pawn animations
+                //since player velocity is not being actively changed 
+                //by Rama Tether System
+                //TetheringAnimOnly = false;
+
+// `Log("3");
+				// DebugPrint("going away");
+				velocity -= vc2 * (Vsize(vc) * goingTowardsHighVelModifier) * 3;
+
+
+	}
+	// DebugPrint("v2"@ VSize(Velocity));
+	// if(iGrappleStopCounter > 5 && VSize(Velocity) <= 10)
+	// 	detachTether();
 }
 
 /*
@@ -2320,6 +2674,11 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+
+goingTowardsHighVelModifier = 0.03;
+goingTowardsLowVelModifier = 30;
+goingAwayVelModifier = 55;
+
 	bAttackGrapple=false;
 	blendAttackCounter=0;
 	savedByteDirection=(0,0,0,0,0); 
