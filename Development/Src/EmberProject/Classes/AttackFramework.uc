@@ -270,11 +270,11 @@ ServerAnimationTracerStart[29] = 0.70;
 //==================================================================================
 //==================================================================================
 
-ServerAnimationTracerEnd[8]  = 0;
-ServerAnimationTracerEnd[9]  = 0;
-ServerAnimationTracerEnd[10] = 0;
-ServerAnimationTracerEnd[11] = 0;
-ServerAnimationTracerEnd[12] = 0;
+ServerAnimationTracerEnd[8]  = 0.7;
+ServerAnimationTracerEnd[9]  = 0.7;
+ServerAnimationTracerEnd[10] = 0.7;
+ServerAnimationTracerEnd[11] = 0.7;
+ServerAnimationTracerEnd[12] = 0.7;
 
 ServerAnimationTracerEnd[16] = 0.7;
 ServerAnimationTracerEnd[17] = 0.7;

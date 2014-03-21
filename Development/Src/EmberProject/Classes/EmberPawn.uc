@@ -630,7 +630,9 @@ Flash_InitialUpdates
 */
 function Flash_InitialUpdates()
 {
+	
 	Flash_GetWrapper();
+
 	Flash_HealthUpdate();
 }
 function Flash_GetWrapper()
