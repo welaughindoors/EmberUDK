@@ -26,6 +26,7 @@ var EmberVelocityPinch VelocityPinch;
 var EmberChamberFlags ChamberFlags;
 var EmberCosmetic_ItemList Cosmetic_ItemList;
 var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
+var EmberHudWrapper eHud;
 
 
 var AnimNodeAimOffset AimOffsetNode;
@@ -156,6 +157,11 @@ var struct ForcedAnimLoopPacketStruct
 	var float tDur;
 } ForcedAnimLoopPacket;
 
+var struct GrappleReplicationHolderStruct
+{
+	var array<int> PlayerID;
+	var array<EmberPawn> gPawn;
+} GrappleReplicationHolder;
 //Current stance (fast/medium/heavy)
 var int currentStance;
 
@@ -277,7 +283,7 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
 	AccumulateDamage += Damage;
 	Super.TakeDamage(Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
 	AccumulateDamage = AccumulateDamage + OldHealth - Health - Damage;
-
+	Flash_HealthUpdate();
 }
 /*
 PostBeginPlay
@@ -400,7 +406,6 @@ SetupLightEnvironment
 	All mesh pieces need to have light environment setup on it
 	Hopefully this isn't resource intensive
 	No light enviro on mesh = black
-	TODO: Find way to make this work in networking
 */
 function SetupLightEnvironment()
 {
@@ -482,6 +487,7 @@ simulated function WeaponAttach()
 		//TODO:readd	
 		// setTrailEffects();
 		SetupPlayerControllerReference();
+		Flash_InitialUpdates();
 }
 /*
 SetupPlayerControllerReference
@@ -608,7 +614,8 @@ if(bAttackQueueing)
 if(debugConeBool)
 debugCone(DeltaTime);
 
-
+if(GrappleReplicationHolder.PlayerID.length != 0)
+	ClientGrappleReplication();
 
  
 	// if(jumpActive)
@@ -616,8 +623,31 @@ debugCone(DeltaTime);
 
 	animationControl();
 	ServerSetupLightEnvironment();
-
 } 
+/*
+Flash_InitialUpdates
+	Used to run all flash functions that need updating on pawn initiliazation
+*/
+function Flash_InitialUpdates()
+{
+	Flash_GetWrapper();
+	Flash_HealthUpdate();
+}
+function Flash_GetWrapper()
+{
+	eHud = EmberHudWrapper(ePC.myHUD);
+}
+/*
+Flash_HealthUpdate
+	Updates health of player
+*/
+function Flash_HealthUpdate()
+{
+	//If health is below 0, set display to 0
+	if(Health < 0) 	eHud.SetVariable(eHud.Tags.Flash_Health, "currentHealth", 0);
+	//Otherwise, set display to actual health
+	else 			eHud.SetVariable(eHud.Tags.Flash_Health, "currentHealth", Health);
+}
 /*
 enableAnimations
 	Unfreezes pawn
@@ -779,13 +809,13 @@ DrawGrappleCrosshairCalcs
 */
 function DrawGrappleCrosshairCalcs()
 {
-	local EmberHUD eHUD;
+	// local EmberHUD eHUD;
 
-	//Access the hud
-	eHUD=EmberHUD(ePC.myHUD);
+	// //Access the hud
+	// eHUD=EmberHUD(ePC.myHUD);
 
-	//Tell HUD how to draw grapple crosshair (either enable or disable it)
-	eHud.enableGrappleCrosshair(bAttackGrapple);
+	// //Tell HUD how to draw grapple crosshair (either enable or disable it)
+	// eHud.enableGrappleCrosshair(bAttackGrapple);
 
 }
 
@@ -925,6 +955,7 @@ doAttackQueue
 simulated function doAttackQueue()
 {
 	local byte currentStringCounter;
+
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
@@ -1006,7 +1037,6 @@ ForcedAnimLoopPacket.tDur=aFramework.ForcedAnimLoopPacket.tDur;
 //forcedAnimLoop(true);
 //=====================================================================
 //Placed it here, cause networking
-//TODO: Test it
 AttackSlot[0].PlayCustomAnimByDuration(ForcedAnimLoopPacket.AnimName, ForcedAnimLoopPacket.tDur, ForcedAnimLoopPacket.blendIn, 0);
 //Can't use GetTimeLeftOnAttack because we are not using a tracer timer
 SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');
@@ -1295,6 +1325,122 @@ reliable server function ServerChamber(bool Active)
 	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Chamber(Active, PlayerReplicationInfo.PlayerID);
 	ChamberGate(active);
 }
+
+/*
+ServerGrappleReplication
+	Sends grapple information
+*/
+reliable server function ServerGrappleReplication(bool Active, int PlayerID)
+{
+	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Grapple(Active, PlayerID);
+}
+/*
+ClientGrappleReplication
+	Actual replication
+	runs per tick
+*/
+function ClientGrappleReplication()
+{
+	local int i;
+
+	for(i = 0; i < GrappleReplicationHolder.PlayerID.length; i++)
+	{
+		DebugPrint(""@GrappleReplicationHolder.PlayerID[i]);
+	// 	GrappleReplicationHolder.gPawn[i].ParentModularComponent.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
+	
+	// detachTether();
+	// extraTether=0;
+	
+
+	// enemyPawnToggle = enemyPawnToggle ? false : false;
+	// //state
+	//  ePC.isTethering = true;
+	
+	// curTargetWall = Wall;
+	// //wallHitLoc = hitLoc;
+	// wallhitloc = projectileHitVector;
+	
+	// //get length of tether from starting
+	// //position of object and wall
+	// // tetherlength = vsize(hitLoc - Location) * 0.75;
+	// // if (tetherlength > 1000) 
+	// 	// tetherlength = 1000;
+
+	// // tetherlength = vsize(hitLoc - ePawn.Location) * 0.75;
+	// // if (tetherlength > 500) 
+	// 	// tetherlength = 500;
+	// //~~~
+	
+	// //~~~ Beam UPK Asset Download ~~~ 
+	// //I provide you with the beam resource to use here:
+	// //requires Nov 2012 UDK
+	// //Rama Tether Beam Package [Download] For You
+
+	// hitNormalRotator = rotator(HitNormal);
+	// ePawn.createTetherBeam(ePawn.Location + vect(0, 0, 32) + vc * 48, hitNormalRotator);
+
+
+	// //Beam Source Point
+	// ePawn.ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
+	// ePawn.updateBeamSource(grappleSocket, 0);
+	// startLocsArray.AddItem(grappleSocket);
+	
+	// //Beam End
+	// //tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
+	// if(enemyPawn != none){
+	// 	ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
+		
+	// }
+	// else{
+	// 	ePawn.updateBeamEnd(projectileHitLocation, 0);
+	// 	endLocsArray.AddItem(projectileHitLocation);
+	// }
+	
+	}
+}
+/*
+ClientReceiveGrappleReplication
+	Receives data to start grapple replication
+*/
+reliable client function ClientReceiveGrappleReplication(bool Active, int PlayerID)
+{
+	local EmberPawn Receiver;
+	local playerreplicationinfo PRI;
+	local int i;
+
+	//If grapple replication is canceled (grapple ended)
+	if(!Active)
+	{
+		//Check all player ID's
+		for(i = 0; i <GrappleReplicationHolder.PlayerID.length; i++)
+
+		{
+			//If we find a match
+			if(GrappleReplicationHolder.PlayerID[i] == PlayerID)
+			{
+				//Remove data
+				GrappleReplicationHolder.PlayerID.Remove(i, 0);
+				GrappleReplicationHolder.gPawn.Remove(i, 0);
+				return;
+			}
+		}
+	}
+	else
+	{
+		//Find all local pawns
+		ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+		{
+			//If one of the pawns has the same ID as the player who sent the packet
+			if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+			{
+				PRI = Receiver.playerreplicationinfo;
+				GrappleReplicationHolder.PlayerID.AddItem(PlayerID);
+				GrappleReplicationHolder.gPawn.AddItem(Receiver);
+				return;
+			}	
+    	}
+	}
+}
 /*
 ClientChamberReplication
 	Client replicates chamber gate
@@ -1486,7 +1632,10 @@ simulated function forcedAnimEndByParry()
 }
 
 //TODO: call ON SPAWN of new Pawn instead of ticks
-
+/*
+ServerSetupLightEnvironment
+	Sets light environment for all replicated players on client's view
+*/
 function ServerSetupLightEnvironment()
 {
 	local EmberPawn Receiver;
@@ -1854,16 +2003,16 @@ simulated function tetherBeamProjectile()
 	local vector newLoc;
 	local rotator rotat;
 	local vector HitLocation, HitNormal;
-	local EmberHUD eHUD;
+	local EmberHUD emHUD;
 	// newLoc = Location;
 	
 	
 	//Access the hud
-	eHUD=EmberHUD(ePC.myHUD);
+	emHUD=EmberHUD(ePC.myHUD);
 
 	//Do a trace of where the crosshair is facing. Get the HitLocation to tell where the projectile to fire at
 	//TODO: setup different distance than 10000
-	Trace(HitLocation, HitNormal,eHUD.OutStart, eHUD.OutStart + Normal(eHUD.OutRotation)*10000, true); 
+	Trace(HitLocation, HitNormal,emHUD.OutStart, emHUD.OutStart + Normal(emHUD.OutRotation)*10000, true); 
 	
 	//If we hit nothing, cancel function
  	if(VSize(HitLocation) == 0)

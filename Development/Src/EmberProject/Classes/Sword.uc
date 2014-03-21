@@ -584,7 +584,7 @@ oldInterpolatedPoints.length = 0;
     EmberPawn(Owner).ReplicateDamage(currentStance, 3,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
 
     //Client only, Actually has 0 use in network
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(14, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(40, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     }
 
     //Middle Group
@@ -595,7 +595,7 @@ oldInterpolatedPoints.length = 0;
 
     //Client only, Actually has 0 use in network
     if(bOwnerIsTestPawn)
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(10, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(30, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     else
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(EmberPawn(Owner).SinglePlayer_Damage(currentStance, 2), Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     }
@@ -608,7 +608,7 @@ oldInterpolatedPoints.length = 0;
 
     //Client only, Actually has 0 use in network
     if(bOwnerIsTestPawn)
-    interpolatedPoints_TemporaryHitArray[i].TakeDamage(8, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
+    interpolatedPoints_TemporaryHitArray[i].TakeDamage(20, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     else
     interpolatedPoints_TemporaryHitArray[i].TakeDamage(EmberPawn(Owner).SinglePlayer_Damage(currentStance, 1), Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
     }

@@ -34,14 +34,38 @@ var repnotify struct ServerChamberPacketStruct
 	var bool ChamberActive;
 } ServerChamberPacket;
 
+var repnotify struct ServerGrapplePacketStruct
+{
+	var int ServerTargetPawn;
+	var bool GrappleActive;
+} ServerGrapplePacket;
 
 // Replication block
 replication
 {
 	if(bNetDirty)
 		ServerAttackPacket, ServerStancePacket, ServerBlockPacket,
-		ServerChamberPacket;
+		ServerChamberPacket, ServerGrapplePacket;
 }
+/*
+Replicate_Grapple
+	Tells if grapple is active or not. If it's active, show the visual grapple
+	(Grapple mechanics are done 100% by server)
+*/
+simulated function Replicate_Grapple(bool Active, int cPlayerID)
+{
+	local ServerGrapplePacketStruct tStruct;
+
+	tStruct.ServerTargetPawn = cPlayerID;	
+	tStruct.GrappleActive = Active;
+
+	ServerGrapplePacket = tStruct;
+}
+
+/*
+Replicate_Chamber
+	When player does block, get block status to replicate 'block'
+*/
 simulated function Replicate_Chamber(bool Active, int cPlayerID)
 {
 	local ServerChamberPacketStruct tStruct;
@@ -114,7 +138,7 @@ simulated event ReplicatedEvent(name VarName)
 			if(PC.pawn.PlayerReplicationInfo != self)
 			{
 				Receiver = PC.pawn;
-				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerAttackPacket"@ServerAttackPacket.ServerAnimAttack);
+				// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerAttackPacket"@ServerAttackPacket.ServerAnimAttack);
 				EmberPawn(Receiver).ClientAttackAnimReplication(ServerAttackPacket.ServerAnimAttack, ServerAttackPacket.ServerTargetPawn);
 			}
 		}
@@ -127,7 +151,7 @@ simulated event ReplicatedEvent(name VarName)
 			if(PC.pawn.PlayerReplicationInfo != self)
 			{
 				Receiver = PC.pawn;
-				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerStancePacket");
+				// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerStancePacket");
 				EmberPawn(Receiver).ClientStanceReplication(ServerStancePacket.ServerStance, ServerStancePacket.ServerTargetPawn);
 			}
 		}
@@ -140,7 +164,7 @@ simulated event ReplicatedEvent(name VarName)
 			if(PC.pawn.PlayerReplicationInfo != self)
 			{
 				Receiver = PC.pawn;
-				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerBlockPacket");
+				// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerBlockPacket");
 				EmberPawn(Receiver).ClientBlockReplication(ServerBlockPacket.ServerTargetPawn);
 			}
 		}
@@ -153,9 +177,20 @@ simulated event ReplicatedEvent(name VarName)
 			if(PC.pawn.PlayerReplicationInfo != self)
 			{
 				Receiver = PC.pawn;
-				EmberPawn(Receiver).DebugPrint("REPLICATION_ServerChamberPacket");
+				// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerChamberPacket");
 				EmberPawn(Receiver).ClientChamberReplication(ServerChamberPacket.ChamberActive, ServerChamberPacket.ServerTargetPawn);
 			}
+		}
+	}
+	
+	if (varname == 'ServerGrapplePacket') 
+	{
+		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+		{
+			//We replicate all pawns, even sender.	
+			Receiver = PC.pawn;
+			// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerGrapplePacket");
+			EmberPawn(Receiver).ClientReceiveGrappleReplication(ServerGrapplePacket.GrappleActive, ServerGrapplePacket.ServerTargetPawn);
 		}
 	}
 	

@@ -121,6 +121,8 @@ Recently Completed:
 - Working Crosshair w/ Grapple. Now grapple will go EXACTLY where crosshair is looking
 - Dynamic crosshair, is enabled only during Grapple View.
 - Player's names appear on top of pawns. Not working completely, but 95% of code is done.
+- API's for Flash and Flash/US communication
+- Working health bar communication
 
 
 ####AI by Inathero
@@ -148,6 +150,10 @@ Recently Completed:
 - Parts of modular pawns created
 - block animation
 
+####Flow3r
+- basic menu done in flash scaleform.
+- Working healthbar in flash scaleform
+
 ####Hydra
 - Headband cosmetic
 - Capes
@@ -164,8 +170,23 @@ Recently Completed:
 ####Jinx
 - Basic structuring of Ember_Downtown map
 
-####Flow3r
-- basic menu done in flash scaleform.
+API Files:
+==========
+These are the files that can be modified to allow the import of new objects in game, and easy usage for modifying said files
+
+EmberCosmetic_ItemList.uc
+	Simple API to allow placement of skeletal meshes to a predetermined socket.
+	Static items can be attached
+	Cloth items can be attached
+	Most likely to be depreciated in favour of EmberModularPawn_Cosmetics.uc
+
+EmberModularPawn_Cosmetics.uc
+	Extremely simple to use. Just type the SkeletalMesh of the component you want to add and you're done.
+	~~Will need modification later (class extension) to allow swapping.~~
+		Swapping works now 
+
+EmberHudWrapper.uc
+	Easy way to test and implement new flash files
 
 Issues:
 ==========

@@ -152,7 +152,8 @@ return;
    DefaultPawnClass=class'EmberProject.EmberPawn'
    PlayerControllerClass=class'EmberProject.EmberPlayerController'
   PlayerReplicationInfoClass=class'EmberProject.EmberReplicationInfo'
-   HUDType=class'EmberProject.EmberHUD'
+   // HUDType=class'EmberProject.EmberHUD'
+	HUDType=class'EmberProject.EmberHudWrapper'
    MapPrefixes[0]="UDN"
    bDelayedStart = false
    // DefaultInventory(0)=none
