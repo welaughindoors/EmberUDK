@@ -161,6 +161,8 @@ var struct GrappleReplicationHolderStruct
 {
 	var array<int> PlayerID;
 	var array<EmberPawn> gPawn;
+	var array<vector> TetherProjectileHitLoc;
+	var array<ParticleSystemComponent> TetherBeams;
 } GrappleReplicationHolder;
 //Current stance (fast/medium/heavy)
 var int currentStance;
@@ -811,14 +813,7 @@ DrawGrappleCrosshairCalcs
 */
 function DrawGrappleCrosshairCalcs()
 {
-	// local EmberHUD eHUD;
-
-	// //Access the hud
-	// eHUD=EmberHUD(ePC.myHUD);
-
-	// //Tell HUD how to draw grapple crosshair (either enable or disable it)
-	// eHud.enableGrappleCrosshair(bAttackGrapple);
-
+	eHud.enableGrappleCrosshair(bAttackGrapple);
 }
 
 /*
@@ -1332,9 +1327,9 @@ reliable server function ServerChamber(bool Active)
 ServerGrappleReplication
 	Sends grapple information
 */
-reliable server function ServerGrappleReplication(bool Active, int PlayerID)
+reliable server function ServerGrappleReplication(bool Active, int PlayerID, vector hitLocation)
 {
-	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Grapple(Active, PlayerID);
+	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Grapple(Active, PlayerID, hitLocation);
 }
 /*
 ClientGrappleReplication
@@ -1344,67 +1339,41 @@ ClientGrappleReplication
 function ClientGrappleReplication()
 {
 	local int i;
+	local vector hitLoc;
+	local vector headSocket;
+	local vector grappleSocket;
+	local vector hitNormal;
+	local actor wall;
+	local vector startTraceLoc;
+	local vector endLoc;
+	local ParticleSystemComponent newBeam;
 
+	//While we have more players than beams (i.e. a player just made a beam), create a blank beam:
+	while(GrappleReplicationHolder.PlayerID.length > GrappleReplicationHolder.tetherBeams.length)
+		{
+			newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', vect(0,0,0));
+			newBeam.SetHidden(false);
+			newBeam.ActivateSystem(true);
+			GrappleReplicationHolder.tetherBeams.AddItem(newBeam);
+		}
+
+	//For every active player beam
 	for(i = 0; i < GrappleReplicationHolder.PlayerID.length; i++)
 	{
-		DebugPrint(""@GrappleReplicationHolder.PlayerID[i]);
-	// 	GrappleReplicationHolder.gPawn[i].ParentModularComponent.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
-	
-	// detachTether();
-	// extraTether=0;
-	
-
-	// enemyPawnToggle = enemyPawnToggle ? false : false;
-	// //state
-	//  ePC.isTethering = true;
-	
-	// curTargetWall = Wall;
-	// //wallHitLoc = hitLoc;
-	// wallhitloc = projectileHitVector;
-	
-	// //get length of tether from starting
-	// //position of object and wall
-	// // tetherlength = vsize(hitLoc - Location) * 0.75;
-	// // if (tetherlength > 1000) 
-	// 	// tetherlength = 1000;
-
-	// // tetherlength = vsize(hitLoc - ePawn.Location) * 0.75;
-	// // if (tetherlength > 500) 
-	// 	// tetherlength = 500;
-	// //~~~
-	
-	// //~~~ Beam UPK Asset Download ~~~ 
-	// //I provide you with the beam resource to use here:
-	// //requires Nov 2012 UDK
-	// //Rama Tether Beam Package [Download] For You
-
-	// hitNormalRotator = rotator(HitNormal);
-	// ePawn.createTetherBeam(ePawn.Location + vect(0, 0, 32) + vc * 48, hitNormalRotator);
-
-
-	// //Beam Source Point
-	// ePawn.ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
-	// ePawn.updateBeamSource(grappleSocket, 0);
-	// startLocsArray.AddItem(grappleSocket);
-	
-	// //Beam End
-	// //tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
-	// if(enemyPawn != none){
-	// 	ePawn.updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
-		
-	// }
-	// else{
-	// 	ePawn.updateBeamEnd(projectileHitLocation, 0);
-	// 	endLocsArray.AddItem(projectileHitLocation);
-	// }
-	
+		//Get source location
+		GrappleReplicationHolder.gPawn[i].ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
+		//Update source location
+		updateBeamSource(grappleSocket, i);
+		//Update End location
+		//TODO: Is this really necesary? Perhaps use only on creation/exit
+		updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
 	}
 }
 /*
 ClientReceiveGrappleReplication
 	Receives data to start grapple replication
 */
-reliable client function ClientReceiveGrappleReplication(bool Active, int PlayerID)
+function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLocation)
 {
 	local EmberPawn Receiver;
 	local playerreplicationinfo PRI;
@@ -1413,16 +1382,20 @@ reliable client function ClientReceiveGrappleReplication(bool Active, int Player
 	//If grapple replication is canceled (grapple ended)
 	if(!Active)
 	{
+		DebugPrint("Not Active");
 		//Check all player ID's
 		for(i = 0; i <GrappleReplicationHolder.PlayerID.length; i++)
-
 		{
 			//If we find a match
 			if(GrappleReplicationHolder.PlayerID[i] == PlayerID)
 			{
+				DebugPrint("ID Found");
 				//Remove data
-				GrappleReplicationHolder.PlayerID.Remove(i, 0);
-				GrappleReplicationHolder.gPawn.Remove(i, 0);
+				GrappleReplicationHolder.PlayerID.Remove(i, 1);
+				GrappleReplicationHolder.gPawn.Remove(i, 1);
+				GrappleReplicationHolder.TetherProjectileHitLoc.Remove(i, 1);
+				deactivateTetherBeam(i);
+				DebugPrint("Done"@GrappleReplicationHolder.TetherBeams.length);
 				return;
 			}
 		}
@@ -1438,6 +1411,7 @@ reliable client function ClientReceiveGrappleReplication(bool Active, int Player
 				PRI = Receiver.playerreplicationinfo;
 				GrappleReplicationHolder.PlayerID.AddItem(PlayerID);
 				GrappleReplicationHolder.gPawn.AddItem(Receiver);
+				GrappleReplicationHolder.TetherProjectileHitLoc.AddItem(hitLocation);
 				return;
 			}	
     	}
@@ -1999,22 +1973,22 @@ tetherBeamProjectile
 	Launches a projectile specified by EmberProjectile.uc
 	Upon hitting a target, executes tetherLocationHit
 */  
-simulated function tetherBeamProjectile()
+reliable client function tetherBeamProjectile()
 {
 	local projectile P;
 	local vector newLoc;
 	local rotator rotat;
 	local vector HitLocation, HitNormal;
-	local EmberHUD emHUD;
+	// local EmberHUD emHUD;
 	// newLoc = Location;
 	
 	
 	//Access the hud
-	emHUD=EmberHUD(ePC.myHUD);
+	// emHUD=EmberHUD(ePC.myHUD);
 
 	//Do a trace of where the crosshair is facing. Get the HitLocation to tell where the projectile to fire at
 	//TODO: setup different distance than 10000
-	Trace(HitLocation, HitNormal,emHUD.OutStart, emHUD.OutStart + Normal(emHUD.OutRotation)*10000, true); 
+	Trace(HitLocation, HitNormal,eHUD.OutStart, eHUD.OutStart + Normal(eHUD.OutRotation)*10000, true); 
 	
 	//If we hit nothing, cancel function
  	if(VSize(HitLocation) == 0)
@@ -2045,7 +2019,7 @@ simulated function tetherBeamProjectile()
 tetherLocationHit
 	returns hit and location of tetherBeamProjectile
 */
-reliable server function tetherLocationHit(vector hitNormal, vector hitLocation, actor Other)
+function tetherLocationHit(vector hitNormal, vector hitLocation, actor Other)
 {
 	// tetherLocationHit(hit, lol, Other);
 	projectileHitVector=hitNormal;
@@ -2053,11 +2027,38 @@ reliable server function tetherLocationHit(vector hitNormal, vector hitLocation,
 	// enemyPawn = Other;
 	// enemyPawnToggle = (enemyPawn != none) ? true : false;
 	`Log("tetherLocationHit");
+	detachTether();
+	DebugPrint("projectileHitLocation"@projectileHitLocation);
+	// GrappleReplicationHolder.TetherProjectileHitLoc.AddItem(projectileHitLocation);
+	// ClientReceiveGrappleReplication
+	ClientReceiveGrappleReplication(true, self.playerreplicationinfo.PlayerID, hitLocation);
 	// createTether();
 	ePC.isTethering = true;
 	bTetherProjectileActive = false;
+	if(role < ROLE_Authority)
+		ServerTetherLocationHit(hitNormal, hitLocation, Other);
 }
-reliable server function createTether()
+
+/*
+ServerTetherLocationHit
+	Tetherhit replicated on server
+	same as above function, but without (create tether) visual (saves bandwidth)
+*/
+reliable server function ServerTetherLocationHit(vector hitNormal, vector hitLocation, actor Other)
+{
+
+	// tetherLocationHit(hit, lol, Other);
+	projectileHitVector=hitNormal;
+	projectileHitLocation=hitLocation;
+	// enemyPawn = Other;
+	// enemyPawnToggle = (enemyPawn != none) ? true : false;
+	`Log("tetherLocationHit");
+	ePC.isTethering = true;
+	bTetherProjectileActive = false;
+	ServerGrappleReplication(true, self.playerreplicationinfo.PlayerID, hitLocation);
+}
+
+function createTether()
 {
 	local vector hitLoc;
 	local vector headSocket;
@@ -2076,45 +2077,6 @@ reliable server function createTether()
 	vc = normal(Vector(ePC.Rotation)) * 50;
 	//vc = Owner.Rotation;
 	
-	ParentModularComponent.GetSocketWorldLocationAndRotation('HeadShotGoreSocket', headSocket, r);
-	//pawn location + 100 in direction of player camera
-
-	hitLoc = location;
-	hitLoc.z += 10;
-	startTraceLoc = headSocket + vc ;
-	// startTraceLoc = Location + vc ;
-	 
-	endLoc =startTraceLoc + tetherMaxLength * vc;
-	// endLoc.z += 1500;
-
-	//trace only to tether's max length
-	wall = trace(hitLoc, hitNormal, 
-				endLoc, 
-				startTraceLoc
-			);
-	// DrawDebugLine(endLoc, startTraceLoc, -1, 0, -1, true);
-
-
-	// if(!Wall.isa('Actor')) return; //Change this later for grappling opponents
-	// Wall.isa('Actor') ? DebugPrint("Actor : " $Wall) : ;
-	// InStr(wall, "TestPawn") > 0? DebugPrint("gud") : ;
-	// isPawn = InStr(wall, "TestPawn");
-	// DebugPrint("p = " $isPawn);
-	// floaty = VSize(location - wall.location);
-	// DebugPrint("distance -"@floaty);
-	// if(isPawn >= 0)
-	// {
-	// 	endLoc = normal(location - wall.location);
-	// 	TestPawn(wall).grappleHooked(endLoc, ePawn);
-	// 	// endLoc *= 500;
-	// 	// wall.velocity = endLoc;
-	// }
-	//~~~~~~~~~~~~~~~
-	// Tether Success
-	//~~~~~~~~~~~~~~~
-	//Clear any old tether
-
-	detachTether();
 	extraTether=0;
 	
 
@@ -2122,30 +2084,9 @@ reliable server function createTether()
 	//state
 	 ePC.isTethering = true;
 	
-	curTargetWall = Wall;
-	//wallHitLoc = hitLoc;
-	wallhitloc = projectileHitVector;
-	
-	//get length of tether from starting
-	//position of object and wall
-	// tetherlength = vsize(hitLoc - Location) * 0.75;
-	// if (tetherlength > 1000) 
-		// tetherlength = 1000;
 
-	// tetherlength = vsize(hitLoc - Location) * 0.75;
-	// if (tetherlength > 500) 
-		// tetherlength = 500;
-	//~~~
 	
-	//~~~ Beam UPK Asset Download ~~~ 
-	//I provide you with the beam resource to use here:
-	//requires Nov 2012 UDK
-	//Rama Tether Beam Package [Download] For You
-
-	hitNormalRotator = rotator(HitNormal);
-	// createTetherBeam(, hitNormalRotator);
-	
-	newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', Location + vect(0, 0, 32) + vc * 48,hitNormalRotator);
+	newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', vect(0,0,0));
 	newBeam.SetHidden(false);
 	newBeam.ActivateSystem(true);
 	tetherBeam.AddItem(newBeam);
@@ -2153,18 +2094,7 @@ reliable server function createTether()
 	//Beam Source Point
 	ParentModularComponent.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
 	updateBeamSource(grappleSocket, 0);
-	startLocsArray.AddItem(grappleSocket);
-	
-	//Beam End
-	//tetherBeam.SetVectorParameter('TetherEnd', hitLoc);	
-	if(enemyPawn != none){
-		updateBeamEnd(TestPawn(enemyPawn).grappleSocketLocation, 0);
-		
-	}
-	else{
-		updateBeamEnd(projectileHitLocation, 0);
-		endLocsArray.AddItem(projectileHitLocation);
-	}
+	updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[0], 0);
 }
 simulated function debugCone(float deltatime)
 {  
@@ -2235,7 +2165,7 @@ function decreaseTether()
 /*
 detachTether
 */
-reliable server function detachTether() 
+function detachTether() 
 {
 	enemyPawn = enemyPawnToggle ? enemyPawn : none;
 	 ePC.isTethering = false;
@@ -2244,8 +2174,23 @@ reliable server function detachTether()
  	bGrappleStopLogicGate.length = 0;
  	Velocity.Z += 100;
  	iGrappleStopCounter=0;
-}
+ 	if(role < ROLE_Authority)
+ 	{
+ 		ClientReceiveGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
+ 		ServerDetachTether();
+ 	}
+ 	else
+ 		ServerGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
 
+}
+/*
+ServerDetachTether
+	
+*/
+reliable server function ServerDetachTether()
+{
+	detachTether();
+}
 /*
 createTetherBeam
 	Makes a new beam at vector location
@@ -2263,14 +2208,14 @@ updateBeamEnd
 */
 simulated function updateBeamEnd(vector projectileHitLocation2, int index)
 {
-	tetherBeam[index].SetVectorParameter('TetherEnd', projectileHitLocation2);
+	GrappleReplicationHolder.TetherBeams[index].SetVectorParameter('TetherEnd', projectileHitLocation2);
 }
 /*
 updateBeamSource
 */
 simulated function updateBeamSource(vector tVar, int index)
 {
-	tetherBeam[index].SetVectorParameter('TetherSource', tVar);
+	GrappleReplicationHolder.TetherBeams[index].SetVectorParameter('TetherSource', tVar);
 }
 /*
 getBeamEnd
@@ -2306,16 +2251,16 @@ simulated function deactivateAllTetherBeams()
 {
 	local int i;
 
-	for(i=0; i < tetherBeam.length; i++)
+	for(i=0; i < GrappleReplicationHolder.TetherBeams.length; i++)
 	{
-		if(tetherBeam[i] != none)
+		if(GrappleReplicationHolder.TetherBeams[i] != none)
 			{
-				tetherBeam[i].SetHidden(true);
-				tetherBeam[i].DeactivateSystem();
-				tetherBeam[i] = none;
+				GrappleReplicationHolder.TetherBeams[i].SetHidden(true);
+				GrappleReplicationHolder.TetherBeams[i].DeactivateSystem();
+				GrappleReplicationHolder.TetherBeams[i] = none;
 			}
 	}
-tetherBeam.length = 0;
+GrappleReplicationHolder.TetherBeams.length = 0;
 }
 /*
 deactivateTetherBeam
@@ -2323,16 +2268,16 @@ deactivateTetherBeam
 */
 simulated function deactivateTetherBeam(int index)
 {
-	if(index >= tetherBeam.length)
+	if(index >= GrappleReplicationHolder.TetherBeams.length)
 	return;
 
-		if(tetherBeam[index] != none)
+		if(GrappleReplicationHolder.TetherBeams[index] != none)
 			{
-				tetherBeam[index].SetHidden(true);
-				tetherBeam[index].DeactivateSystem();
-				tetherBeam[index] = none;
+				GrappleReplicationHolder.TetherBeams[index].SetHidden(true);
+				GrappleReplicationHolder.TetherBeams[index].DeactivateSystem();
+				GrappleReplicationHolder.TetherBeams[index] = none;
 			}
-			tetherBeam.remove(index,1);
+			GrappleReplicationHolder.tetherBeams.remove(index,1);
 }
 /*
 createRopeBlock

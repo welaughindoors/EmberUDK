@@ -38,6 +38,7 @@ var repnotify struct ServerGrapplePacketStruct
 {
 	var int ServerTargetPawn;
 	var bool GrappleActive;
+	var vector hitLocation;
 } ServerGrapplePacket;
 
 // Replication block
@@ -52,12 +53,13 @@ Replicate_Grapple
 	Tells if grapple is active or not. If it's active, show the visual grapple
 	(Grapple mechanics are done 100% by server)
 */
-simulated function Replicate_Grapple(bool Active, int cPlayerID)
+simulated function Replicate_Grapple(bool Active, int cPlayerID, vector hitLocation)
 {
 	local ServerGrapplePacketStruct tStruct;
 
 	tStruct.ServerTargetPawn = cPlayerID;	
 	tStruct.GrappleActive = Active;
+	tStruct.hitLocation = hitLocation;
 
 	ServerGrapplePacket = tStruct;
 }
@@ -190,7 +192,7 @@ simulated event ReplicatedEvent(name VarName)
 			//We replicate all pawns, even sender.	
 			Receiver = PC.pawn;
 			// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerGrapplePacket");
-			EmberPawn(Receiver).ClientReceiveGrappleReplication(ServerGrapplePacket.GrappleActive, ServerGrapplePacket.ServerTargetPawn);
+			EmberPawn(Receiver).ClientReceiveGrappleReplication(ServerGrapplePacket.GrappleActive, ServerGrapplePacket.ServerTargetPawn, ServerGrapplePacket.hitLocation);
 		}
 	}
 	
