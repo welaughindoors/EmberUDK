@@ -137,6 +137,7 @@ Recently Completed:
 - Physics based grapple implemented
 - Visual grapple implemented
 - Visual grapple projectile implemented
+- Sword Trails implemented
 
 
 ####Admininistrator

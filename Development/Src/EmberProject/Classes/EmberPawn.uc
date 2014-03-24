@@ -1518,6 +1518,7 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
         													aFramework.ServerAnimationDuration	[AnimAttack], 
         													aFramework.ServerAnimationFadeIn	[AnimAttack], 
         													aFramework.ServerAnimationFadeOut	[AnimAttack]);
+        	Receiver.setTrailEffects(aFramework.ServerAnimationDuration	[AnimAttack]);
     }
     }
 }
