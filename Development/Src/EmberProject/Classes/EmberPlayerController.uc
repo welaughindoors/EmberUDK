@@ -60,6 +60,9 @@ var float ai_attackPlayerRange;
 // Overrided Functions
 //=============================================
 
+//Used to not allow duplicate tethers in networking
+var byte EPressedStatus;
+
 //Insta-Respawn
 state Dead
 {
@@ -433,14 +436,18 @@ eButtonDown
 exec function eButtonDown()
 {
   if(EmberPawn(pawn).bAttackGrapple)
-   EmberPawn(pawn).tetherBeamProjectile();
+  {
+    EPressedStatus = 1;
+    EmberPawn(pawn).tetherBeamProjectile();
+  }
 }
 /*
 ebuttonUp
 */
 exec function ebuttonUp ()
 {
-   EmberPawn(pawn).DetachTether();
+    EPressedStatus = 0;
+    EmberPawn(pawn).DetachTether();
 }
 /*
 increaseTether

@@ -29,6 +29,7 @@ simulated singular event HitWall(vector HitNormal, actor Wall, PrimitiveComponen
 
 	Super.HitWall(HitNormal, Wall, WallComp);
 	Explode(location, HitNormal);
+	if(myOwner != none)
 	EmberPawn(myOwner).tetherLocationHit(HitNormal, location, none);
 }
 
@@ -49,6 +50,7 @@ simulated function ProcessTouch (Actor Other, vector HitLocation, vector HitNorm
 			// MomentumTransfer = (UTPawn(Other) != None) ? 0.0 : 1.0;
 			// Other.TakeDamage(Damage, InstigatorController, HitLocation, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
 			Explode(HitLocation, HitNormal);
+			if(myOwner != none)
 			EmberPawn(myOwner).tetherLocationHit(HitNormal, location, Other);
 		}
 	}

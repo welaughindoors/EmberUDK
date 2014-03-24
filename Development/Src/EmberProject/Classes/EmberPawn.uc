@@ -956,7 +956,6 @@ simulated function doAttackQueue()
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
-ServerSetupLightEnvironment();
 	if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
 			return;
 	iChamberingCounter = 0;
@@ -1332,6 +1331,32 @@ reliable server function ServerGrappleReplication(bool Active, int PlayerID, vec
 	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Grapple(Active, PlayerID, hitLocation);
 }
 /*
+ClientTetherBeamProjectileReplication
+	
+*/
+reliable client function ClientTetherBeamProjectileReplication(vector hitDirection, int PlayerID)
+{
+	local EmberPawn Receiver;
+	local vector projectileSpawnVect;
+	local rotator roter;
+	local EmberProjectile P;
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player who sent the packet
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+		{
+			//Get Launch Location
+			Receiver.ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', projectileSpawnVect, roter);
+			//Spawns projectile at GrappleSocket
+			P = Spawn(class'EmberProjectile',self,,projectileSpawnVect);
+			//We fire projectile along vector
+			p.Init(hitDirection);
+			return;
+		}		
+    }
+}
+/*
 ClientGrappleReplication
 	Actual replication
 	runs per tick
@@ -1559,10 +1584,10 @@ simulated function forcedAnimEnd()
 
             	//TODO: Animation Lock
 				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
-					// SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
 
 				VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
 		}
+				SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'AttackEnd');
 
 	ePlayAnim();
 }
@@ -1920,6 +1945,7 @@ simulated function AttackEnd()
     	doAttack(savedByteDirection);
     }
 	AttackAnimationHitTarget = false;
+	DebugPrint("attackend"@aFramework.CurrentAttackString);
 }
 /*
 SwordGotHit
@@ -1973,18 +1999,12 @@ tetherBeamProjectile
 	Launches a projectile specified by EmberProjectile.uc
 	Upon hitting a target, executes tetherLocationHit
 */  
-reliable client function tetherBeamProjectile()
+function tetherBeamProjectile()
 {
 	local projectile P;
 	local vector newLoc;
 	local rotator rotat;
 	local vector HitLocation, HitNormal;
-	// local EmberHUD emHUD;
-	// newLoc = Location;
-	
-	
-	//Access the hud
-	// emHUD=EmberHUD(ePC.myHUD);
 
 	//Do a trace of where the crosshair is facing. Get the HitLocation to tell where the projectile to fire at
 	//TODO: setup different distance than 10000
@@ -2014,6 +2034,17 @@ reliable client function tetherBeamProjectile()
 	EmberProjectile(p).setProjectileOwner(self);
 	//We fire projectile along vector
 	p.Init(newLoc);
+
+	if(role < ROLE_Authority)
+		ServerTetherBeamProjectile(self.playerreplicationinfo.playerID, newLoc);
+}
+/*
+ServerTetherBeamProjectile
+	
+*/
+reliable server function ServerTetherBeamProjectile(int PlayerID, vector ProjectileDir)
+{
+	EmberReplicationInfo(playerreplicationinfo).Replicate_TetherBeamProjectile(ProjectileDir, PlayerID);
 }
 /*
 tetherLocationHit
@@ -2022,6 +2053,8 @@ tetherLocationHit
 function tetherLocationHit(vector hitNormal, vector hitLocation, actor Other)
 {
 	// tetherLocationHit(hit, lol, Other);
+	if(ePC.EPressedStatus == 0)
+		return;
 	projectileHitVector=hitNormal;
 	projectileHitLocation=hitLocation;
 	// enemyPawn = Other;
@@ -2577,36 +2610,15 @@ simulated function JumpVelocityPinch(float fDeltaTime)
   			AccelRate=2048.0;
   		}
 }
-
-/*
-DoKick
-	Does a tracer for ~ 2.5 seconds from left foot to left knee
-*/
-simulated function DoKick()
-{
-	kickCounter++;
-	if(kickCounter < 20)
-		SetTimer(0.1, false, 'DoKick');
-
-		ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('L_JB', botFoot); 
-		ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('L_Knee', botLeg); 
-
-			// if(oldBotLeg == vect(0,0,0))
-	  //       	DrawDebugLine(botFoot, oldBotFoot, -1, 0, -1, true);
-   //      	else
-   //  	    	DrawDebugLine(botLeg, oldBotLeg, -1, 0, -1, true);
-
-    	    	DrawDebugLine(botLeg, botFoot, -1, 0, -1, true);
-}
-
 //===============================
 // Stances Functions
 //===============================
 simulated function ChangeStance(int newStance, int oldStance = -1)
 {
-	if(oldStance == -1) oldStance = currentStance;
+	DebugPrint(""@aFramework.CurrentAttackString);
+	if(aFramework.CurrentAttackString > 0) return;
 
-	DebugPrint("o-"$currentStance$" 0 nSt-"$newStance);
+	if(oldStance == -1) oldStance = currentStance;
 
 	switch(oldStance)
 {

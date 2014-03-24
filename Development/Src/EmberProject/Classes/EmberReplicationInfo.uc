@@ -1,19 +1,10 @@
 class EmberReplicationInfo extends UTPlayerReplicationInfo;
 
-// var repnotify struct ServerAttackPacketStruct
-// {
-// 	var name AnimName;
-// 	var array<float> Mods;
-// 	var int ServerTargetPawn;
-// 	// var float tDur;
-// } ServerAttackPacket ;
-
 var repnotify struct ServerAttackPacketStruct
 {
 	var int ServerAnimAttack;
 	var int ServerTargetPawn;
 	var bool DirtyBit;
-	// var float tDur;
 } ServerAttackPacket ;
 
 var repnotify struct ServerStancePacketStruct
@@ -41,12 +32,35 @@ var repnotify struct ServerGrapplePacketStruct
 	var vector hitLocation;
 } ServerGrapplePacket;
 
+var repnotify struct ServerTBProjectilePacketStruct
+{
+	var int ServerTargetPawn;
+	var vector hitDirection;
+	var bool DirtyBit;
+}  ServerTBProjectilePacket;
+
 // Replication block
 replication
 {
 	if(bNetDirty)
 		ServerAttackPacket, ServerStancePacket, ServerBlockPacket,
-		ServerChamberPacket, ServerGrapplePacket;
+		ServerChamberPacket, ServerGrapplePacket, ServerTBProjectilePacket;
+}
+
+/*
+Replicate_TetherBeamProjectile
+	Player shot projectile in this direction
+	uses dirty bit incase player doesn't move and shoots a second
+*/
+simulated function Replicate_TetherBeamProjectile(vector ProjectileDir, int PlayerID)
+{
+		local ServerTBProjectilePacketStruct tStruct;
+
+	tStruct.ServerTargetPawn = PlayerID;	
+	tStruct.hitDirection = ProjectileDir;
+	tStruct.DirtyBit = !ServerTBProjectilePacket.DirtyBit;
+
+	ServerTBProjectilePacket = tStruct;
 }
 /*
 Replicate_Grapple
@@ -193,6 +207,18 @@ simulated event ReplicatedEvent(name VarName)
 			Receiver = PC.pawn;
 			// EmberPawn(Receiver).DebugPrint("REPLICATION_ServerGrapplePacket");
 			EmberPawn(Receiver).ClientReceiveGrappleReplication(ServerGrapplePacket.GrappleActive, ServerGrapplePacket.ServerTargetPawn, ServerGrapplePacket.hitLocation);
+		}
+	}
+	
+	if (varname == 'ServerTBProjectilePacket') 
+	{
+		ForEach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+		{
+			if(PC.pawn.PlayerReplicationInfo != self)
+			{
+				Receiver = PC.pawn;
+				EmberPawn(Receiver).ClientTetherBeamProjectileReplication(ServerTBProjectilePacket.hitDirection, ServerTBProjectilePacket.ServerTargetPawn);
+			}
 		}
 	}
 	
