@@ -12,11 +12,7 @@ Controls
 - Ctrl (hold) : Walk
 - Shift : Dash
 - Left Click (tap): Attack
-- Left Click (tap + tap): Feints into an attack (have to tap during windup)
 - Left Click (Hold): Chamber's Attack
-
-- ~~Right Click (tap): Feint windup~~
-- ~~Right Click (hold): Chamber, release into attack (same as holding left click)~~
 - Right Click (hold) : Block
 
 Console Commands
@@ -59,33 +55,28 @@ TODO:
 ####Inathero's doing this
 - Everything Networking. What a monster
 - Change timer from anim preset duration to actual anim duration
-- Sword Trail implementation
-- Shuffle 'dodge' booster thingy
+- Tweaking Sword Trail implementation
+- Shuffle 'dodge' 
 - Perhaps material left where sword touches object? like JKA
 - Velocity pinching on jumps
 - Advanced parry system
 - Walking blending tweaking
 - Modular Pawns Advanced
-- IK Nodes control and creation
 - More blocking
-
-####Biddybam's doing this
-- Better Grapple
 
 ####Admin's doing this
 - Walking animation + blending
+- Updating walking animation and upper body 
+- Dodging animation
 
-####Hydras's doing this
-- Testing out cosmetics
-
-####Jinx's doing this
-- Working on ember_dowtown
+####Flow3r's doing this
+- Flash UI and HUD
 
 ####Misc:
 - Sheathe animation?
 - Better Camera
 - UI. Menu UI, Multiplayer UI, Server List, HUD
-- HUD: HP, Crosshair, Stances (1,2,3), Strings?
+- HUD: ~~HP, Crosshair,~~ Stances (1,2,3), Strings?
 - Everything.
 
 Recently Completed:
@@ -94,13 +85,15 @@ Recently Completed:
 ####Inathero
 - ~~Better Queuing of attacks on left click (hold)~~
 - ~~Chamber Attacks and feints on right click (hold/tap)~~
+- ~~Directional Parries~~
+- ~~Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)~~
+- ~~Player's names appear on top of pawns. Not working completely, but 95% of code is done.~~
 - Basic Velocity Pinching on attacks
 - Basic Jump Velocity Pinching on landing
 - Basic Knockback (but per stance)
 - Basic Dodge when pressing Shift
 - Camera shakes on hit/damage/parry
 - Colour Camera blue = hit, red = damage, green = parry
-- Directional Parries
 - Some basic temporary sound assets
 - API's for Grapple
 - API's for Static Cosmetic items
@@ -108,7 +101,6 @@ Recently Completed:
 - API's for modular items.
 - TestPawn uses medium AttackFramework
 - Made collision between pawn and cape
-- ~~Chain limit enabled (chain X attacks. Last attack needs to go to idle before continuing)~~
 - Attack Locks (pending usage)
 - Remade pawn rendering code to use modular method rather than static
 - Created blocking code to block attacks using a physics asset
@@ -120,9 +112,9 @@ Recently Completed:
 - Basic Pawn Modular Component management + Switching on the fly (for customization)
 - Working Crosshair w/ Grapple. Now grapple will go EXACTLY where crosshair is looking
 - Dynamic crosshair, is enabled only during Grapple View.
-- Player's names appear on top of pawns. Not working completely, but 95% of code is done.
 - API's for Flash and Flash/US communication
 - Working health bar communication
+- Basic sword trail implementation on katana and heavy sword. Also stays active during chamber
 
 
 ####AI by Inathero
@@ -133,13 +125,19 @@ Recently Completed:
 - ^-- Were disabled in favor for multiplayer (functions it relied on were single player exclusive)
 
 ####Networking by Inathero
-- Modular Pawns (lighting not being replicated to clients)
+- Modular Pawns
 - ALL attack animations (in a super bandwidth saving way)
 - Stance changes
 - Damage to/from EmberPawns (can't damage TestPawns)
 - Blocking (needs fixing)
 - Chambering (needs testing)
 - New damage groups
+- Smoothed pawn movement (choppy rotation still)
+- Light Enviro replicated, but needs to be perspawn instead of logic gated per tick.
+- Physics based grapple implemented
+- Visual grapple implemented
+- Visual grapple projectile implemented
+
 
 ####Admininistrator
 - Essentially all the Animations
@@ -164,8 +162,8 @@ Recently Completed:
 - a few medium attacks
 
 ####Biddybam
-- Grapple 'sticks' around edges, like a rope
-- Grapple 'unsticks' around edges when going back around
+- ~~Grapple 'sticks' around edges, like a rope~~
+- ~~Grapple 'unsticks' around edges when going back around~~
 
 ####Jinx
 - Basic structuring of Ember_Downtown map
@@ -194,13 +192,9 @@ Issues:
 
 Networking Issues:
 ==========
-- Grapple is completely dead
-- Sword replication on Test Pawns is null
 - Collision Z axis on test pawns is lower than default
 - Test Pawns damage is one hit killing. Probably due to null sword replication
-- Player does no damage
-
-fuck network for now, we also redid pawn code so networking is basically nonexistant atm
+- Essentially we have unbeatable homing bots. It's a pain in the ass.
 
 How to Multiplayer:
 ==========

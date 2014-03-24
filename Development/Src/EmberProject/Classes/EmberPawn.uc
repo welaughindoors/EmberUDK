@@ -70,6 +70,9 @@ var float cameraCamXOffsetInterpolation;
 
 var float cameraCamYOffsetInterpolation;
 
+var UTEmitter SwordEmitterL;  
+var UTEmitter SwordEmitterR;  
+
 //=============================================
 // Jump/JetPack System
 //=============================================
@@ -502,38 +505,51 @@ simulated function SetupPlayerControllerReference(EmberPlayerController aPlayer 
 		ePC = EmberPlayerController(Instigator.Controller);
 		else
 			ePC = aPlayer;
-			DebugPrint("epc"@ePC);
-	    // setInfo(Self,  ePC);
 }
 /*
 setTrailEffects
 	Sticks an emitter on current sword
 	TODO: Make it actual trail not light effects
 */
-simulated function setTrailEffects()
+simulated function setTrailEffects(float duration)
 { 
-//Declare a new Emitter
-local UTEmitter SwordEmitter;      
+//Declare a new Emitter    
 local vector Loc;
 local rotator Roter;    
  
 //Lets Get the Intial Location Rotation
-Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Loc, Roter);
+Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('MidControl', Loc, Roter);
  
 //Spawn The Emitter In to The Pool
-SwordEmitter = Spawn(class'UTEmitter', self,, Loc, Roter);
+SwordEmitterL = Spawn(class'UTEmitter', self,, Loc, Roter);
  
 //Set it to the Socket
-SwordEmitter.SetBase(self,, Sword[currentStance-1].Mesh, 'StartControl'); 
+SwordEmitterL.SetBase(self,, Sword[currentStance-1].Mesh, 'MidControl'); 
  
 //Set the template
 // SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
-SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_Blue', false); 
+// SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_Blue', false); 
 
+SwordEmitterL.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
  
 //Never End
-SwordEmitter.LifeSpan = 0;
+SwordEmitterL.LifeSpan = duration;
+Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('MidControl2', Loc, Roter);
 
+//Spawn The Emitter In to The Pool
+SwordEmitterR = Spawn(class'UTEmitter', self,, Loc, Roter);
+ 
+//Set it to the Socket
+SwordEmitterR.SetBase(self,, Sword[currentStance-1].Mesh, 'MidControl2'); 
+ 
+//Set the template
+// SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+// SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_Blue', false); 
+
+SwordEmitterR.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+ 
+//Never End
+SwordEmitterR.LifeSpan = duration;
 }
 /*
 setDodgeEffect
@@ -965,6 +981,7 @@ simulated function doAttackQueue()
 
 	currentStringCounter = aFramework.CurrentAttackString;
 
+
 	ClearTimer('AttackEnd');
 	AttackEnd();
 	aFramework.CurrentAttackString = currentStringCounter;
@@ -1151,6 +1168,8 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			Sword[currentStance-1].SetInitialState();
 			VelocityPinch.ApplyVelocityPinch(,0,0);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+			SwordEmitterL.LifeSpan = 0;
+			SwordEmitterR.LifeSpan = 0;
 			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 		}
 		else
@@ -1162,6 +1181,9 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			SetTimer((aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'AttackEnd');	
 			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+			
+			SwordEmitterL.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
+			SwordEmitterR.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
 			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
 		}
 }
@@ -1588,6 +1610,7 @@ simulated function forcedAnimEnd()
 				VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
 		}
 				SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'AttackEnd');
+				setTrailEffects(aFramework.ServerAnimationDuration[AttackAnimationID]);
 
 	ePlayAnim();
 }
@@ -2636,6 +2659,7 @@ simulated function ChangeStance(int newStance, int oldStance = -1)
 }
 
 ParentModularComponent.AttachComponentToSocket(Sword[newStance-1].Mesh, 'WeaponPoint');
+// setTrailEffects();
 
 currentStance = newStance;
 
