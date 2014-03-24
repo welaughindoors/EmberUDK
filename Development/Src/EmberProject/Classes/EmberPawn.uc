@@ -730,9 +730,9 @@ reliable client function ClientHitEffect(int HitType)
   	//Play anim
   	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
   	//Save velocity for after time freeze
-  	savedVelocity = Velocity;
+  	savedVelocity = Velocity * 0.5;
   	//Time freeze
-  	CustomTimeDilation = 0.02f;
+  	CustomTimeDilation = 0.2f;
   	//Set timer for unfreeze
   	SetTimer(0.002, false, 'enableAnimations');
 }
@@ -1071,8 +1071,6 @@ ClearTimer('AttackEnd');
     // animationControl();
 //End modded AttackEnd
 //=====================================================================
-
-swapToBlockPhysics();
 Sword[currentStance-1].isBlock = 1;
 
 if(role < ROLE_Authority)
@@ -1126,6 +1124,7 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 			BlockChamberFlag = 0;
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
 			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+			swapToBlockPhysics();
 		}
 		else
 		{
@@ -1519,6 +1518,7 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
         													aFramework.ServerAnimationDuration	[AnimAttack], 
         													aFramework.ServerAnimationFadeIn	[AnimAttack], 
         													aFramework.ServerAnimationFadeOut	[AnimAttack]);
+        	Receiver.setTrailEffects(aFramework.ServerAnimationDuration	[AnimAttack]);
     }
     }
 }

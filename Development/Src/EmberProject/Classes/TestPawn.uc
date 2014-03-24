@@ -28,6 +28,10 @@ var pawn P;
 var bool tParry,tHit,tDamage;
 var float talkCounter;
 var int talkCounterChooser;
+
+
+var UTEmitter SwordEmitterL;  
+var UTEmitter SwordEmitterR;  
 //=============================================
 // Weapon
 //=============================================
@@ -76,6 +80,48 @@ var struct AttackPacketStruct
 // 		GotoState('Dying');
 // 	}
 // }
+
+simulated function setTrailEffects(float duration)
+{ 
+//Declare a new Emitter    
+local vector Loc;
+local rotator Roter;    
+ 
+//Lets Get the Intial Location Rotation
+Sword.Mesh.GetSocketWorldLocationAndRotation('MidControl', Loc, Roter);
+ 
+//Spawn The Emitter In to The Pool
+SwordEmitterL = Spawn(class'UTEmitter', self,, Loc, Roter);
+ 
+//Set it to the Socket
+SwordEmitterL.SetBase(self,, Sword.Mesh, 'MidControl'); 
+ 
+//Set the template
+// SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+// SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_Blue', false); 
+
+SwordEmitterL.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+ 
+//Never End
+SwordEmitterL.LifeSpan = duration;
+Sword.Mesh.GetSocketWorldLocationAndRotation('MidControl2', Loc, Roter);
+
+//Spawn The Emitter In to The Pool
+SwordEmitterR = Spawn(class'UTEmitter', self,, Loc, Roter);
+ 
+//Set it to the Socket
+SwordEmitterR.SetBase(self,, Sword.Mesh, 'MidControl2'); 
+ 
+//Set the template
+// SwordEmitter.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+// SwordEmitter.SetTemplate(ParticleSystem'WP_LinkGun.Effects.P_FX_LinkGun_MF_Beam_Blue', false); 
+
+SwordEmitterR.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSwordRibbon', false); 
+ 
+//Never End
+SwordEmitterR.LifeSpan = duration;
+}
+
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
 	local int OldHealth;
@@ -613,6 +659,7 @@ function doAttack (int AttackAnimationID)
     // Sword.GoToState('AttackingNoTracers');
     Sword.GoToState('Attacking');
 	SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'attackStop');
+	setTrailEffects(aFramework.ServerAnimationDuration[AttackAnimationID]);
 }
 /*
 GetTimeLeftOnAttack
