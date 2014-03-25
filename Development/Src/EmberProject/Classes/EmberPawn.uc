@@ -39,6 +39,9 @@ var bool ParryEnabled;
 
 var bool tempToggleForEffects;
 
+//When chambering, zooms camera closer to pawn
+var bool bChamberZoom;
+
 var array<bool> bGrappleStopLogicGate;
 var int iGrappleStopCounter;
 // var SkeletalMeshComponent PlayerMeshComponent;
@@ -860,19 +863,31 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    //    CurrentCamOffset.X = GetCollisionRadius();
    // }
 	
-if(!bAttackGrapple)
+if(!bAttackGrapple && !bChamberZoom)
 {
    	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
    	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3, 2*fDeltaTime);
    	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 2.5*fDeltaTime);
    	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 2.5*fDeltaTime);
 }
-else
+if(bAttackGrapple)
 {
 	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -13, 2*fDeltaTime);
    	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, 2*fDeltaTime);
    	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.8, 2.5*fDeltaTime);
    	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 2.5, 2.5*fDeltaTime);
+}
+if (bChamberZoom)
+{
+	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -13, fDeltaTime/2);
+   	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, fDeltaTime);
+   	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.8, fDeltaTime/2);
+   	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1.5, fDeltaTime/2);
+   	if(cameraCamXOffsetInterpolation < 1.0)
+   	{
+   		bChamberZoom = false;
+   		stopAttackQueue();
+   	}
 }
    GetAxes(out_CamRot, CamDirX, CamDirY, CamDirZ);
    //Change multipliers here
@@ -1171,6 +1186,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
 			SwordEmitterL.LifeSpan = 0;
 			SwordEmitterR.LifeSpan = 0;
+			bChamberZoom = true;
 			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 		}
 		else
@@ -1185,6 +1201,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			
 			SwordEmitterL.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
 			SwordEmitterR.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
+			bChamberZoom = false;
 			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
 		}
 }

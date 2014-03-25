@@ -116,6 +116,7 @@ Recently Completed:
 - API's for Flash and Flash/US communication
 - Working health bar communication
 - Basic sword trail implementation on katana and heavy sword. Also stays active during chamber
+- When chamber is held down, camera starts zooming in. After a while, Pawn will release attack and camera resets
 
 
 ####AI by Inathero
