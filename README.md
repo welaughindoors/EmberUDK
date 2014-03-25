@@ -36,6 +36,7 @@ type command as shown here to see a description of what it does (for most items)
 - ep_ai_attack_player_range
 - tethermod 0 0 0
 - setTracers # (default 15)
+- ep_debug_tracelines
 
 ---
 

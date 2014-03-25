@@ -187,6 +187,8 @@ var bool  tracerRecordBool;
 var bool bAttackGrapple;
 //if tether projectile is active, do NOT shoot another
 var bool bTetherProjectileActive;
+//CVar used to show trace lines
+var int bTraceLines;
 
 
 //=============================================
@@ -2733,6 +2735,17 @@ simulated function overrideStanceChange()
 // 	else
 //   		Sword[currentStance-1].blockCone = coneDotProductAngle;
 // }
+
+exec function ep_debug_tracelines(float tVar = -3949212)
+{
+	if(tVar == -3949212)
+		DebugPrint("Enables Debug Trace Lines. 1 = true; 0 = false. Current Value -"@bTraceLines);
+	else
+	{
+  		if(tVar == 0) bTraceLines = tVar;
+  		if(tVar == 1) bTraceLines = tVar;
+	}
+} 
 exec function ep_player_anim_run_blend_time(float runBlendTimeMod = -3949212)
 {
 	if(runBlendTimeMod == -3949212)

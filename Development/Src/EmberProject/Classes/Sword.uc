@@ -475,18 +475,21 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
     // if(interpolatedPoints_DidWeHitActor[i] == false)
     // {
       // if(tracerTempColourCounter < 0.33 && tracerTempColourCounter > 0 )
-     //  if(i < 5)
-     //    DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], -1, 0, -1, true);
+      if(EmberPawn(Owner).bTraceLines == 1)
+      {
+      if(i < 5)
+        DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], -1, 0, -1, true);
       
 
-     //  // else if(tracerTempColourCounter > 0.33 && tracerTempColourCounter < 0.66 )
-     //  else if (i >= 5 && i < 10)
-     //  DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 0, 0, -1, true);
+      // else if(tracerTempColourCounter > 0.33 && tracerTempColourCounter < 0.66 )
+      else if (i >= 5 && i < 10)
+      DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 0, 0, -1, true);
     
 
-     // // else if(tracerTempColourCounter < 1 && tracerTempColourCounter > 0.66)
-     // else if (i >= 10 && i < 15)
-     //    DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 34, 139, 34, true);
+     // else if(tracerTempColourCounter < 1 && tracerTempColourCounter > 0.66)
+     else if (i >= 10 && i < 15)
+        DrawDebugLine(interpolatedPoints[i], oldInterpolatedPoints[i], 34, 139, 34, true);
+        }
 
         interpolatedPoints_TemporaryHitArray.AddItem(Trace(HitLocation, HitNormal, interpolatedPoints[i], oldInterpolatedPoints[i], true, , hitInfo)); 
         interpolatedPoints_TemporaryHitInfo.AddItem(hitInfo);
