@@ -194,6 +194,16 @@ var bool bAttackGrapple;
 var bool bTetherProjectileActive;
 //CVar used to show trace lines
 var int bTraceLines;
+// Toggles active state of sprint control
+var bool bSprintControl;
+// Runs per tick to add up to X seconds to increase level
+var float fSprintControlCounter;
+// Declares X Seconds
+var float fSprintControlSecondsTrigger;
+// Max ground speed bonus
+var float fSprintControlMaxGroundSpeed;
+// X% bonus to ground speed per level
+var float fSprintControlPercentBonus;
 
 
 //=============================================
@@ -644,11 +654,79 @@ if(GrappleReplicationHolder.PlayerID.length != 0)
 
  
 	// if(jumpActive)
-		JumpVelocityPinch(DeltaTime);
+	// JumpVelocityPinch(DeltaTime);
+	SprintControl(DeltaTime);
 
 	animationControl();
 	ServerSetupLightEnvironment();
 } 
+/*
+SprintControl
+	Increases Ground Speed by X% every X Seconds till Cap.
+	If any other key is pressed, reset.
+*/
+function SprintControl(float fDeltaTime)
+{
+local float fSprintRealBonus;
+
+//If player stopped moving
+	if (VSize(Velocity) < 10)
+	{
+
+		//If ground speed was modified
+		if(GroundSpeed != 280)
+		{
+			//Reset speed
+			GroundSpeed = 280;
+			//Reset counter
+			fSprintControlCounter = 0;
+
+			DebugPrint("Stopped Moving. GroundSpeed = "@GroundSpeed);
+		}
+	}
+//Player is moving
+	else
+	{
+		// If sprint control is initiated
+		// This is determined in EmberPlayerController
+		// If ONLY W is pressed, control is enabled. Otherwise disabled
+		//----
+		// Also use sprint control ONLY if GroundSpeed isn't at maxed
+		if(bSprintControl && GroundSpeed < fSprintControlMaxGroundSpeed)
+		{
+			//Start counting
+			fSprintControlCounter += fDeltaTime;
+			// If we reached the step limit
+			if(fSprintControlCounter >= fSprintControlSecondsTrigger)
+				{
+					//Convert XX% into number format
+
+					//ex. 20% = 0.2
+					fSprintRealBonus = fSprintControlPercentBonus / 100.0f;
+					// 0.2 => 1.2
+					fSprintRealBonus += 1.0;
+					// Speed increased by 20%
+					GroundSpeed *= fSprintRealBonus;
+					//If it's higher than the limit imposed, set to limit
+					if(GroundSpeed > fSprintControlMaxGroundSpeed)
+						GroundSpeed = fSprintControlMaxGroundSpeed;
+
+					DebugPrint("Ground Speed Increased to "@GroundSpeed);
+					// Reset counter
+					fSprintControlCounter = 0;
+				}
+		}
+		// Sprint control is disabled
+		else if (!bSprintControl && GroundSpeed != 280)
+		{
+			//Reset speed
+			GroundSpeed = 280;
+			//Reset counter
+			fSprintControlCounter = 0;
+			DebugPrint("SprintControl = False, GroundSpeed = "@GroundSpeed);
+		}
+	}
+}
 /*
 Flash_InitialUpdates
 	Used to run all flash functions that need updating on pawn initiliazation
@@ -1037,11 +1115,6 @@ stopAttackQueue
 */
 simulated function stopAttackQueue()
 {
-	// EmberDash.PlayCustomAnimByDuration('ember_jerkoff_block',0.1, 0.1, 0.3, false);
-    // Sword[currentStance-1].SetInitialState();
-    // swordBlockIsActive = false;//temp_fix_for_animation
-	// Sword.rotate(0,0,16384); //temp_fix_for_animation
-DebugPrint("stopAttackQueue");
 bAttackQueueing = false;
 ChamberFlags.removeLeftChamberFlag(0);
 
@@ -1628,7 +1701,6 @@ forcedAnimEnd
 simulated function forcedAnimEnd()
 {
 
-			DebugPrint("forcedAnimEnd");
 			ClearTimer('AttackEnd');
 			AttackBlend.setBlendTarget(0, 0.2);    
 
@@ -2005,7 +2077,6 @@ simulated function AttackEnd()
     	doAttack(savedByteDirection);
     }
 	AttackAnimationHitTarget = false;
-	DebugPrint("attackend"@aFramework.CurrentAttackString);
 }
 /*
 SwordGotHit
@@ -2802,9 +2873,21 @@ exec function ep_player_gravity_scaling(float GravityScale = -3949212)
 	else
   		CustomGravityScaling = GravityScale;
 }
-exec function ep_player_jump_boost(float JumpBoost = -3949212)
+exec function ep_player_jump_boost(float tVar = -3949212)
 { 
-	JumpZ = (JumpBoost == -3949212) ? ModifiedDebugPrint("The boost player gets when jumping. Current Value -", JumpZ) : JumpBoost;
+	JumpZ = (tVar == -3949212) ? ModifiedDebugPrint("The boost player gets when jumping. Current Value -", JumpZ) : tVar;
+}
+exec function ep_sprintcontrol_seconds_trigger(float tVar = -3949212)
+{ 
+	fSprintControlSecondsTrigger = (tVar == -3949212) ? ModifiedDebugPrint("Seconds till percent bonus is applied. Current Value -", fSprintControlSecondsTrigger) : tVar;
+}
+exec function ep_sprintcontrol_max_speed(float tVar = -3949212)
+{ 
+	fSprintControlMaxGroundSpeed = (tVar == -3949212) ? ModifiedDebugPrint("Max speed possible. Current Value -", fSprintControlMaxGroundSpeed) : tVar;
+}
+exec function ep_sprintcontrol_percent_bonus(float tVar = -3949212)
+{ 
+	fSprintControlPercentBonus = (tVar == -3949212) ? ModifiedDebugPrint("percent bonus that is applied. 10% = 10, 25% = 25, 100% = 100, Current Value -", fSprintControlPercentBonus) : tVar;
 }
 exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
 { 
@@ -2854,6 +2937,10 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+
+fSprintControlSecondsTrigger = 2.0f; // Step up every 2s
+fSprintControlMaxGroundSpeed = 500; // Max ground speed = 400
+fSprintControlPercentBonus = 10.0; // 30% bonus
 
 goingTowardsHighVelModifier = 0.03;
 goingTowardsLowVelModifier = 30;

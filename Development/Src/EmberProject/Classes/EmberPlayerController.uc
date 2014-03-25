@@ -623,20 +623,37 @@ exec function ep_player_modular(int Category, int Index)
 exec function hookW()
 {
      verticalShift[0] = verticalShift[0] ^ 1;
+     EmberPawn(pawn).bSprintControl = EnableSprintControl();
+
 }
 exec function hookA()
 {
     verticalShift[1] = verticalShift[1] ^ 1;
+    EmberPawn(pawn).bSprintControl = EnableSprintControl();
 }
 exec function hookS()
 {
     verticalShift[2] = verticalShift[2] ^ 1;
+    EmberPawn(pawn).bSprintControl = EnableSprintControl();
 } 
 exec function hookD()
 {
     verticalShift[3] = verticalShift[3] ^ 1;
+    EmberPawn(pawn).bSprintControl = EnableSprintControl();
 }
+/*
+bool EnableSprintControl
+  
+*/
+function bool EnableSprintControl()
+{  
+  if((verticalShift[1] ^ 1) == 0 )  return false;
+  if((verticalShift[2] ^ 1) == 0 )  return false;
+  if((verticalShift[3] ^ 1) == 0 )  return false;
 
+  if((verticalShift[0] ^ 1) == 0 )  return true;
+                                    return false;
+}
 //=============================================
 // Custom Functions
 //=============================================
@@ -777,19 +794,6 @@ simulated function SaveMeshValues()
  // SetTimer(0.1, false, 'resetMesh');
 }
 
-simulated function resetMesh()
-{
-  // DebugPrint("Mesh Reset "@PostBeginCharacterInformation.defaultMesh);
-  // EmberPawn(pawn).attachReset();
-// self.Pawn.Mesh.SetSkeletalMesh(PostBeginCharacterInformation.defaultMesh);
-// self.Pawn.Mesh.SetMaterial(0,PostBeginCharacterInformation.defaultMaterial0);
-// self.Pawn.Mesh.SetMaterial(1,PostBeginCharacterInformation.defaultMaterial1); 
-// self.Pawn.Mesh.SetPhysicsAsset(PostBeginCharacterInformation.defaultPhysicsAsset );
-// self.Pawn.Mesh.AnimSets=PostBeginCharacterInformation.defaultAnimSet; 
-// self.Pawn.Mesh.SetAnimTreeTemplate(PostBeginCharacterInformation.defaultAnimTree );
-// EmberPawn(Pawn).SetUpCosmetics();
-// RepMesh = defaultMesh;
-}
 
 defaultproperties
 {

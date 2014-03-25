@@ -37,6 +37,9 @@ type command as shown here to see a description of what it does (for most items)
 - tethermod 0 0 0
 - setTracers # (default 15)
 - ep_debug_tracelines
+- ep_sprintcontrol_seconds_trigger
+- ep_sprintcontrol_max_speed
+- ep_sprintcontrol_percent_bonus
 
 ---
 
