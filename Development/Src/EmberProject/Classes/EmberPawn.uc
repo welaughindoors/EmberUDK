@@ -41,6 +41,8 @@ var bool tempToggleForEffects;
 
 //When chambering, zooms camera closer to pawn
 var bool bChamberZoom;
+//When chambering, shakes camera
+var bool bChamberZoomShake;
 
 var array<bool> bGrappleStopLogicGate;
 var int iGrappleStopCounter;
@@ -836,7 +838,18 @@ function DrawGrappleCrosshairCalcs()
 {
 	eHud.enableGrappleCrosshair(bAttackGrapple);
 }
-
+/*
+ToggleChamberZoomShake
+	
+*/
+function ToggleChamberZoomShake()
+{
+	if(bChamberZoomShake)
+	{
+		bChamberZoomShake = false;
+	  	ePC.ClientPlayCameraAnim(CameraAnim'EmberCameraFX.ChamberShake', 1.7, 0.9);
+	}
+}
 /*
 CalcCamera
 	Required for modified Third Person
@@ -865,10 +878,10 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
 	
 if(!bAttackGrapple && !bChamberZoom)
 {
-   	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 2*fDeltaTime);
-   	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3, 2*fDeltaTime);
-   	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 2.5*fDeltaTime);
-   	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 2.5*fDeltaTime);
+   	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, 30, 3.5*fDeltaTime);
+   	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3, 3.5*fDeltaTime);
+   	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 2.2, 3.5*fDeltaTime);
+   	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1, 3.5*fDeltaTime);
 }
 if(bAttackGrapple)
 {
@@ -879,13 +892,17 @@ if(bAttackGrapple)
 }
 if (bChamberZoom)
 {
+	// bChamberZoomShake = true;
 	cameraCamZOffsetInterpolation = Lerp(cameraCamZOffsetInterpolation, -13, fDeltaTime/2);
    	cameraCamXOffsetMultiplierInterpolation = Lerp(cameraCamXOffsetMultiplierInterpolation, 3.1, fDeltaTime);
    	cameraCamXOffsetInterpolation = Lerp(cameraCamXOffsetInterpolation, 0.8, fDeltaTime/2);
    	cameraCamYOffsetInterpolation = Lerp(cameraCamYOffsetInterpolation, 1.5, fDeltaTime/2);
+
+   	ToggleChamberZoomShake();
    	if(cameraCamXOffsetInterpolation < 1.0)
    	{
    		bChamberZoom = false;
+   		bChamberZoomShake = false;
    		stopAttackQueue();
    	}
 }
@@ -1186,6 +1203,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
 			SwordEmitterL.LifeSpan = 0;
 			SwordEmitterR.LifeSpan = 0;
+			bChamberZoomShake=true;
 			bChamberZoom = true;
 			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 		}
