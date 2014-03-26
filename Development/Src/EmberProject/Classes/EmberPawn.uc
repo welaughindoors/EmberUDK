@@ -551,6 +551,8 @@ SwordEmitterL.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSword
  
 //Never End
 SwordEmitterL.LifeSpan = duration;
+SwordEmitterL.ParticleSystemComponent.bUpdateComponentInTick = true;
+SwordEmitterL.ParticleSystemComponent.SetTickGroup(TG_EffectsUpdateWork);
 Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('MidControl2', Loc, Roter);
 
 //Spawn The Emitter In to The Pool
@@ -567,6 +569,8 @@ SwordEmitterR.SetTemplate(ParticleSystem'RainbowRibbonForSkelMeshes.RainbowSword
  
 //Never End
 SwordEmitterR.LifeSpan = duration;
+SwordEmitterR.ParticleSystemComponent.bUpdateComponentInTick = true;
+SwordEmitterR.ParticleSystemComponent.SetTickGroup(TG_EffectsUpdateWork);
 }
 /*
 setDodgeEffect
@@ -1511,6 +1515,8 @@ function ClientGrappleReplication()
 			newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', vect(0,0,0));
 			newBeam.SetHidden(false);
 			newBeam.ActivateSystem(true);
+			newBeam.bUpdateComponentInTick = true;
+			newBeam.SetTickGroup(TG_EffectsUpdateWork);
 			GrappleReplicationHolder.tetherBeams.AddItem(newBeam);
 		}
 
@@ -2345,7 +2351,10 @@ function detachTether()
  		ServerDetachTether();
  	}
  	else
+ 	{
+ 		ClientReceiveGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
  		ServerGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
+ 	}
 
 }
 /*
@@ -2939,7 +2948,7 @@ defaultproperties
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
 
-fSprintControlSecondsTrigger = 2.0f; // Step up every 2s
+fSprintControlSecondsTrigger = 1.3f; // Step up every 1.3s
 fSprintControlMaxGroundSpeed = 500; // Max ground speed = 400
 fSprintControlPercentBonus = 10.0; // 30% bonus
 

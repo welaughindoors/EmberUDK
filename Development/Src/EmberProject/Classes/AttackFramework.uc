@@ -156,7 +156,7 @@ ServerAnimationNames[10] = ember_attack_forward;
 ServerAnimationNames[11] = ember_temp_left_attack;
 ServerAnimationNames[12] = ember_temp_right_attack;
 
-ServerAnimationNames[16] = ember_medium_right;
+ServerAnimationNames[16] = ember_medium_left;
 ServerAnimationNames[17] = ember_medium_right_v3;
 ServerAnimationNames[18] = ember_medium_forward;
 ServerAnimationNames[19] = ember_medium_diagonal_left;
