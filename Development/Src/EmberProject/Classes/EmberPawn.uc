@@ -1084,6 +1084,7 @@ simulated function doAttackQueue()
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
+	ePC.ClientStopCameraAnim(CameraAnim'EmberCameraFX.ChamberShake');
 	if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
 			return;
 	iChamberingCounter = 0;
