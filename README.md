@@ -40,6 +40,7 @@ type command as shown here to see a description of what it does (for most items)
 - ep_sprintcontrol_seconds_trigger
 - ep_sprintcontrol_max_speed
 - ep_sprintcontrol_percent_bonus
+- ep_skel_head_trackradius
 
 ---
 
@@ -120,6 +121,8 @@ Recently Completed:
 - Working health bar communication
 - Basic sword trail implementation on katana and heavy sword. Also stays active during chamber
 - When chamber is held down, camera starts zooming in. After a while, Pawn will release attack and camera resets
+- Dynamic sprint/run
+- Pawn Head Tracking
 
 
 ####AI by Inathero
@@ -153,6 +156,8 @@ Recently Completed:
 - Updated medium forward
 - Parts of modular pawns created
 - block animation
+- Better Med Right and Left
+- Dynamic sprint/run
 
 ####Flow3r
 - basic menu done in flash scaleform.

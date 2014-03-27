@@ -52,11 +52,11 @@ Replicate_TetherBeamProjectile
 	Player shot projectile in this direction
 	uses dirty bit incase player doesn't move and shoots a second
 */
-simulated function Replicate_TetherBeamProjectile(vector ProjectileDir, int PlayerID)
+simulated function Replicate_TetherBeamProjectile(vector ProjectileDir, int cPlayerID)
 {
 		local ServerTBProjectilePacketStruct tStruct;
 
-	tStruct.ServerTargetPawn = PlayerID;	
+	tStruct.ServerTargetPawn = cPlayerID;	
 	tStruct.hitDirection = ProjectileDir;
 	tStruct.DirtyBit = !ServerTBProjectilePacket.DirtyBit;
 
