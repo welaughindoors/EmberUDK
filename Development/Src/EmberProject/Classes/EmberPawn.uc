@@ -137,7 +137,10 @@ var bool IKUpperBody_AnimateToggle;
 var SkelControl_CCD_IK IKRightHand;
 var SkelControl_CCD_IK IKLeftHand;
 var SkelControl_CCD_IK IKUpperBody;
+//Rotates head bone to target
 var SkelControlLookAt Skel_LookAt;
+//Lerp between skelcontrol and animations
+var float Skel_LookAt_Lerp;
 //=============================================
 // Attack 
 //=============================================
@@ -677,25 +680,33 @@ function Skel_HeadLookAt(float fDeltaTime)
 	local TestPawn P;
 	local bool found;
 
-	headcounter+= fDeltaTime;
+	// headcounter+= fDeltaTime;
 
-	if(headcounter >= 0.1)
-	{
-		headcounter = 0;
-		foreach WorldInfo.AllPawns( class'TestPawn', P )
+	// if(headcounter >= 0.1)
+	// {
+		// headcounter = 0;
+		// foreach WorldInfo.AllPawns( class'TestPawn', P )
+		// foreach VisibleCollidingActors(class'TestPawn', P, Skel_HeadPawnDetectionRadius, self.Location)
+		foreach CollidingActors(class'TestPawn', P, Skel_HeadPawnDetectionRadius, self.Location)
 		{
-			if(VSize(P.Location - self.Location) <= Skel_HeadPawnDetectionRadius)
-			{
+			// if(VSize(P.Location - self.Location) <= Skel_HeadPawnDetectionRadius)
+			// {
 				// DebugPrint("loc"@P.Location);
 				Skel_LookAt.SetTargetLocation(P.Location);
 				Skel_LookAt.InterpolateTargetLocation(fDeltaTime);
-				Skel_LookAt.ControlStrength = 1;
+				Skel_LookAt_Lerp+= 2.5 *fDeltaTime;
+				if(Skel_LookAt_Lerp > 1.0) Skel_LookAt_Lerp = 1.0;
+				Skel_LookAt.ControlStrength = Skel_LookAt_Lerp;
 				found = true;
-			}
+			// }
 		}
 		if(!found)
-				Skel_LookAt.ControlStrength = 0;
-	}
+		{
+			Skel_LookAt_Lerp -= 2.5 * fDeltaTime;
+			if(Skel_LookAt_Lerp < 0) Skel_LookAt_Lerp = 0;
+			Skel_LookAt.ControlStrength = Skel_LookAt_Lerp;
+		}
+	// }
 }
 /*
 SprintControl
@@ -963,7 +974,7 @@ function ToggleChamberZoomShake()
 	if(bChamberZoomShake)
 	{
 		bChamberZoomShake = false;
-	  	ePC.ClientPlayCameraAnim(CameraAnim'EmberCameraFX.ChamberShake', 1.7, 0.9);
+	  	ePC.ClientPlayCameraAnim(CameraAnim'EmberCameraFX.ChamberShake', 1.7, 0.9, , 0.5);
 	}
 }
 /*
@@ -1163,6 +1174,8 @@ if(ChamberFlags.CheckLeftFlag(1))
 	ServerChamber(false);
 	ChamberGate(false);
 }
+
+	ePC.ClientStopCameraAnim(CameraAnim'EmberCameraFX.ChamberShake');
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
 /*
