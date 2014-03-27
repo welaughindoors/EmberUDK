@@ -180,7 +180,7 @@ ServerAnimationDuration[10] = 1;
 ServerAnimationDuration[11] = 1;
 ServerAnimationDuration[12] = 1;
 
-ServerAnimationDuration[16] = 1.5;
+ServerAnimationDuration[16] = 1.4;
 ServerAnimationDuration[17] = 1.5;
 ServerAnimationDuration[18] = 1.4;
 ServerAnimationDuration[19] = 1.4;

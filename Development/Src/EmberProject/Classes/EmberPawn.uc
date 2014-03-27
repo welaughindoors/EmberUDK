@@ -2948,9 +2948,9 @@ defaultproperties
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
 
-fSprintControlSecondsTrigger = 1.3f; // Step up every 1.3s
+fSprintControlSecondsTrigger = 0.325f; // Step up every 0.325s
 fSprintControlMaxGroundSpeed = 500; // Max ground speed = 400
-fSprintControlPercentBonus = 10.0; // 30% bonus
+fSprintControlPercentBonus = 2.5; // 2.5% bonus
 
 goingTowardsHighVelModifier = 0.03;
 goingTowardsLowVelModifier = 30;
