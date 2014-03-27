@@ -28,7 +28,6 @@ var EmberCosmetic_ItemList Cosmetic_ItemList;
 var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
 var EmberHudWrapper eHud;
 
-
 var AnimNodeAimOffset AimOffsetNode;
 
 var array<SkeletalMeshComponent> AllMeshs;
@@ -39,6 +38,7 @@ var bool ParryEnabled;
 
 var bool tempToggleForEffects;
 
+var float headcounter;
 //When chambering, zooms camera closer to pawn
 var bool bChamberZoom;
 //When chambering, shakes camera
@@ -137,6 +137,7 @@ var bool IKUpperBody_AnimateToggle;
 var SkelControl_CCD_IK IKRightHand;
 var SkelControl_CCD_IK IKLeftHand;
 var SkelControl_CCD_IK IKUpperBody;
+var SkelControlLookAt Skel_LookAt;
 //=============================================
 // Attack 
 //=============================================
@@ -156,6 +157,8 @@ var byte BlockChamberFlag;
 var int AttackAnimationID;
 //If player hit something, allow him to immediately do another attack
 var bool AttackAnimationHitTarget;
+//Radius to detect pawns around player for head tracking
+var float Skel_HeadPawnDetectionRadius;
 
 var struct ForcedAnimLoopPacketStruct
 {
@@ -660,10 +663,39 @@ if(GrappleReplicationHolder.PlayerID.length != 0)
 	// if(jumpActive)
 	// JumpVelocityPinch(DeltaTime);
 	SprintControl(DeltaTime);
+	Skel_HeadLookAt(DeltaTime);
 
 	animationControl();
 	ServerSetupLightEnvironment();
 } 
+/*
+Skel_HeadLookAt(float fDeltaTime	
+
+*/
+function Skel_HeadLookAt(float fDeltaTime)
+{
+	local TestPawn P;
+	local bool found;
+
+	headcounter+= fDeltaTime;
+
+	if(headcounter >= 0.1)
+	{
+		headcounter = 0;
+		foreach WorldInfo.AllPawns( class'TestPawn', P )
+		{
+			if(VSize(P.Location - self.Location) <= Skel_HeadPawnDetectionRadius)
+			{
+				// DebugPrint("loc"@P.Location);
+				Skel_LookAt.SetTargetLocation(P.Location);
+				Skel_LookAt.ControlStrength = 1;
+				found = true;
+			}
+		}
+		if(!found)
+				Skel_LookAt.ControlStrength = 0;
+	}
+}
 /*
 SprintControl
 	Increases Ground Speed by X% every X Seconds till Cap.
@@ -856,9 +888,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
   		SpineRotator = UDKSkelControl_Rotate( ParentModularComponent.FindSkelControl('SpineRotator') );
   		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
 
-  		IKRightHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKRightHand') );
-  		IKLeftHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKLeftHand') );
-  		IKUpperBody = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKUpperBody') );
+  		// IKRightHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKRightHand') );
+  		// IKLeftHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKLeftHand') );
+  		// IKUpperBody = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKUpperBody') );
+  		Skel_LookAt = SkelControlLookAt(ParentModularComponent.FindSkelControl('Skel_LookAt'));
 
   		// AimOffsetNode
   		AimNode = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('AimNode'));
@@ -1500,13 +1533,7 @@ ClientGrappleReplication
 function ClientGrappleReplication()
 {
 	local int i;
-	local vector hitLoc;
-	local vector headSocket;
 	local vector grappleSocket;
-	local vector hitNormal;
-	local actor wall;
-	local vector startTraceLoc;
-	local vector endLoc;
 	local ParticleSystemComponent newBeam;
 
 	//While we have more players than beams (i.e. a player just made a beam), create a blank beam:
@@ -2899,6 +2926,10 @@ exec function ep_sprintcontrol_percent_bonus(float tVar = -3949212)
 { 
 	fSprintControlPercentBonus = (tVar == -3949212) ? ModifiedDebugPrint("percent bonus that is applied. 10% = 10, 25% = 25, 100% = 100, Current Value -", fSprintControlPercentBonus) : tVar;
 }
+exec function ep_skel_head_trackradius(float tVar = -3949212)
+{ 
+	Skel_HeadPawnDetectionRadius = (tVar == -3949212) ? ModifiedDebugPrint("Radius to track enemy pawns. Current Value -", Skel_HeadPawnDetectionRadius) : tVar;
+}
 exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
 { 
 	enableInaAudio = (enableAudio_One_or_Zero == -3949212) ? ModifiedDebugPrint("Inathero's op audio. 1 = on, 0 = off. Current - ", enableInaAudio) : enableAudio_One_or_Zero;
@@ -2934,11 +2965,11 @@ function float ModifiedDebugPrint(string sMessage, float variable)
 }
 function attachReset()
 {
-	  local SkeletalMeshComponent ToBeAttachedItem;
-ToBeAttachedItem = new class'SkeletalMeshComponent';
-ToBeAttachedItem.SetSkeletalMesh(SkeletalMesh'ModularPawn.Meshes.ember_head_01');
-ToBeAttachedItem.SetParentAnimComponent(Mesh);
-AttachComponent(ToBeAttachedItem);
+	local SkeletalMeshComponent ToBeAttachedItem;
+	ToBeAttachedItem = new class'SkeletalMeshComponent';
+	ToBeAttachedItem.SetSkeletalMesh(SkeletalMesh'ModularPawn.Meshes.ember_head_01');
+	ToBeAttachedItem.SetParentAnimComponent(Mesh);
+	AttachComponent(ToBeAttachedItem);
 }
 defaultproperties
 {
@@ -2947,6 +2978,7 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+Skel_HeadPawnDetectionRadius = 200.0f; //radius for detection
 
 fSprintControlSecondsTrigger = 0.325f; // Step up every 0.325s
 fSprintControlMaxGroundSpeed = 500; // Max ground speed = 400
