@@ -55,7 +55,7 @@ var int followPlayer;
 var float attackPlayerRange;
 var int attackPlayer;
 
-
+var int AttackAnimationID;
 
 
 var struct AttackPacketStruct
@@ -64,6 +64,9 @@ var struct AttackPacketStruct
   var array<float> Mods;
 }AttackPacket;
 
+var bool bChamber;
+var bool bChamber2;
+var float iChamberingCounter;
 //For when the player takes damage
 // event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 // {
@@ -81,6 +84,10 @@ var struct AttackPacketStruct
 // 	}
 // }
 
+simulated private function DebugPrint(string sMessage)
+{
+    GetALocalPlayerController().ClientMessage(sMessage);
+}
 simulated function setTrailEffects(float duration)
 { 
 //Declare a new Emitter    
@@ -162,7 +169,58 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
 	}
 	
 }
+/*
+disableChamber
+	
+*/
+function disableChamber()
+{
+	ChamberGate(false);
+}
+/*
+ChamberGate
+	Used by server as well
+	Gate in determining weather to freeze or play animation, and notify pawn accordingly
+*/
+simulated function ChamberGate(bool Active)
+{
+	local float random;
+	bChamber = false;
+	
+		if(Active)
+		{
+			random = Rand(10);
+			iChamberingCounter = 0;
+			if(random <= 3)
+			{
+			random = Rand(9) + 1;
+			random /= 10.0f;
+			ClearTimer('attackStop');
+            Sword.setTracerDelay(0,0);
+			Sword.SetInitialState();
+			VelocityPinch.ApplyVelocityPinch(,0,0);
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
+			SwordEmitterL.LifeSpan = 0;
+			SwordEmitterR.LifeSpan = 0;
+			SetTimer(random, false, 'disableChamber');
+			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+			}
+		}
+		else
+		{
+			
+			Sword.GoToState('Attacking');
+            Sword.setTracerDelay(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]));
+			SetTimer((aFramework.ServerAnimationDuration[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'attackStop');	
+			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
+			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
+			
+			SwordEmitterL.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
+			SwordEmitterR.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
 
+						// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+		}
+}
 simulated function talkEverySecond()
 {
 	talkCounter = 0;
@@ -243,6 +301,17 @@ TestPawnController(Instigator.Controller).TalkToPlayer("You're so fat you need c
 }
 
 }
+
+simulated function LeftRightClicksAndChambersManagement(float DeltaTime)
+{	
+	if(bChamber)
+	{
+		iChamberingCounter += DeltaTime;
+		// if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID] - playerreplicationinfo.ExactPing)
+		if(iChamberingCounter >= aFramework.ServerAnimationChamberStart[AttackAnimationID])
+				ChamberGate(true);
+	}
+}
 /*
 Tick
   Per tick:
@@ -256,6 +325,8 @@ Simulated Event Tick(float DeltaTime)
 	local rotator r;
 	
 	Super.Tick(DeltaTime);
+
+	LeftRightClicksAndChambersManagement(DeltaTime);
 // talkCounter += DeltaTime;
 // if(talkCounter > 3)
 	// talkEverySecond();
@@ -640,8 +711,13 @@ function forcedAnimEnd()
 doAttack
 	Used for attack tests
 */
-function doAttack (int AttackAnimationID)
+function doAttack (int dAttackAnimationID)
 {
+	if(bChamber2)
+		return;
+	bChamber = true;
+	bChamber2 = true;
+	AttackAnimationID = dAttackAnimationID;
 	// FlushPersistentDebugLines();
 
             AttackBlend.setBlendTarget(1, 0.5);
@@ -656,6 +732,7 @@ function doAttack (int AttackAnimationID)
             // VelocityPinch.ApplyVelocityPinch(, t1, t2);
             // Sword.setKnockback(knockback);
             // AttackSlot[0].PlayCustomAnimByDuration(animation, duration,0.3,0.5);
+
     // Sword.GoToState('AttackingNoTracers');
     Sword.GoToState('Attacking');
 	SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'attackStop');
@@ -680,6 +757,7 @@ function attackStop()
 		isParryActive = 0;
     Sword.SetInitialState();
     Sword.resetTracers();
+    bChamber2 = false;
 	// Attack1.PlayCustomAnimByDuration('ember_idle_2',1.0, 0.2, 0, false);
 }
 /*

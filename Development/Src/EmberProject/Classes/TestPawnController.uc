@@ -24,6 +24,7 @@ simulated event Tick(float DeltaTime)
   // if(EmberGameInfo(WorldInfo.Game).AttackPacket.isActive)
     // randomizeAttack();
   }
+  startTheClock+= DeltaTime;
 }
 simulated private function DebugPrint(string sMessage)
 {
@@ -148,7 +149,7 @@ function prepareTheAttack()
       Focus = thePlayer;
       // DebugPrint("prep");
       //VSize(pawn.location - thePlayer.location) <= TestPawn(pawn).attackPlayerRange &&
-    if( TestPawn(pawn).GetTimeLeftOnAttack() == 0 && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1)
+    if( TestPawn(pawn).GetTimeLeftOnAttack() == 0 && !noPlayerSeen && TestPawn(pawn).attackPlayer == 1 && startTheClock > 0.5)
     {
       startTheClock = 0;
       randomizeAttack();
