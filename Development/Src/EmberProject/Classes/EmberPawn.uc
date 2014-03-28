@@ -122,9 +122,6 @@ var AnimNodeBlendList 	FullBodyBlendList;
 var AnimNodeBlendList 	JumpAttackSwitch;
 var AnimNodeBlendList 	DashOverrideSwitch;
 
-var AnimNodeAimOffset HipRotation;
-
-
 var bool 				idleBool, runBool;
 var float 				idleBlendTime, runBlendTime;
 
@@ -180,8 +177,6 @@ var struct GrappleReplicationHolderStruct
 } GrappleReplicationHolder;
 //Current stance (fast/medium/heavy)
 var int currentStance;
-
-var UDKSkelControl_Rotate 	SpineRotator;
 
 var float 				animationQueueAndDirection;
 var array<byte> savedByteDirection;
@@ -652,7 +647,7 @@ if(bAttackQueueing)
 {
 	// DebugPrint("chamber active");
 		AttackSlot[0].SetActorAnimEndNotification(true);
-		AttackSlot[1].SetActorAnimEndNotification(true);
+		//AttackSlot[1].SetActorAnimEndNotification(true);
 }
 
 
@@ -881,7 +876,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
     super.PostInitAnimTree(SkelComp);
     if ( SkelComp == ParentModularComponent)
     {
-        AnimSlot = AnimNodeSlot(ParentModularComponent.FindAnimNode('TopHalfSlot'));
   		IdleAnimNodeBlendList = AnimNodeBlendList(ParentModularComponent.FindAnimNode('IdleAnimNodeBlendList'));
   		RunAnimNodeBlendList = AnimNodeBlendList(ParentModularComponent.FindAnimNode('RunAnimNodeBlendList'));
   		LeftStrafeAnimNodeBlendList = AnimNodeBlendList(ParentModularComponent.FindAnimNode('LeftStrafeAnimNodeBlendList'));
@@ -891,26 +885,15 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		wRightStrafeAnimNodeBlendList = AnimNodeBlendList(ParentModularComponent.FindAnimNode('wRightStrafeAnimNodeBlendList'));  
 		FullBodyBlendList = AnimNodeBlendList(ParentModularComponent.FindAnimNode('FullBodyBlendList'));  		
 		JumpAttackSwitch = AnimNodeBlendList(ParentModularComponent.FindAnimNode('JumpAttackSwitch'));  
-		DashOverrideSwitch  = AnimNodeBlendList(ParentModularComponent.FindAnimNode('DashOverrideSwitch'));  
-  		EmberDash = AnimNodePlayCustomAnim(ParentModularComponent.FindAnimNode('EmberDash'));
-  		AttackSlot[0] = AnimNodeSlot(ParentModularComponent.FindAnimNode('AttackSlot'));
-  		AttackSlot[1] = AnimNodeSlot(ParentModularComponent.FindAnimNode('AttackSlot2'));
-  		// AttackSlot2 = AnimNodeSlot(HeadSkeletalMesh.FindAnimNode('AttackSlot2'));
   		AttackBlend = AnimNodeBlend(ParentModularComponent.FindAnimNode('AttackBlend'));
-  		SpineRotator = UDKSkelControl_Rotate( ParentModularComponent.FindSkelControl('SpineRotator') );
-  		SpineRotator.BoneRotationSpace=BCS_BoneSpace;
-
-  		// IKRightHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKRightHand') );
-  		// IKLeftHand = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKLeftHand') );
-  		// IKUpperBody = SkelControl_CCD_IK( ParentModularComponent.FindSkelControl('IKUpperBody') );
+  		AttackSlot[0] = AnimNodeSlot(ParentModularComponent.FindAnimNode('AttackSlot'));
+  		AimNode = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('AimNode'));
   		Skel_LookAt = SkelControlLookAt(ParentModularComponent.FindSkelControl('Skel_LookAt'));
 
-  		// AimOffsetNode
-  		AimNode = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('AimNode'));
-  		HipRotation = AnimNodeAimOffset(ParentModularComponent.FindAnimNode('HipRotation'));
+		//Temporary
+		DashOverrideSwitch  = AnimNodeBlendList(ParentModularComponent.FindAnimNode('DashOverrideSwitch'));  
+  		EmberDash = AnimNodePlayCustomAnim(ParentModularComponent.FindAnimNode('EmberDash'));
 
-  		// AttackGateNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackGateNode'));
-		// AttackBlendNode = AnimNodeBlendList(Mesh.FindAnimNode('AttackBlendNode'));
   		JumpAttackSwitch.SetActiveChild(1, 0.3);
     }
 }
@@ -1282,15 +1265,15 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 			}
 			BlockChamberFlag = 0;
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
-			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+			//AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 			swapToBlockPhysics();
 		}
 		else
 		{
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
-			AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;	
+			//AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;	
 			AttackSlot[0].StopCustomAnim(blendOut);
-			AttackSlot[1].StopCustomAnim(blendOut);
+			//AttackSlot[1].StopCustomAnim(blendOut);
 		}
 }
 /*
@@ -1330,7 +1313,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			SwordEmitterR.LifeSpan = 0;
 			bChamberZoomShake=true;
 			bChamberZoom = true;
-			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
+			// //AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
 		}
 		else
 		{
@@ -1345,7 +1328,7 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 			SwordEmitterL.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
 			SwordEmitterR.LifeSpan = (aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1;
 			bChamberZoom = false;
-			// AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
+			// //AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=true;
 		}
 }
 
@@ -1809,7 +1792,7 @@ simulated function forcedAnimEndByParry()
 
 	i = Rand(Sword[currentStance-1].aParry.ParryNames.length);
 
-	AttackSlot[1].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
+	AttackSlot[0].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 }
 
 //TODO: call ON SPAWN of new Pawn instead of ticks
@@ -2751,12 +2734,12 @@ simulated function bool GetSwordState()
 PlayAttack
 	Play animation at speed
 */
-exec function PlayAttack(name AnimationName, float AnimationSpeed)
-{
-    //The function we use to play our anims
-    //Below goes, (anim name, anim speed, blend in time, blend out time, loop, override all anims)
-    AnimSlot.PlayCustomAnim( AnimationName, AnimationSpeed, 0.00, 0.00, false, true);
-}
+// exec function PlayAttack(name AnimationName, float AnimationSpeed)
+// {
+//     //The function we use to play our anims
+//     //Below goes, (anim name, anim speed, blend in time, blend out time, loop, override all anims)
+//     AnimSlot.PlayCustomAnim( AnimationName, AnimationSpeed, 0.00, 0.00, false, true);
+// }
 
 /*
 JumpVelocityPinch
