@@ -191,7 +191,9 @@ simulated function ChamberGate(bool Active)
 		{
 			random = Rand(10);
 			iChamberingCounter = 0;
-			if(random <= 3)
+			// if(random <= 3)
+			//Temporary disable chambers
+			if(random == -1)
 			{
 			random = Rand(9) + 1;
 			random /= 10.0f;
