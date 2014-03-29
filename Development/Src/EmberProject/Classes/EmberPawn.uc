@@ -174,6 +174,8 @@ var struct GrappleReplicationHolderStruct
 	var array<EmberPawn> gPawn;
 	var array<vector> TetherProjectileHitLoc;
 	var array<ParticleSystemComponent> TetherBeams;
+	var array<bool> AttachedOnEnemy;
+	var pawn clientTrackPawn;
 } GrappleReplicationHolder;
 //Current stance (fast/medium/heavy)
 var int currentStance;
@@ -435,6 +437,26 @@ function SetupLightEnvironment()
 	local int i;
 	for(i = 0; i < AllMeshs.length; i++)
 		AllMeshs[i].setLightEnvironment(self.LightEnvironment);
+}
+/*
+PullEnemy
+	
+*/
+function PullEnemy(actor Other, vector MomentumTransfer, controller InstigatorController)
+{
+	Other.TakeDamage(0, InstigatorController, Other.Location, MomentumTransfer,  class'UTDmgType_LinkBeam',, self);
+	ClientReceiveGrappleReplication(true, self.playerreplicationinfo.PlayerID, Other.Location, true, pawn(Other));
+	if(role < ROLE_Authority)
+		ServerPullEnemy(Other, MomentumTransfer, InstigatorController);
+}
+
+/*
+ServerPullEnemy
+	
+*/
+reliable server function ServerPullEnemy(actor Other, vector MomentumTransfer, controller InstigatorController)
+{
+	PullEnemy(other, MomentumTransfer, InstigatorController);
 }
 /*
 WeaponAttach
@@ -1553,14 +1575,24 @@ function ClientGrappleReplication()
 		updateBeamSource(grappleSocket, i);
 		//Update End location
 		//TODO: Is this really necesary? Perhaps use only on creation/exit
+		if(GrappleReplicationHolder.AttachedOnEnemy[i] && GrappleReplicationHolder.clientTrackPawn != none)
+		{
+		TestPawn(GrappleReplicationHolder.clientTrackPawn).mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
+			
+		updateBeamEnd(grappleSocket, i);
+		if(VSize(GrappleReplicationHolder.clientTrackPawn.Location - GrappleReplicationHolder.gPawn[i].Location) < 250)
+			ClientReceiveGrappleReplication(false, GrappleReplicationHolder.PlayerID[i], vect(0,0,0));
+		}
+		else
 		updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
+
 	}
 }
 /*
 ClientReceiveGrappleReplication
 	Receives data to start grapple replication
 */
-function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLocation)
+function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLocation, bool bOnEnemy = false, pawn tPawn = none)
 {
 	local EmberPawn Receiver;
 	local playerreplicationinfo PRI;
@@ -1569,20 +1601,19 @@ function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLo
 	//If grapple replication is canceled (grapple ended)
 	if(!Active)
 	{
-		DebugPrint("Not Active");
 		//Check all player ID's
 		for(i = 0; i <GrappleReplicationHolder.PlayerID.length; i++)
 		{
 			//If we find a match
 			if(GrappleReplicationHolder.PlayerID[i] == PlayerID)
 			{
-				DebugPrint("ID Found");
 				//Remove data
 				GrappleReplicationHolder.PlayerID.Remove(i, 1);
 				GrappleReplicationHolder.gPawn.Remove(i, 1);
 				GrappleReplicationHolder.TetherProjectileHitLoc.Remove(i, 1);
+				GrappleReplicationHolder.AttachedOnEnemy.Remove(i,1);
 				deactivateTetherBeam(i);
-				DebugPrint("Done"@GrappleReplicationHolder.TetherBeams.length);
+				// DebugPrint("Done"@GrappleReplicationHolder.TetherBeams.length);
 				return;
 			}
 		}
@@ -1599,6 +1630,9 @@ function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLo
 				GrappleReplicationHolder.PlayerID.AddItem(PlayerID);
 				GrappleReplicationHolder.gPawn.AddItem(Receiver);
 				GrappleReplicationHolder.TetherProjectileHitLoc.AddItem(hitLocation);
+				GrappleReplicationHolder.AttachedOnEnemy.AddItem(bOnEnemy);
+				if(tPawn!=none)
+				GrappleReplicationHolder.clientTrackPawn=tPawn;
 				return;
 			}	
     	}
@@ -2362,8 +2396,18 @@ detachTether
 */
 function detachTether() 
 {
-	enemyPawn = enemyPawnToggle ? enemyPawn : none;
-	 ePC.isTethering = false;
+	local int i;
+
+	for(i = 0; i < GrappleReplicationHolder.PlayerID.length; i++)
+		{
+			if( GrappleReplicationHolder.PlayerID[i] ==  self.playerreplicationinfo.PlayerID)
+			{
+				if(GrappleReplicationHolder.AttachedOnEnemy[i])
+					return;
+			}
+		}
+
+	ePC.isTethering = false;
 	 bTetherProjectileActive = false;
 
  	bGrappleStopLogicGate.length = 0;
