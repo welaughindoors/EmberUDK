@@ -95,6 +95,8 @@ var bool 						startSpaceMarineLanding;
 
 var float 						JumpVelocityPinch_LandedTimer;
 
+//Modifier to jump's velocity (applied to velocity right before jump.z is)
+var float JumpVelocityModifier;
 
 var bool debugConeBool;
 
@@ -379,7 +381,55 @@ simulated function bool DoDodge(array<byte> inputA)
 {
 	return Dodge.DoDodge(inputA);
 }
-
+/*
+DoJump
+	Derived from UTPawn
+	Modified to add additional movement 'oomf' when jumping
+*/
+function bool DoJump( bool bUpdating )
+{
+	// This extra jump allows a jumping or dodging pawn to jump again mid-air
+	// (via thrusters). The pawn must be within +/- DoubleJumpThreshold velocity units of the
+	// apex of the jump to do this special move.
+	if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
+	{
+		if ( PlayerController(Controller) != None )
+			PlayerController(Controller).bDoubleJump = true;
+		DoDoubleJump(bUpdating);
+		MultiJumpRemaining -= 1;
+		return true;
+	}
+	Velocity *= JumpVelocityModifier;
+	if (bJumpCapable && !bIsCrouched && !bWantsToCrouch && (Physics == PHYS_Walking || Physics == PHYS_Ladder || Physics == PHYS_Spider))
+	{
+		if ( Physics == PHYS_Spider )
+			Velocity = JumpZ * Floor;
+		else if ( Physics == PHYS_Ladder )
+			Velocity.Z = 0;
+		else if ( bIsWalking )
+			Velocity.Z = Default.JumpZ;
+		else
+			Velocity.Z = JumpZ;
+		if (Base != None && !Base.bWorldGeometry && Base.Velocity.Z > 0.f)
+		{
+			if ( (WorldInfo.WorldGravityZ != WorldInfo.DefaultGravityZ) && (GetGravityZ() == WorldInfo.WorldGravityZ) )
+			{
+				Velocity.Z += Base.Velocity.Z * sqrt(GetGravityZ()/WorldInfo.DefaultGravityZ);
+			}
+			else
+			{
+				Velocity.Z += Base.Velocity.Z;
+			}
+		}
+		SetPhysics(PHYS_Falling);
+		bReadyToDoubleJump = true;
+		bDodging = false;
+		if ( !bUpdating )
+		    PlayJumpingSound();
+		return true;
+	}
+	return false;
+}
 /*
 SetUpCosmetics
 	Static and Clothed assets are attached and setup here.
@@ -2951,10 +3001,6 @@ exec function ep_player_gravity_scaling(float GravityScale = -3949212)
 	else
   		CustomGravityScaling = GravityScale;
 }
-exec function ep_player_jump_boost(float tVar = -3949212)
-{ 
-	JumpZ = (tVar == -3949212) ? ModifiedDebugPrint("The boost player gets when jumping. Current Value -", JumpZ) : tVar;
-}
 exec function ep_sprintcontrol_seconds_trigger(float tVar = -3949212)
 { 
 	fSprintControlSecondsTrigger = (tVar == -3949212) ? ModifiedDebugPrint("Seconds till percent bonus is applied. Current Value -", fSprintControlSecondsTrigger) : tVar;
@@ -2970,6 +3016,14 @@ exec function ep_sprintcontrol_percent_bonus(float tVar = -3949212)
 exec function ep_skel_head_trackradius(float tVar = -3949212)
 { 
 	Skel_HeadPawnDetectionRadius = (tVar == -3949212) ? ModifiedDebugPrint("Radius to track enemy pawns. Current Value -", Skel_HeadPawnDetectionRadius) : tVar;
+}
+exec function ep_player_jump_Z(float tVar = -3949212)
+{ 
+	JumpZ = (tVar == -3949212) ? ModifiedDebugPrint("The vertical lift done to player. AKA how 'High' you go. Current Value -", JumpZ) : tVar;
+}
+exec function ep_player_jump_boost(float tVar = -3949212)
+{ 
+	JumpVelocityModifier = (tVar == -3949212) ? ModifiedDebugPrint("Modifier applied to jump velocity. AKA how 'far' you go. Current Value -", JumpVelocityModifier) : tVar;
 }
 exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
 { 
@@ -3019,6 +3073,8 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+	bTraceLines = 1;
+	JumpVelocityModifier = 1.5;
 Skel_HeadPawnDetectionRadius = 200.0f; //radius for detection
 
 fSprintControlSecondsTrigger = 0.325f; // Step up every 0.325s

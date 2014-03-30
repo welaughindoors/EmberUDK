@@ -276,9 +276,9 @@ ServerAnimationTracerEnd[10] = 0.7;
 ServerAnimationTracerEnd[11] = 0.7;
 ServerAnimationTracerEnd[12] = 0.7;
 
-ServerAnimationTracerEnd[16] = 0.7;
+ServerAnimationTracerEnd[16] = 1.5;
 ServerAnimationTracerEnd[17] = 1.5;
-ServerAnimationTracerEnd[18] = 0.7;
+ServerAnimationTracerEnd[18] = 1.5;
 ServerAnimationTracerEnd[19] = 0.7;
 ServerAnimationTracerEnd[20] = 0.7;
 ServerAnimationTracerEnd[21] = 0.7;

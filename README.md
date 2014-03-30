@@ -20,28 +20,28 @@ Console Commands
 
 type command as shown here to see a description of what it does (for most items)
 
-- ep_sword_block_distance
-- ep_sword_block_cone
-- ep_player_anim_run_blend_time
-- ep_player_anim_idle_blend_time
-- ep_player_gravity_scaling
-- ep_player_jump_boost
-- ep_player_rotation_when_stationary
-- ep_player_rotation_iterp_stationary_attack
-- ep_player_rotation_iterp_movement
-- ep_player_rotation_iterp_movement_attack
 - dot_angle_examples
-- ep_ai_follow_player
 - ep_ai_attack_player
 - ep_ai_attack_player_range
-- tethermod 0 0 0
-- setTracers # (default 15)
+- ep_ai_follow_player
 - ep_debug_tracelines
-- ep_sprintcontrol_seconds_trigger
+- ep_player_anim_idle_blend_time
+- ep_player_anim_run_blend_time
+- ep_player_gravity_scaling
+- ep_player_jump_boost
+- ep_player_jump_Z
+- ep_player_rotation_iterp_movement
+- ep_player_rotation_iterp_movement_attack
+- ep_player_rotation_iterp_stationary_attack
+- ep_player_rotation_when_stationary
+- ep_skel_head_trackradius
 - ep_sprintcontrol_max_speed
 - ep_sprintcontrol_percent_bonus
-- ep_skel_head_trackradius
-
+- ep_sprintcontrol_seconds_trigger
+- ep_sword_block_cone
+- ep_sword_block_distance
+- setTracers # (default 15)
+- tethermod 0 0 0
 ---
 
 - ep_player_modular Category# Index#
@@ -70,8 +70,7 @@ TODO:
 - More blocking
 
 ####Admin's doing this
-- Walking animation + blending
-- Updating walking animation and upper body 
+- Making sex attacks
 - Dodging animation
 
 ####Flow3r's doing this
@@ -123,6 +122,7 @@ Recently Completed:
 - When chamber is held down, camera starts zooming in. After a while, Pawn will release attack and camera resets
 - Dynamic sprint/run
 - Pawn Head Tracking
+- "Get Over Here" Grapple ability on enemy
 
 
 ####AI by Inathero
@@ -131,6 +131,7 @@ Recently Completed:
 - ~~Is able to read the player's moves and setup parries to counter player~~
 - ~~Is able to undergo feints in heated combat to trick and damage player in accordance to player's attacks (very basic. am working~~
 - ^-- Were disabled in favor for multiplayer (functions it relied on were single player exclusive)
+- Bots can chamber attacks. Temporary disabled cause looked shit.
 
 ####Networking by Inathero
 - Modular Pawns
@@ -158,6 +159,7 @@ Recently Completed:
 - block animation
 - Better Med Right and Left
 - Dynamic sprint/run
+- Med forward and diags
 
 ####Flow3r
 - basic menu done in flash scaleform.
