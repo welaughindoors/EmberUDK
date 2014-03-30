@@ -139,6 +139,7 @@ simulated state Attacking
         inducedLag = 0;
         TraceAttack();
       }      
+
     }
    }
    // begin:
@@ -378,12 +379,14 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
 {
         hitActor = Trace(HitLocation, HitNormal,  VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), true, , hitInfo); 
         // DrawDebugLine( VLerp (Block, oldBlock, tCount),VLerp(Start, oldInterpolatedPoints[0], tCount), -1,125,-1, true);
-        // DebugPrint("bHits -"@hitInfo.Material);
-        // DebugPrint("bHits -"@hitInfo.PhysMaterial );
-        // DebugPrint("bHits -"@hitInfo.Item); dfa
-        // DebugPrint("bHits -"@hitInfo.LevelIndex );
-        // DebugPrint("bHits -"@hitInfo.BoneName);
-        
+        // DebugPrint("bHitsMat -"@hitInfo.Material);
+        // DebugPrint("bHitsPhyMat -"@hitInfo.PhysMaterial );
+        // DebugPrint("bHitsItem -"@hitInfo.Item);
+        // DebugPrint("bHitsLIndex -"@hitInfo.LevelIndex );
+        // DebugPrint("bHitsBone -"@hitInfo.BoneName);
+        if(StaticMeshComponent(HitInfo.HitComponent) == none)
+        {
+
         if(hitInfo.BoneName == 'sword_blade')
         {
           if(EmberPawn(hitActor).isBlock() == 1)
@@ -450,6 +453,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
   {
     reduceDamage = true;
   }
+}
   }
         // DebugPrint("bHits -"@hitInfo.HitComponent );
         // DebugPrint("bHits -"@hitActor);
@@ -562,8 +566,8 @@ oldInterpolatedPoints.length = 0;
    sVelocity = Normal(interpolatedPoints_TemporaryHitArray[i].Location - Owner.Location);
    DrawDebugLine(interpolatedPoints_TemporaryHitArray[i].Location, sVelocity*Knockback, -1, 0, 0, true);
 
+if(StaticMeshComponent(interpolatedPoints_TemporaryHitInfo[i].HitComponent) == none)
   hitEffect(interpolatedPoints[i], rot(0,0,0));
-
   
   // EmberPawn(interpolatedPoints_TemporaryHitArray[i]).BodyHitMovement(EmberPawn(Owner).AttackPacket.Mods[7]);
   //TODO: Keep reduced damage?
@@ -697,6 +701,7 @@ resetTracers
 */
 function resetTracers()
 {
+
   bTracers = false;
   HitArray.length = 0;
   HitArray2.length = 0;

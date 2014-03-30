@@ -2403,17 +2403,23 @@ simulated function debugCone(float deltatime)
 	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('EndControl', End);
 	// Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
 	//     hitActor = Trace(HitLocation, HitNormal,Start, End, true, , hitInfo); 
- //        	DebugPrint("hitc~"@hitInfo.HitComponent);
- //        	DebugPrint("hitphy~"@hitInfo.PhysMaterial);
- //        	DebugPrint("hiti~"@hitInfo.Item );
- //        	DebugPrint("hitbone~"@hitInfo.BoneName  );
-        	 
- //        if(hitInfo.HitComponent != none)
- //        {
- //        	MoveSwordOutOfCollision(DeltaTime);
- //        }
- //        else
- //        	MoveSwordOutOfCollision(-DeltaTime);
+        	// DebugPrint("hitc~"@hitInfo.HitComponent);
+        	// DebugPrint("hitphy~"@hitInfo.PhysMaterial);
+        	// DebugPrint("hiti~"@hitInfo.Item );
+        	// DebugPrint("hitbone~"@hitInfo.BoneName  );
+        	         // DebugPrint("bHitsMat -"@hitInfo.Material);
+        // DebugPrint("bHitsPhyMat -"@hitInfo.PhysMaterial );
+        // DebugPrint("bHitsItem -"@hitInfo.Item);
+        // DebugPrint("bHitsLIndex -"@hitInfo.LevelIndex );
+        // DebugPrint("bHitsBone -"@hitInfo.BoneName);
+        // if(StaticMeshComponent(HitInfo.HitComponent) != none)
+        	// DebugPrint("Static Mesh Hit");
+        // if(hitInfo.HitComponent != none)
+        // {
+        // 	MoveSwordOutOfCollision(DeltaTime);
+        // }
+        // else
+        // 	MoveSwordOutOfCollision(-DeltaTime);
 
 // SetupLightEnvironment
 
