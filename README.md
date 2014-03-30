@@ -34,6 +34,13 @@ type command as shown here to see a description of what it does (for most items)
 - ep_player_rotation_iterp_movement_attack
 - ep_player_rotation_iterp_stationary_attack
 - ep_player_rotation_when_stationary
+- ep_server_animation_chamber_start
+- ep_server_animation_duration
+- ep_server_animation_fade_in
+- ep_server_animation_fade_out
+- ep_server_animation_knockback
+- ep_server_animation_tracer_end
+- ep_server_animation_tracer_start
 - ep_skel_head_trackradius
 - ep_sprintcontrol_max_speed
 - ep_sprintcontrol_percent_bonus

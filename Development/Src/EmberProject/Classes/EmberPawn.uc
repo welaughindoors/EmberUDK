@@ -1189,8 +1189,11 @@ simulated function doAttackQueue()
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
 	ePC.ClientStopCameraAnim(CameraAnim'EmberCameraFX.ChamberShake');
-	if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
-			return;
+	// if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
+
+if((aFramework.ServerAnimationDuration[AttackAnimationID] - AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft()) < aFramework.ServerAnimationTracerEnd[AttackAnimationID] && !AttackAnimationHitTarget)
+		return;
+
 	iChamberingCounter = 0;
 	aFramework.CurrentAttackString++;
 	if(aFramework.CurrentAttackString > aFramework.MaxAttacksThatCanBeStringed)
@@ -2970,6 +2973,10 @@ simulated function overrideStanceChange()
 //   		Sword[currentStance-1].blockCone = coneDotProductAngle;
 // }
 
+exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
+{ 
+	enableInaAudio = (enableAudio_One_or_Zero == -3949212) ? ModifiedDebugPrint("Inathero's op audio. 1 = on, 0 = off. Current - ", enableInaAudio) : enableAudio_One_or_Zero;
+}
 exec function ep_debug_tracelines(float tVar = -3949212)
 {
 	if(tVar == -3949212)
@@ -3025,9 +3032,89 @@ exec function ep_player_jump_boost(float tVar = -3949212)
 { 
 	JumpVelocityModifier = (tVar == -3949212) ? ModifiedDebugPrint("Modifier applied to jump velocity. AKA how 'far' you go. Current Value -", JumpVelocityModifier) : tVar;
 }
-exec function ep_player_audio_Inathero(float enableAudio_One_or_Zero = -3949212)
+exec function ep_server_animation_duration(float Index = -3949212, float NewValue = -239817)
 { 
-	enableInaAudio = (enableAudio_One_or_Zero == -3949212) ? ModifiedDebugPrint("Inathero's op audio. 1 = on, 0 = off. Current - ", enableInaAudio) : enableAudio_One_or_Zero;
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationDuration[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationDuration[Index];
+			aFramework.ServerAnimationDuration[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
+}
+exec function ep_server_animation_fade_in(float Index = -3949212, float NewValue = -239817)
+{ 
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationFadeIn[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationFadeIn[Index];
+			aFramework.ServerAnimationFadeIn[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
+}
+exec function ep_server_animation_fade_out(float Index = -3949212, float NewValue = -239817)
+{ 
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationFadeOut[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationFadeOut[Index];
+			aFramework.ServerAnimationFadeOut[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
+}
+exec function ep_server_animation_tracer_start(float Index = -3949212, float NewValue = -239817)
+{ 
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationTracerStart[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationTracerStart[Index];
+			aFramework.ServerAnimationTracerStart[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
+}
+exec function ep_server_animation_tracer_end(float Index = -3949212, float NewValue = -239817)
+{ 
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationTracerEnd[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationTracerEnd[Index];
+			aFramework.ServerAnimationTracerEnd[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
+}
+exec function ep_server_animation_knockback(float Index = -3949212, float NewValue = -239817)
+{ 
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationKnockback[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationKnockback[Index];
+			aFramework.ServerAnimationKnockback[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
+}
+exec function ep_server_animation_chamber_start(float Index = -3949212, float NewValue = -239817)
+{ 
+	local float tVar;
+	if(Index == -3949212)
+		DebugPrint("Usage: ServerAnimationChamberStart[Index] = NewValue");
+		else
+		{
+			tVar = aFramework.ServerAnimationChamberStart[Index];
+			aFramework.ServerAnimationChamberStart[Index] = NewValue;
+			DebugPrint("Value changed: "@tVar@" => "@NewValue);
+		}
 }
 // exec function ep_chamber(float t)
 // {
@@ -3073,6 +3160,7 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+	AttackAnimationHitTarget = true;
 	bTraceLines = 1;
 	JumpVelocityModifier = 1.5;
 Skel_HeadPawnDetectionRadius = 200.0f; //radius for detection
