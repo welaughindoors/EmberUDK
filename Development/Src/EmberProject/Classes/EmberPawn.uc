@@ -690,7 +690,7 @@ Simulated Event Tick(float DeltaTime)
 	LeftRightClicksAndChambersManagement(DeltaTime);
 	//for fps issues and keeping things properly up to date
 	//specially for skeletal controllers
-
+// DebugPrint("lerp "@eHUD.GrappleAlpha);
 	deltaTimeBoostMultiplier = deltatime * 40;
 	
 	//the value of 40 was acquired through my own hard work and testing,
@@ -1019,7 +1019,9 @@ DrawGrappleCrosshairCalcs
 */
 function DrawGrappleCrosshairCalcs()
 {
+	// DebugPrint("DrawGrappleCrosshairCalcs");
 	eHud.enableGrappleCrosshair(bAttackGrapple);
+	// eHud.SetVariable(eHud.Tags.Flash_Grapple, "GrapAlphaVar", 0);
 }
 /*
 ToggleChamberZoomShake
@@ -1189,6 +1191,8 @@ simulated function doAttackQueue()
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
+// eHud.SetVariable(eHud.Tags.Flash_Grapple, "GrapAlphaVar", 0);
+DebugPrint("tag - "@eHud.GetIndexFromTag(eHud.Tags.Flash_Grapple));
 	ePC.ClientStopCameraAnim(CameraAnim'EmberCameraFX.ChamberShake');
 	// if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
 
@@ -2271,7 +2275,9 @@ function tetherBeamProjectile()
 
 	//Do a trace of where the crosshair is facing. Get the HitLocation to tell where the projectile to fire at
 	//TODO: setup different distance than 10000
-	Trace(HitLocation, HitNormal,eHUD.OutStart, eHUD.OutStart + Normal(eHUD.OutRotation)*10000, true); 
+	// Trace(HitLocation, HitNormal,eHUD.OutStart, eHUD.OutStart + eHUD.OutRotation*10000, true); 
+	Trace(HitLocation, HitNormal, eHUD.OutStart + eHUD.OutRotation*10000, eHUD.OutStart, true); 
+// PlayerOwner.Trace(HitLocation, HitNormal, MouseOrigin + (MouseDir * 100000), MouseOrigin, true);
 	
 	//If we hit nothing, cancel function
  	if(VSize(HitLocation) == 0)

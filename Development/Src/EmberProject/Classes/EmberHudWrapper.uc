@@ -8,7 +8,7 @@ Enum Tags
 		//Item 1
 		Flash_Health,
 		//Item 2
-		Flash_Health2,
+		Flash_Grapple
 	};
 
 var Color CrossHairColor;
@@ -58,6 +58,17 @@ function AddFlashMovie()
 	// Item 1
 	//==================================================
 
+
+	// Enter your flash
+	AddSwfMovie(SwfMovie'EmberResources.GrappleTargC');
+	//Enter your Alignment
+	AddAlignment(Align_Center);
+	//Enter main class
+	AddMainClass("GrappleTargC");
+	//Enter your tag (only 1 tag for 1 flash file only!!!)
+	//Tags can be declared near top
+	AddTag(Flash_Grapple);
+
 	//Enter your flash
 	AddSwfMovie(SwfMovie'EmberResources.HpHud');
 	//Enter your Alignment
@@ -73,10 +84,6 @@ function AddFlashMovie()
 	// Item 2
 	//==================================================
 
-	// AddSwfMovie(SwfMovie'EmberResources.HpHud');
-	// AddAlignment(Align_BottomRight);
-	// AddMainClass("HpHud");
-	// AddTag(Flash_Health2);
 }
 
 
@@ -163,10 +170,11 @@ function enableGrappleCrosshair(bool Active)
 
 function DrawGrappleCrosshair()
 {
+	local pawn pp;
 		local vector2d CrosshairSize;
 	local vector2d CenterCoords;
 	local float x,y, ScreenX, ScreenY;
-    super.PostRender();
+    // super.PostRender();
 
     CrosshairSize.Y = CrosshairScaling * CrossHairCoordinates.VL * Canvas.ClipY/720;
   	CrosshairSize.X = CrosshairSize.Y * ( CrossHairCoordinates.UL / CrossHairCoordinates.VL );
@@ -177,33 +185,19 @@ function DrawGrappleCrosshair()
 	ScreenY = Y - (CrosshairSize.Y * 0.5);
 	CenterCoords.x = X;
 	CenterCoords.y = Y;
+	
 	Canvas.DeProject(CenterCoords,OutStart, OutRotation);
-	if ( CrosshairImage != none )
-	{
-		// crosshair drop shadow
+	// if ( CrosshairImage != none )
+	// {
 		// Canvas.DrawColor = class'UTHUD'.default.BlackColor;
 		// Canvas.SetPos( ScreenX+1, ScreenY+1);
 		// Canvas.DrawTile(CrosshairImage,CrosshairSize.X, CrosshairSize.Y, CrossHairCoordinates.U, CrossHairCoordinates.V, CrossHairCoordinates.UL,CrossHairCoordinates.VL);
+		GrappleAlpha = (bGrappleCrosshair) ? Lerp(GrappleAlpha, 1, 0.023) : Lerp(GrappleAlpha, 0, 0.04);
+		SetVariable(Tags.Flash_Grapple, "GrapAlphaVar", GrappleAlpha);
 
-		GrappleAlpha = (bGrappleCrosshair) ? Lerp(GrappleAlpha, 230, 0.023) : Lerp(GrappleAlpha, 0, 0.04);
-		Canvas.SetDrawColor(255,255,255,GrappleAlpha);
-
-		if(bGrappleCrosshair == true)
-		{
-			GrappleAlpha = Lerp(GrappleAlpha, 230, 0.023);
-			Canvas.SetDrawColor(255,255,255,GrappleAlpha);
-		}
-		else
-		{
-			GrappleAlpha = Lerp(GrappleAlpha, 0, 0.04);
-			Canvas.SetDrawColor(255,255,255,GrappleAlpha);
-		}
-
-		// Canvas.DrawColor.a = Lerp(Canvas.DrawColor.a, 125, fDeltaTime);
-		// Canvas.DrawColor.a = CrossHairColor;
-		Canvas.SetPos(ScreenX, ScreenY);
-		Canvas.DrawTile(CrosshairImage,CrosshairSize.X, CrosshairSize.Y, CrossHairCoordinates.U, CrossHairCoordinates.V, CrossHairCoordinates.UL,CrossHairCoordinates.VL);
-	}
+		// Canvas.SetDrawColor(255,255,255,1);
+		// Canvas.DrawTile(CrosshairImage,CrosshairSize.X, CrosshairSize.Y, CrossHairCoordinates.U, CrossHairCoordinates.V, CrossHairCoordinates.UL,CrossHairCoordinates.VL);
+	// }
 }
 
 function PostRender()
