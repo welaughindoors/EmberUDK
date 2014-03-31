@@ -78,6 +78,8 @@ var float cameraCamYOffsetInterpolation;
 var UTEmitter SwordEmitterL;  
 var UTEmitter SwordEmitterR;  
 
+//Switches tether beam types for previewing.
+var int TetherBeamType;
 //=============================================
 // Jump/JetPack System
 //=============================================
@@ -599,7 +601,6 @@ simulated function SetupPlayerControllerReference(EmberPlayerController aPlayer 
 /*
 setTrailEffects
 	Sticks an emitter on current sword
-	TODO: Make it actual trail not light effects
 */
 simulated function setTrailEffects(float duration)
 { 
@@ -1611,12 +1612,26 @@ function ClientGrappleReplication()
 	//While we have more players than beams (i.e. a player just made a beam), create a blank beam:
 	while(GrappleReplicationHolder.PlayerID.length > GrappleReplicationHolder.tetherBeams.length)
 		{
-			newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherBeam2', vect(0,0,0));
+			switch (TetherBeamType)
+			{
+				case 1:
+			newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherStraightBeam', vect(0,0,0));
+			break;
+				case 2:
+			newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherbeam2', vect(0,0,0));
+			break;
+				case 3:
+			newBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherSchizoBeam', vect(0,0,0));
+			break;
+				default:
+				}	
 			newBeam.SetHidden(false);
 			newBeam.ActivateSystem(true);
 			newBeam.bUpdateComponentInTick = true;
 			newBeam.SetTickGroup(TG_EffectsUpdateWork);
 			GrappleReplicationHolder.tetherBeams.AddItem(newBeam);
+			//Set beam end. Since ~most~ Tethers's ends won't move. Set it initially and let be
+			updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
 		}
 
 	//For every active player beam
@@ -1627,7 +1642,6 @@ function ClientGrappleReplication()
 		//Update source location
 		updateBeamSource(grappleSocket, i);
 		//Update End location
-		//TODO: Is this really necesary? Perhaps use only on creation/exit
 		if(GrappleReplicationHolder.AttachedOnEnemy[i] && GrappleReplicationHolder.clientTrackPawn != none)
 		{
 		TestPawn(GrappleReplicationHolder.clientTrackPawn).mesh.GetSocketWorldLocationAndRotation('GrappleSocket', grappleSocket, r);
@@ -1636,8 +1650,8 @@ function ClientGrappleReplication()
 		if(VSize(GrappleReplicationHolder.clientTrackPawn.Location - GrappleReplicationHolder.gPawn[i].Location) < 250)
 			ClientReceiveGrappleReplication(false, GrappleReplicationHolder.PlayerID[i], vect(0,0,0));
 		}
-		else
-		updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
+		// else
+		// updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
 
 	}
 }
@@ -3122,6 +3136,25 @@ exec function ep_server_animation_chamber_start(float Index = -3949212, float Ne
 			DebugPrint("Value changed: "@tVar@" => "@NewValue);
 		}
 }
+exec function ep_player_tether_beam_type(float Index = -3949212)
+{ 
+	if(Index == -3949212)
+		DebugPrint("1 = Straight Beam; 2 = Rama Beam; 3 = Schizo Beam");
+		else
+		{
+			switch (Index)
+			{
+				case 1:
+				case 2:
+				case 3:
+					TetherBeamType = Index;
+			break;
+				default:
+					
+			}
+		}
+}
+
 // exec function ep_chamber(float t)
 // {
 // 	AttackPacket.tDur = t;
@@ -3166,6 +3199,7 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+	TetherBeamType = 1;
 	AttackAnimationHitTarget = true;
 	bTraceLines = 1;
 	JumpVelocityModifier = 1.5;
