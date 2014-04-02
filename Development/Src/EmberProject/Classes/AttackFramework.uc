@@ -157,7 +157,7 @@ ServerAnimationNames[11] = ember_temp_left_attack;
 ServerAnimationNames[12] = ember_temp_right_attack;
 
 ServerAnimationNames[16] = ember_medium_left;
-ServerAnimationNames[17] = ember_medium_right_v3;
+ServerAnimationNames[17] = ember_medium_right;
 ServerAnimationNames[18] = ember_medium_forward;
 ServerAnimationNames[19] = ember_medium_diagonal_left;
 ServerAnimationNames[20] = ember_medium_diagonal_right;
@@ -270,25 +270,25 @@ ServerAnimationTracerStart[29] = 0.70;
 //==================================================================================
 //==================================================================================
 
-ServerAnimationTracerEnd[8]  = 0.7;
-ServerAnimationTracerEnd[9]  = 0.7;
-ServerAnimationTracerEnd[10] = 0.7;
-ServerAnimationTracerEnd[11] = 0.7;
-ServerAnimationTracerEnd[12] = 0.7;
+ServerAnimationTracerEnd[8]  = 1;
+ServerAnimationTracerEnd[9]  = 1;
+ServerAnimationTracerEnd[10] = 1.2;
+ServerAnimationTracerEnd[11] = 1;
+ServerAnimationTracerEnd[12] = 1;
 
-ServerAnimationTracerEnd[16] = 1.5;
+ServerAnimationTracerEnd[16] = 1.4;
 ServerAnimationTracerEnd[17] = 1.5;
-ServerAnimationTracerEnd[18] = 1.5;
-ServerAnimationTracerEnd[19] = 0.7;
-ServerAnimationTracerEnd[20] = 0.7;
-ServerAnimationTracerEnd[21] = 0.7;
-ServerAnimationTracerEnd[22] = 0.65;
-ServerAnimationTracerEnd[23] = 0.65;
+ServerAnimationTracerEnd[18] = 1.4;
+ServerAnimationTracerEnd[19] = 1.4;
+ServerAnimationTracerEnd[20] = 1.5;
+ServerAnimationTracerEnd[21] = 1.4;
+ServerAnimationTracerEnd[22] = 1.4;
+ServerAnimationTracerEnd[23] = 1.4;
 
-ServerAnimationTracerEnd[24] = 0.85;
+ServerAnimationTracerEnd[24] = 1.7;
 ServerAnimationTracerEnd[26] = 1.4;
-ServerAnimationTracerEnd[27] = 0.85;
-ServerAnimationTracerEnd[29] = 1.05;
+ServerAnimationTracerEnd[27] = 1.7;
+ServerAnimationTracerEnd[29] = 1.4;
 
 //==================================================================================
 //==================================================================================
