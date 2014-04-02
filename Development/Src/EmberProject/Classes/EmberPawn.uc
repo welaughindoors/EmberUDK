@@ -28,6 +28,7 @@ var EmberCosmetic_ItemList Cosmetic_ItemList;
 var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
 var EmberHudWrapper eHud;
 
+var ParticleSystemComponent PermaBeam;
 var AnimNodeAimOffset AimOffsetNode;
 
 var array<SkeletalMeshComponent> AllMeshs;
@@ -37,6 +38,9 @@ var byte SetUpCosmeticsStartupCheck;
 var bool ParryEnabled;
 
 var bool tempToggleForEffects;
+
+//The point where one attack can merge into another
+var bool bCancelPoint;
 
 var float headcounter;
 //When chambering, zooms camera closer to pawn
@@ -684,6 +688,8 @@ Tick
 */
 Simulated Event Tick(float DeltaTime)
 {
+	local vector ssss;
+	local rotator r;
 	// local UTPlayerController PC;
 	Super.Tick(DeltaTime);
 	// runsPerTick(deltatime);
@@ -693,6 +699,14 @@ Simulated Event Tick(float DeltaTime)
 // DebugPrint("lerp "@eHUD.GrappleAlpha);
 	deltaTimeBoostMultiplier = deltatime * 40;
 	
+	if(PermaBeam != none)
+	{
+
+	Sword[currentStance-1].mesh.GetSocketWorldLocationAndRotation('EndControl', ssss, r);
+		PermaBeam.SetVectorParameter('TetherEnd', ssss);
+	Sword[currentStance-1].mesh.GetSocketWorldLocationAndRotation('StartControl', ssss, r);
+		PermaBeam.SetVectorParameter('TetherSource', ssss);
+	}
 	//the value of 40 was acquired through my own hard work and testing,
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
@@ -1192,17 +1206,20 @@ simulated function doAttackQueue()
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
 // eHud.SetVariable(eHud.Tags.Flash_Grapple, "GrapAlphaVar", 0);
-DebugPrint("tag - "@eHud.GetIndexFromTag(eHud.Tags.Flash_Grapple));
 	ePC.ClientStopCameraAnim(CameraAnim'EmberCameraFX.ChamberShake');
 	// if(AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft() > 0.5 && !AttackAnimationHitTarget)
 
-if((aFramework.ServerAnimationDuration[AttackAnimationID] - AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft()) < aFramework.ServerAnimationTracerEnd[AttackAnimationID] && !AttackAnimationHitTarget)
+// if((aFramework.ServerAnimationDuration[AttackAnimationID] - AttackSlot[0].GetCustomAnimNodeSeq().GetTimeLeft()) < aFramework.ServerAnimationTracerEnd[AttackAnimationID] && !AttackAnimationHitTarget)
+		// return;
+		if(!bCancelPoint && !AttackAnimationHitTarget)
 		return;
 
 	iChamberingCounter = 0;
 	aFramework.CurrentAttackString++;
 	if(aFramework.CurrentAttackString > aFramework.MaxAttacksThatCanBeStringed)
 		return;
+
+	bCancelPoint = false;
 
 	currentStringCounter = aFramework.CurrentAttackString;
 
@@ -1636,6 +1653,7 @@ function ClientGrappleReplication()
 			GrappleReplicationHolder.tetherBeams.AddItem(newBeam);
 			//Set beam end. Since ~most~ Tethers's ends won't move. Set it initially and let be
 			updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
+
 		}
 
 	//For every active player beam
@@ -2213,6 +2231,7 @@ simulated function AttackEnd()
     	doAttack(savedByteDirection);
     }
 	AttackAnimationHitTarget = false;
+	
 }
 /*
 SwordGotHit
@@ -2898,11 +2917,22 @@ simulated function JumpVelocityPinch(float fDeltaTime)
   			AccelRate=2048.0;
   		}
 }
+/*
+CancelPoint
+	
+*/
+function CancelPoint()
+{
+	DebugPrint("CancelPoint");
+	bCancelPoint = true;
+}
 //===============================
 // Stances Functions
 //===============================
 simulated function ChangeStance(int newStance, int oldStance = -1)
 {
+	local vector ssss;
+	local rotator r;
 	DebugPrint(""@aFramework.CurrentAttackString);
 	if(aFramework.CurrentAttackString > 0) return;
 
@@ -2916,6 +2946,7 @@ simulated function ChangeStance(int newStance, int oldStance = -1)
 
 	case 2:
 	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[oldStance-1].Mesh, 'KattanaSocket');
+
 	break;
 
 	case 3:
@@ -2929,6 +2960,29 @@ ParentModularComponent.AttachComponentToSocket(Sword[newStance-1].Mesh, 'WeaponP
 currentStance = newStance;
 
 EmberReplicationInfo(playerreplicationinfo).Replicate_ServerStance(currentStance, playerreplicationinfo.PlayerID);
+			Sword[currentStance-1].mesh.GetSocketWorldLocationAndRotation('StartControl', ssss, r);
+switch (TetherBeamType)
+			{
+				case 1:
+			PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherStraightBeam', ssss);
+			break;
+				case 2:
+			PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherbeam2', vect(0,0,0));
+			break;
+				case 3:
+			PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherSchizoBeam', ssss);
+			break;
+				default:
+				}	
+			
+			PermaBeam.SetHidden(false);
+			PermaBeam.ActivateSystem(true);
+			PermaBeam.bUpdateComponentInTick = true;
+			PermaBeam.SetTickGroup(TG_EffectsUpdateWork);
+			//Set beam end. Since ~most~ Tethers's ends won't move. Set it initially and let be
+			
+
+
 
 overrideStanceChange();
 
