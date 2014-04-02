@@ -1306,6 +1306,7 @@ ClearTimer('AttackEnd');
 	// JumpAttackSwitch.SetActiveChild(1, 0.3);
     Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
+    bCancelPoint = true;
 	disableMoveInput(false);
     // animationControl();
 //End modded AttackEnd
@@ -1916,6 +1917,7 @@ simulated function forcedAnimEndByParry()
 	i = Rand(Sword[currentStance-1].aParry.ParryNames.length);
 
 	AttackSlot[0].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
+	bCancelPoint = true;
 }
 
 //TODO: call ON SPAWN of new Pawn instead of ticks
@@ -2220,6 +2222,7 @@ simulated function AttackEnd()
 	// Sword.rotate(0,0,49152);
     Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
+
 	disableMoveInput(false);
 
     animationControl();
