@@ -276,19 +276,19 @@ ServerAnimationTracerEnd[10] = 1.2;
 ServerAnimationTracerEnd[11] = 1;
 ServerAnimationTracerEnd[12] = 1;
 
-ServerAnimationTracerEnd[16] = 1.4;
-ServerAnimationTracerEnd[17] = 1.5;
-ServerAnimationTracerEnd[18] = 1.4;
-ServerAnimationTracerEnd[19] = 1.4;
-ServerAnimationTracerEnd[20] = 1.5;
-ServerAnimationTracerEnd[21] = 1.4;
-ServerAnimationTracerEnd[22] = 1.4;
-ServerAnimationTracerEnd[23] = 1.4;
+ServerAnimationTracerEnd[16] = 0.75;
+ServerAnimationTracerEnd[17] = 0.75;
+ServerAnimationTracerEnd[18] = 0.78;
+ServerAnimationTracerEnd[19] = 0.77;
+ServerAnimationTracerEnd[20] = 0.77;
+ServerAnimationTracerEnd[21] = 0.77;
+ServerAnimationTracerEnd[22] = 0.77;
+ServerAnimationTracerEnd[23] = 0.77;
 
-ServerAnimationTracerEnd[24] = 1.7;
-ServerAnimationTracerEnd[26] = 1.4;
-ServerAnimationTracerEnd[27] = 1.7;
-ServerAnimationTracerEnd[29] = 1.4;
+ServerAnimationTracerEnd[24] = 1.0;
+ServerAnimationTracerEnd[26] = 1.0;
+ServerAnimationTracerEnd[27] = 1.0;
+ServerAnimationTracerEnd[29] = 1.0;
 
 //==================================================================================
 //==================================================================================
