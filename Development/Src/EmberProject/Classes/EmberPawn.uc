@@ -1202,6 +1202,7 @@ simulated function doAttackQueue()
 {
 	local byte currentStringCounter;
 
+
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
@@ -1219,13 +1220,16 @@ simulated function doAttackQueue()
 	if(aFramework.CurrentAttackString > aFramework.MaxAttacksThatCanBeStringed)
 		return;
 
+		DebugPrint("aFramework.CurrentAttackString_DAQ"@aFramework.CurrentAttackString );
+
 	bCancelPoint = false;
 
 	currentStringCounter = aFramework.CurrentAttackString;
 
 
-	ClearTimer('AttackEnd');
-	AttackEnd();
+	// ClearTimer('AttackEnd');
+	// AttackEnd();
+	// TracerEnd();
 	aFramework.CurrentAttackString = currentStringCounter;
 
 	//ChamberFlags are used for a sort of boolean switch state.
@@ -1385,6 +1389,7 @@ simulated function doChamber()
 	iChamberingCounter = 0;
 	ChamberFlags.resetRightChamberFlags();
 	ChamberFlags.setRightChamberFlag(0);
+	DebugPrint("DoCHamber");
 	ClearTimer('AttackEnd');
 	AttackEnd();
 	// if(GetTimeLeftOnAttack() < 0.5)
@@ -1466,11 +1471,13 @@ ePlayAnim
 */
 simulated function ePlayAnim(int ServerAttackAnimationID = -1)
 {
-
 AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[AttackAnimationID],
         								aFramework.ServerAnimationDuration	[AttackAnimationID], 
         								aFramework.ServerAnimationFadeIn	[AttackAnimationID], 
         								aFramework.ServerAnimationFadeOut	[AttackAnimationID]);
+
+
+// native function PlayAnim (bool bLoop, float InRate, float StartTime)
 //Server's running the function
 if(ServerAttackAnimationID != -1)
 	EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(ServerAttackAnimationID, PlayerReplicationInfo.PlayerID);
@@ -1765,7 +1772,7 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
 			DebugPrint(PlayerReplicationInfo.PlayerName@"ClientAttackAnimReplication"@PlayerID);
 			//Tell that pawn to do an attack. 
 			FlushPersistentDebugLines();
-			Receiver.AttackEnd();
+			// Receiver.AttackEnd();
   			Receiver.Sword[Receiver.currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
   			if(!Receiver.ChamberFlags.CheckRightFlag(0))
 			{
@@ -1855,26 +1862,39 @@ forcedAnimEnd
 */
 simulated function forcedAnimEnd()
 {
-
-			ClearTimer('AttackEnd');
+local float moddedTime;
 			AttackBlend.setBlendTarget(0, 0.2);    
 
-            Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
+
+	if(aFramework.CurrentAttackString > 1)
+		AttackAnimationID += 24;
+
+
             
             // AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 
 			if(!ChamberFlags.CheckRightFlag(0))
 			{
 				Sword[currentStance-1].GoToState('Attacking');
-            	Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
-
+				if(AttackAnimationID <= 31)
+				{
+            		Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
+            		Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
+					VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
+					// SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'TracerEnd');
+				setTrailEffects(aFramework.ServerAnimationDuration[AttackAnimationID]);
+				}
+            	else
+            	{
+            		moddedTime = aFramework.ServerAnimationTracerEnd[AttackAnimationID-24];// - aFramework.ServerAnimationTracerStart[AttackAnimationID-24];
+            		Sword[currentStance-1].setTracerDelay(0,moddedTime * 0.9);
+					setTrailEffects(moddedTime*0.9);
+            	}
             	//TODO: Animation Lock
 				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
 
-				VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
-		}
-				SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'AttackEnd');
-				setTrailEffects(aFramework.ServerAnimationDuration[AttackAnimationID]);
+			}
+				
 
 	ePlayAnim();
 }
@@ -2216,6 +2236,9 @@ AttackEnd
 */
 simulated function AttackEnd()
 {
+	if(!bCancelPoint)
+		return;
+	DebugPrint("AttackEnd");
 	ChamberFlags.removeLeftChamberFlag(2);
 	JumpAttackSwitch.SetActiveChild(1, 0.3);
 	//forwardEmberDash.StopCustomAnim(0);
@@ -2225,8 +2248,9 @@ simulated function AttackEnd()
 
 	disableMoveInput(false);
 
-    animationControl();
+    // animationControl();
     aFramework.CurrentAttackString = 0;
+    DebugPrint("aFramework.CurrentAttackString "@ aFramework.CurrentAttackString );
 
     if(savedByteDirection[4] == 1)
     {
@@ -2235,6 +2259,16 @@ simulated function AttackEnd()
     }
 	AttackAnimationHitTarget = false;
 	
+}
+simulated function TracerEnd()
+{
+DebugPrint("TracerEnd");
+    Sword[currentStance-1].SetInitialState();
+    Sword[currentStance-1].resetTracers();
+
+	// disableMoveInput(false);
+
+    // animationControl();	
 }
 /*
 SwordGotHit

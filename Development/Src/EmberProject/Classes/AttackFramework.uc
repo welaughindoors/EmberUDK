@@ -72,14 +72,14 @@ var struct ForcedAnimLoopPacketStruct
 } ForcedAnimLoopPacket;
 
 
-var name ServerAnimationNames[32];
-var float ServerAnimationDuration[32];
-var float ServerAnimationFadeIn[32];
-var float ServerAnimationFadeOut[32];
-var float ServerAnimationTracerStart[32];
-var float ServerAnimationTracerEnd[32];
-var float ServerAnimationKnockback[32];
-var float ServerAnimationChamberStart[32];
+var name ServerAnimationNames[63];
+var float ServerAnimationDuration[63];
+var float ServerAnimationFadeIn[63];
+var float ServerAnimationFadeOut[63];
+var float ServerAnimationTracerStart[63];
+var float ServerAnimationTracerEnd[63];
+var float ServerAnimationKnockback[63];
+var float ServerAnimationChamberStart[63];
 //==================================================================
 //==================================================================
 
@@ -155,7 +155,11 @@ ServerAnimationNames[9] = ember_temp_right_attack;
 ServerAnimationNames[10] = ember_attack_forward;
 ServerAnimationNames[11] = ember_temp_left_attack;
 ServerAnimationNames[12] = ember_temp_right_attack;
+ServerAnimationNames[13] = ember_temp_back_attack;
+ServerAnimationNames[14] = ember_temp_back_left_attack;
+ServerAnimationNames[15] = ember_temp_back_right_attack;
 
+// ServerAnimationNames[16] = ember_medium_left;
 ServerAnimationNames[16] = ember_medium_left;
 ServerAnimationNames[17] = ember_medium_right;
 ServerAnimationNames[18] = ember_medium_forward;
@@ -166,10 +170,70 @@ ServerAnimationNames[22] = ember_medium_diagonal_left_reverse;
 ServerAnimationNames[23] = ember_medium_diagonal_right_reverse;
 
 ServerAnimationNames[24] = ember_heavy_left;
+ServerAnimationNames[25] = ember_heavy_right;
 ServerAnimationNames[26] = ember_heavy_forward;
-ServerAnimationNames[27] = ember_heavy_left;
-ServerAnimationNames[29] = ember_heavy_forward;
+ServerAnimationNames[27] = ember_heavy_forward_left;
+ServerAnimationNames[28] = ember_heavy_forward_right;
+ServerAnimationNames[29] = ember_heavy_forward; //heavy back
+ServerAnimationNames[30] = ember_heavy_back_left;
+ServerAnimationNames[31] = ember_heavy_back_right;
 
+//-------
+// No Winds
+ServerAnimationNames[32] = ember_temp_left_attack_no_wind;
+ServerAnimationNames[33] = ember_temp_right_attack_no_wind;
+ServerAnimationNames[34] = ember_attack_forward_no_wind;
+ServerAnimationNames[35] = ember_temp_left_attack_no_wind;
+ServerAnimationNames[36] = ember_temp_right_attack_no_wind;
+ServerAnimationNames[37] = ember_temp_back_attack_no_wind;
+ServerAnimationNames[38] = ember_temp_back_left_attack_no_wind;
+ServerAnimationNames[39] = ember_temp_back_right_attack_no_wind;
+
+// ServerAnimationNames[16] = ember_medium_left_no_wind;
+ServerAnimationNames[40] = ember_medium_left_no_wind;
+ServerAnimationNames[41] = ember_medium_right_no_wind;
+ServerAnimationNames[42] = ember_medium_forward_no_wind;
+ServerAnimationNames[43] = ember_medium_diagonal_left_no_wind;
+ServerAnimationNames[44] = ember_medium_diagonal_right_no_wind;
+ServerAnimationNames[45] = ember_medium_forward_no_wind;
+ServerAnimationNames[46] = ember_medium_diagonal_left_reverse_no_wind;
+ServerAnimationNames[47] = ember_medium_diagonal_right_reverse_no_wind;
+
+ServerAnimationNames[48] = ember_heavy_left_no_wind;
+ServerAnimationNames[49] = ember_heavy_right_no_wind;
+ServerAnimationNames[50] = ember_heavy_forward_no_wind;
+ServerAnimationNames[51] = ember_heavy_forward_left_no_wind;
+ServerAnimationNames[52] = ember_heavy_forward_right_no_wind;
+ServerAnimationNames[53] = ember_heavy_forward_no_wind; //heavy back
+ServerAnimationNames[54] = ember_heavy_back_left_no_wind;
+ServerAnimationNames[55] = ember_heavy_back_right_no_wind;
+
+// ServerAnimationFadeOut[32] = 
+// ServerAnimationFadeOut[33] = 
+// ServerAnimationFadeOut[34] = 
+// ServerAnimationFadeOut[35] = 
+// ServerAnimationFadeOut[36] = 
+// ServerAnimationFadeOut[37] = 
+// ServerAnimationFadeOut[38] = 
+// ServerAnimationFadeOut[39] = 
+
+// ServerAnimationFadeOut[40] = 
+// ServerAnimationFadeOut[41] = 
+// ServerAnimationFadeOut[42] = 
+// ServerAnimationFadeOut[43] = 
+// ServerAnimationFadeOut[44] = 
+// ServerAnimationFadeOut[45] = 
+// ServerAnimationFadeOut[46] = 
+// ServerAnimationFadeOut[47] = 
+
+// ServerAnimationFadeOut[48] = 
+// ServerAnimationFadeOut[49] = 
+// ServerAnimationFadeOut[50] = 
+// ServerAnimationFadeOut[51] = 
+// ServerAnimationFadeOut[52] = 
+// ServerAnimationFadeOut[53] =  
+// ServerAnimationFadeOut[54] = 
+// ServerAnimationFadeOut[55] = 
 //==================================================================================
 //==================================================================================
 //==================================================================================
@@ -179,6 +243,9 @@ ServerAnimationDuration[9]  = 1;
 ServerAnimationDuration[10] = 1.2;
 ServerAnimationDuration[11] = 1;
 ServerAnimationDuration[12] = 1;
+ServerAnimationDuration[13] = 1.2;
+ServerAnimationDuration[14] = 1;
+ServerAnimationDuration[15] = 1;
 
 ServerAnimationDuration[16] = 1.4;
 ServerAnimationDuration[17] = 1.5;
@@ -190,10 +257,42 @@ ServerAnimationDuration[22] = 1.4;
 ServerAnimationDuration[23] = 1.4;
 
 ServerAnimationDuration[24] = 1.7;
+ServerAnimationDuration[25] = 1.7;
 ServerAnimationDuration[26] = 1.4;
 ServerAnimationDuration[27] = 1.7;
+ServerAnimationDuration[28] = 1.7;
 ServerAnimationDuration[29] = 1.4;
+ServerAnimationDuration[30] = 1.7;
+ServerAnimationDuration[31] = 1.7;
 
+//---
+//No Wind
+ServerAnimationDuration[32] = 1;
+ServerAnimationDuration[33] = 1;
+ServerAnimationDuration[34] = 1.2;
+ServerAnimationDuration[35] = 1;
+ServerAnimationDuration[36] = 1;
+ServerAnimationDuration[37] = 1.2;
+ServerAnimationDuration[38] = 1;
+ServerAnimationDuration[39] = 1;
+
+ServerAnimationDuration[40] = 1.4;
+ServerAnimationDuration[41] = 1.4;
+ServerAnimationDuration[42] = 1.4;
+ServerAnimationDuration[43] = 1.4;
+ServerAnimationDuration[44] = 1.4;
+ServerAnimationDuration[45] = 1.4;
+ServerAnimationDuration[46] = 1.4;
+ServerAnimationDuration[47] = 1.4;
+
+ServerAnimationDuration[48] = 1.7;
+ServerAnimationDuration[49] = 1.7;
+ServerAnimationDuration[50] = 1.4;
+ServerAnimationDuration[51] = 1.7;
+ServerAnimationDuration[52] = 1.7;
+ServerAnimationDuration[53] = 1.4;
+ServerAnimationDuration[54] = 1.7;
+ServerAnimationDuration[55] = 1.7;
 //==================================================================================
 //==================================================================================
 //==================================================================================
@@ -203,6 +302,9 @@ ServerAnimationFadeIn[9]  = 0.3;
 ServerAnimationFadeIn[10] = 0.3;
 ServerAnimationFadeIn[11] = 0.3;
 ServerAnimationFadeIn[12] = 0.3;
+ServerAnimationFadeIn[13] = 0.3;
+ServerAnimationFadeIn[14] = 0.3;
+ServerAnimationFadeIn[15] = 0.3;
 
 ServerAnimationFadeIn[16] = 0.3;
 ServerAnimationFadeIn[17] = 0.3;
@@ -214,9 +316,43 @@ ServerAnimationFadeIn[22] = 0.3;
 ServerAnimationFadeIn[23] = 0.3;
 
 ServerAnimationFadeIn[24] = 0.3;
+ServerAnimationFadeIn[25] = 0.3;
 ServerAnimationFadeIn[26] = 0.2;
 ServerAnimationFadeIn[27] = 0.3;
+ServerAnimationFadeIn[28] = 0.3;
 ServerAnimationFadeIn[29] = 0.2;
+ServerAnimationFadeIn[30] = 0.3;
+ServerAnimationFadeIn[31] = 0.3;
+
+//---
+//No Wind
+
+ServerAnimationFadeIn[32] = 0.3;
+ServerAnimationFadeIn[33] = 0.3;
+ServerAnimationFadeIn[34] = 0.3;
+ServerAnimationFadeIn[35] = 0.3;
+ServerAnimationFadeIn[36] = 0.3;
+ServerAnimationFadeIn[37] = 0.3;
+ServerAnimationFadeIn[38] = 0.3;
+ServerAnimationFadeIn[39] = 0.3;
+
+ServerAnimationFadeIn[40] = 0.3;
+ServerAnimationFadeIn[41] = 0.3;
+ServerAnimationFadeIn[42] = 0.3;
+ServerAnimationFadeIn[43] = 0.3;
+ServerAnimationFadeIn[44] = 0.3;
+ServerAnimationFadeIn[45] = 0.3;
+ServerAnimationFadeIn[46] = 0.3;
+ServerAnimationFadeIn[47] = 0.3;
+
+ServerAnimationFadeIn[48] = 0.3;
+ServerAnimationFadeIn[49] = 0.3;
+ServerAnimationFadeIn[50] = 0.3;
+ServerAnimationFadeIn[51] = 0.3;
+ServerAnimationFadeIn[52] = 0.3;
+ServerAnimationFadeIn[53] = 0.3;
+ServerAnimationFadeIn[54] = 0.3;
+ServerAnimationFadeIn[55] = 0.3;
 
 //==================================================================================
 //==================================================================================
@@ -227,6 +363,9 @@ ServerAnimationFadeOut[9]  = 0.5;
 ServerAnimationFadeOut[10] = 0.5;
 ServerAnimationFadeOut[11] = 0.5;
 ServerAnimationFadeOut[12] = 0.5;
+ServerAnimationFadeOut[13] = 0.5;
+ServerAnimationFadeOut[14] = 0.5;
+ServerAnimationFadeOut[15] = 0.5;
 
 ServerAnimationFadeOut[16] = 0.5;
 ServerAnimationFadeOut[17] = 0.5;
@@ -238,9 +377,43 @@ ServerAnimationFadeOut[22] = 0.5;
 ServerAnimationFadeOut[23] = 0.5;
 
 ServerAnimationFadeOut[24] = 0.5;
-ServerAnimationFadeOut[26] = 0.1;
+ServerAnimationFadeOut[25] = 0.5;
+ServerAnimationFadeOut[26] = 0.5;
 ServerAnimationFadeOut[27] = 0.5;
-ServerAnimationFadeOut[29] = 0.1;
+ServerAnimationFadeOut[28] = 0.5;
+ServerAnimationFadeOut[29] = 0.5;
+ServerAnimationFadeOut[30] = 0.5;
+ServerAnimationFadeOut[31] = 0.5;
+
+//--- 
+//No Wind
+
+ServerAnimationFadeOut[32] = 0.5;
+ServerAnimationFadeOut[33] = 0.5;
+ServerAnimationFadeOut[34] = 0.5;
+ServerAnimationFadeOut[35] = 0.5;
+ServerAnimationFadeOut[36] = 0.5;
+ServerAnimationFadeOut[37] = 0.5;
+ServerAnimationFadeOut[38] = 0.5;
+ServerAnimationFadeOut[39] = 0.5;
+
+ServerAnimationFadeOut[40] = 0.5;
+ServerAnimationFadeOut[41] = 0.5;
+ServerAnimationFadeOut[42] = 0.5;
+ServerAnimationFadeOut[43] = 0.5;
+ServerAnimationFadeOut[44] = 0.5;
+ServerAnimationFadeOut[45] = 0.5;
+ServerAnimationFadeOut[46] = 0.5;
+ServerAnimationFadeOut[47] = 0.5;
+
+ServerAnimationFadeOut[48] = 0.5;
+ServerAnimationFadeOut[49] = 0.5;
+ServerAnimationFadeOut[50] = 0.5;
+ServerAnimationFadeOut[51] = 0.5;
+ServerAnimationFadeOut[52] = 0.5;
+ServerAnimationFadeOut[53] = 0.5;
+ServerAnimationFadeOut[54] = 0.5;
+ServerAnimationFadeOut[55] = 0.5;
 
 //==================================================================================
 //==================================================================================
@@ -265,6 +438,9 @@ ServerAnimationTracerStart[24] = 0.65;
 ServerAnimationTracerStart[26] = 0.8;
 ServerAnimationTracerStart[27] = 0.65;
 ServerAnimationTracerStart[29] = 0.70;
+
+//---
+// No Windups = 0 start;
 
 //==================================================================================
 //==================================================================================
