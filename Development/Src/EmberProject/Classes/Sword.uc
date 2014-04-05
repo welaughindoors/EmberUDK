@@ -24,7 +24,7 @@ var array<SoundCue> SwordSounds;
 var int tickCounterTillDirectionVector;
 var array<byte> SwordGroupHits;
 
-
+var int SwordID;
 //=============================================
 // Each tracer to trace only once per attack
 // @TODO: Merge into one?
@@ -329,22 +329,35 @@ simulated function TraceAttack()
           // local float lastVectorDot;
   bFuckTheAttack = false;
 
+// if(bOwnerIsTestPawn == false)
+// {
+//   if(SwordID == 2 && EmberPawn(owner).bLightsaberStance)
+//     return;
+// }
+
     Mesh.GetSocketWorldLocationAndRotation('StartControl', Start);
     Mesh.GetSocketWorldLocationAndRotation('EndControl', End);  
     Mesh.GetSocketWorldLocationAndRotation('MidControl', parryEffectLocation);  
     Mesh.GetSocketWorldLocationAndRotation('BlockOne', Block, bRotate);  
+
+
+if(EmberPawn(owner).bLightsaberStance)
+{
+  End = EmberPawn(owner).vLightEndVector;
+  Start = EmberPawn(owner).vLightStartVector;
+  // lVect = normal(EmberPawn(owner).vLightEndVector - EmberPawn(owner).vLightStartVector);
+  // fDistance = VSize(EmberPawn(owner).vLightEndVector - EmberPawn(owner).vLightStartVector);
+}
+//Get normal vector along sword + distance
+    lVect = normal(End - Start);
+    fDistance = VSize(End - Start);
 
 //Prepare Arrays
     interpolatedPoints_TemporaryHitArray.length = 0;
     interpolatedPoints_TemporaryHitInfo.length = 0;
     interpolatedPoints.length = 0;
     interpolatedPoints.AddItem(Start);
-
-//Get normal vector along sword + distance
-    lVect = normal(End - Start);
-    fDistance = VSize(End - Start);
-
-
+    
 //Prepare distance. Determines # of tracers
     fDistance /= tracerAmount-1;
 
@@ -387,7 +400,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
         if(StaticMeshComponent(HitInfo.HitComponent) == none)
         {
 
-        if(hitInfo.BoneName == 'sword_blade')
+        if(hitInfo.BoneName == 'sword_blade' || hitInfo.BoneName == 'sword_grip')
         {
           if(EmberPawn(hitActor).isBlock() == 1)
           {

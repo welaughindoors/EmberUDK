@@ -529,6 +529,7 @@ heavyDamagePerTracer = 5
 lightSwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.gladius'
 mediumSwordMesh = SkeletalMesh'ArtAnimation.Meshes.ember_weapon_katana'
 // heavySwordMesh 	= SkeletalMesh'ArtAnimation.Meshes.ember_weapon_heavy2'
+heavySwordMesh = SkeletalMesh'ArtAnimation.hilt'
 
 /* Camera shakes
 / -- Currently:

@@ -28,6 +28,7 @@ var EmberCosmetic_ItemList Cosmetic_ItemList;
 var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
 var EmberHudWrapper eHud;
 
+
 var ParticleSystemComponent PermaBeam;
 var AnimNodeAimOffset AimOffsetNode;
 
@@ -39,6 +40,14 @@ var bool ParryEnabled;
 
 var bool tempToggleForEffects;
 
+var float fLightMultipler;
+//For testing TODO: remove
+var bool bLightsaberStance;
+
+//temporary for lightstabe TODO:Remove
+var vector vLightEndVector;
+//temporary for lightstabe TODO:Remove
+var vector vLightStartVector;
 //The point where one attack can merge into another
 var bool bCancelPoint;
 
@@ -533,6 +542,7 @@ simulated function WeaponAttach()
 		tSword.setDamage(aFramework.lightDamagePerTracer);
 		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
 		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		tSword.SwordID = 1;
         AllMeshs.AddItem(tSword.mesh);
 		Sword.AddItem(tSword);
 
@@ -541,6 +551,7 @@ simulated function WeaponAttach()
 		tSword.setDamage(aFramework.mediumDamagePerTracer);		
 		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
 		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		tSword.SwordID = 2;
 		AllMeshs.AddItem(tSword.mesh);
         Sword.AddItem(tSword);
 
@@ -549,6 +560,7 @@ simulated function WeaponAttach()
 		tSword.setDamage(aFramework.heavyDamagePerTracer);
 		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
 		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		tSword.SwordID = 3;
 		AllMeshs.AddItem(tSword.mesh);
         Sword.AddItem(tSword);
 
@@ -614,7 +626,9 @@ simulated function setTrailEffects(float duration)
 //Declare a new Emitter    
 local vector Loc;
 local rotator Roter;    
- 
+//TODO: Remove, just for testing
+ if(bLightsaberStance)
+ 	return;
 //Lets Get the Intial Location Rotation
 Sword[currentStance-1].Mesh.GetSocketWorldLocationAndRotation('MidControl', Loc, Roter);
  
@@ -699,6 +713,37 @@ simulated function UpdateSwordBeamLocation()
 	Sword[currentStance-1].mesh.GetSocketWorldLocationAndRotation('StartControl', SwordSocketLocation);
 	PermaBeam.SetVectorParameter('TetherSource', SwordSocketLocation);
 }
+/*
+doLightsaberMods
+float fDeltaTime	
+*/
+function doLightsaberMods(float fDeltaTime)
+{
+	local vector SwordSocketLocation1;
+	local vector SwordSocketLocation2;
+
+	if(fLightMultipler == 0) fLightMultipler = 1;
+	if(bLightsaberStance)
+	fLightMultipler = Lerp(fLightMultipler, 55, fDeltaTime*3);
+
+		else
+			{
+		fLightMultipler = Lerp(fLightMultipler, 1, fDeltaTime*3);
+		if(fLightMultipler <= 1.5)
+		PermaBeam.SetHidden(true);
+			}
+	Sword[2].mesh.GetSocketWorldLocationAndRotation('StartControl', SwordSocketLocation1);
+	Sword[2].mesh.GetSocketWorldLocationAndRotation('EndControl', SwordSocketLocation2);
+	Sword[2].mesh.SetPhysicsAsset(PhysicsAsset'ArtAnimation.hilt_Physics');
+
+	vLightStartVector = SwordSocketLocation2;
+	PermaBeam.SetVectorParameter('TetherSource', SwordSocketLocation2);
+
+//Get normal vector along sword + distance
+    SwordSocketLocation1 = normal(SwordSocketLocation2 - SwordSocketLocation1);
+    vLightEndVector = SwordSocketLocation2 + (SwordSocketLocation1 * (fLightMultipler));
+	PermaBeam.SetVectorParameter('TetherEnd', vLightEndVector);
+}
 /* 
 Tick
 	Every ~0.088s, this function is called.
@@ -714,11 +759,13 @@ Simulated Event Tick(float DeltaTime)
 // DebugPrint("lerp "@eHUD.GrappleAlpha);
 	deltaTimeBoostMultiplier = deltatime * 40;
 	
-	if(PermaBeam != none)
-		UpdateSwordBeamLocation();
+	// if(PermaBeam != none)
+		// UpdateSwordBeamLocation();
 	//the value of 40 was acquired through my own hard work and testing,
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
+// if(fLightMultipler )
+	doLightsaberMods(DeltaTime);
 	//=== TETHER ====
 	if(ePC != none)
 	if (ePC.isTethering) 
@@ -1771,6 +1818,7 @@ ClientAttackAnimReplication
 reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerID)
 {
 	local EmberPawn Receiver;
+
 	//Find all local pawns
 	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
 	{
@@ -1857,8 +1905,6 @@ ClientTakeDamage
 */
 reliable client function ClientTakeDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback,  class<DamageType> DamageType)
 {
-	DebugPrint("Takes Damage");
-
 	self.TakeDamage(DamagePerTracer, DamageInstigator, HitLocation, TotalKnockback, DamageType);
 	//We know its this pawn who's taking damage, we're not replicated other pawns, just dealing damage to ourselves (received from other pawns)
 	// self.Health -= DamagePerTracer;
@@ -1882,16 +1928,23 @@ if(LastSavedAttack != AttackAnimationID)
 }
 
 
-            
+            DebugPrint("force anim e"@bLightsaberStance);
             // AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
 
 			if(!ChamberFlags.CheckRightFlag(0))
 			{
-				Sword[currentStance-1].GoToState('Attacking');
+				//TODO: remove this, its for testing
+				// if(bLightsaberStance) Sword[2].GoToState('Attacking');
+				 Sword[currentStance-1].GoToState('Attacking');
+
 				if(AttackAnimationID <= 31)
 				{
-            		Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
-            		Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
+					// if(bLightsaberStance) Sword[2].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
+				 Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
+
+            		// if(bLightsaberStance) Sword[2].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
+				 Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
+
 					VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
 					// SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'TracerEnd');
 				setTrailEffects(aFramework.ServerAnimationDuration[AttackAnimationID]);
@@ -1899,7 +1952,10 @@ if(LastSavedAttack != AttackAnimationID)
             	else
             	{
             		moddedTime = aFramework.ServerAnimationTracerEnd[AttackAnimationID-24];// - aFramework.ServerAnimationTracerStart[AttackAnimationID-24];
-            		Sword[currentStance-1].setTracerDelay(0,moddedTime * 0.9);
+
+				// if(bLightsaberStance) Sword[2].setTracerDelay(0,moddedTime * 0.9);
+				 Sword[currentStance-1].setTracerDelay(0,moddedTime * 0.9);
+
 					setTrailEffects(moddedTime*0.9);
             	}
             	//TODO: Animation Lock
@@ -2060,9 +2116,7 @@ EndPreAttack
 */
 simulated function EndPreAttack()
 {
-	if(GetTimeLeftOnAttack() <= 0.5)
 		forcedAnimEnd();
-
 }
 /*
 forwardAttack
@@ -2257,7 +2311,8 @@ simulated function AttackEnd()
 	JumpAttackSwitch.SetActiveChild(1, 0.3);
 	//forwardEmberDash.StopCustomAnim(0);
 	// Sword.rotate(0,0,49152);
-    Sword[currentStance-1].SetInitialState();
+	//TODO: temp fix thios
+	 Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
 
 	disableMoveInput(false);
@@ -2278,9 +2333,9 @@ simulated function AttackEnd()
 simulated function TracerEnd()
 {
 DebugPrint("TracerEnd");
-    Sword[currentStance-1].SetInitialState();
+//TODO: temp fix thios
+Sword[currentStance-1].SetInitialState();
     Sword[currentStance-1].resetTracers();
-
 	// disableMoveInput(false);
 
     // animationControl();	
@@ -2984,7 +3039,12 @@ function CancelPoint()
 simulated function ChangeStance(int newStance, int oldStance = -1)
 {
 	if(aFramework.CurrentAttackString > 0) return;
-
+// if(PermaBeam != none) PermaBeam.DeactivateSystem();
+if(bLightsaberStance)
+{
+	bLightsaberStance = false;
+	currentStance = 3;
+}
 	if(oldStance == -1) oldStance = currentStance;
 
 	switch(oldStance)
@@ -2995,7 +3055,6 @@ simulated function ChangeStance(int newStance, int oldStance = -1)
 
 	case 2:
 	MediumDecoSword.Mesh.AttachComponentToSocket(Sword[oldStance-1].Mesh, 'KattanaSocket');
-
 	break;
 
 	case 3:
@@ -3026,12 +3085,22 @@ switch (TetherBeamType)
 				default:
 				}	
 			
-			PermaBeam.SetHidden(false);
 			PermaBeam.ActivateSystem(true);
 			PermaBeam.bUpdateComponentInTick = true;
 			PermaBeam.SetTickGroup(TG_EffectsUpdateWork);
 
 overrideStanceChange();
+
+//TODO: Remove., just for testing
+if(currentStance == 3) 
+{
+currentStance -= 1;
+bLightsaberStance = true;
+			PermaBeam.SetHidden(false);
+}
+
+
+
 
 if(Role < ROLE_Authority)
 	ServerChangeStance(currentStance, oldStance);
@@ -3061,14 +3130,23 @@ overrideStanceChange
 */
 simulated function overrideStanceChange()
 {
-	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
-	RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-	Sword[currentStance-1].setStance(currentStance);
+//TODO: Back to normal. This is just for testing
+	// IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
+	// RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	// RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	// LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	// WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	// wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	// wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+	// Sword[currentStance-1].setStance(currentStance);
+	IdleAnimNodeBlendList.SetActiveChild(1, idleBlendTime);
+	RunAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+	RightStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+	LeftStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+	WalkAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+	wRightStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+	wLeftStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+	Sword[currentStance-1].setStance(2);
 }
 //===============================
 // Console Vars
