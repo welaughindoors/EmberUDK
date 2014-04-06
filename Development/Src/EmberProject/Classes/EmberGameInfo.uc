@@ -91,10 +91,10 @@ function RestartPlayer(Controller aPlayer)
 {
 	local EmberPlayerController PC;
 super.RestartPlayer(aPlayer);
-	foreach WorldInfo.AllControllers(class'EmberPlayerController', PC)
-	{
-		PC.DebugPrint("yo");
-	}
+	// foreach WorldInfo.AllControllers(class'EmberPlayerController', PC)
+	// {
+	// 	PC.DebugPrint("yo");
+	// }
 if(aPlayer.bIsPlayer)
 Broadcast(self, "player spawn"@aPlayer);
 if(aPlayer.pawn ==none)

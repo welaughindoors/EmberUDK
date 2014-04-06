@@ -169,14 +169,14 @@ ServerAnimationNames[21] = ember_medium_forward;
 ServerAnimationNames[22] = ember_medium_diagonal_left_reverse;
 ServerAnimationNames[23] = ember_medium_diagonal_right_reverse;
 
-ServerAnimationNames[24] = ember_heavy_left;
-ServerAnimationNames[25] = ember_heavy_right;
-ServerAnimationNames[26] = ember_heavy_forward;
-ServerAnimationNames[27] = ember_heavy_forward_left;
-ServerAnimationNames[28] = ember_heavy_forward_right;
-ServerAnimationNames[29] = ember_heavy_forward; //heavy back
-ServerAnimationNames[30] = ember_heavy_back_left;
-ServerAnimationNames[31] = ember_heavy_back_right;
+ServerAnimationNames[24] = ember_medium_left;
+ServerAnimationNames[25] = ember_medium_right;
+ServerAnimationNames[26] = ember_medium_forward;
+ServerAnimationNames[27] = ember_medium_diagonal_left;
+ServerAnimationNames[28] = ember_medium_diagonal_right;
+ServerAnimationNames[29] = ember_medium_forward; //medium back
+ServerAnimationNames[30] = ember_medium_diagonal_left_reverse;
+ServerAnimationNames[31] = ember_medium_diagonal_right_reverse;
 
 //-------
 // No Winds
@@ -199,14 +199,23 @@ ServerAnimationNames[45] = ember_medium_forward_no_wind;
 ServerAnimationNames[46] = ember_medium_diagonal_left_reverse_no_wind;
 ServerAnimationNames[47] = ember_medium_diagonal_right_reverse_no_wind;
 
-ServerAnimationNames[48] = ember_heavy_left_no_wind;
-ServerAnimationNames[49] = ember_heavy_right_no_wind;
-ServerAnimationNames[50] = ember_heavy_forward_no_wind;
-ServerAnimationNames[51] = ember_heavy_forward_left_no_wind;
-ServerAnimationNames[52] = ember_heavy_forward_right_no_wind;
-ServerAnimationNames[53] = ember_heavy_forward_no_wind; //heavy back
-ServerAnimationNames[54] = ember_heavy_back_left_no_wind;
-ServerAnimationNames[55] = ember_heavy_back_right_no_wind;
+// ServerAnimationNames[48] = ember_heavy_left_no_wind;
+// ServerAnimationNames[49] = ember_heavy_right_no_wind;
+// ServerAnimationNames[50] = ember_heavy_forward_no_wind;
+// ServerAnimationNames[51] = ember_heavy_forward_left_no_wind;
+// ServerAnimationNames[52] = ember_heavy_forward_right_no_wind;
+// ServerAnimationNames[53] = ember_heavy_forward_no_wind; //heavy back
+// ServerAnimationNames[54] = ember_heavy_back_left_no_wind;
+// ServerAnimationNames[55] = ember_heavy_back_right_no_wind;
+
+ServerAnimationNames[48] = ember_medium_left_no_wind;
+ServerAnimationNames[49] = ember_medium_right_no_wind;
+ServerAnimationNames[50] = ember_medium_forward_no_wind;
+ServerAnimationNames[51] = ember_medium_diagonal_left_no_wind;
+ServerAnimationNames[52] = ember_medium_diagonal_right_no_wind;
+ServerAnimationNames[53] = ember_medium_forward_no_wind; //medium back
+ServerAnimationNames[54] = ember_medium_diagonal_left_reverse_no_wind;
+ServerAnimationNames[55] = ember_medium_diagonal_right_reverse_no_wind;
 
 // ServerAnimationFadeOut[32] = 
 // ServerAnimationFadeOut[33] = 
@@ -256,14 +265,14 @@ ServerAnimationDuration[21] = 1.4;
 ServerAnimationDuration[22] = 1.4;
 ServerAnimationDuration[23] = 1.4;
 
-ServerAnimationDuration[24] = 1.7;
-ServerAnimationDuration[25] = 1.7;
+ServerAnimationDuration[24] = 1.4;
+ServerAnimationDuration[25] = 1.5;
 ServerAnimationDuration[26] = 1.4;
-ServerAnimationDuration[27] = 1.7;
-ServerAnimationDuration[28] = 1.7;
+ServerAnimationDuration[27] = 1.4;
+ServerAnimationDuration[28] = 1.5;
 ServerAnimationDuration[29] = 1.4;
-ServerAnimationDuration[30] = 1.7;
-ServerAnimationDuration[31] = 1.7;
+ServerAnimationDuration[30] = 1.4;
+ServerAnimationDuration[31] = 1.4;
 
 //---
 //No Wind
@@ -285,14 +294,14 @@ ServerAnimationDuration[45] = 1.4;
 ServerAnimationDuration[46] = 1.4;
 ServerAnimationDuration[47] = 1.4;
 
-ServerAnimationDuration[48] = 1.7;
-ServerAnimationDuration[49] = 1.7;
+ServerAnimationDuration[48] = 1.4;
+ServerAnimationDuration[49] = 1.4;
 ServerAnimationDuration[50] = 1.4;
-ServerAnimationDuration[51] = 1.7;
-ServerAnimationDuration[52] = 1.7;
+ServerAnimationDuration[51] = 1.4;
+ServerAnimationDuration[52] = 1.4;
 ServerAnimationDuration[53] = 1.4;
-ServerAnimationDuration[54] = 1.7;
-ServerAnimationDuration[55] = 1.7;
+ServerAnimationDuration[54] = 1.4;
+ServerAnimationDuration[55] = 1.4;
 //==================================================================================
 //==================================================================================
 //==================================================================================
@@ -434,10 +443,14 @@ ServerAnimationTracerStart[21] = 0.5;
 ServerAnimationTracerStart[22] = 0.43;
 ServerAnimationTracerStart[23] = 0.43;
 
-ServerAnimationTracerStart[24] = 0.65;
-ServerAnimationTracerStart[26] = 0.8;
-ServerAnimationTracerStart[27] = 0.65;
-ServerAnimationTracerStart[29] = 0.70;
+ServerAnimationTracerStart[24] = 0.5;
+ServerAnimationTracerStart[25] = 0.6;
+ServerAnimationTracerStart[26] = 0.5;
+ServerAnimationTracerStart[27] = 0.45;
+ServerAnimationTracerStart[28] = 0.45;
+ServerAnimationTracerStart[29] = 0.5;
+ServerAnimationTracerStart[30] = 0.43;
+ServerAnimationTracerStart[31] = 0.43;
 
 //---
 // No Windups = 0 start;
@@ -461,10 +474,14 @@ ServerAnimationTracerEnd[21] = 0.77;
 ServerAnimationTracerEnd[22] = 0.77;
 ServerAnimationTracerEnd[23] = 0.77;
 
-ServerAnimationTracerEnd[24] = 1.0;
-ServerAnimationTracerEnd[26] = 1.0;
-ServerAnimationTracerEnd[27] = 1.0;
-ServerAnimationTracerEnd[29] = 1.0;
+ServerAnimationTracerEnd[24] = 0.75;
+ServerAnimationTracerEnd[25] = 0.75;
+ServerAnimationTracerEnd[26] = 0.78;
+ServerAnimationTracerEnd[27] = 0.77;
+ServerAnimationTracerEnd[28] = 0.77;
+ServerAnimationTracerEnd[29] = 0.77;
+ServerAnimationTracerEnd[30] = 0.77;
+ServerAnimationTracerEnd[31] = 0.77;
 
 //==================================================================================
 //==================================================================================
@@ -485,10 +502,14 @@ ServerAnimationKnockback[21] = 9500;
 ServerAnimationKnockback[22] = 9500;
 ServerAnimationKnockback[23] = 9500;
 
-ServerAnimationKnockback[24] = 20000;
-ServerAnimationKnockback[26] = 20000;
-ServerAnimationKnockback[27] = 20000;
-ServerAnimationKnockback[29] = 20000;
+ServerAnimationKnockback[24] = 9500;
+ServerAnimationKnockback[25] = 9500;
+ServerAnimationKnockback[26] = 9500;
+ServerAnimationKnockback[27] = 9500;
+ServerAnimationKnockback[28] = 9500;
+ServerAnimationKnockback[29] = 9500;
+ServerAnimationKnockback[30] = 9500;
+ServerAnimationKnockback[31] = 9500;
 
 //==================================================================================
 //==================================================================================
@@ -509,10 +530,14 @@ ServerAnimationChamberStart[21] = 0.48;
 ServerAnimationChamberStart[22] = 0.4;
 ServerAnimationChamberStart[23] = 0.4;
 
-ServerAnimationChamberStart[24] = 0.6;
-ServerAnimationChamberStart[26] = 0.8;
-ServerAnimationChamberStart[27] = 0.6;
-ServerAnimationChamberStart[29] = 0.6;
+ServerAnimationChamberStart[24] = 0.4;
+ServerAnimationChamberStart[25] = 0.4;
+ServerAnimationChamberStart[26] = 0.48;
+ServerAnimationChamberStart[27] = 0.4;
+ServerAnimationChamberStart[28] = 0.4;
+ServerAnimationChamberStart[29] = 0.48;
+ServerAnimationChamberStart[30] = 0.4;
+ServerAnimationChamberStart[31] = 0.4;
 
 /* Damage:
 / -- Set damage per tracer

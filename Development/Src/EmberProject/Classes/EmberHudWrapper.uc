@@ -52,6 +52,8 @@ Align_BottomRight - Bottom right corner of SWF is at bottom right corner of the 
 AddFlashMovie
 	Only function that you'll need for adding and setting up flash movies
 */
+
+//How to call functions: http://i.imgur.com/KuXa38h.png
 function AddFlashMovie()
 {
 	//==================================================
@@ -78,12 +80,6 @@ function AddFlashMovie()
 	//Enter your tag (only 1 tag for 1 flash file only!!!)
 	//Tags can be declared near top
 	AddTag(Flash_Health);
-
-
-	//==================================================
-	// Item 2
-	//==================================================
-
 }
 
 
@@ -185,7 +181,7 @@ function DrawGrappleCrosshair()
 	ScreenY = Y - (CrosshairSize.Y * 0.5);
 	CenterCoords.x = X;
 	CenterCoords.y = Y;
-	
+
 	Canvas.DeProject(CenterCoords,OutStart, OutRotation);
 	// if ( CrosshairImage != none )
 	// {

@@ -27,6 +27,7 @@ var EmberChamberFlags ChamberFlags;
 var EmberCosmetic_ItemList Cosmetic_ItemList;
 var EmberModularPawn_Cosmetics ModularPawn_Cosmetics;
 var EmberHudWrapper eHud;
+var EmberSword_Calculations eSword;
 
 
 var ParticleSystemComponent PermaBeam;
@@ -207,7 +208,7 @@ var float enableInaAudio;
 //=============================================
 // Weapon
 //=============================================
-var array<Sword> Sword;
+var array<EmberSword_Model> Sword;
 var bool  tracerRecordBool;
 
 //Brings camera to shoulder level for grapple aiming
@@ -343,6 +344,7 @@ simulated event PostBeginPlay()
     // GG = new class'EmberProject.GloriousGrapple';
     VelocityPinch = new class'EmberProject.EmberVelocityPinch';
     ChamberFlags = new class 'EmberProject.EmberChamberFlags';
+
     Cosmetic_ItemList = new class'EmberProject.EmberCosmetic_ItemList';
     Cosmetic_ItemList.InitiateCosmetics();
     Dodge.SetOwner(self);
@@ -535,34 +537,66 @@ WeaponAttach
 */
 simulated function WeaponAttach() 
 { 
-    local Sword tSword;
+    local EmberSword_Model tSword;
 		
-        tSword = Spawn(class'Sword', self);
+  //       tSword = Spawn(class'Sword', self);
+		// tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
+		// tSword.setDamage(aFramework.lightDamagePerTracer);
+		// tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		// tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		// tSword.SwordID = 1;
+  //       AllMeshs.AddItem(tSword.mesh);
+		// Sword.AddItem(tSword);
+
+  //       tSword = Spawn(class'Sword', self);
+		// tSword.Mesh.SetSkeletalMesh(aFramework.mediumSwordMesh);
+		// tSword.setDamage(aFramework.mediumDamagePerTracer);		
+		// tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		// tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		// tSword.SwordID = 2;
+		// AllMeshs.AddItem(tSword.mesh);
+  //       Sword.AddItem(tSword);
+
+  //       tSword = Spawn(class'Sword', self);
+		// tSword.Mesh.SetSkeletalMesh(aFramework.heavySwordMesh);
+		// tSword.setDamage(aFramework.heavyDamagePerTracer);
+		// tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		// tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		// tSword.SwordID = 3;
+		// AllMeshs.AddItem(tSword.mesh);
+  //       Sword.AddItem(tSword);
+  
+    	eSword = Spawn(class'EmberSword_Calculations', self);
+
+		tSword = Spawn(class'EmberSword_Model', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.lightSwordMesh);
-		tSword.setDamage(aFramework.lightDamagePerTracer);
-		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
-		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
-		tSword.SwordID = 1;
+		// tSword.setDamage(aFramework.lightDamagePerTracer);
+		tSword.AddPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		tSword.AddPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		// tSword.SwordID = 1;
         AllMeshs.AddItem(tSword.mesh);
 		Sword.AddItem(tSword);
+		eSword.AddSwordModel(tSword);
 
-        tSword = Spawn(class'Sword', self);
+        tSword = Spawn(class'EmberSword_Model', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.mediumSwordMesh);
-		tSword.setDamage(aFramework.mediumDamagePerTracer);		
-		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
-		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
-		tSword.SwordID = 2;
+		// tSword.setDamage(aFramework.mediumDamagePerTracer);		
+		tSword.AddPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
+		tSword.AddPhysicsAsset(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
+		// tSword.SwordID = 2;
 		AllMeshs.AddItem(tSword.mesh);
         Sword.AddItem(tSword);
+        eSword.AddSwordModel(tSword);
 
-        tSword = Spawn(class'Sword', self);
+        tSword = Spawn(class'EmberSword_Model', self);
 		tSword.Mesh.SetSkeletalMesh(aFramework.heavySwordMesh);
-		tSword.setDamage(aFramework.heavyDamagePerTracer);
-		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_Physics');
-		tSword.PhysicsAssetCollection.AddItem(PhysicsAsset'ArtAnimation.Meshes.ember_weapon_katana_block_Physics');
-		tSword.SwordID = 3;
+		// tSword.setDamage(aFramework.heavyDamagePerTracer);
+		tSword.AddPhysicsAsset(PhysicsAsset'ArtAnimation.hilt_Physics');
+		tSword.AddPhysicsAsset(PhysicsAsset'ArtAnimation.hilt_block_Physics');
+		// tSword.SwordID = 3;
 		AllMeshs.AddItem(tSword.mesh);
         Sword.AddItem(tSword);
+        eSword.AddSwordModel(tSword);
 
         huahs.AddItem(SoundCue'EmberSounds.huahcue1');
 
@@ -721,7 +755,6 @@ function doLightsaberMods(float fDeltaTime)
 {
 	local vector SwordSocketLocation1;
 	local vector SwordSocketLocation2;
-
 	if(fLightMultipler == 0) fLightMultipler = 1;
 	if(bLightsaberStance)
 	fLightMultipler = Lerp(fLightMultipler, 55, fDeltaTime*3);
@@ -734,7 +767,6 @@ function doLightsaberMods(float fDeltaTime)
 			}
 	Sword[2].mesh.GetSocketWorldLocationAndRotation('StartControl', SwordSocketLocation1);
 	Sword[2].mesh.GetSocketWorldLocationAndRotation('EndControl', SwordSocketLocation2);
-	Sword[2].mesh.SetPhysicsAsset(PhysicsAsset'ArtAnimation.hilt_Physics');
 
 	vLightStartVector = SwordSocketLocation2;
 	PermaBeam.SetVectorParameter('TetherSource', SwordSocketLocation2);
@@ -743,6 +775,8 @@ function doLightsaberMods(float fDeltaTime)
     SwordSocketLocation1 = normal(SwordSocketLocation2 - SwordSocketLocation1);
     vLightEndVector = SwordSocketLocation2 + (SwordSocketLocation1 * (fLightMultipler));
 	PermaBeam.SetVectorParameter('TetherEnd', vLightEndVector);
+	if(currentStance == 3)
+	eSword.CustomTracerPoints(vLightStartVector, vLightEndVector);
 }
 /* 
 Tick
@@ -1248,7 +1282,6 @@ exec function tethermod(float a = 0, float b = 0, float c = 0, float D = 0)
 	goingAwayVelModifier = (c != 0) ? c : goingAwayVelModifier;
 	tetherlength = (d != 0) ? d : tetherlength;
 }
-
 /*
 doAttackQueue
 	Is called everytime left click is pressed
@@ -1257,7 +1290,6 @@ doAttackQueue
 simulated function doAttackQueue()
 {
 	local byte currentStringCounter;
-
 
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
@@ -1324,7 +1356,8 @@ isBlock
 */
 simulated function byte isBlock()
 {
-	return Sword[currentStance-1].isBlock;
+	// return Sword[currentStance-1].isBlock;
+	return 0;
 }
 /*
 doBlock
@@ -1364,14 +1397,14 @@ ClearTimer('AttackEnd');
 //This segment is part of AttackEnd, without the animation reset
 	ChamberFlags.removeLeftChamberFlag(2);
 	// JumpAttackSwitch.SetActiveChild(1, 0.3);
-    Sword[currentStance-1].SetInitialState();
-    Sword[currentStance-1].resetTracers();
+	eSword.EndAttack();
+
     bCancelPoint = true;
 	disableMoveInput(false);
     // animationControl();
 //End modded AttackEnd
 //=====================================================================
-Sword[currentStance-1].isBlock = 1;
+// Sword[currentStance-1].isBlock = 1;
 
 if(role < ROLE_Authority)
 	ServerDoBlock();
@@ -1393,7 +1426,7 @@ simulated function stopBlock()
 EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
 freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
 swapToBlockPhysics(false);
-Sword[currentStance-1].isBlock = 0;
+// Sword[currentStance-1].isBlock = 0;
 if(role < ROLE_Authority)
 	ServerDoBlock();
 }
@@ -1405,7 +1438,7 @@ swapToBlockPhysics
 */
 simulated function swapToBlockPhysics(bool bBlock = true)
 {
-	Sword[currentStance-1].swapToBlockPhysics(bBlock);
+	eSword.swapToBlockPhysics(bBlock, currentStance-1);	
 }
 /*
 freezeAttackSlots
@@ -1441,6 +1474,8 @@ doChamber
 */
 simulated function doChamber()
 {
+	if(AttackAnimationID > 31) return;
+return;
 	bRightChambering = true;
 	iChamberingCounter = 0;
 	ChamberFlags.resetRightChamberFlags();
@@ -1460,12 +1495,12 @@ ChamberGate
 */
 simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 {
+	return;
 		if(Active)
 		{
 			ChamberFlags.setLeftChamberFlag(1);
 			ClearTimer('AttackEnd');
-            Sword[currentStance-1].setTracerDelay(0,0);
-			Sword[currentStance-1].SetInitialState();
+            // eSword.EndAttack();
 			VelocityPinch.ApplyVelocityPinch(,0,0);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
 			SwordEmitterL.LifeSpan = 0;
@@ -1478,8 +1513,9 @@ simulated function ChamberGate(bool Active, int ServerAttackAnimationID = -1)
 		{
 			if(ServerAttackAnimationID != -1) AttackAnimationID = ServerAttackAnimationID;
 			iChamberingCounter = 0;
-			Sword[currentStance-1].GoToState('Attacking');
-            Sword[currentStance-1].setTracerDelay(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]));
+			// Sword[currentStance-1].GoToState('Attacking');
+            // Sword[currentStance-1].setTracerDelay(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]));
+            // eSword.PrepareAttack(0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), currentStance-1);
 			SetTimer((aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID]), false, 'AttackEnd');	
 			VelocityPinch.ApplyVelocityPinch(,0,(aFramework.ServerAnimationTracerEnd[AttackAnimationID] - aFramework.ServerAnimationChamberStart[AttackAnimationID])  * 1.1);
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=true;
@@ -1830,11 +1866,11 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
 			//Tell that pawn to do an attack. 
 			FlushPersistentDebugLines();
 			// Receiver.AttackEnd();
-  			Receiver.Sword[Receiver.currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
+  			// Receiver.Sword[Receiver.currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
   			if(!Receiver.ChamberFlags.CheckRightFlag(0))
 			{
-				Receiver.Sword[Receiver.currentStance-1].GoToState('Attacking');
-            	Receiver.Sword[Receiver.currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack]);
+				// Receiver.Sword[Receiver.currentStance-1].GoToState('Attacking');
+            	// Receiver.Sword[Receiver.currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack]);
 
             	//TODO: Animation Lock
 				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
@@ -1865,10 +1901,10 @@ reliable client function ClientBlockReplication(int PlayerID)
 		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
 		{
 			//Tell that pawn to switch stances
-			if(Receiver.isBlock() == 0)
-				Receiver.doBlock();
-			else
-				Receiver.stopBlock();
+			// if(Receiver.isBlock() == 0)
+				// Receiver.doBlock();
+			// else
+				// Receiver.stopBlock();
     	}
     }
 }
@@ -1928,9 +1964,8 @@ if(LastSavedAttack != AttackAnimationID)
 }
 
 
-            DebugPrint("force anim e"@bLightsaberStance);
             // AttackSlot[0].PlayCustomAnimByDuration(AttackPacket.AnimName, AttackPacket.Mods[0], AttackPacket.Mods[3], AttackPacket.Mods[4]);
-
+			eSword.SavedAttackAnimationID++;
 			if(!ChamberFlags.CheckRightFlag(0))
 			{
 				//TODO: remove this, its for testing
@@ -1940,22 +1975,24 @@ if(LastSavedAttack != AttackAnimationID)
 				if(AttackAnimationID <= 31)
 				{
 					// if(bLightsaberStance) Sword[2].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
-				 Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
+				 // Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
 
             		// if(bLightsaberStance) Sword[2].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
-				 Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
-
+				 // Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
+					eSword.PrepareAttack(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID], currentStance-1);
 					VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID] * 1.1);
 					// SetTimer(aFramework.ServerAnimationDuration[AttackAnimationID], false, 'TracerEnd');
 				setTrailEffects(aFramework.ServerAnimationDuration[AttackAnimationID]);
 				}
             	else
             	{
-            		moddedTime = aFramework.ServerAnimationTracerEnd[AttackAnimationID-24];// - aFramework.ServerAnimationTracerStart[AttackAnimationID-24];
+            		moddedTime = aFramework.ServerAnimationTracerEnd[AttackAnimationID-24] - aFramework.ServerAnimationTracerStart[AttackAnimationID-24] + aFramework.ServerAnimationFadeIn[AttackAnimationID]/2;
 
 				// if(bLightsaberStance) Sword[2].setTracerDelay(0,moddedTime * 0.9);
-				 Sword[currentStance-1].setTracerDelay(0,moddedTime * 0.9);
+				 // Sword[currentStance-1].setTracerDelay(0,moddedTime * 0.9);
 
+				 	// eSword.ContinuePastTracerEnd();
+					eSword.PrepareAttack(0, moddedTime, currentStance-1);
 					setTrailEffects(moddedTime*0.9);
             	}
             	//TODO: Animation Lock
@@ -2001,10 +2038,10 @@ simulated function forcedAnimEndByParry()
     ClearTimer('attackStop');
     AttackBlend.setBlendTarget(1, 0); 
 	SetTimer(0.5, false, 'attackStop');
+//TODO:fix
+	// i = Rand(Sword[currentStance-1].aParry.ParryNames.length);
 
-	i = Rand(Sword[currentStance-1].aParry.ParryNames.length);
-
-	AttackSlot[0].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
+	// AttackSlot[0].PlayCustomAnimByDuration(Sword[currentStance-1].aParry.ParryNames[i],Sword[currentStance-1].aParry.ParryMods[i], 0, 0, false);
 	if(bResetStringOnParry)
 		aFramework.CurrentAttackString = 0;
 	bCancelPoint = true;
@@ -2107,7 +2144,7 @@ setTracers
 */
 exec function setTracers(int tracers)
 {
-	Sword[currentStance-1].setTracers(tracers);
+	// Sword[currentStance-1].setTracers(tracers);
 }
 
 /*
@@ -2312,8 +2349,8 @@ simulated function AttackEnd()
 	//forwardEmberDash.StopCustomAnim(0);
 	// Sword.rotate(0,0,49152);
 	//TODO: temp fix thios
-	 Sword[currentStance-1].SetInitialState();
-    Sword[currentStance-1].resetTracers();
+	 // Sword[currentStance-1].SetInitialState();
+    // Sword[currentStance-1].resetTracers();
 
 	disableMoveInput(false);
 
@@ -2332,12 +2369,20 @@ simulated function AttackEnd()
 }
 simulated function TracerEnd()
 {
-DebugPrint("TracerEnd");
+DebugPrint("TracerEnd -"@AttackAnimationID);
 //TODO: temp fix thios
-Sword[currentStance-1].SetInitialState();
-    Sword[currentStance-1].resetTracers();
+// Sword[currentStance-1].SetInitialState();
+    // Sword[currentStance-1].resetTracers();
 	// disableMoveInput(false);
-
+	// if(AttackAnimationID > 31)
+	// {
+	// 	eSword.SavedAttackAnimationID --;
+	// 	if(eSword.SavedAttackAnimationID == 0)
+	// 		eSword.EndAttack();
+	// 	// if(eSword.SavedAttackAnimationID == AttackAnimationID)
+	// 	// else
+	// 		// eSword.SavedAttackAnimationID = AttackAnimationID;
+	// }
     // animationControl();	
 }
 /*
@@ -2361,8 +2406,9 @@ simulated function animationControl()
 		{
 			idleBool = true;
 			runBool = false;
+	  				//TODO: fix; used to be currentStance-1
 		 	if(IdleAnimNodeBlendList.BlendTimeToGo <= 0.f)
-			 	IdleAnimNodeBlendList.SetActiveChild(currentStance-1, idleBlendTime);
+			 	IdleAnimNodeBlendList.SetActiveChild(1, idleBlendTime);
 
 	  		FullBodyBlendList.SetActiveChild(1,idleBlendTime);//Use Full Body Blending
   		}
@@ -2375,13 +2421,14 @@ simulated function animationControl()
 			runBool = true;
 		 	if(RunAnimNodeBlendList.BlendTimeToGo <= 0.f)
 	  			{ 
+	  				//TODO: fix; used to be currentStance-1
   				//Pick a random idle animation
-					RunAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-					RightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-					LeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-					WalkAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-					wRightStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
-					wLeftStrafeAnimNodeBlendList.SetActiveChild(currentStance-1, runBlendTime);
+					RunAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+					RightStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+					LeftStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+					WalkAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+					wRightStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
+					wLeftStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
   				}
   			FullBodyBlendList.SetActiveChild(0,idleBlendTime);//Split body blending at spine
   		}
@@ -2575,7 +2622,8 @@ GetSword
 */
 function sword GetSword()
 {
-	return Sword[currentStance-1];
+	local sword sss;
+	return sss;
 }
 /*
 increaseTether
@@ -3038,13 +3086,10 @@ function CancelPoint()
 //===============================
 simulated function ChangeStance(int newStance, int oldStance = -1)
 {
+	// DebugPrint("ChangeStance");
 	if(aFramework.CurrentAttackString > 0) return;
 // if(PermaBeam != none) PermaBeam.DeactivateSystem();
-if(bLightsaberStance)
-{
-	bLightsaberStance = false;
-	currentStance = 3;
-}
+bLightsaberStance = false;
 	if(oldStance == -1) oldStance = currentStance;
 
 	switch(oldStance)
@@ -3064,7 +3109,6 @@ if(bLightsaberStance)
 
 ParentModularComponent.AttachComponentToSocket(Sword[newStance-1].Mesh, 'WeaponPoint');
 // setTrailEffects();
-
 currentStance = newStance;
 
 EmberReplicationInfo(playerreplicationinfo).Replicate_ServerStance(currentStance, playerreplicationinfo.PlayerID);
@@ -3094,9 +3138,8 @@ overrideStanceChange();
 //TODO: Remove., just for testing
 if(currentStance == 3) 
 {
-currentStance -= 1;
 bLightsaberStance = true;
-			PermaBeam.SetHidden(false);
+PermaBeam.SetHidden(false);
 }
 
 
@@ -3146,7 +3189,7 @@ simulated function overrideStanceChange()
 	WalkAnimNodeBlendList.SetActiveChild(1, runBlendTime);
 	wRightStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
 	wLeftStrafeAnimNodeBlendList.SetActiveChild(1, runBlendTime);
-	Sword[currentStance-1].setStance(2);
+	// Sword[currentStance-1].setStance(2);
 }
 //===============================
 // Console Vars
@@ -3387,6 +3430,7 @@ defaultproperties
 	// NetPriority=3
 	// Role = ROLE_Authority
 	// RemoteRole = ROLE_AutonomousProxy 
+	bLightsaberStance = false;
 	bResetStringOnParry = true;
 	bCancelPoint= true;
 	TetherBeamType = 1;
