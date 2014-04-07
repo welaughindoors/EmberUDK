@@ -30,14 +30,6 @@ var AnimNodePlayCustomAnim  Attack2;
 //=============================================
 var float tracerCounter;
 
-
-//=============================================
-// Block Vars
-//=============================================
-//var float blockDistance;
-//var float blockCone;
-var byte isBlock;
-
 //=============================================
 // Damage Vars
 //=============================================
@@ -290,7 +282,7 @@ simulated function TraceAttack()
 	    {
 		    if(hitInfo.BoneName == 'sword_blade' || hitInfo.BoneName == 'sword_grip')
 	        {
-	        	if(EmberPawn(hitActor).isBlock() == 1)
+	        	if(EmberPawn(hitActor).isBlock == 1)
 	          	{
 		            swordParried(Owner);
 	            	parryEffect(HitLocation);      
@@ -394,7 +386,7 @@ simulated function TraceAttack()
 		    {
 		    	SwordGroupHits[0] = 1;
 		    	// EmberPawn(Owner).ReplicateDamage(DamagePerTracer,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
-		    	EmberPawn(Owner).ReplicateDamage(currentStance, 3,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+		    	EmberPawn(Owner).ReplicateDamage(sIndex+1, 3,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
 
 		    	//Client only, Actually has 0 use in network
 		    	interpolatedPoints_TemporaryHitArray[i].TakeDamage(40, Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, class'UTDmgType_LinkBeam');
@@ -404,7 +396,7 @@ simulated function TraceAttack()
 		    if(i>= 5 && i < 10 && SwordGroupHits[1] == 0)
 		    {
 		    	SwordGroupHits[1] = 1;
-		    	EmberPawn(Owner).ReplicateDamage(currentStance, 2,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+		    	EmberPawn(Owner).ReplicateDamage(sIndex+1, 2,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
 
 		    	//Client only, Actually has 0 use in network
 		    	if(bOwnerIsTestPawn)
@@ -417,7 +409,7 @@ simulated function TraceAttack()
 		    if(i >= 10 && i < 15 && SwordGroupHits[2] == 0)
 		    {
 		    	SwordGroupHits[2] = 1;
-		    	EmberPawn(Owner).ReplicateDamage(currentStance, 1,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
+		    	EmberPawn(Owner).ReplicateDamage(sIndex+1, 1,Pawn(Owner).Controller, HitLocation, sVelocity * Knockback, EmberPawn(interpolatedPoints_TemporaryHitArray[i]).PlayerReplicationInfo.PlayerID);
 
 		    	//Client only, Actually has 0 use in network
 		    	if(bOwnerIsTestPawn)

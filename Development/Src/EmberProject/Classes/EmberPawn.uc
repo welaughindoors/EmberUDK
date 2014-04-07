@@ -59,6 +59,8 @@ var bool bChamberZoom;
 var bool bChamberZoomShake;
 //resets strong forcedanimpary
 var bool bResetStringOnParry;
+//For repllication, lets know if block is active or not
+var byte isBlock;
 
 var array<bool> bGrappleStopLogicGate;
 var int iGrappleStopCounter;
@@ -786,6 +788,7 @@ Simulated Event Tick(float DeltaTime)
 {
 	// local UTPlayerController PC;
 	Super.Tick(DeltaTime);
+	Flash_HealthUpdate();
 	// runsPerTick(deltatime);
 	LeftRightClicksAndChambersManagement(DeltaTime);
 	//for fps issues and keeping things properly up to date
@@ -799,7 +802,7 @@ Simulated Event Tick(float DeltaTime)
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
 // if(fLightMultipler )
-	doLightsaberMods(DeltaTime);
+	// doLightsaberMods(DeltaTime);
 	//=== TETHER ====
 	if(ePC != none)
 	if (ePC.isTethering) 
@@ -968,10 +971,13 @@ Flash_HealthUpdate
 */
 function Flash_HealthUpdate()
 {
+	// DebugPrint("Update Flash HUD - "@Health);
+	// eHud.SetVariable(eHud.Tags.Flash_Health, "maxHealth", 100);
 	//If health is below 0, set display to 0
 	if(Health < 0) 	eHud.SetVariable(eHud.Tags.Flash_Health, "currentHealth", 0);
 	//Otherwise, set display to actual health
 	else 			eHud.SetVariable(eHud.Tags.Flash_Health, "currentHealth", Health);
+	
 }
 /*
 enableAnimations
@@ -984,62 +990,13 @@ simulated function enableAnimations()
 }
 reliable server function ServerHitEffectReplicate(int PlayerID, int HitType)
 {
-	local EmberPawn Receiver;
-
-	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	{
-		//If one of the pawns has the same ID as the player who did the attack
-		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-			Receiver.ClientHitEffect(HitType);
-	}
+EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(0, PlayerID,,,,HitType);
 }
 simulated function HitEffectReplicate(EmberPawn hitPawn, int HitType)
 {
 	//Simulated pawn shit doesn't get replicated
 	if(role < ROLE_Authority)
 		ServerHitEffectReplicate(hitPawn.PlayerReplicationInfo.PlayerID, HitType);
-}
-reliable client function ClientHitEffect(int HitType)
-{
-	local CameraAnim ShakeDatBooty;
-	local float shakeAmount;
-
-	switch(HitType)
-	{
-		//Red
-		case 0:
-			ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
-			break;
-
-		//Green
-		case 1:
-			ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
-			break;
-
-		//Blue
-		case 1:
-			ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
-			break;
-	}
-
-	  	switch(currentStance)
-  	{
-  		case 1: shakeAmount = aFramework.lightCameraShake;
-  		break;
-  		case 2: shakeAmount = aFramework.mediumCameraShake;
-  		break;
-  		case 3: shakeAmount = aFramework.heavyCameraShake;
-  		break;
-  	}
-  	//Play anim
-  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
-  	//Save velocity for after time freeze
-  	savedVelocity = Velocity * 0.5;
-  	//Time freeze
-  	CustomTimeDilation = 0.2f;
-  	//Set timer for unfreeze
-  	SetTimer(0.002, false, 'enableAnimations');
 }
 /*
 PostInitAnimTree
@@ -1290,7 +1247,7 @@ doAttackQueue
 simulated function doAttackQueue()
 {
 	local byte currentStringCounter;
-
+DebugPrint("cHealth - "@Health);
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',1.0, 0.3, 0, true);
 	// Sword[currentStance-1].GoToState('Blocking');
 // bAttackQueueing = true;
@@ -1350,14 +1307,26 @@ if(ChamberFlags.CheckLeftFlag(1))
 	ePC.ClientStopCameraAnim(CameraAnim'EmberCameraFX.ChamberShake');
 	// EmberDash.PlayCustomAnim('ember_jerkoff_block',-1.0, 0.3, 0, false);
 }
+
 /*
-isBlock
-	simple check to return current sword's status of blocking.
+ServerDoBlock
+	Client tells server that it's blocking
 */
-simulated function byte isBlock()
+reliable server function ServerDoBlock(int isBlock2)
 {
-	// return Sword[currentStance-1].isBlock;
-	return 0;
+	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(1, playerreplicationinfo.PlayerID, , , , isBlock2);
+	// EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
+	// doBlock();
+}
+/*
+ServerStopBlock
+	Client tells server that it's blocking
+*/
+reliable server function ServerStopBlock(int isBlock2)
+{
+	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(1, playerreplicationinfo.PlayerID, , , , isBlock2);
+	// EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
+	// stopBlock();
 }
 /*
 doBlock
@@ -1371,6 +1340,7 @@ doBlock
 simulated function doBlock()
 {
 	//Redoing this because I beleive replication ignores it, if not done at time
+	DebugPrint("DoBlock");
 	aFramework.SetUpBlockPacket();
 //can't copy structs in udk, how lame
 ForcedAnimLoopPacket.AnimName=aFramework.ForcedAnimLoopPacket.AnimName;
@@ -1388,10 +1358,10 @@ SetTimer(ForcedAnimLoopPacket.tDur, false, 'freezeAttackSlots');
 //=====================================================================
 
 //Setup a chamber flag
-BlockChamberFlag = BlockChamberFlag | 0x01;
+// BlockChamberFlag = BlockChamberFlag | 0x01;
 
 //Cancel timer if active
-ClearTimer('AttackEnd');
+// ClearTimer('AttackEnd');
 
 //=====================================================================
 //This segment is part of AttackEnd, without the animation reset
@@ -1404,10 +1374,10 @@ ClearTimer('AttackEnd');
     // animationControl();
 //End modded AttackEnd
 //=====================================================================
-// Sword[currentStance-1].isBlock = 1;
+isBlock = 1;
 
 if(role < ROLE_Authority)
-	ServerDoBlock();
+	ServerDoBlock(isBlock);
 }
 /*
 stopBlock
@@ -1415,20 +1385,21 @@ stopBlock
 */
 simulated function stopBlock()
 {
+	DebugPrint("stopBlock");
 	//IF chamber is active... i.e. letgo before block was done..
-	if((BlockChamberFlag & 0x01) == 0x01)
-	{
-		//Reset the flag (so it'll stopBlock when block is done)
-		BlockChamberFlag = 0;
+	// if((BlockChamberFlag & 0x01) == 0x01)
+	// {
+	// 	//Reset the flag (so it'll stopBlock when block is done)
+	// 	BlockChamberFlag = 0;
 
-		return;
-	}
-EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
+	// 	return;
+	// }
+// EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
 freezeAttackSlots(true, ForcedAnimLoopPacket.blendOut);
 swapToBlockPhysics(false);
-// Sword[currentStance-1].isBlock = 0;
+isBlock = 0;
 if(role < ROLE_Authority)
-	ServerDoBlock();
+	ServerStopBlock(isBlock);
 }
 
 /*
@@ -1449,11 +1420,11 @@ simulated function freezeAttackSlots(bool freeze = true, float blendOut = 0.4)
 {
 		if(!freeze)
 		{
-			if(BlockChamberFlag == 0)
-			{
-				freezeAttackSlots();
-				return;
-			}
+			// if(BlockChamberFlag == 0)
+			// {
+				// freezeAttackSlots();
+				// return;
+			// }
 			BlockChamberFlag = 0;
 			AttackSlot[0].GetCustomAnimNodeSeq().bPlaying=false;
 			//AttackSlot[1].GetCustomAnimNodeSeq().bPlaying=false;
@@ -1572,7 +1543,8 @@ AttackSlot[0].PlayCustomAnimByDuration(	aFramework.ServerAnimationNames		[Attack
 // native function PlayAnim (bool bLoop, float InRate, float StartTime)
 //Server's running the function
 if(ServerAttackAnimationID != -1)
-	EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(ServerAttackAnimationID, PlayerReplicationInfo.PlayerID);
+	// EmberReplicationInfo(PlayerReplicationInfo).copyToServerAttackStruct(ServerAttackAnimationID, PlayerReplicationInfo.PlayerID);
+	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(6, PlayerReplicationInfo.PlayerID, , , , ServerAttackAnimationID);
 
 //Client's running the function
 if(Role < ROLE_Authority)
@@ -1628,9 +1600,10 @@ simulated function int SinglePlayer_Damage(int Sword_CurrentStance, byte Sword_D
 ReplicateDamage
 	This is damage that only networking can access
 */
-simulated function ReplicateDamage(int Sword_CurrentStance, byte Sword_DamageGroup, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
+function ReplicateDamage(int Sword_CurrentStance, byte Sword_DamageGroup, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
 	local int TotalGroupDamage;
+	local EmberPawn Receiver;
 
 switch(Sword_CurrentStance)
 {
@@ -1655,10 +1628,22 @@ switch(Sword_CurrentStance)
 		if(Sword_DamageGroup == 3) TotalGroupDamage = 11;
 	break;
 }
+DebugPrint("Sent Damage - "@TotalGroupDamage);
 
 if(role < ROLE_Authority)
-	ServerReplicateDamage( TotalGroupDamage,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
-
+	ServerReplicateDamage(Sword_CurrentStance, Sword_DamageGroup, DamageInstigator, HitLocation, TotalKnockback, PlayerID);
+else
+{
+	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(0, PlayerID, , , ,TotalGroupDamage, TotalGroupDamage, TotalGroupDamage);
+	//Find all local pawns
+	`Log("Sent Damage - "@TotalGroupDamage);
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player who sent the packet
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+			Receiver.TakeDamage(TotalGroupDamage, DamageInstigator, HitLocation, TotalKnockback, GetSwordDamageType(0));
+	}
+}
 }
 
 // tell the server to play them too
@@ -1670,10 +1655,9 @@ reliable server function ServerPlayAnim(int ServerAttackAnimationID)
 ServerReplicateDamage
 	Server sends out damage to player
 */
-reliable server function ServerReplicateDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
+reliable server function ServerReplicateDamage(int Sword_CurrentStance, byte Sword_DamageGroup, Controller DamageInstigator, vector HitLocation, vector TotalKnockback, int PlayerID)
 {
-	`Log(PlayerID$" took Damage - "$DamagePerTracer);
-	ReplicateDamage_Calculated( DamagePerTracer,  DamageInstigator,  HitLocation,  TotalKnockback,  PlayerID);
+	ReplicateDamage(Sword_CurrentStance, Sword_DamageGroup, DamageInstigator, HitLocation, TotalKnockback, PlayerID);
 }
 /*
 ServerChamber
@@ -1681,7 +1665,7 @@ ServerChamber
 */
 reliable server function ServerChamber(bool Active)
 {
-	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Chamber(Active, PlayerReplicationInfo.PlayerID);
+	// EmberReplicationInfo(PlayerReplicationInfo).Replicate_Chamber(Active, PlayerReplicationInfo.PlayerID);
 	ChamberGate(active);
 }
 
@@ -1691,7 +1675,8 @@ ServerGrappleReplication
 */
 reliable server function ServerGrappleReplication(bool Active, int PlayerID, vector hitLocation)
 {
-	EmberReplicationInfo(PlayerReplicationInfo).Replicate_Grapple(Active, PlayerID, hitLocation);
+	// EmberReplicationInfo(PlayerReplicationInfo).Replicate_Grapple(Active, PlayerID, hitLocation);
+	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(4, PlayerID,Active,false,,,,,hitLocation);
 }
 /*
 ClientTetherBeamProjectileReplication
@@ -1828,45 +1813,228 @@ function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLo
 	}
 }
 /*
+GetSwordDamageType
+	
+*/
+function class<DamageType> GetSwordDamageType(int i)
+{
+	if(i == 0)
+		return class'UTDmgType_LinkBeam';
+		return class'UTDmgType_LinkBeam';
+}
+/*
 ClientFunctionGate
 	All replication is done / received through here
 	TODO: stop replying on PRI for replication
 */
-reliable client function ClientFunctionGate(byte FunctionID, int PlayerID, optional bool bToggle, optional int iVariable)
+reliable client function ClientFunctionGate(byte FunctionID, 
+											int PlayerID, 
+											optional bool bToggle, 
+											optional bool bToggle2, 
+											optional bool bToggle3, 
+											optional int iVar, 
+											optional int iVar2, 
+											optional int iVar3,
+											optional vector vVar,
+											optional vector vVar2,
+											optional vector vVar3
+											)
 {
-	// switch (FunctionID)
-	// {
-	// 	case expression2:
-			
-	// 		break;
+	local float fVar;
+	local int i;
+	local EmberProjectile P;
+	local EmberPawn Receiver;
+	DebugPrint("ClientFunctionGate" @ FunctionID @ "iVar" @ iVar @ "iVar2" @ iVar2 @ "iVar3" @ iVar3);
+
+	//Find all local pawns
+	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+	{
+		//If one of the pawns has the same ID as the player sent the function
+		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+		//Save and quit loop
+			break;
+	}
+
+	//These aren't in any specific order
+	switch (FunctionID)
+	{
+		//ClientHitEffect
+		//Receives hit effect, no need for pawn replication
+		//uses iVar
+
+		//GOOD - Needs Hit Identifier Fixed
+		case 0:
+			ClientHitEffect(iVar);
+		break;
 	
-	// 	case expression3:
-			
-	
-	// 	default:
-			
-	// }
+		//ClientBlockReplication
+		//Targets pawn, makes it assume block stance\
+
+		//Works. Dirty bit was the trick
+		case 1:
+			if(Receiver == self) return;
+			if(Receiver.isBlock == 0) 	Receiver.doBlock();
+			else 						Receiver.stopBlock();
+		break;
+
+		//ClientStanceReplication
+		//Targets pawn, makes it change stance
+		//uses iVar
+
+		//GOOD
+		case 2:
+			Receiver.ChangeStance(iVar);
+		break;
+
+		//ClientTakeDamage
+		//Targets self, takes damage
+		//Uses Receiver, iVar, iVar2, vVar, vVar2
+
+		//BAD - Doesn't Work
+		case 3:
+		DebugPrint("Took Damage - "@iVar);
+		self.TakeDamage(iVar, Receiver.Controller, vVar, vVar2, GetSwordDamageType(iVar2));
+		break;
+
+		// ClientReceiveGrappleReplication
+		//Uses bToggle, bToggle2, Receiver, PlayerID, vVar
+
+		//GOOD 100%
+		case 4:
+			//If grapple replication is canceled (grapple ended)
+			if(!bToggle)
+			{
+				//Check all player ID's
+				for(i = 0; i < GrappleReplicationHolder.PlayerID.length; i++)
+				{
+					//If we find a match
+					if(GrappleReplicationHolder.PlayerID[i] == PlayerID)
+					{
+						//Remove data
+						GrappleReplicationHolder.PlayerID.Remove(i, 1);
+						GrappleReplicationHolder.gPawn.Remove(i, 1);
+						GrappleReplicationHolder.TetherProjectileHitLoc.Remove(i, 1);
+						GrappleReplicationHolder.AttachedOnEnemy.Remove(i,1);
+						deactivateTetherBeam(i);
+						return;
+					}
+				}
+			}
+			else
+			{
+				GrappleReplicationHolder.PlayerID.AddItem(PlayerID);
+				GrappleReplicationHolder.gPawn.AddItem(Receiver);
+				GrappleReplicationHolder.TetherProjectileHitLoc.AddItem(vVar);
+				GrappleReplicationHolder.AttachedOnEnemy.AddItem(bToggle2);
+				// if(tPawn!=none)
+				// GrappleReplicationHolder.clientTrackPawn=tPawn;
+				return;
+			}
+		break;
+		
+		//ClientTetherBeamProjectileReplication
+		//Uses Receiver, vVar, optional vVar2
+		//GOOD
+		case 5:
+			//Get Launch Location
+			Receiver.ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', vVar2);
+			//Spawns projectile at GrappleSocket
+			P = Spawn(class'EmberProjectile',self,,vVar2);
+			//We fire projectile along vector
+			p.Init(vVar);
+		break;
+
+		//ClientAttackAnimReplication
+		//Uses Receiver, iVar
+		//GOOD
+		case 6:
+			FlushPersistentDebugLines();
+
+  			Receiver.eSword.setKnockback(aFramework.ServerAnimationKnockback[iVar]);
+  			if(iVar <= 31)
+  			{
+				Receiver.eSword.PrepareAttack(aFramework.ServerAnimationTracerStart[iVar], aFramework.ServerAnimationTracerEnd[iVar], Receiver.currentStance-1);
+				Receiver.setTrailEffects(aFramework.ServerAnimationDuration	[iVar]);
+  			}
+			else
+			{
+				fVar = aFramework.ServerAnimationTracerEnd[iVar-24] - aFramework.ServerAnimationTracerStart[iVar-24] + aFramework.ServerAnimationFadeIn[iVar]/2;
+				Receiver.eSword.PrepareAttack(0, fVar, currentStance-1);
+				Receiver.setTrailEffects(fVar*0.9);
+			}
+        	Receiver.AttackSlot[0].PlayCustomAnimByDuration(aFramework.ServerAnimationNames		[iVar],
+        													aFramework.ServerAnimationDuration	[iVar], 
+        													aFramework.ServerAnimationFadeIn	[iVar], 
+        													aFramework.ServerAnimationFadeOut	[iVar]);
+
+		break;
+	}
+}
+/*
+ClientHitEffect
+	Replicates hit effect
+*/
+function ClientHitEffect(int HitType)
+{
+	local CameraAnim ShakeDatBooty;
+	local float shakeAmount;
+
+	switch(HitType)
+	{
+		//Red
+		case 0:
+			ShakeDatBooty=CameraAnim'EmberCameraFX.RedShake';
+			break;
+
+		//Green
+		case 1:
+			ShakeDatBooty=CameraAnim'EmberCameraFX.GreenShake';
+			break;
+
+		//Blue
+		case 1:
+			ShakeDatBooty=CameraAnim'EmberCameraFX.BlueShake';
+			break;
+	}
+
+	  	switch(currentStance)
+  	{
+  		case 1: shakeAmount = aFramework.lightCameraShake;
+  		break;
+  		case 2: shakeAmount = aFramework.mediumCameraShake;
+  		break;
+  		case 3: shakeAmount = aFramework.heavyCameraShake;
+  		break;
+  	}
+  	//Play anim
+  	ePC.ClientPlayCameraAnim(ShakeDatBooty, shakeAmount);
+  	//Save velocity for after time freeze
+  	savedVelocity = Velocity * 0.5;
+  	//Time freeze
+  	CustomTimeDilation = 0.2f;
+  	//Set timer for unfreeze
+  	SetTimer(0.002, false, 'enableAnimations');
 }
 /*
 ClientChamberReplication
 	Client replicates chamber gate
 */
-reliable client function ClientChamberReplication(bool Active, int PlayerID)
-{
-	local EmberPawn Receiver;
-	local playerreplicationinfo PRI;
-	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	{
-		//If one of the pawns has the same ID as the player who sent the packet
-		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-		{
-			PRI = Receiver.playerreplicationinfo;
-			Receiver.ChamberGate(Active, EmberReplicationInfo(PRI).ServerAttackPacket.ServerAnimAttack);
-		}
+// reliable client function ClientChamberReplication(bool Active, int PlayerID)
+// {
+// 	local EmberPawn Receiver;
+// 	local playerreplicationinfo PRI;
+// 	//Find all local pawns
+// 	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+// 	{
+// 		//If one of the pawns has the same ID as the player who sent the packet
+// 		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
+// 		{
+// 			PRI = Receiver.playerreplicationinfo;
+// 			Receiver.ChamberGate(Active, EmberReplicationInfo(PRI).ServerAttackPacket.ServerAnimAttack);
+// 		}
 		
-    }
-}
+//     }
+// }
 /*
 ClientAttackAnimReplication
 	Client recieves animation and plays it
@@ -1927,15 +2095,6 @@ reliable client function ClientBlockReplication(int PlayerID)
 				// Receiver.stopBlock();
     	}
     }
-}
-/*
-ServerDoBlock
-	Client tells server that it's blocking
-*/
-reliable server function ServerDoBlock()
-{
-	EmberReplicationInfo(playerreplicationinfo).Replicate_DoBlock(playerreplicationinfo.PlayerID);
-	doBlock();
 }
 /*
 ClientStanceReplication
@@ -2504,7 +2663,8 @@ ServerTetherBeamProjectile
 */
 reliable server function ServerTetherBeamProjectile(int PlayerID, vector ProjectileDir)
 {
-	EmberReplicationInfo(playerreplicationinfo).Replicate_TetherBeamProjectile(ProjectileDir, PlayerID);
+	// EmberReplicationInfo(playerreplicationinfo).Replicate_TetherBeamProjectile(ProjectileDir, PlayerID);
+	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(5, PlayerID,,,,,,,ProjectileDir);
 }
 /*
 tetherLocationHit
@@ -3128,28 +3288,28 @@ bLightsaberStance = false;
 ParentModularComponent.AttachComponentToSocket(Sword[newStance-1].Mesh, 'WeaponPoint');
 // setTrailEffects();
 currentStance = newStance;
-
-EmberReplicationInfo(playerreplicationinfo).Replicate_ServerStance(currentStance, playerreplicationinfo.PlayerID);
-switch (TetherBeamType)
-			{
-				case 1:
-			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherStraightBeam', vect(0,0,0));
-			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherStraightBeam');
-			break;
-				case 2:
-			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherbeam2', vect(0,0,0));
-			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.tetherbeam2');
-			break;
-				case 3:
-			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherSchizoBeam', vect(0,0,0));
-			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherSchizoBeam');
-			break;
-				default:
-				}	
+EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(2, playerreplicationinfo.PlayerID,,,,currentStance);
+// EmberReplicationInfo(playerreplicationinfo).Replicate_ServerStance(currentStance, playerreplicationinfo.PlayerID);
+// switch (TetherBeamType)
+// 			{
+// 				case 1:
+// 			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherStraightBeam', vect(0,0,0));
+// 			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherStraightBeam');
+// 			break;
+// 				case 2:
+// 			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherbeam2', vect(0,0,0));
+// 			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.tetherbeam2');
+// 			break;
+// 				case 3:
+// 			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherSchizoBeam', vect(0,0,0));
+// 			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherSchizoBeam');
+// 			break;
+// 				default:
+// 				}	
 			
-			PermaBeam.ActivateSystem(true);
-			PermaBeam.bUpdateComponentInTick = true;
-			PermaBeam.SetTickGroup(TG_EffectsUpdateWork);
+// 			PermaBeam.ActivateSystem(true);
+// 			PermaBeam.bUpdateComponentInTick = true;
+// 			PermaBeam.SetTickGroup(TG_EffectsUpdateWork);
 
 overrideStanceChange();
 

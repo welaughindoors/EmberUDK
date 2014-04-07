@@ -220,18 +220,18 @@ function ReplicateMove
 GetLoadedPawnInformation
   Gets all the information about pawns (like current stanses)
 */
-simulated function GetLoadedPawnInformation()
-{
-  local EmberPawn Receiver;
-  local EmberReplicationInfo eInfo;
-  DebugPrint("GetLoadedPawnInformation");
-  //Find all local pawns
-  ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-  {
-    eInfo = EmberReplicationInfo(Receiver.PlayerReplicationInfo);
-    Receiver.ChangeStance(eInfo.ServerStancePacket.ServerStance);
-  }
-}
+// simulated function GetLoadedPawnInformation()
+// {
+//   local EmberPawn Receiver;
+//   local EmberReplicationInfo eInfo;
+//   DebugPrint("GetLoadedPawnInformation");
+//   //Find all local pawns
+//   ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
+//   {
+//     eInfo = EmberReplicationInfo(Receiver.PlayerReplicationInfo);
+//     Receiver.ChangeStance(eInfo.ServerStancePacket.ServerStance);
+//   }
+// }
 /*
 PlayerWalking
 	Used for dodge. Queued for removal

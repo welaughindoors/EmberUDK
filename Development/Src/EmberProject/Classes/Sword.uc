@@ -402,7 +402,7 @@ for(tCount = 0; tCount <= 1; tCount += 0.1)
 
         if(hitInfo.BoneName == 'sword_blade' || hitInfo.BoneName == 'sword_grip')
         {
-          if(EmberPawn(hitActor).isBlock() == 1)
+          if(EmberPawn(hitActor).isBlock == 1)
           {
              swordParried(Owner);
             parryEffect(parryEffectLocation);      
