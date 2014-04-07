@@ -54,7 +54,11 @@ simulated function Replication_FunctionGate
 	tStruct.vVar = vVar;
 	tStruct.vVar2 = vVar2;
 	tStruct.vVar3 = vVar3;
-	// tStruct.DirtyBit = !ServerFunctionReplication.DirtyBit;
+
+	//Use this for structs that could be repeated
+	//e.x. two of same attacks in a row
+	if(FunctionID == 6)
+	tStruct.DirtyBit = !ServerFunctionReplication.DirtyBit;
 
 	ServerFunctionReplication = tStruct;
 }

@@ -517,7 +517,9 @@ PullEnemy
 function PullEnemy(actor Other, vector MomentumTransfer, controller InstigatorController)
 {
 	Other.TakeDamage(0, InstigatorController, Other.Location, MomentumTransfer,  class'UTDmgType_LinkBeam',, self);
-	ClientReceiveGrappleReplication(true, self.playerreplicationinfo.PlayerID, Other.Location, true, pawn(Other));
+	//TODO: Implement
+	// ClientReceiveGrappleReplication(true, self.playerreplicationinfo.PlayerID, Other.Location, true, pawn(Other));
+	// EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(4, PlayerID,Active,false,,,,,hitLocation);
 	if(role < ROLE_Authority)
 		ServerPullEnemy(Other, MomentumTransfer, InstigatorController);
 }
@@ -988,15 +990,19 @@ simulated function enableAnimations()
 	CustomTimeDilation = 1.0f;
 	Velocity = savedVelocity;
 }
-reliable server function ServerHitEffectReplicate(int PlayerID, int HitType)
+reliable server function ServerHitEffectReplicate(EmberPawn hitPawn, int HitType)
 {
-EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(0, PlayerID,,,,HitType);
+	// EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(0, hitPawn.PlayerReplicationInfo.PlayerID, , , ,HitType);
+	HitEffectReplicate(hitPawn, HitType);
 }
 simulated function HitEffectReplicate(EmberPawn hitPawn, int HitType)
 {
 	//Simulated pawn shit doesn't get replicated
 	if(role < ROLE_Authority)
-		ServerHitEffectReplicate(hitPawn.PlayerReplicationInfo.PlayerID, HitType);
+		ServerHitEffectReplicate(hitPawn, HitType);
+	else
+		hitPawn.ClientFunctionGate(0, hitPawn.PlayerReplicationInfo.PlayerID, , , ,HitType);
+	// EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(0, hitPawn.PlayerReplicationInfo.PlayerID, , , ,HitType);
 }
 /*
 PostInitAnimTree
@@ -1679,32 +1685,6 @@ reliable server function ServerGrappleReplication(bool Active, int PlayerID, vec
 	EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(4, PlayerID,Active,false,,,,,hitLocation);
 }
 /*
-ClientTetherBeamProjectileReplication
-	
-*/
-reliable client function ClientTetherBeamProjectileReplication(vector hitDirection, int PlayerID)
-{
-	local EmberPawn Receiver;
-	local vector projectileSpawnVect;
-	local rotator roter;
-	local EmberProjectile P;
-	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	{
-		//If one of the pawns has the same ID as the player who sent the packet
-		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-		{
-			//Get Launch Location
-			Receiver.ModularPawn_Cosmetics.ParentModularItem.GetSocketWorldLocationAndRotation('GrappleSocket', projectileSpawnVect, roter);
-			//Spawns projectile at GrappleSocket
-			P = Spawn(class'EmberProjectile',self,,projectileSpawnVect);
-			//We fire projectile along vector
-			p.Init(hitDirection);
-			return;
-		}		
-    }
-}
-/*
 ClientGrappleReplication
 	Actual replication
 	runs per tick
@@ -1755,61 +1735,12 @@ function ClientGrappleReplication()
 			
 		updateBeamEnd(grappleSocket, i);
 		if(VSize(GrappleReplicationHolder.clientTrackPawn.Location - GrappleReplicationHolder.gPawn[i].Location) < 250)
-			ClientReceiveGrappleReplication(false, GrappleReplicationHolder.PlayerID[i], vect(0,0,0));
+			ClientFunctionGate(4, GrappleReplicationHolder.PlayerID[i],false,false,,,,,vect(0,0,0));
+			// ClientReceiveGrappleReplication(false, GrappleReplicationHolder.PlayerID[i], vect(0,0,0));
 		}
 		// else
 		// updateBeamEnd(GrappleReplicationHolder.TetherProjectileHitLoc[i], i);
 
-	}
-}
-/*
-ClientReceiveGrappleReplication
-	Receives data to start grapple replication
-*/
-function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLocation, bool bOnEnemy = false, pawn tPawn = none)
-{
-	local EmberPawn Receiver;
-	local playerreplicationinfo PRI;
-	local int i;
-
-	//If grapple replication is canceled (grapple ended)
-	if(!Active)
-	{
-		//Check all player ID's
-		for(i = 0; i <GrappleReplicationHolder.PlayerID.length; i++)
-		{
-			//If we find a match
-			if(GrappleReplicationHolder.PlayerID[i] == PlayerID)
-			{
-				//Remove data
-				GrappleReplicationHolder.PlayerID.Remove(i, 1);
-				GrappleReplicationHolder.gPawn.Remove(i, 1);
-				GrappleReplicationHolder.TetherProjectileHitLoc.Remove(i, 1);
-				GrappleReplicationHolder.AttachedOnEnemy.Remove(i,1);
-				deactivateTetherBeam(i);
-				// DebugPrint("Done"@GrappleReplicationHolder.TetherBeams.length);
-				return;
-			}
-		}
-	}
-	else
-	{
-		//Find all local pawns
-		ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-		{
-			//If one of the pawns has the same ID as the player who sent the packet
-			if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-			{
-				PRI = Receiver.playerreplicationinfo;
-				GrappleReplicationHolder.PlayerID.AddItem(PlayerID);
-				GrappleReplicationHolder.gPawn.AddItem(Receiver);
-				GrappleReplicationHolder.TetherProjectileHitLoc.AddItem(hitLocation);
-				GrappleReplicationHolder.AttachedOnEnemy.AddItem(bOnEnemy);
-				if(tPawn!=none)
-				GrappleReplicationHolder.clientTrackPawn=tPawn;
-				return;
-			}	
-    	}
 	}
 }
 /*
@@ -1864,7 +1795,7 @@ reliable client function ClientFunctionGate(byte FunctionID,
 
 		//GOOD - Needs Hit Identifier Fixed
 		case 0:
-			ClientHitEffect(iVar);
+			if(Receiver == self) ClientHitEffect(iVar);
 		break;
 	
 		//ClientBlockReplication
@@ -1892,8 +1823,8 @@ reliable client function ClientFunctionGate(byte FunctionID,
 
 		//BAD - Doesn't Work
 		case 3:
-		DebugPrint("Took Damage - "@iVar);
-		self.TakeDamage(iVar, Receiver.Controller, vVar, vVar2, GetSwordDamageType(iVar2));
+		// DebugPrint("Took Damage - "@iVar);
+		// self.TakeDamage(iVar, Receiver.Controller, vVar, vVar2, GetSwordDamageType(iVar2));
 		break;
 
 		// ClientReceiveGrappleReplication
@@ -2035,97 +1966,6 @@ ClientChamberReplication
 		
 //     }
 // }
-/*
-ClientAttackAnimReplication
-	Client recieves animation and plays it
-*/
-reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerID)
-{
-	local EmberPawn Receiver;
-
-	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	{
-		//If one of the pawns has the same ID as the player who did the attack
-		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-		{
-			//Debug Print, Perhaps remove
-			DebugPrint(PlayerReplicationInfo.PlayerName@"ClientAttackAnimReplication"@PlayerID);
-			//Tell that pawn to do an attack. 
-			FlushPersistentDebugLines();
-			// Receiver.AttackEnd();
-  			Receiver.eSword.setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
-  			if(!Receiver.ChamberFlags.CheckRightFlag(0))
-			{
-				// Receiver.Sword[Receiver.currentStance-1].GoToState('Attacking');
-            	// Receiver.Sword[Receiver.currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack]);
-
-            	//TODO: Animation Lock
-				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
-					// SetTimer(AttackPacket.Mods[0], false, 'AttackLock');
-
-				Receiver.VelocityPinch.ApplyVelocityPinch(,aFramework.ServerAnimationTracerStart[AnimAttack], aFramework.ServerAnimationTracerEnd[AnimAttack] * 1.1);
-			}
-
-        	Receiver.AttackSlot[0].PlayCustomAnimByDuration(aFramework.ServerAnimationNames		[AnimAttack],
-        													aFramework.ServerAnimationDuration	[AnimAttack], 
-        													aFramework.ServerAnimationFadeIn	[AnimAttack], 
-        													aFramework.ServerAnimationFadeOut	[AnimAttack]);
-        	Receiver.setTrailEffects(aFramework.ServerAnimationDuration	[AnimAttack]);
-    }
-    }
-}
-/*
-ClientBlockReplication
-	Client replicates block status
-*/
-reliable client function ClientBlockReplication(int PlayerID)
-{
-	local EmberPawn Receiver;
-	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	{
-		//If one of the pawns has the same ID as the player who did the attack
-		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-		{
-			//Tell that pawn to switch stances
-			// if(Receiver.isBlock() == 0)
-				// Receiver.doBlock();
-			// else
-				// Receiver.stopBlock();
-    	}
-    }
-}
-/*
-ClientStanceReplication
-	Replicates Changestance to clients
-*/
-reliable client function ClientStanceReplication(int ServerStance, int PlayerID)
-{
-	local EmberPawn Receiver;
-	//Find all local pawns
-	ForEach WorldInfo.AllPawns(class'EmberPawn', Receiver) 
-	{
-		//If one of the pawns has the same ID as the player who did the attack
-		if(Receiver.PlayerReplicationInfo.PlayerID == PlayerID)
-		{
-			//Tell that pawn to switch stances
-			Receiver.ChangeStance(ServerStance);
-    	}
-    }
-}
-/*
-ClientTakeDamage
-	ClientTakes damage
-*/
-reliable client function ClientTakeDamage(int DamagePerTracer, Controller DamageInstigator, vector HitLocation, vector TotalKnockback,  class<DamageType> DamageType)
-{
-	self.TakeDamage(DamagePerTracer, DamageInstigator, HitLocation, TotalKnockback, DamageType);
-	//We know its this pawn who's taking damage, we're not replicated other pawns, just dealing damage to ourselves (received from other pawns)
-	// self.Health -= DamagePerTracer;
-	// Velocity *= TotalKnockback;
-	//Not sure what to use the rest for
-}
 /*
 forcedAnimEnd
 	Same as OnAnimEnd, but isn't called naturally by UDK. Called forecebiliy by code
@@ -2684,7 +2524,8 @@ function tetherLocationHit(vector hitNormal, vector hitLocation, actor Other)
 	DebugPrint("projectileHitLocation"@projectileHitLocation);
 	// GrappleReplicationHolder.TetherProjectileHitLoc.AddItem(projectileHitLocation);
 	// ClientReceiveGrappleReplication
-	ClientReceiveGrappleReplication(true, self.playerreplicationinfo.PlayerID, hitLocation);
+	// ClientReceiveGrappleReplication(true, self.playerreplicationinfo.PlayerID, hitLocation);
+	ClientFunctionGate(4,self.playerreplicationinfo.PlayerID,true,false,,,,,hitLocation);
 	// createTether();
 	ePC.isTethering = true;
 	bTetherProjectileActive = false;
@@ -2846,12 +2687,14 @@ function detachTether()
  	iGrappleStopCounter=0;
  	if(role < ROLE_Authority)
  	{
- 		ClientReceiveGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
+ 		// ClientReceiveGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
+ 		ClientFunctionGate(4,self.playerreplicationinfo.PlayerID,false,false,,,,,vect(0,0,0));
  		ServerDetachTether();
  	}
  	else
  	{
- 		ClientReceiveGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
+ 		// ClientReceiveGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
+ 		ClientFunctionGate(4,self.playerreplicationinfo.PlayerID,false,false,,,,,vect(0,0,0));
  		ServerGrappleReplication(false, self.playerreplicationinfo.PlayerID, vect(0,0,0));
  	}
 
