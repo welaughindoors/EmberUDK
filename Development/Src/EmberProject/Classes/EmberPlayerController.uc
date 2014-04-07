@@ -232,26 +232,6 @@ simulated function GetLoadedPawnInformation()
     Receiver.ChangeStance(eInfo.ServerStancePacket.ServerStance);
   }
 }
-// simulated event ReplicatedEvent(name VarName)
-// {
-//   local PlayerController PC;
-//   DebugPrint("Rep Event Received - "@VarName);
-//   // if(VarName == 'PlayerReplicationInfo' )
-//           // EmberPawn(pawn).SetUpCharacterMesh();
-//      if(VarName == 'TargetViewRotation' )
-//      {
-//       DebugPrint("ffs");
-//      }
-//      else
-//      {
-//           super.ReplicatedEvent(VarName);
-//      }
-// }
-// replication
-// {
-//     if (bNetDirty || bNetInitial)
-//       PostBeginCharacterInformation;
-// }
 /*
 PlayerWalking
 	Used for dodge. Queued for removal

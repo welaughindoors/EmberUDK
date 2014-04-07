@@ -1828,6 +1828,26 @@ function ClientReceiveGrappleReplication(bool Active, int PlayerID, vector hitLo
 	}
 }
 /*
+ClientFunctionGate
+	All replication is done / received through here
+	TODO: stop replying on PRI for replication
+*/
+reliable client function ClientFunctionGate(byte FunctionID, int PlayerID, optional bool bToggle, optional int iVariable)
+{
+	// switch (FunctionID)
+	// {
+	// 	case expression2:
+			
+	// 		break;
+	
+	// 	case expression3:
+			
+	
+	// 	default:
+			
+	// }
+}
+/*
 ClientChamberReplication
 	Client replicates chamber gate
 */
@@ -1866,7 +1886,7 @@ reliable client function ClientAttackAnimReplication(int AnimAttack, int PlayerI
 			//Tell that pawn to do an attack. 
 			FlushPersistentDebugLines();
 			// Receiver.AttackEnd();
-  			// Receiver.Sword[Receiver.currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
+  			Receiver.eSword.setKnockback(aFramework.ServerAnimationKnockback[AnimAttack]);
   			if(!Receiver.ChamberFlags.CheckRightFlag(0))
 			{
 				// Receiver.Sword[Receiver.currentStance-1].GoToState('Attacking');
@@ -1975,7 +1995,7 @@ if(LastSavedAttack != AttackAnimationID)
 				if(AttackAnimationID <= 31)
 				{
 					// if(bLightsaberStance) Sword[2].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
-				 // Sword[currentStance-1].setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);
+				 eSword.setKnockback(aFramework.ServerAnimationKnockback[AttackAnimationID]);				 
 
             		// if(bLightsaberStance) Sword[2].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
 				 // Sword[currentStance-1].setTracerDelay(aFramework.ServerAnimationTracerStart[AttackAnimationID], aFramework.ServerAnimationTracerEnd[AttackAnimationID]);
@@ -1999,8 +2019,6 @@ if(LastSavedAttack != AttackAnimationID)
 				// if(aFramework.TestLockAnim[0] == AttackPacket.AnimName)
 
 			}
-				
-
 	ePlayAnim();
 }
 
