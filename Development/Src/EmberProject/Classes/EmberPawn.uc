@@ -275,6 +275,8 @@ var array<vector> 			startLocsArray;
 var array<vector>			endLocsArray;
 var int 					extraTether;
 
+var rotator SavedRotation;
+var float RotationForcedUpdate;
 
 //=============================================
 // Utility Functions
@@ -302,6 +304,59 @@ function bool PerformDodge(eDoubleClickDir DoubleClickMove, vector Dir, vector C
 //=============================================
 // System Functions
 //=============================================
+
+simulated function FaceRotation(rotator NewRotation, float DeltaTime)
+{
+	local EmberPlayerController contr;
+	// Do not update Pawn's rotation depending on controller's ViewRotation if in FreeCam.
+	if (!InFreeCam())
+	{
+		if ( Physics == PHYS_Ladder )
+		{
+			NewRotation = OnLadder.Walldir;
+		}
+		else if ( (Physics == PHYS_Walking) || (Physics == PHYS_Falling) )
+		{
+			NewRotation.Pitch = 0;
+		}
+		// foreach WorldInfo.AllPawns( class'TestPawn', P )
+		// foreach VisibleCollidingActors(class'TestPawn', P, Skel_HeadPawnDetectionRadius, self.Location)
+		// foreach WorldInfo.AllControllers(class'EmberPlayerController', contr)
+			// contr.ClientMessage("FaceRotation"@NewRotation);
+		// SetRotation(NewRotation);
+	// 	if(RotationForcedUpdate == 0)
+	// 	{
+	// 	Savedrotation = NewRotation;
+	// 	RotationForcedUpdate += 1;
+	// }
+		// DebugPrint("pRotation"@Instigator.Controller.Rotation);
+		// DebugPrint("cRotation"@SavedRotation);
+		// DebugPrint("iRotation"@RInterpTo(Rotation, NewRotation, DeltaTime, 90000, true));
+
+		//Setup a forced update
+		// RotationForcedUpdate += DeltaTime;
+
+		//If our actual rotation reaches same value as saved / difference rotation ....
+		//Or forced update has been reached (atm 3s)
+		// if(SavedRotation == Instigator.Controller.Rotation || RotationForcedUpdate >= 3.0)
+		// {
+		// 	//Setup the new rotation vector
+		// 	SavedRotation = NewRotation;
+		// 	//Reset forced update timer
+		// 	RotationForcedUpdate = 0;
+		// }
+		// //If our saved rotation is different than our current rotation, interpolate to it
+		// if(role < role_simulatedproxy)
+			// SavedRotation = RInterpTo(SavedRotation, NewRotation, DeltaTime, 45000, true);
+		// else
+			// SavedRotation = RInterpTo(SavedRotation, NewRotation, DeltaTime, 90000, true);
+
+		// if(SavedRotation != Instigator.Controller.Rotation)
+		// {
+			SetRotation(RInterpTo(Rotation, NewRotation, DeltaTime, 40000, true));
+		// }
+	}
+}
 
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
@@ -340,6 +395,8 @@ PostBeginPlay
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
+
+	SavedRotation = Rotation;
 
     aFramework = new class'EmberProject.AttackFramework';
     Dodge = new class'EmberProject.EmberDodge';
@@ -804,7 +861,7 @@ Simulated Event Tick(float DeltaTime)
 	//this deltaTimeBoostMultiplier system is my own idea :) - grapple
 
 // if(fLightMultipler )
-	// doLightsaberMods(DeltaTime);
+	doLightsaberMods(DeltaTime);
 	//=== TETHER ====
 	if(ePC != none)
 	if (ePC.isTethering) 
@@ -3133,26 +3190,26 @@ ParentModularComponent.AttachComponentToSocket(Sword[newStance-1].Mesh, 'WeaponP
 currentStance = newStance;
 EmberReplicationInfo(PlayerReplicationInfo).Replication_FunctionGate(2, playerreplicationinfo.PlayerID,,,,currentStance);
 // EmberReplicationInfo(playerreplicationinfo).Replicate_ServerStance(currentStance, playerreplicationinfo.PlayerID);
-// switch (TetherBeamType)
-// 			{
-// 				case 1:
-// 			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherStraightBeam', vect(0,0,0));
-// 			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherStraightBeam');
-// 			break;
-// 				case 2:
-// 			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherbeam2', vect(0,0,0));
-// 			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.tetherbeam2');
-// 			break;
-// 				case 3:
-// 			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherSchizoBeam', vect(0,0,0));
-// 			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherSchizoBeam');
-// 			break;
-// 				default:
-// 				}	
+switch (TetherBeamType)
+			{
+				case 1:
+			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherStraightBeam', vect(0,0,0));
+			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherStraightBeam');
+			break;
+				case 2:
+			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.tetherbeam2', vect(0,0,0));
+			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.tetherbeam2');
+			break;
+				case 3:
+			if(PermaBeam == none) PermaBeam = WorldInfo.MyEmitterPool.SpawnEmitter(ParticleSystem'RamaTetherBeam.TetherSchizoBeam', vect(0,0,0));
+			else PermaBeam.SetTemplate(ParticleSystem'RamaTetherBeam.TetherSchizoBeam');
+			break;
+				default:
+				}	
 			
-// 			PermaBeam.ActivateSystem(true);
-// 			PermaBeam.bUpdateComponentInTick = true;
-// 			PermaBeam.SetTickGroup(TG_EffectsUpdateWork);
+			PermaBeam.ActivateSystem(true);
+			PermaBeam.bUpdateComponentInTick = true;
+			PermaBeam.SetTickGroup(TG_EffectsUpdateWork);
 
 overrideStanceChange();
 

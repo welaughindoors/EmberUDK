@@ -44,16 +44,16 @@ simulated function Replication_FunctionGate
 	local ServerFunctionReplicationStruct tStruct;
 
 	tStruct.FunctionID = FunctionID;
-	tStruct.PlayerID = PlayerID;
-	tStruct.bToggle = bToggle;
-	tStruct.bToggle2 = bToggle2; 
-	tStruct.bToggle3 = bToggle3; 
-	tStruct.iVar = iVar;
-	tStruct.iVar2 = iVar2; 
-	tStruct.iVar3 = iVar3;
-	tStruct.vVar = vVar;
-	tStruct.vVar2 = vVar2;
-	tStruct.vVar3 = vVar3;
+	tStruct.PlayerID   = PlayerID;
+	tStruct.bToggle    = bToggle;
+	tStruct.bToggle2   = bToggle2; 
+	tStruct.bToggle3   = bToggle3; 
+	tStruct.iVar       = iVar;
+	tStruct.iVar2      = iVar2; 
+	tStruct.iVar3      = iVar3;
+	tStruct.vVar       = vVar;
+	tStruct.vVar2      = vVar2;
+	tStruct.vVar3      = vVar3;
 
 	//Use this for structs that could be repeated
 	//e.x. two of same attacks in a row
@@ -108,13 +108,13 @@ bOnlyDirtyReplication to true.
 */
 defaultproperties
 {
-	bOnlyDirtyReplication 	= true
-	bAlwaysRelevant			= true
-	LastKillTime=-5.0
-	DefaultHudColor=(R=64,G=255,B=255,A=255)
-	VoiceClass=class'UTGame.UTVoice_Robot'
-	CharPortrait=Texture2D'CH_IronGuard_Headshot.HUD_Portrait_Liandri'
-	NetUpdateFrequency 		= 400
-	CharClassInfo=class'EmberProject.EmberFamilyInfo'
+	bOnlyDirtyReplication = true
+	bAlwaysRelevant       = true
+	LastKillTime          = -5.0
+	DefaultHudColor       = (R=64,G=255,B=255,A=255)
+	VoiceClass            = class'UTGame.UTVoice_Robot'
+	CharPortrait          = Texture2D'CH_IronGuard_Headshot.HUD_Portrait_Liandri'
+	NetUpdateFrequency    = 400
+	CharClassInfo         = class'EmberProject.EmberFamilyInfo'
 }
 

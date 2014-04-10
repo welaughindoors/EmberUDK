@@ -84,7 +84,7 @@ function ReplicateMove
 {
   local SavedMove NewMove, OldMove, AlmostLastMove, LastMove;
   local byte ClientRoll;
-  // local float NetMoveDelta;
+  local float NetMoveDelta;
 
   // do nothing if we are no longer connected
   if (Player == None)
@@ -196,7 +196,7 @@ function ReplicateMove
   //     NetMoveDelta = FMax(0.0222,2 * WorldInfo.MoveRepSize/Player.CurrentNetSpeed);
   //   }
 
-  //   if( (WorldInfo.TimeSeconds - ClientUpdateTime) * WorldInfo.TimeDilation < NetMoveDelta )
+  //   if( (WorldInfo.TimeSeconds - ClientUpdateTime) < NetMoveDelta )
   //   {
   //     PendingMove = NewMove;
   //     return;
@@ -206,11 +206,13 @@ function ReplicateMove
   ClientUpdateTime = WorldInfo.TimeSeconds;
 
   // Send to the server
-  ClientRoll = (Rotation.Roll >> 8) & 255;
+  // ClientRoll = (Rotation.Roll >> 8) & 255;
+  ClientRoll = (Pawn.Rotation.Roll >> 8) & 255;
 
   CallServerMove( NewMove,
       ((Pawn == None) ? Location : Pawn.Location),
       ClientRoll,
+      // ((Rotation.Yaw & 65535) << 16) + (Rotation.Pitch & 65535),
       ((Rotation.Yaw & 65535) << 16) + (Rotation.Pitch & 65535),
       OldMove );
 
