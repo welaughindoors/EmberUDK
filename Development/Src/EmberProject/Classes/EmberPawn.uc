@@ -1936,6 +1936,10 @@ reliable client function ClientFunctionGate(byte FunctionID,
 		//Uses Receiver, iVar
 		//GOOD
 		case 6:
+
+		//Replicate only to other clients
+		if(Receiver == self) return;
+
 			FlushPersistentDebugLines();
 
   			Receiver.eSword.setKnockback(aFramework.ServerAnimationKnockback[iVar]);
