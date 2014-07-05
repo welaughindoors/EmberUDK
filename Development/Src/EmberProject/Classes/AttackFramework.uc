@@ -575,7 +575,7 @@ heavyCameraShake = 0.47
 / -- example, if the number is 3. then you can string 1, 2, 3 attacks but third attack will return to idle before you can do any other attacks
 */
 
-MaxAttacksThatCanBeStringed = 300
+MaxAttacksThatCanBeStringed = 3
 
 //BLOCK
 // Is not here, it's up in the functions because its a packet structure

@@ -50,6 +50,7 @@ var float interpStationaryAttack;
 // Hook Vars
 //=============================================
 var array<byte> verticalShift;
+var bool MouseIsPressed;
 //=============================================
 // AI Commands
 //=============================================
@@ -258,7 +259,14 @@ ignores SeePlayer, HearNoise, Bump;
    // FireModeNum == 0 ? EmberPawn(pawn).doAttack(playerStrafeDirection) : EmberPawn(pawn).doBlock();
    // (FireModeNum == 0) ? EmberPawn(pawn).doAttackQueue() : EmberPawn(pawn).doChamber();
    // (FireModeNum == 0) ? EmberPawn(pawn).doAttackQueue() : EmberPawn(pawn).doChamber();
-   (FireModeNum == 0) ? EmberPawn(pawn).doAttackQueue() : EmberPawn(pawn).doBlock();
+   if(FireModeNum == 0) 
+   {
+    EmberPawn(pawn).doAttackQueue();
+    MouseIsPressed = true;
+    }
+    else
+      EmberPawn(pawn).doBlock();
+       
    // DebugPrint("startfire");
 
    }
@@ -266,6 +274,7 @@ exec function StopFire(optional byte FireModeNum )
 {
    // if(FireModeNum == 0)
    // DebugPrint("stopfire");
+   MouseIsPressed = false;
   (FireModeNum == 0) ?EmberPawn(pawn).stopAttackQueue() : EmberPawn(pawn).stopBlock();
 }
 

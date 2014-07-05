@@ -1591,7 +1591,7 @@ simulated function float GetTimeLeftOnAttack()
 {
 	 return (GetTimerRate('AttackEnd') - GetTimerCount('AttackEnd'));
 }
-/*
+/* 
 ePlayAnim
 	Formally ForcedAnimEnd, this just plays the animations and replicates it
 */
@@ -2443,7 +2443,8 @@ simulated function AttackEnd()
     }
 	AttackAnimationHitTarget = false;
 	bCancelPoint = true;
-	
+	// if(ePC.MouseIsPressed)
+	// doAttackQueue();
 }
 simulated function TracerEnd()
 {
@@ -3161,7 +3162,10 @@ CancelPoint
 function CancelPoint()
 {
 	DebugPrint("CancelPoint");
-	bCancelPoint = true;
+		bCancelPoint = true;
+	if(ePC.MouseIsPressed)
+		doAttackQueue();
+	// else
 }
 //===============================
 // Stances Functions
